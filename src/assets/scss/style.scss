@@ -1,0 +1,42 @@
+/* Template Name: Smilecare - Charity & Non-Profit HTML Template
+   Author: Shreethemes
+   Email: support@shreethemes.in
+   Website: https://shreethemes.in
+   Version: 1.0.0
+   Created: July 2024
+   File Description: Main Css file of the template
+*/
+
+/*********************************/
+/*         INDEX                 */
+/*================================
+ *     01.  Variables            *
+ *     02.  General              *
+ *     03.  Helper               *
+ *     04.  Bootstrap Custom     *
+ *     05.  Components           *
+ *     06.  Menu                 *
+ *     07.  Home / Landing       *
+ *     08.  Blog                 *
+ *     09.  Countdown            *
+ *     10.  Features             *
+ *     11.  Testimonial          *
+ *     12.  Team                 *
+ *     13.  Contact              *
+ *     14.  Footer               *
+ ================================*/
+
+@import "variables";
+@import "general";
+@import "helper";
+@import "bootstrap-custom";
+@import "components";
+@import "menu";
+@import "home";
+@import "blog";
+@import "countdown";
+@import "features";
+@import "testi";
+@import "team";
+@import "contact";
+@import "footer";

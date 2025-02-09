@@ -1,0 +1,44 @@
+<!-- Hero Start -->
+<section class="bg-half-260" [ngStyle]="{'background-image': 'url(' + currentImage + ')'}" id="home">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row align-items-center mt-5">
+            <div class="col-lg-7 col-md-8 order-md-1 order-2">
+                <div class="title-heading">
+                    <h1 class="heading text-white title-dark fw-bold mb-4 text-capitalize">Give a Helping Hand <br> for Children</h1>
+                    <p class="para-desc text-white-50">We value every human life placed in our hands and constantly work towards meeting the expectations of our patients.</p>
+                    
+                    <div class="mt-4 pt-2">
+                        <a [routerLink]="" (click)="$event.preventDefault()" class="btn btn-primary me-1">Enroll Today</a>
+                        <a [routerLink]="" (click)="$event.preventDefault()" class="btn btn-soft-primary">Make a Donation</a>
+                    </div>
+                </div>
+            </div><!--end col-->
+
+            <div class="col-lg-5 col-md-4 order-md-2 order-1">
+                <div class="d-md-flex justify-content-center">
+                    <a href="#!" (click)="togggleModal($event)" class="avatar avatar-md-md rounded-pill shadow bg-white d-flex justify-content-center align-items-center lightbox">
+                        <i class="mdi mdi-play mdi-24px text-primary"></i>
+                    </a>
+                </div>
+            </div><!--end col-->
+        </div><!--end row-->
+    </div><!--end container-->
+</section><!--end section-->
+<!-- Hero End -->
+
+<div class="modal" [ngClass]="isOpen ? 'd-block' : '' " style="background: #00000096;">
+    <div class="d-flex align-items-center justify-content-center h-100">                    
+        <div class="position-relative">
+            <div class="position-absolute top-0  translate-middle z-index-1" style="right:-30px">
+                <button type="button" class=" btn-pills btn-sm btn-light btn-close opacity-10" style="width: 20px; height: 20px;" (click)="togggleModal($event)" ></button>
+            </div>
+            <iframe
+                src="https://www.youtube.com/embed/S_CGed6E610"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+            ></iframe>
+        </div>
+    </div>
+</div>

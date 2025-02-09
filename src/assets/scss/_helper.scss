@@ -1,0 +1,251 @@
+//
+// helper.scss
+//
+
+/*********************************/
+/*         Helper                */
+/*===============================*/
+.section {
+    padding: 100px 0;
+    position: relative;
+    @media (max-width: 768px) {
+        padding: 60px 0;
+    }
+}
+
+.section-two {
+    padding: 48px 0;
+    position: relative;
+}
+
+.bg-overlay {
+    background-color: $overlay;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%
+}
+
+.bg-linear-gradient-2 {
+    background: $linear-gradient-2;
+}
+
+.bg-gradient-overlay {
+    background: $gradient-overlay;
+}
+
+/*********************************/
+/*         Title CSS             */
+/*===============================*/
+.title-heading {
+    line-height: 26px;
+    .heading {
+        font-size: 48px !important;
+        letter-spacing: 1px;
+        @media (max-width: 768px) {
+            font-size: 40px !important;
+        }
+
+        &.sub-heading {
+            font-size: 30px !important;
+            @media (max-width: 768px) {
+                font-size: 26px !important;
+            }
+        }
+    }
+    .letter-spacing {
+        letter-spacing: 1px;
+    }
+    .para-desc {
+        font-size: 17px;
+        letter-spacing: 0.5px;
+        @media (max-width: 768px) {
+            font-size: 16px !important;
+        }
+    }
+}
+
+.section-title {
+    position: relative;
+    .title {
+        letter-spacing: 0.5px;
+        font-size: 28px !important;
+        @media (max-width: 768px) {
+            font-size: 24px !important;
+        }
+    }
+} 
+
+.para-desc {
+    max-width: 600px;
+}
+
+.mt-100 {
+    margin-top: 100px;
+}
+
+.mb-60 {
+    margin-bottom: 60px;
+}
+
+.pt-150 {
+    padding-top: 150px !important;
+}
+
+//CTA Video Section
+.cta-video-section {
+    position: relative;
+    padding: 80px 0;
+    video {
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        z-index: 1;
+        margin-top: -80px;
+    }
+}
+
+/*********************************/
+/*         Shapes                */
+/*===============================*/
+.shape {
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    @media (max-width: 425px) {
+        bottom: -4px;
+    }
+    &>svg {
+        transform: scale(2);
+        width: 100%;
+        height: auto;
+        transform-origin: top center;
+    }
+}
+
+@media (max-width: 768px) {
+    .mt-60 {
+        margin-top: 60px;
+    }
+}
+
+/*********************************/
+/*         Video iframe          */
+/*===============================*/
+@media (max-width: 640px) {
+    [data-type] iframe, [data-type] video {
+        width: 500px;
+        height: 300px;
+    }
+}
+@media (max-width: 425px) {
+    [data-type] iframe, [data-type] video {
+        width: 360px;
+        height: 260px;
+    }
+}
+@media (max-width: 375px) {
+    [data-type] iframe, [data-type] video {
+        width: 100%;
+        height: auto;
+    }
+}
+
+iframe{
+    width: 640px;
+    height: 480px;
+}
+@media (max-width: 640px) {
+    iframe{
+        width: 500px;
+        height: 300px;
+    }
+}
+
+@media (max-width: 425px) {
+     iframe{
+        width: 360px;
+        height: 260px;
+    }
+}
+
+@media (max-width: 375px) {
+    iframe{
+        width: 100%;
+        height: auto;
+    }
+}
+
+
+@media (max-width: 640px) {
+    video {
+        width: 500px;
+        height: 300px;
+    }
+}
+
+@media (max-width: 425px) {
+     video {
+        width: 360px;
+        height: 260px;
+    }
+}
+
+@media (max-width: 375px) {
+    video {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/*********************************/
+/*         Tobii Lightbox          */
+/*===============================*/
+.tobii__btn svg,
+.tobii>button.tobii__close svg {
+    height: 30px;
+    width: auto;
+}
+.tobii__counter {
+    font-size: 16px;
+}
+.tobii-zoom {
+    display: block !important;
+}
+
+.tobii-zoom__icon {
+    display: none;
+}
+
+#grid {
+    padding: 0 !important;
+}
+
+//Mover
+.mover {
+    animation: mover 1s infinite alternate;
+}
+@keyframes mover {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(5px);
+    }
+}
+
+//features-absolute
+.features-absolute {
+    position: relative;
+    z-index: 2;
+    margin: -240px 0 0px;
+    transition: all 0.5s ease;
+    @media (max-width: 768px) {
+        margin: -140px 0 0;
+    }
+}

@@ -1,0 +1,23 @@
+<div class="row">
+    <div *ngFor="let item of blogData | slice:0:3" class="col-lg-4 col-md-6 col-12 mt-4 pt-2">
+        <div class="blog position-relative overflow-hidden shadow rounded p-4">
+            <div class="position-relative">
+                <div class="blog-image position-relative overflow-hidden rounded shadow">
+                    <img [src]="item.image" class="img-fluid" alt="">
+                </div>
+
+                <div class="position-absolute top-100 start-0 translate-middle-y ms-2">
+                    <a [routerLink]="" (click)="$event.preventDefault()" class="badge bg-primary">{{item.tag}}</a>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <a [routerLink]="['/blog-detail', item.id]" class="text-dark title h5">{{item.title}}</a>
+
+                <p class="text-muted my-2">{{item.desc}}</p>
+
+                <a [routerLink]="['/blog-detail', item.id]" class="text-dark read-more">Read More <i class="mdi mdi-chevron-right align-middle"></i></a>
+            </div>
+        </div>
+    </div><!--end col-->
+</div><!--end row-->

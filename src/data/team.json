@@ -1,0 +1,50 @@
+[
+    {
+        "image":"assets/images/team/1.jpg",
+        "name":"Jack John",
+        "position":"Volunteer",
+        "social":["facebook","instagram","twitter"]
+    },
+    {
+        "image":"assets/images/team/2.jpg",
+        "name":"Jeremiah Green",
+        "position":"Volunteer",
+        "social":["facebook","instagram","twitter"]
+    },
+    {
+        "image":"assets/images/team/3.jpg",
+        "name":"Christin Vasquez",
+        "position":"Volunteer",
+        "social":["facebook","instagram","twitter"]
+    },
+    {
+        "image":"assets/images/team/4.jpg",
+        "name":"Lillian Boldt",
+        "position":"Volunteer",
+        "social":["facebook","instagram","twitter"]
+    },
+    {
+        "image":"assets/images/team/5.jpg",
+        "name":"Krista John",
+        "position":"Volunteer",
+        "social":["facebook","instagram","twitter"]
+    },
+    {
+        "image":"assets/images/team/6.jpg",
+        "name":"Ricky Peters",
+        "position":"Volunteer",
+        "social":["facebook","instagram","twitter"]
+    },
+    {
+        "image":"assets/images/team/7.jpg",
+        "name":"Roger Jackson",
+        "position":"Volunteer",
+        "social":["facebook","instagram","twitter"]
+    },
+    {
+        "image":"assets/images/team/8.jpg",
+        "name":"Camille Smith",
+        "position":"Volunteer",
+        "social":["facebook","instagram","twitter"]
+    }
+]

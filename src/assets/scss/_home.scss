@@ -1,0 +1,49 @@
+//
+// _home.scss
+//
+
+/*********************************/
+/*            Home               */
+/*===============================*/
+@mixin home-common {
+    background-size: cover !important;
+    align-self: center;
+    position: relative;
+    background-position: center center;
+}
+
+.bg-home {
+    height: 100vh;    
+    @include home-common();
+    @media (max-width: 767px) {
+        padding: 150px 0 !important;
+        height: auto;
+    }
+}
+
+.bg-half-260 {
+    padding: 260px 0;    
+    @include home-common();
+    @media (max-width: 768px) {
+        padding: 150px 0;
+        height: auto;
+    }
+}
+
+.bg-half {
+    padding: 200px 0 100px;    
+    @include home-common();
+    @media (max-width: 768px) {
+        padding: 120px 0 60px;
+        height: auto;
+    }
+}
+
+.bg-half-170 {
+    padding: 170px 0;    
+    @include home-common();
+    @media (max-width: 767px) {
+        padding: 120px 0;
+        height: auto;
+    }
+}

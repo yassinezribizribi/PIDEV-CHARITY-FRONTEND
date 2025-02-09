@@ -1,0 +1,74 @@
+[
+    {
+        "id":1,
+        "image":"assets/images/blog/1.jpg",
+        "tag":"Smilecare",
+        "title":"Utilizing mobile technology in the field",
+        "desc":"Success needs hard work. Don't listen to these 'get rich quick' schemes.",
+        "date":"13th Sept 2024"
+    },
+    {
+        "id":2,
+        "image":"assets/images/blog/2.jpg",
+        "tag":"Smilecare",
+        "title":"Success Story: Businessman in Harlem",
+        "desc":"Success needs hard work. Don't listen to these 'get rich quick' schemes.",
+        "date":"29th Nov 2024"
+    },
+    {
+        "id":3,
+        "image":"assets/images/blog/3.jpg",
+        "tag":"Smilecare",
+        "title":"How Does Marketing Automation Help Lead",
+        "desc":"Success needs hard work. Don't listen to these 'get rich quick' schemes.",
+        "date":"29th Dec 2024"
+    },
+    {
+        "id":4,
+        "image":"assets/images/blog/4.jpg",
+        "tag":"Smilecare",
+        "title":"Working from home? Let's get started.",
+        "desc":"Success needs hard work. Don't listen to these 'get rich quick' schemes.",
+        "date":"13th March 2024"
+    },
+    {
+        "id":5,
+        "image":"assets/images/blog/5.jpg",
+        "tag":"Smilecare",
+        "title":"The Ultimate Success Formula - How?",
+        "desc":"Success needs hard work. Don't listen to these 'get rich quick' schemes.",
+        "date":"5th May 2024"
+    },
+    {
+        "id":6,
+        "image":"assets/images/blog/6.jpg",
+        "tag":"Smilecare",
+        "title":"The Major Differences Between SEO & Local SEO",
+        "desc":"Success needs hard work. Don't listen to these 'get rich quick' schemes.",
+        "date":"19th June 2024"
+    },
+    {
+        "id":7,
+        "image":"assets/images/blog/7.jpg",
+        "tag":"Smilecare",
+        "title":"Building intelligent transportation systems",
+        "desc":"Success needs hard work. Don't listen to these 'get rich quick' schemes.",
+        "date":"20th June 2024"
+    },
+    {
+        "id":8,
+        "image":"assets/images/blog/8.jpg",
+        "tag":"Smilecare",
+        "title":"12 Questions to Ask Before Hiring a SEO Agency",
+        "desc":"Success needs hard work. Don't listen to these 'get rich quick' schemes.",
+        "date":"31st Aug 2024"
+    },
+    {
+        "id":9,
+        "image":"assets/images/blog/9.jpg",
+        "tag":"Smilecare",
+        "title":"How a Social Media Audit Can Help You",
+        "desc":"Success needs hard work. Don't listen to these 'get rich quick' schemes.",
+        "date":"1st Sept 2024"
+    }
+]

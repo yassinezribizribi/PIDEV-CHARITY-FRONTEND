@@ -1,0 +1,40 @@
+ <!-- Start CTA -->
+ <section class="cta-video-section position-relative">
+    <video class="" autoplay loop>
+        <source [src]="'assets/images/video.mp4'" type="video/mp4">
+    </video>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-5 col-10">
+                <div class="position-relative z-1 p-4 rounded shadow bg-white">
+                    <div class="tiny-single-item">
+                        <div *ngFor="let item of clientData" class="tiny-slide">
+                            <div class="position-relative overflow-hidden">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h6 class="mb-0">{{item.tag}}</h6>
+
+                                    <ul class="list-unstyled mb-0 text-warning">
+                                        <li *ngFor="let el of item.rate" class="list-inline-item"><i [ngClass]="el"></i></li>
+                                    </ul>
+                                </div>
+
+                                <p class="text-muted fst-italic mt-2">" {{item.desc}} "</p>
+
+                                <div class="d-flex align-items-center">
+                                    <img [src]="item.image" class="avatar avatar-small rounded-pill shadow object-fit-cover" alt="">
+                                    <div class="ms-2">
+                                        <h6 class="text-dark small mb-0">{{item.name}}</h6>
+                                        <small class="text-muted d-block">{{item.position}}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <i class="mdi mdi-format-quote-open text-primary position-absolute top-50 start-50 translate-middle z-n1 testi-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!--end section-->
+<!-- End CTA -->

@@ -1,0 +1,74 @@
+[
+    {
+        "image":"assets/images/team/1.jpg",
+        "tag":"Creativity",
+        "desc":" According to most sources, Lorum Ipsum can be traced back to a text composed by Cicero Launch your campaign and benefit from our expertise. ",
+        "name":"Calvin Carlo",
+        "position":"Manager",
+        "rate":["mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star"]
+    },
+    {
+        "image":"assets/images/team/2.jpg",
+        "tag":"Modern",
+        "desc":" I didn't know a thing about icon design until I read this book. Now I can create any icon I need in no time. Great resource! ",
+        "name":"Carl Oliver",
+        "position":"Manager",
+        "rate":["mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star"]
+    },
+    {
+        "image":"assets/images/team/3.jpg",
+        "tag":"Social Marketing",
+        "desc":" The best part about Flipup is every time I pay my employees, my bank balance doesn't go down like it used to. Looking forward to spending this extra cash when I figure out why my card is being declined. ",
+        "name":"Barbara McIntosh",
+        "position":"Manager",
+        "rate":["mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star"]
+    },
+    {
+        "image":"assets/images/team/4.jpg",
+        "tag":"Digital Marketing",
+        "desc":" I used to have to remit tax to the EU and with Flipup I somehow don't have to do that anymore. Nervous to travel there now though. ",
+        "name":"Janisha Doll",
+        "position":"Manager",
+        "rate":["mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star"]
+    },
+    {
+        "image":"assets/images/team/5.jpg",
+        "tag":"SEO",
+        "desc":" There are so many things I had to do with my old software that I just don't do at all with Flipup. Suspicious but I can't say I don't love it. ",
+        "name":"Esther Howard",
+        "position":"Manager",
+        "rate":["mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star"]
+    },
+    {
+        "image":"assets/images/team/6.jpg",
+        "tag":"Classic",
+        "desc":" I'm trying to get a hold of someone in support, I'm in a lot of trouble right now and they are saying it has something to do with my books. Please get back to me right away. ",
+        "name":"Joshua William",
+        "position":"Manager",
+        "rate":["mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star"]
+    },
+    {
+        "image":"assets/images/team/7.jpg",
+        "tag":"Features",
+        "desc":" This is the fourth email I've sent to your support team. I am literally being held in jail for tax fraud. Please answer your damn emails, this is important. ",
+        "name":"Thomas Israel",
+        "position":"Manager",
+        "rate":["mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star"]
+    },
+    {
+        "image":"assets/images/team/8.jpg",
+        "tag":"Branding",
+        "desc":" I used to have to remit tax to the EU and with Flipup I somehow don't have to do that anymore. Nervous to travel there now though. ",
+        "name":"Jill Webb",
+        "position":"Manager",
+        "rate":["mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star"]
+    },
+    {
+        "image":"assets/images/team/2.jpg",
+        "tag":"Product Design",
+        "desc":" The team is exceptional. Their passion for what they do is evident in the results they deliver. We're grateful to have them as a trusted partner in our journey. ",
+        "name":"Jennifer White",
+        "position":"Manager",
+        "rate":["mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star","mdi mdi-star"]
+    }
+]

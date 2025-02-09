@@ -1,0 +1,36 @@
+<div class="row align-items-center">
+    <div class="col-lg-6 col-md-12">
+        <div class="position-relative">
+            <div class="me-4">
+                <img [src]="'assets/images/about/1.jpg'" class="img-fluid rounded shadow" alt="">
+            </div>
+            
+            <div class="position-absolute end-0 top-50">
+                <div class="position-relative overflow-hidden rounded shadow">
+                    <img [src]="'assets/images/about/2.jpg'" class="img-fluid avatar avatar-xl-large" alt="">
+                    <div class="bg-overlay bg-primary opacity-75"></div>
+
+                    <div class="position-absolute top-50 start-50 translate-middle">
+                        <div class="counter-box text-center">
+                            <h2 class="fw-bold mb-0 text-white"><span class="counter-value" [countUp]="100">1</span>M</h2>
+                            <p class="counter-head small fw-semibold text-white mb-0">PEOPLE FACING FOOD INSECURITY</p>
+                        </div><!--end counter box-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!--end col-->
+
+    <div class="col-lg-6 col-md-12 mt-4 pt-2 mt-lg-0 pt-lg-0">
+        <div class="section-title">
+            <h6 class="fw-normal text-primary">ABOUT US</h6>
+            <h4 class="title mb-4">The origin of <br> the Fundraiser</h4>
+
+            <p class="text-muted mb-0">Get instant helpful resources about anything on the go, easily implement secure money transfer solutions, boost your daily efficiency, connect to other app users and create your own Fronter network, and much more with just a few taps. commodo consequat. Duis aute irure.</p>
+        
+            <div class="mt-4">
+                <a [routerLink]="" (click)="$event.preventDefault()" class="btn btn-primary">Read More <i class="mdi mdi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div><!--end col-->
+</div><!--end row-->

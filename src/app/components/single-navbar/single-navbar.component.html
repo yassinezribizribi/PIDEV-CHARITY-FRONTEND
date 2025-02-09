@@ -1,0 +1,46 @@
+<header id="topnav" class="defaultscroll sticky" [ngClass]="scroll ? 'nav-sticky' : '' ">
+    <div class="container">
+        <a class="logo" [routerLink]="'/'">
+            <span class="logo-light-mode">
+                <img [src]="'assets/images/logo-dark.png'" class="l-dark" alt="">
+                <img [src]="'assets/images/logo-white.png'" class="l-light" alt="">
+            </span>
+            <img [src]="['assets/images/logo-white.png']" class="logo-dark-mode" alt="">
+        </a>
+
+        <div class="menu-extras">
+            <div class="menu-item">
+                <a class="navbar-toggle" [ngClass]="toggle ? 'open' : ''" id="isToggle" (click)="toggleMenu($event)">
+                    <div class="lines">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <app-nav-setting/>
+
+        <div id="navigation" [ngClass]="toggle ? 'd-block' : 'd-none'">
+            <!-- Navigation Menu-->   
+            <ul class="navigation-menu nav-right nav-light" id="navmenu-nav">
+                <li class="has-submenu" [ngClass]="activeSection === 'home' ? 'active' : ''">
+                    <a href="#"  (click)="scrollToSection('home', $event)">Home</a>
+                </li>
+                <li class="has-submenu" [ngClass]="activeSection === 'causes' ? 'active' : ''">
+                    <a href="#" (click)="scrollToSection('causes', $event)">Causes</a>
+                </li>
+                <li class="has-submenu" [ngClass]="activeSection === 'priorities' ? 'active' : ''">
+                    <a href="#" (click)="scrollToSection('priorities', $event)">Priorities</a>
+                </li>
+                <li class="has-submenu" [ngClass]="activeSection === 'volunteers' ? 'active' : ''">
+                    <a href="#" (click)="scrollToSection('volunteers', $event)">Volunteers</a>
+                </li>
+                <li class="has-submenu" [ngClass]="activeSection === 'blogs' ? 'active' : ''">
+                    <a href="#" (click)="scrollToSection('blogs', $event)">Blogs</a>
+                </li>
+            </ul><!--end navigation menu-->
+        </div><!--end navigation-->
+    </div>
+</header>

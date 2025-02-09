@@ -1,0 +1,18 @@
+<div class="row align-items-center">
+    <div *ngFor="let item of teamData | slice:0:4" class="col-lg-3 col-md-6 col-12 mt-4 pt-2">
+        <div class="card team team-primary bg-transparent text-center mb-5">
+            <div class="card-img team-image d-inline-block mx-auto rounded overflow-hidden">
+                <img [src]="item.image" class="img-fluid" alt="">
+
+                <ul class="list-unstyled team-social mb-0">
+                    <li *ngFor="let el of item.social" class="mt-1"><a routerLink="#" (click)="$event.preventDefault()" class="btn btn-sm btn-pills btn-icon"><i [attr.data-feather]="el" class="icons fea-social"></i></a></li>
+                </ul><!--end icon-->
+            </div>
+
+            <div class="content bg-white mx-4 p-4 z-1 rounded shadow">
+                <a routerLink="#" (click)="$event.preventDefault()" class="text-dark h5 mb-0 title">{{item.name}}</a>
+                <h6 class="text-muted mb-0 mt-1 fw-normal">{{item.position}}</h6>
+            </div>
+        </div>
+    </div><!--end col-->
+</div><!--end row-->

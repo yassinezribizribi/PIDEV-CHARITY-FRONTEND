@@ -1,0 +1,115 @@
+<app-navbar/>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">About Us</h5>
+                </div>
+            </div><!--end col-->
+        </div><!--end row-->
+
+        <div class="position-middle-bottom">
+            <nav aria-label="breadcrumb" class="d-block">
+                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+                    <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">About us</li>
+                </ul>
+            </nav>
+        </div>
+    </div><!--end container-->
+</section><!--end section-->
+<div class="position-relative">
+    <div class="shape overflow-hidden text-white">
+        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+        </svg>
+    </div>
+</div>
+<!-- Hero End -->
+
+ <!-- Start -->
+<section class="section">
+    <div class="container">
+        <app-about-one/>
+    </div><!--end container-->
+
+    <div class="container mt-100 mt-60">
+        <div class="row align-items-center">
+            <div class="col-lg-7 col-md-6">
+                <div class="section-title">
+                    <h6 class="text-primary text-uppercase">What we achieved?</h6>
+                    <h4 class="title mb-3">Beyond Conventional <br> Agencies.</h4>
+                    <p class="text-muted para-desc mb-0">As a leading college in Auckland, we look to engage with our student beyond the conventional design and development school relationship, becoming a partner to the people and companies we work with.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-md-6 mt-4 mt-md-0 pt-2 pt-md-0">
+                <div class="position-relative">
+                    <div class="row">
+                        <div *ngFor="let item of counterData" class="col-6 mb-4">
+                            <div class="p-4 rounded bg-white shadow-lg">
+                                <div class="counter-box text-center">
+                                    <div class="position-relative d-flex justify-content-center">
+                                        <i [attr.data-feather]="item.icon" class="fea icon-lg mb-3 text-primary"></i>
+
+                                        <div class="position-absolute top-0 translate-middle p-3 bg-soft-primary rounded-circle"></div>
+                                    </div>
+                                    <h3 class="mb-0 text-dark fw-semibold"><span class="counter-value" [countUp]="item.value">1</span>+</h3>
+                                    <h6 class="counter-head text-muted fw-medium mb-0">{{item.title}}</h6>
+                                </div><!--end counter box-->    
+                            </div>
+                        </div><!--end col-->
+                    </div><!--end row-->
+                    <div class="position-absolute top-50 start-50 translate-middle z-n1">
+                        <div class="bg-primary rounded opacity-75 p-5"><div class="p-5"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!--end container-->
+</section><!--end section-->
+
+<app-cta/>
+
+ <!-- Start Team -->
+ <section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="section-title text-center mb-4 pb-2">
+                    <h4 class="title mb-3">Our Volunteers</h4>
+                    <p class="text-muted para-desc mx-auto mb-0">The Smilecare is a non profit organisation that strives to eliminate hunger by implementing the Mid Day Meal Programme.</p>
+                </div>
+            </div><!--end col-->
+        </div><!--end row-->
+
+        <app-team/>
+
+    </div><!--end container-->
+</section><!--end section-->
+<!-- End Team -->
+
+<app-footer/>
+
+<app-scroll-to-top/>
+
+<div class="modal" [ngClass]="isOpen ? 'd-block' : '' " style="background: #00000096;">
+    <div class="d-flex align-items-center justify-content-center h-100">                    
+        <div class="position-relative">
+            <div class="position-absolute top-0  translate-middle z-index-1" style="right:-30px">
+                <button type="button" class=" btn-pills btn-sm btn-light btn-close opacity-10" style="width: 20px; height: 20px;" (click)="togggleModal($event)" ></button>
+            </div>
+            <iframe
+                src="https://www.youtube.com/embed/S_CGed6E610"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+            ></iframe>
+        </div>
+    </div>
+</div>
+
