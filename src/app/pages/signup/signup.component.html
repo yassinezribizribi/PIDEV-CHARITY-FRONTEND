@@ -1,18 +1,66 @@
-<form (ngSubmit)="register()">
-    <label for="email">Email:</label>
-    <input type="email" id="email" [(ngModel)]="email" name="email" required />
-  
-    <label for="password">Password:</label>
-    <input type="password" id="password" [(ngModel)]="password" name="password" required />
-  
-    <label for="role">Select Role:</label>
-    <select id="role" [(ngModel)]="role" name="role">
-      <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
-    </select>
-  
-    <button type="submit" [disabled]="!email || !password">Sign Up</button>
-  </form>
-  
-  <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
-  <p>Selected Role: {{ role }}</p>
-  
+<section class="bg-home d-flex align-items-center" style="background: url('assets/images/hero/auth.jpg') center;">
+  <div class="bg-overlay bg-linear-gradient-2"></div>
+  <div class="container">
+      <div class="row justify-content-end">
+          <div class="col-lg-4 col-md-6 col-12">
+              <div class="p-4 bg-white rounded shadow-md mx-auto w-100" style="max-width: 400px;">
+                  <form [formGroup]="signupForm" (ngSubmit)="register()">
+                      <a [routerLink]="'/'">
+                          <img [src]="'assets/images/logo-dark.png'" class="mb-4 d-block mx-auto" alt="Logo">
+                      </a>
+                      <h6 class="mb-3 text-uppercase fw-semibold">Register your account</h6>
+                  
+                      <div class="mb-3">
+                          <label class="form-label fw-semibold">Your First Name</label>
+                          <input name="firstname" formControlName="firstname" type="text" class="form-control" placeholder="Calvin Carlo" required>
+                      </div>
+
+                      <div class="mb-3">
+                          <label class="form-label fw-semibold">Your Last Name</label>
+                          <input name="lastname" formControlName="lastname" type="text" class="form-control" placeholder="Carlo" required>
+                      </div>
+
+                      <div class="mb-3">
+                          <label class="form-label fw-semibold">Your Email</label>
+                          <input name="email" formControlName="email" type="email" class="form-control" placeholder="example@website.com" required>
+                      </div>
+
+                      <div class="mb-3">
+                          <label class="form-label fw-semibold" for="password">Password</label>
+                          <input type="password" class="form-control" formControlName="password" placeholder="Password" required>
+                      </div>
+                      
+                      <div class="mb-3">
+                          <label class="form-label fw-semibold">Sign up as</label>
+                          <select class="form-control" formControlName="role" required>
+                              <option value="REFUGEE">Refugee</option>
+                              <option value="ASSOCIATION_MEMBER">Association Member</option>
+                              <option value="VOLUNTEER">Volunteer</option>
+                          </select>
+                      </div>    
+                      
+                      <div class="mb-3">
+                          <label class="form-label fw-semibold">Your Phone Number</label>
+                          <input name="telephone" formControlName="telephone" type="tel" class="form-control" placeholder="07700000000" required>
+                      </div>
+
+                      <div class="mb-3">
+                          <label class="form-label fw-semibold">Job</label>
+                          <input name="job" formControlName="job" type="text" class="form-control" placeholder="Job">
+                      </div>
+                      
+            
+      
+                      <button class="btn btn-primary w-100" type="submit">Register</button> 
+
+                      <div class="col-12 text-center mt-3">
+                          <span><span class="text-muted small me-2">Already have an account?</span> 
+                              <a [routerLink]="'/login'" class="text-dark fw-semibold small">Sign in</a>
+                          </span>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>

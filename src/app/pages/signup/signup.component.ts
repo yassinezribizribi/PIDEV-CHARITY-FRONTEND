@@ -1,48 +1,40 @@
-import { Component } from '@angular/core';
-import { SignupService } from '../../services/sign-up.service';
-import { RouterLink } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common'; // ✅ Required for *ngFor and *ngIf
-import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // ✅ Required for [(ngModel)]
-
+import { Component, inject   } from '@angular/core';
+import { FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule  } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterModule } from '@angular/router'; 
+import { HttpClientModule } from '@angular/common/http';
+import { SignupService } from 'src/app/services/sign-up.service';
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.css'],
-  standalone: true,
-  imports: [RouterLink, NgFor, NgIf, FormsModule, ReactiveFormsModule] // ✅ Add FormsModule here
+  styleUrls: ['./signup.component.scss'],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, RouterModule, HttpClientModule,RouterLink]
 })
 export class SignupComponent {
-  email: string = '';
-  password: string = '';
-  role: string = 'REFUGEE';
-  roles: string[] = ['REFUGEE', 'ASSOCIATION_MEMBER', 'VOLUNTEER'];
-  errorMessage: string = '';
+  signupForm!: FormGroup;
+  private signupService = inject(SignupService);
 
-  constructor(private signupService: SignupService) {}
+
+  constructor() {
+    this.signupForm = new FormGroup({
+      firstname: new FormControl(''),
+      lastname: new FormControl(''),
+      email: new FormControl(''),
+      password: new FormControl(''),
+      role: new FormControl('REFUGEE'),
+      telephone: new FormControl(''),
+      job: new FormControl(''),
+    });
+  }
 
   register() {
-    if (!this.email || !this.password) {
-      this.errorMessage = 'Email and Password are required!';
-      return;
+    if (this.signupForm.valid) {
+        console.log("Form Data:", this.signupForm.value);
+        this.signupService.register(this.signupForm.value).subscribe((response) => {
+          console.log("Response:", response);
+        });
+    } else {
+      console.log("Form is invalid");
     }
-
-    const userData = {
-      email: this.email,
-      password: this.password,
-      role: this.role
-    };
-
-    console.log("Sending data to backend:", userData);
-
-    this.signupService.register(userData).subscribe({
-      next: (response) => {
-        console.log("Success:", response);
-        alert("Signup Successful! 🎉");
-      },
-      error: (error) => {
-        console.error("Error:", error);
-        this.errorMessage = 'Signup failed! Try again.';
-      }
-    });
   }
 }
