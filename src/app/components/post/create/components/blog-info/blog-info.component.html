@@ -1,0 +1,52 @@
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Blog Information</h4>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-6">
+        <form>
+          <div class="mb-3">
+            <label for="blog-title" class="form-label">Blog Title</label>
+            <input
+              type="text"
+              id="blog-title"
+              class="form-control"
+              placeholder="Name"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="col-lg-6">
+        <label for="blog-tag" class="form-label">Blog Tag</label>
+        <select
+          selectFormInput
+          class="form-control"
+          id="choices-multiple-remove-button"
+          name="choices-multiple-remove-button"
+          multiple
+        >
+          <option value="Blog" selected>Blog</option>
+          <option value="Business">Business</option>
+          <option value="Health">Health</option>
+          <option value="Computer Software">Computer Software</option>
+          <option value="Lifestyle blogs">Lifestyle blogs</option>
+          <option value="Fashion">Fashion</option>
+        </select>
+      </div>
+      <div class="col-lg-12">
+        <form>
+          <div class="mb-3">
+            <label for="blog-detail" class="form-label">Add Description</label>
+            <textarea
+              class="form-control"
+              id="blog-detail"
+              rows="3"
+              placeholder="Description"
+            ></textarea>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

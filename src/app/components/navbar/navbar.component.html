@@ -49,7 +49,7 @@
 
                         <li class="has-submenu parent-menu-item" [ngClass]="['/blog-item','/blogs','/blog-sidebar','/blog-detail'].includes(menu) ? 'active' : ''"><a [routerLink]="'#'" (click)="setmanu('/blog-item', $event)"> Blog </a><span class="submenu-arrow"></span>
                             <ul class="submenu" [ngClass]="['/blog-item','/blogs','/blog-sidebar','/blog-detail'].includes(menu) ? 'open' : ''">
-                                <li [ngClass]="menu === '/blogs' ? 'active' : ''"><a [routerLink]="'/blogs'" class="sub-menu-item"> Blogs</a></li>
+                                <li [ngClass]="menu === '/blogs' ? 'active' : ''"><a [routerLink]="'/blogs'" class="sub-menu-item"> Events</a></li>
                                 <li [ngClass]="menu === '/blog-sidebar' ? 'active' : ''"><a [routerLink]="'/blog-sidebar'" class="sub-menu-item"> Blog Sidebar</a></li>
                                 <li [ngClass]="menu === '/blog-detail' ? 'active' : ''"><a [routerLink]="'/blog-detail'" class="sub-menu-item"> Blog Detail</a></li>
                             </ul> 
@@ -77,6 +77,24 @@
                                 <li [ngClass]="menu === '/maintenance' ? 'active' : ''"><a [routerLink]="'/maintenance'" class="sub-menu-item"> Maintenance</a></li>
                                 <li [ngClass]="menu === '/error' ? 'active' : ''"><a [routerLink]="'/error'" class="sub-menu-item"> 404! Error</a></li>
                             </ul> 
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" [routerLink]="['/association-signup']" routerLinkActive="active">
+                                <i class="uil uil-building me-1"></i>Register Association
+                            </a>
+                        </li>
+
+                        <li class="nav-item" *ngIf="isAdmin$ | async">
+                            <a class="nav-link" [routerLink]="['/admin']" routerLinkActive="active">
+                                <i class="uil uil-dashboard me-1"></i>Admin Dashboard
+                            </a>
+                        </li>
+
+                        <li class="nav-item" *ngIf="isLoggedIn$ | async">
+                            <a class="nav-link" [routerLink]="['/association/account']" routerLinkActive="active">
+                                <i class="uil uil-user me-1"></i>Association Account
+                            </a>
                         </li>
                     </ul>
                 </li>

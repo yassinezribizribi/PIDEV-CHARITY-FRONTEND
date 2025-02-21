@@ -1,0 +1,53 @@
+<div class="row">
+  @for (item of safePosts; track $index) {
+    <div class="col-xl-3 col-lg-6">
+      <div class="card">
+        <div class="card-body p-2">
+          <div class="ratio ratio-16x9">
+            <iframe [src]="item.safeLink" class="rounded"></iframe>
+          </div>
+          <span class="text-dark d-inline-block my-2">
+            <a href="javascript:void(0);" class="text-dark fs-18 fw-medium">{{
+              item.title
+            }}</a>
+            @for (tag of item.tags; track $index) {
+              <span
+                class="badge px-2 py-1 ms-1"
+                [ngClass]="{
+                  'bg-success-subtle text-success': tag == 'Tutorials',
+                  'bg-warning-subtle text-warning': tag == 'News',
+                  'bg-danger-subtle text-danger': tag == 'Blog',
+                  'bg-primary-subtle text-primary': tag == 'Homes',
+                }"
+                >{{ tag }}</span
+              >
+            }
+          </span>
+          <p class="text-muted">{{ item.description }}</p>
+          <div class="d-flex align-items-center gap-1">
+            <div class="d-block flex-grow-1">
+              <span class="text-dark">
+                <a href="javascript:void(0);" class="text-dark fw-medium">{{
+                  item.name
+                }}</a>
+              </span>
+              <p class="text-muted mb-0">
+                <i class="ti ti-calendar-due"></i> {{ item.date }}
+              </p>
+            </div>
+            <div class="ms-auto">
+              <span class="">
+                <button
+                  type="button"
+                  class="btn btn-soft-danger avatar-sm d-inline-flex align-items-center justify-content-center fs-20 rounded-circle"
+                >
+                  <iconify-icon icon="solar:heart-broken"></iconify-icon>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

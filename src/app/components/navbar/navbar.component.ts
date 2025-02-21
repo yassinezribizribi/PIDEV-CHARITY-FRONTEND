@@ -1,57 +1,63 @@
-import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import * as feather from 'feather-icons';
 import { NavSettingComponent } from '../nav-setting/nav-setting.component';
+import { AuthService } from '../../services/auth.service';
+import { AdminService } from '../../services/admin.service';
+
 @Component({
-    selector: 'app-navbar',
-    imports: [
-        CommonModule,
-        RouterLink,
-        NavSettingComponent
-    ],
-    templateUrl: './navbar.component.html',
-    styleUrl: './navbar.component.scss'
+  selector: 'app-navbar',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    NavSettingComponent
+  ],
+  templateUrl: './navbar.component.html',
+  styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
+  toggle: boolean = false;
+  menu: string = "";
+  scroll: boolean = false;
+  
+  isLoggedIn$;
+  isAdmin$;
+
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private adminService: AdminService
+  ) {
+    this.menu = this.router.url;
+    window.scrollTo(0, 0);
+    
+    // Initialize observables after services are injected
+    this.isLoggedIn$ = this.authService.isAuthenticated$;
+    this.isAdmin$ = this.adminService.isAdmin$;
+  }
 
   ngAfterViewInit() {
     feather.replace();
   }
 
-  toggle:boolean = false
-
-  toggleMenu(e:any){
+  toggleMenu(e: any) {
     e.preventDefault();
     this.toggle = !this.toggle;
   }
 
-  menu:string = ""
-
-  constructor(private router:Router){
-    this.menu = this.router.url,
-    window.scrollTo(0, 0)
-  }
-
-  setmanu(item:any, e:any){
+  setmanu(item: any, e: any) {
     e.preventDefault();
-    if(this.menu === item){
-      this.menu = ""
-    }else{
-      this.menu = item
+    if (this.menu === item) {
+      this.menu = "";
+    } else {
+      this.menu = item;
     }
   }
 
-  scroll:boolean = false
-
-  @HostListener('window:scroll',[])
-
-  scrollHandler(){
-    if(window.scrollY > 50){
-      this.scroll = true
-    }else{
-      this.scroll = false
-    }
-    
+  @HostListener('window:scroll', [])
+  scrollHandler() {
+    this.scroll = window.scrollY > 50;
   }
 }

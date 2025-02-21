@@ -1,0 +1,96 @@
+.avatar {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.card {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.fs-1 {
+  font-size: 2rem !important;
+}
+
+.text-primary {
+  color: #2f55d4 !important;
+}
+
+.badge {
+  padding: 0.5em 1em;
+}
+
+.dashboard {
+  .card {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+    }
+  }
+
+  .activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &.donation {
+      background-color: rgba(47, 85, 212, 0.1);
+      color: #2f55d4;
+    }
+    
+    &.case {
+      background-color: rgba(241, 180, 76, 0.1);
+      color: #f1b44c;
+    }
+    
+    &.event {
+      background-color: rgba(45, 203, 117, 0.1);
+      color: #2dcb75;
+    }
+    
+    &.member {
+      background-color: rgba(244, 106, 106, 0.1);
+      color: #f46a6a;
+    }
+  }
+
+  .progress {
+    background-color: #eef2f7;
+    .progress-bar {
+      background-color: #2f55d4;
+    }
+  }
+
+  .badge {
+    padding: 0.5em 1em;
+    &.bg-danger { background-color: #f46a6a !important; }
+    &.bg-warning { background-color: #f1b44c !important; }
+    &.bg-info { background-color: #50a5f1 !important; }
+    &.bg-success { background-color: #34c38f !important; }
+  }
+
+  .btn-group {
+    .btn {
+      &:focus {
+        box-shadow: none;
+      }
+      &.active {
+        background-color: #2f55d4;
+        border-color: #2f55d4;
+        color: white;
+      }
+    }
+  }
+} 

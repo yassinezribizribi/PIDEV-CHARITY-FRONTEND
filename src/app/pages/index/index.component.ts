@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from "../../components/navbar/navbar.component";
-import { ServicesComponent } from '../../components/services/services.component';
+import { ServicesComponent } from '../../components/healthcare/services.component';
 import { AboutOneComponent } from '../../components/about-one/about-one.component';
 import { AboutTwoComponent } from '../../components/about-two/about-two.component';
 import { ClientComponent } from '../../components/client/client.component';

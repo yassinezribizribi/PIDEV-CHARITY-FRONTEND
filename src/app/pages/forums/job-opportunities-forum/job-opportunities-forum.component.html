@@ -1,0 +1,7 @@
+<div *ngFor="let job of jobs" class="job-card">
+  <h2>{{ job.title }}</h2>
+  <p>{{ job.description }}</p>
+  <p>Entreprise: {{ job.company.name }}</p>
+  <p>Lieu: {{ job.location.city }}, {{ job.location.country }}</p>
+  <button (click)="apply(job.id)">Postuler</button>
+</div>

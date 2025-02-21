@@ -1,0 +1,114 @@
+<h4 class="card-title">Post Comments</h4>
+<textarea
+  class="form-control my-3"
+  rows="5"
+  placeholder="Write Comment ......"
+></textarea>
+<div class="d-flex justify-content-end">
+  <a href="javascript: void(0);" class="btn btn-primary">Post Comment</a>
+</div>
+<h4 class="card-title d-flex align-items-center mt-3">
+  <iconify-icon
+    icon="solar:chat-square-like-outline"
+    class="me-1"
+  ></iconify-icon>
+  Comment
+</h4>
+@for (item of commentsData; track $index) {
+  <div
+    class="ps-0"
+    [ngClass]="$index == 0 ? 'pt-3 mt-3 border-top border-dashed' : 'pt-4'"
+  >
+    <div class="d-sm-flex align-items-top">
+      <div class="position-relative">
+        <img
+          [src]="item.image"
+          alt=""
+          class="avatar rounded-circle flex-shrink-0"
+        />
+      </div>
+      <div class="flex-grow-1 ms-sm-3">
+        <span class="">
+          <a href="javascript: void(0);" class="text-dark fw-medium">{{
+            item.name
+          }}</a>
+        </span>
+        <p class="text-muted mb-2">{{ item.date | date: 'medium' }}</p>
+
+        <p class="text-muted">{{ item.description }}</p>
+        <div class="d-flex gap-3 fs-16">
+          <a
+            href="javascript: void(0);"
+            class="d-flex align-items-center text-dark"
+            ><iconify-icon
+              icon="solar:like-bold-duotone"
+              class="me-1"
+            ></iconify-icon>
+            {{ item.like }}</a
+          >
+          <a
+            href="javascript: void(0);"
+            class="d-flex align-items-center text-dark"
+            ><iconify-icon
+              icon="solar:chat-square-call-bold"
+              class="me-1"
+            ></iconify-icon>
+            {{ item.comment }}</a
+          >
+        </div>
+        @if (item.reply) {
+          @for (reply of item.reply; track reply) {
+            <div class="d-sm-flex align-items-top mt-4">
+              <div class="position-relative">
+                <img
+                  [src]="reply.image"
+                  alt=""
+                  class="avatar rounded-circle flex-shrink-0"
+                />
+              </div>
+              <div class="flex-grow-1 ms-sm-3">
+                <span class="">
+                  <a href="javascript: void(0);" class="text-dark fw-medium">{{
+                    reply.name
+                  }}</a>
+                </span>
+                <p class="text-muted mb-2">{{ reply.date | date: 'medium' }}</p>
+
+                <p class="text-muted">{{ reply.description }}</p>
+                <div class="d-flex gap-3 fs-16">
+                  <a
+                    href="javascript: void(0);"
+                    class="d-flex align-items-center text-dark"
+                    ><iconify-icon
+                      icon="solar:like-bold-duotone"
+                      class="me-1"
+                    ></iconify-icon>
+                    {{ reply.like }}</a
+                  >
+                  <a
+                    href="javascript: void(0);"
+                    class="d-flex align-items-center text-dark"
+                    ><iconify-icon
+                      icon="solar:chat-square-call-bold"
+                      class="me-1"
+                    ></iconify-icon>
+                    {{ reply.comment }}</a
+                  >
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+      <a href="javascript: void(0);" ngbTooltip="Comment" placement="top">
+        <div class="avatar-sm flex-shrink-0 mt-2">
+          <span
+            class="avatar-title bg-light text-dark fs-4 rounded border border-dashed"
+          >
+            <iconify-icon icon="solar:chat-square-bold-duotone"></iconify-icon>
+          </span>
+        </div>
+      </a>
+    </div>
+  </div>
+}

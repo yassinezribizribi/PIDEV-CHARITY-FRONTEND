@@ -21,6 +21,13 @@ import { ComingsoonComponent } from './pages/comingsoon/comingsoon.component';
 import { MaintenanceComponent } from './pages/maintenance/maintenance.component';
 import { ErrorComponent } from './pages/error/error.component';
 import { ContactusComponent } from './pages/contactus/contactus.component';
+import { AuthGuard } from './guards/auth.guard';
+import { AdminGuard } from './guards/admin.guard';
+import { ReactiveFormsModule } from '@angular/forms';
+
+import { AssociationTestComponent } from './pages/association/association-test/association-test.component';
+import { JobOpportunitiesForumComponent } from './pages/forums/job-opportunities-forum/job-opportunities-forum.component';
+import { SupportRefugeesComponent } from './pages/forums/support-refugees-forum/support-refugees-forum.component';
 
 export const routes: Routes = [
     {path:'', component:IndexComponent},
@@ -38,6 +45,9 @@ export const routes: Routes = [
     {path:'blog-detail/:id', component:BlogDetailComponent},
     {path:'login', component:LoginComponent},
     {path:'signup', component:SignupComponent},
+    {path:'signup/:role', component:SignupComponent},
+    
+
     {path:'reset-password', component:ResetPasswordComponent},
     {path:'lock-screen', component:LockScreenComponent},
     {path:'terms', component:TermsComponent},
@@ -46,4 +56,53 @@ export const routes: Routes = [
     {path:'maintenance', component:MaintenanceComponent},
     {path:'error', component:ErrorComponent},
     {path:'contactus', component:ContactusComponent},
+    {
+      path: 'association-signup',
+      loadComponent: () => 
+        import('./pages/association/association-signup/association-signup.component')
+          .then(m => m.AssociationSignupComponent)
+    },
+    {
+      path: 'association/login',
+      loadComponent: () => 
+        import('./pages/association/association-login/association-login.component')
+          .then(m => m.AssociationLoginComponent)
+    },
+    {
+      path: 'association/account',
+      loadComponent: () => 
+        import('./back/association-account/association-account.component')
+          .then(m => m.AssociationAccountComponent),
+      canActivate: [AuthGuard]
+    },
+    
+    {
+      path: 'admin',
+      loadChildren: () => import('./back/admin/admin.routes')
+        .then(m => m.ADMIN_ROUTES)
+    },
+    {
+      path: 'forums',
+      children: [
+        {
+          path: '',
+          component: ForumsComponent
+        },
+        { path: 'job-opportunities', component: JobOpportunitiesForumComponent }
+        ,
+        {
+          path: 'support-refugees',
+          component: SupportRefugeesComponent
+        }
+      ]
+    },
+    {
+      path: 'association/test',
+      component: AssociationTestComponent
+    }
+    
+    
+
+
+    
 ];
