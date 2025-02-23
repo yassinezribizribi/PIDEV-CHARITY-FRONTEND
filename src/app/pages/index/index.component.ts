@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from "../../components/navbar/navbar.component";
 import { ServicesComponent } from '../../components/healthcare/services.component';
@@ -15,12 +15,12 @@ import { CausesComponent } from "../../components/causes/causes.component";
 import { CtaComponent } from "../../components/cta/cta.component";
 import { TeamComponent } from "../../components/team/team.component";
 
+
 @Component({
     selector: 'app-index',
     imports: [
         CommonModule,
         RouterLink,
-        NavbarComponent,
         ServicesComponent,
         AboutOneComponent,
         AboutTwoComponent,
@@ -32,11 +32,30 @@ import { TeamComponent } from "../../components/team/team.component";
         MakeDonationComponent,
         CausesComponent,
         CtaComponent,
-        TeamComponent
+        TeamComponent,
+        NavbarComponent
     ],
     templateUrl: './index.component.html',
     styleUrl: './index.component.scss'
 })
 export class IndexComponent {
+    activeSection: string = 'home';
+
+  @HostListener('window:scroll', ['$event'])
+
+  onWindowScroll() {
+    const sections = document.querySelectorAll('.section');
+    
+    let currentSection: string = 'home';
+
+    sections.forEach(section => {
+      const sectionTop = section.getBoundingClientRect().top;
+      if (sectionTop <= 100) { 
+        currentSection = section.id;
+      }
+    });
+    
+    this.activeSection = currentSection;
+  }
 
 }

@@ -1,7 +1,7 @@
 import { Component, inject   } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule  } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterModule } from '@angular/router'; 
+import { RouterLink, RouterModule, Router  } from '@angular/router'; 
 import { HttpClientModule } from '@angular/common/http';
 import { SignupService } from 'src/app/services/sign-up.service';
 @Component({
@@ -13,7 +13,7 @@ import { SignupService } from 'src/app/services/sign-up.service';
 export class SignupComponent {
   signupForm!: FormGroup;
   private signupService = inject(SignupService);
-
+  private router = inject(Router);
 
   constructor() {
     this.signupForm = new FormGroup({
@@ -32,6 +32,7 @@ export class SignupComponent {
         console.log("Form Data:", this.signupForm.value);
         this.signupService.register(this.signupForm.value).subscribe((response) => {
           console.log("Response:", response);
+          this.router.navigate(['/login']);
         });
     } else {
       console.log("Form is invalid");

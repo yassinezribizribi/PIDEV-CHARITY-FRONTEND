@@ -1,0 +1,31 @@
+<mat-toolbar class="admin-navbar">
+    <div class="flex items-center justify-between w-full">
+      <!-- Logo -->
+      <div class="flex items-center">
+        <mat-icon>menu</mat-icon>
+        <span class="ml-3 text-lg font-bold">Admin Dashboard</span>
+      </div>
+  
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex space-x-6">
+        <a mat-button routerLink="/dashboard">Dashboard</a>
+        <a mat-button routerLink="/users">Manage Users</a>
+        <a mat-button routerLink="/settings">Settings</a>
+        <a mat-button routerLink="/logout">Logout</a>
+      </nav>
+  
+      <!-- Mobile Menu Button -->
+      <button mat-icon-button (click)="toggleMenu()" class="md:hidden">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+  
+    <!-- Mobile Menu -->
+    <div *ngIf="menuOpen" class="mobile-menu">
+      <a mat-button routerLink="/dashboard" (click)="toggleMenu()">Dashboard</a>
+      <a mat-button routerLink="/users" (click)="toggleMenu()">Manage Users</a>
+      <a mat-button routerLink="/settings" (click)="toggleMenu()">Settings</a>
+      <a mat-button routerLink="/logout" (click)="toggleMenu()">Logout</a>
+    </div>
+  </mat-toolbar>
+  

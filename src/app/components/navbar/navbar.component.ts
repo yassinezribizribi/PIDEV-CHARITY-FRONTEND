@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import * as feather from 'feather-icons';
@@ -59,5 +59,12 @@ export class NavbarComponent {
   @HostListener('window:scroll', [])
   scrollHandler() {
     this.scroll = window.scrollY > 50;
+  }
+  @Input() activeSection:any;
+
+  scrollToSection(sectionId: string, e:any) {
+    e.preventDefault();
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+    this.activeSection = sectionId;
   }
 }

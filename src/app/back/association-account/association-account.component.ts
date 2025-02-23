@@ -11,7 +11,7 @@ import { Association, AidCase } from '../../interfaces/association.interface';
 import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { TndPipe } from '../../shared/pipes/tnd.pipe';
-
+import { AdminNavbarComponent } from '../admin/admin-navbar/admin-navbar.component';
 interface Activity {
   id: string;
   type: 'donation' | 'case' | 'event' | 'member';
@@ -30,7 +30,8 @@ interface Activity {
     FooterComponent,
     TimeAgoPipe,
     ModalComponent,
-    TndPipe
+    TndPipe,
+    AdminNavbarComponent
   ],
   templateUrl: './association-account.component.html',
   styleUrls: ['./association-account.component.scss']

@@ -25,17 +25,13 @@
         <div id="navigation" [ngClass]="toggle ? 'd-block' : 'd-none' ">
             <!-- Navigation Menu-->   
             <ul class="navigation-menu nav-right nav-light">
-                <li class="has-submenu parent-menu-item" [ngClass]="['/home-item','/','/onepage'].includes(menu) ? 'active' : ''">
-                    <a [routerLink]="'#'" (click)="setmanu('/home-item', $event)">Home</a><span class="menu-arrow"></span>
-                    <ul class="submenu" [ngClass]="['/home-item','/','/onepage'].includes(menu) ? 'open' : ''">
-                        <li [ngClass]="menu === '/' ? 'active' : ''"><a [routerLink]="'/'" class="sub-menu-item">Hero One</a></li>
-                        <li [ngClass]="menu === '/onepage' ? 'active' : ''"><a [routerLink]="'/onepage'" class="sub-menu-item">Onepage</a></li>
-                    </ul>
+                <li class="has-submenu parent-menu-item" [ngClass]="['/home-item','/'].includes(menu) ? 'active' : ''">
+                    <a [routerLink]="'/index'" (click)="setmanu('/home-item', $event)">Home</a>
                 </li>
-
-                <li [ngClass]="menu === '/aboutus' ? 'active' : ''"><a [routerLink]="'/aboutus'" class="sub-menu-item">About Us</a></li>
                 
-                <li [ngClass]="menu === '/services' ? 'active' : ''"><a [routerLink]="'/services'" class="sub-menu-item">Services</a></li>
+
+                
+                <li [ngClass]="menu === '/services' ? 'active' : ''"><a [routerLink]="'/services'" class="sub-menu-item"> Healthcare Services</a></li>
         
                 <li class="has-submenu parent-parent-menu-item" [ngClass]="['/page-item','/service-detail','/forums','/team','/testimonial','/faqs','/blog-item','/blogs','/blog-sidebar','/blog-detail','/auth-item','/login','/signup','/reset-password','/lock-screen','/terms-item','/terms','/privacy','/special-item','/comingsoon','/maintenance','/error'].includes(menu) ? 'active' : ''">
                     <a [routerLink]="'#'" (click)="setmanu('/page-item', $event)">Pages</a><span class="menu-arrow"></span>
@@ -50,19 +46,12 @@
                         <li class="has-submenu parent-menu-item" [ngClass]="['/blog-item','/blogs','/blog-sidebar','/blog-detail'].includes(menu) ? 'active' : ''"><a [routerLink]="'#'" (click)="setmanu('/blog-item', $event)"> Blog </a><span class="submenu-arrow"></span>
                             <ul class="submenu" [ngClass]="['/blog-item','/blogs','/blog-sidebar','/blog-detail'].includes(menu) ? 'open' : ''">
                                 <li [ngClass]="menu === '/blogs' ? 'active' : ''"><a [routerLink]="'/blogs'" class="sub-menu-item"> Events</a></li>
-                                <li [ngClass]="menu === '/blog-sidebar' ? 'active' : ''"><a [routerLink]="'/blog-sidebar'" class="sub-menu-item"> Blog Sidebar</a></li>
-                                <li [ngClass]="menu === '/blog-detail' ? 'active' : ''"><a [routerLink]="'/blog-detail'" class="sub-menu-item"> Blog Detail</a></li>
+                                <li [ngClass]="menu === '/blog-sidebar' ? 'active' : ''"><a [routerLink]="'/blog-sidebar'" class="sub-menu-item"> Event Sidebar</a></li>
+                                <li [ngClass]="menu === '/blog-detail' ? 'active' : ''"><a [routerLink]="'/blog-detail'" class="sub-menu-item"> Post</a></li>
                             </ul> 
                         </li>
 
-                        <li class="has-submenu parent-menu-item" [ngClass]="['/auth-item','/login','/signup','/reset-password','/lock-screen'].includes(menu) ? 'active' : ''"><a [routerLink]="'#'" (click)="setmanu('/auth-item', $event)"> Auth Pages </a><span class="submenu-arrow"></span>
-                            <ul class="submenu" [ngClass]="['/auth-item','/login','/signup','/reset-password','/lock-screen'].includes(menu) ? 'open' : ''">
-                                <li [ngClass]="menu === '/login' ? 'active' : ''"><a [routerLink]="'/login'" class="sub-menu-item"> Login</a></li>
-                                <li [ngClass]="menu === '/signup' ? 'active' : ''"><a [routerLink]="'/signup'" class="sub-menu-item"> Signup</a></li>
-                                <li [ngClass]="menu === '/reset-password' ? 'active' : ''"><a [routerLink]="'/reset-password'" class="sub-menu-item"> Forgot Password</a></li>
-                                <li [ngClass]="menu === '/lock-screen' ? 'active' : ''"><a [routerLink]="'/lock-screen'" class="sub-menu-item"> Lock Screen</a></li>
-                            </ul> 
-                        </li>
+                        
 
                         <li class="has-submenu parent-menu-item" [ngClass]="['/terms-item','/terms','/privacy'].includes(menu) ? 'active' : ''"><a [routerLink]="'#'" (click)="setmanu('/terms-item', $event)"> Utility </a><span class="submenu-arrow"></span>
                             <ul class="submenu" [ngClass]="['/terms-item','/terms','/privacy'].includes(menu) ? 'open' : ''">
@@ -70,7 +59,7 @@
                                 <li [ngClass]="menu === '/privacy' ? 'active' : ''"><a [routerLink]="'/privacy'" class="sub-menu-item">Privacy Policy</a></li>
                             </ul>  
                         </li>
-
+<!--
                         <li class="has-submenu parent-menu-item" [ngClass]="['/special-item','/comingsoon','/maintenance','/error'].includes(menu) ? 'active' : ''"><a [routerLink]="'#'" (click)="setmanu('/special-item', $event)"> Special </a><span class="submenu-arrow"></span>
                             <ul class="submenu" [ngClass]="['/special-item','/comingsoon','/maintenance','/error'].includes(menu) ? 'open' : ''">
                                 <li [ngClass]="menu === '/comingsoon' ? 'active' : ''"><a [routerLink]="'/comingsoon'" class="sub-menu-item"> Coming Soon</a></li>
@@ -78,24 +67,12 @@
                                 <li [ngClass]="menu === '/error' ? 'active' : ''"><a [routerLink]="'/error'" class="sub-menu-item"> 404! Error</a></li>
                             </ul> 
                         </li>
+-->
+                        
 
-                        <li class="nav-item">
-                            <a class="nav-link" [routerLink]="['/association-signup']" routerLinkActive="active">
-                                <i class="uil uil-building me-1"></i>Register Association
-                            </a>
-                        </li>
+                        
 
-                        <li class="nav-item" *ngIf="isAdmin$ | async">
-                            <a class="nav-link" [routerLink]="['/admin']" routerLinkActive="active">
-                                <i class="uil uil-dashboard me-1"></i>Admin Dashboard
-                            </a>
-                        </li>
-
-                        <li class="nav-item" *ngIf="isLoggedIn$ | async">
-                            <a class="nav-link" [routerLink]="['/association/account']" routerLinkActive="active">
-                                <i class="uil uil-user me-1"></i>Association Account
-                            </a>
-                        </li>
+                        
                     </ul>
                 </li>
         

@@ -1,0 +1,39 @@
+.admin-navbar {
+    background: #1e293b;
+    color: white;
+    padding: 10px 20px;
+    
+    a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease-in-out;
+  
+      &:hover {
+        color: #38bdf8; // Bleu cyan clair
+      }
+    }
+  
+    .mobile-menu {
+      display: flex;
+      flex-direction: column;
+      background: #1e293b;
+      padding: 10px;
+      position: absolute;
+      top: 60px;
+      right: 0;
+      width: 200px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      
+      a {
+        padding: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+  

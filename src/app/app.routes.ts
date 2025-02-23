@@ -9,7 +9,7 @@ import { TestimonialComponent } from './pages/testimonial/testimonial.component'
 import { FaqsComponent } from './pages/faqs/faqs.component';
 import { BlogsComponent } from './pages/blogs/blogs.component';
 import { BlogSidebarComponent } from './pages/blog-sidebar/blog-sidebar.component';
-import { BlogDetailComponent } from './pages/blog-detail/blog-detail.component';
+import { BlogDetailComponent } from './pages/post/blog-detail.component';
 import { OnepageComponent } from './pages/onepage/onepage.component';
 import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
@@ -21,17 +21,20 @@ import { ComingsoonComponent } from './pages/comingsoon/comingsoon.component';
 import { MaintenanceComponent } from './pages/maintenance/maintenance.component';
 import { ErrorComponent } from './pages/error/error.component';
 import { ContactusComponent } from './pages/contactus/contactus.component';
-import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { AssociationTestComponent } from './pages/association/association-test/association-test.component';
 import { JobOpportunitiesForumComponent } from './pages/forums/job-opportunities-forum/job-opportunities-forum.component';
 import { SupportRefugeesComponent } from './pages/forums/support-refugees-forum/support-refugees-forum.component';
+import { AuthGuard } from './guards/auth.guard';
+import { AdminNavbarComponent } from './back/admin/admin-navbar/admin-navbar.component';
 
 export const routes: Routes = [
-    {path:'', component:IndexComponent},
-    {path:'onepage', component:OnepageComponent},
+  { path: '', redirectTo: 'onepage', pathMatch: 'full' },
+  { path: 'onepage', component: OnepageComponent },
+  
+    {path:'index', component:IndexComponent,canActivate:[AuthGuard]},
     {path:'aboutus', component:AboutusComponent},
     {path:'services', component:ServicesComponent},
     {path:'service-detail', component:ServiceDetailComponent},
@@ -46,8 +49,7 @@ export const routes: Routes = [
     {path:'login', component:LoginComponent},
     {path:'signup', component:SignupComponent},
     {path:'signup/:role', component:SignupComponent},
-    
-
+  
     {path:'reset-password', component:ResetPasswordComponent},
     {path:'lock-screen', component:LockScreenComponent},
     {path:'terms', component:TermsComponent},
@@ -56,24 +58,20 @@ export const routes: Routes = [
     {path:'maintenance', component:MaintenanceComponent},
     {path:'error', component:ErrorComponent},
     {path:'contactus', component:ContactusComponent},
+    {path:'admin-navbar', component:AdminNavbarComponent},
     {
       path: 'association-signup',
       loadComponent: () => 
         import('./pages/association/association-signup/association-signup.component')
           .then(m => m.AssociationSignupComponent)
     },
-    {
-      path: 'association/login',
-      loadComponent: () => 
-        import('./pages/association/association-login/association-login.component')
-          .then(m => m.AssociationLoginComponent)
-    },
+   
     {
       path: 'association/account',
       loadComponent: () => 
         import('./back/association-account/association-account.component')
-          .then(m => m.AssociationAccountComponent),
-      canActivate: [AuthGuard]
+          .then(m => m.AssociationAccountComponent)
+
     },
     
     {
@@ -95,11 +93,8 @@ export const routes: Routes = [
           component: SupportRefugeesComponent
         }
       ]
-    },
-    {
-      path: 'association/test',
-      component: AssociationTestComponent
     }
+
     
     
 

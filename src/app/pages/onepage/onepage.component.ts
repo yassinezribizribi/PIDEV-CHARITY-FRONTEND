@@ -16,9 +16,10 @@ import { MakeDonationComponent } from "../../components/make-donation/make-donat
 import { CausesComponent } from "../../components/causes/causes.component";
 import { CtaComponent } from "../../components/cta/cta.component";
 import { TeamComponent } from "../../components/team/team.component";
-
+import { NavbarComponent } from '../../components/navbar/navbar.component';
 @Component({
-    selector: 'app-onepage',
+    selector: 'onepage',
+    standalone: true,
     imports: [
         CommonModule,
         RouterLink,
@@ -36,30 +37,13 @@ import { TeamComponent } from "../../components/team/team.component";
         MakeDonationComponent,
         CausesComponent,
         CtaComponent,
-        TeamComponent
+        TeamComponent,
+        NavbarComponent
     ],
     templateUrl: './onepage.component.html',
     styleUrl: './onepage.component.scss'
 })
 export class OnepageComponent {
 
-  activeSection: string = 'home';
-
-  @HostListener('window:scroll', ['$event'])
-
-  onWindowScroll() {
-    const sections = document.querySelectorAll('.section');
-    
-    let currentSection: string = 'home';
-
-    sections.forEach(section => {
-      const sectionTop = section.getBoundingClientRect().top;
-      if (sectionTop <= 100) { 
-        currentSection = section.id;
-      }
-    });
-    
-    this.activeSection = currentSection;
-  }
 
 }

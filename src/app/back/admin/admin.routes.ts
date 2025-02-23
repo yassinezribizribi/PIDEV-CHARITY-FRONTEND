@@ -14,13 +14,14 @@ export const ADMIN_ROUTES: Routes = [
     loadComponent: () => 
       import('./admin-dashboard/admin-dashboard.component')
         .then(m => m.AdminDashboardComponent),
-    canActivate: [AdminGuard]
+   
   },
   {
     path: 'associations/:id',
     loadComponent: () => 
       import('./association-details/association-details.component')
         .then(m => m.AssociationDetailsComponent),
-    canActivate: [AdminGuard]
-  }
+   
+  },
+  
 ]; 

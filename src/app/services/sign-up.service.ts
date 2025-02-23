@@ -7,11 +7,13 @@ import { Observable } from 'rxjs';
 })
 export class SignupService {
   private apiUrl = 'http://localhost:8089/api/auth/signup';
-  private http = inject(HttpClient);
+ // private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
 
-  register(user: { email: string; password: string; role: string; firstname: string; lastname: string; telephone: string; job: string }): Observable<any> {
+  register(user: { email: string; password: string; role: string; firstName: string; lastName: string; telephone: string; job: string }): Observable<any> {
+    console.log(user)
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post(this.apiUrl, JSON.stringify(user), { headers });
+    return this.http.post(this.apiUrl, user,{headers});
 }
 
   

@@ -1,7 +1,30 @@
-<div *ngFor="let job of jobs" class="job-card">
-  <h2>{{ job.title }}</h2>
-  <p>{{ job.description }}</p>
-  <p>Entreprise: {{ job.company.name }}</p>
-  <p>Lieu: {{ job.location.city }}, {{ job.location.country }}</p>
-  <button (click)="apply(job.id)">Postuler</button>
-</div>
+<app-navbar></app-navbar>
+
+<section class="container mt-5">
+  <h2>Job Opportunities</h2>
+
+  <!-- Loading & Error Handling -->
+  <div *ngIf="loading" class="text-center"><p>Loading job offers...</p></div>
+  <div *ngIf="error" class="text-danger"><p>{{ error }}</p></div>
+
+  <!-- Add Job Offer -->
+  <div class="card p-3 mb-4">
+    <h5>Add a New Job Offer</h5>
+    <input [(ngModel)]="newJobOffer.title" class="form-control mb-2" placeholder="Title">
+    <textarea [(ngModel)]="newJobOffer.description" class="form-control mb-2" placeholder="Description"></textarea>
+    <input [(ngModel)]="newJobOffer.requirements" class="form-control mb-2" placeholder="Requirements">
+    <button class="btn btn-primary" (click)="addJobOffer()" [disabled]="!newJobOffer.title.trim()">Post Job</button>
+  </div>
+
+  <!-- Job Offers List -->
+  <div *ngFor="let job of jobOffers" class="card p-3 mb-4">
+    <h5>{{ job.title }}</h5>
+    <p>{{ job.description }}</p>
+    <p><strong>Requirements:</strong> {{ job.requirements }}</p>
+    <span class="badge" [ngClass]="{'bg-success': job.isActive, 'bg-danger': !job.isActive}">
+      {{ job.isActive ? 'Active' : 'Closed' }}
+    </span>
+  </div>
+</section>
+
+<app-footer></app-footer>
