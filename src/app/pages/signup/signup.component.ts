@@ -29,13 +29,22 @@ export class SignupComponent {
 
   register() {
     if (this.signupForm.valid) {
-        console.log("Form Data:", this.signupForm.value);
-        this.signupService.register(this.signupForm.value).subscribe((response) => {
-          console.log("Response:", response);
-          this.router.navigate(['/login']);
-        });
+      console.log("✅ Sending registration request:", this.signupForm.value);
+  
+      this.signupService.register(this.signupForm.value).subscribe({
+        next: (response) => {
+          console.log("✅ Registration successful:", response);
+          this.router.navigate(['/login']).then(() => {
+            console.log("✅ Navigation to login successful");
+          }).catch(err => console.error("❌ Navigation error:", err));
+        },
+        error: (err) => {
+          console.error("❌ Registration failed:", err);
+        }
+      });
     } else {
-      console.log("Form is invalid");
+      console.log("❌ Form is invalid:", this.signupForm.errors);
     }
   }
+  
 }
