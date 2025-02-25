@@ -1,0 +1,96 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12 text-center">
+        <h5 class="heading fw-semibold text-white title-dark">Event Management</h5>
+      </div>
+    </div>
+    <div class="position-middle-bottom">
+      <nav aria-label="breadcrumb" class="d-block">
+        <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+          <li class="breadcrumb-item"><a [routerLink]="'/admin'">Admin</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Events</li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<!-- Events List Section -->
+<section class="section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <div class="d-flex justify-content-between mb-4">
+          <h4>Events List</h4>
+          <button class="btn btn-primary" (click)="onAddEvent()">Add Event</button>        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="text-center">
+          <p>Loading events...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error && !loading" class="alert alert-danger">
+          {{ error }}
+        </div>
+
+        <!-- Events Table -->
+        <div *ngIf="!loading && !error && events.length > 0" class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let event of events">
+                <td>{{ event.idEvent }}</td>
+                <td>{{ event.title }}</td>
+                <td>{{ event.description }}</td>
+                <td>{{ event.dateTime | date:'medium' }}</td>
+                <td>{{ event.location }}</td>
+                <td>
+                  <span class="badge bg-{{ getStatusClass(event.typeEvent) }}">
+                    {{ event.typeEvent }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-info me-2" [routerLink]="['/blog-detail', event.idEvent]">View</button>
+                  <button class="btn btn-sm btn-warning me-2" (click)="editEvent(event)">Edit</button>
+                  <button class="btn btn-sm btn-danger" (click)="deleteEvent(event.idEvent)">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- No Data State -->
+        <div *ngIf="!loading && !error && events.length === 0" class="text-center">
+          <p>No events found.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

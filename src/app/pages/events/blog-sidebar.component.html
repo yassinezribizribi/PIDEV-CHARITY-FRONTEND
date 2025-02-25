@@ -1,4 +1,4 @@
-<app-navbar/>
+<app-navbar></app-navbar>
 
 <!-- Hero Start -->
 <section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
@@ -7,7 +7,7 @@
         <div class="row mt-5 justify-content-center">
             <div class="col-12">
                 <div class="title-heading text-center">
-                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Latest Articles</h5>
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Nos Événements</h5>
                 </div>
             </div><!--end col-->
         </div><!--end row-->
@@ -16,7 +16,7 @@
             <nav aria-label="breadcrumb" class="d-block">
                 <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
                     <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Blogs</li>
+                    <li class="breadcrumb-item active" aria-current="page">Événements</li>
                 </ul>
             </nav>
         </div>
@@ -37,29 +37,28 @@
         <div class="row">
             <div class="col-lg-8 col-md-7">
                 <div class="row g-4">
-                    <div *ngFor="let item of blogData" class="col-lg-6 col-12">
+                    <div *ngFor="let event of events" class="col-lg-6 col-12">
                         <div class="blog position-relative overflow-hidden shadow rounded p-4">
                             <div class="position-relative">
                                 <div class="blog-image position-relative overflow-hidden rounded shadow">
-                                    <img [src]="item.image" class="img-fluid" alt="">
+                                    <!-- Suppose que chaque événement a une image, sinon remplace par une image par défaut -->
                                 </div>
-
                                 <div class="position-absolute top-100 start-0 translate-middle-y ms-2">
-                                    <a routerLink="#" (click)="$event.preventDefault()" class="badge bg-primary">{{item.tag}}</a>
+                                    <a routerLink="#" (click)="$event.preventDefault()" class="badge bg-primary">Événement</a>
                                 </div>
                             </div>
 
                             <div class="pt-4">
-                                <a [routerLink]="['/blog-detail', item.id]" class="text-dark title h5">{{item.title}}</a>
-
-                                <p class="text-muted my-2">{{item.desc}}</p>
-
-                                <a [routerLink]="['/blog-detail', item.id]" class="text-dark read-more">Read More <i class="mdi mdi-chevron-right align-middle"></i></a>
+                                <a [routerLink]="['/events', event.title]" class="text-dark title h5">{{ event.title }}</a>
+                                <p class="text-muted my-2">{{ event.description }}</p>
+                                <p class="text-muted">Date : {{ event.dateTime }}</p>
+                                <a [routerLink]="['/blog-detail', event.idEvent]" class="text-dark read-more">Voir les détails <i class="mdi mdi-chevron-right align-middle"></i></a>
                             </div>
                         </div>
                     </div><!--end col-->
                 </div><!--end row-->
 
+                <!-- Pagination (optionnelle, à activer si tu veux paginer côté backend) -->
                 <div class="row">
                     <div class="col-12 mt-4 pt-2">
                         <ul class="pagination justify-content-center mb-0">
@@ -83,7 +82,7 @@
 
             <!-- START SIDEBAR -->
             <div class="col-lg-4 col-md-5 col-12 mt-4 pt-2 mt-md-0 pt-md-0">
-                <app-blog-sidebars/>
+                <app-blog-sidebars></app-blog-sidebars>
             </div><!--end col-->
             <!-- END SIDEBAR -->
         </div><!--end row-->
@@ -91,5 +90,5 @@
 </section><!--end section-->
 <!-- End -->
 
-<app-footer/>
-<app-scroll-to-top/>
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>
