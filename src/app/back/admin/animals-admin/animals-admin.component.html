@@ -1,0 +1,98 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12">
+        <div class="title-heading text-center">
+          <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Gestion des Animaux</h5>
+        </div>
+      </div><!--end col-->
+    </div><!--end row-->
+
+    <div class="position-middle-bottom">
+      <nav aria-label="breadcrumb" class="d-block">
+        <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+          <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Gestion Animaux</li>
+        </ul>
+      </nav>
+    </div>
+  </div><!--end container-->
+</section><!--end section-->
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+<!-- Hero End -->
+
+<section class="section">
+  <div class="container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center p-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="alert alert-danger">
+      {{error}}
+    </div>
+
+    <!-- Animals List -->
+    <div *ngIf="!loading && !error" class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent">
+        <h5 class="mb-0">Liste des Animaux</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Espèce</th>
+                <th>Race</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let animal of animals" (click)="viewAnimal(animal)" style="cursor: pointer;">
+                <td>{{animal.name}}</td>
+                <td>{{animal.animalSpecies}}</td>
+                <td>{{animal.race}}</td>
+                <td>
+                  <span [class]="'badge bg-' + getStatusClass(animal.isAdopted ? 'Adopté' : 'Disponible')">
+                    {{animal.isAdopted ? 'Adopté' : 'Disponible'}}
+                  </span>
+                </td>
+                <td (click)="$event.stopPropagation()"> <!-- Empêche le clic sur la ligne de propager aux boutons -->
+                  <button class="btn btn-sm btn-danger me-1" (click)="deleteAnimal(animal.idAnimal)">
+                    Supprimer
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary" (click)="editAnimal(animal)">
+                    Modifier
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Add Button -->
+        <div class="text-end mt-3">
+          <button class="btn btn-primary" (click)="onAddAnimal()">Ajouter un Animal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

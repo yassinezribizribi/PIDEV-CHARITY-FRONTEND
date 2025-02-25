@@ -9,7 +9,7 @@ import { TestimonialComponent } from './pages/testimonial/testimonial.component'
 import { FaqsComponent } from './pages/faqs/faqs.component';
 import { BlogsComponent } from './pages/blogs/blogs.component';
 import { BlogSidebarComponent } from './pages/blog-sidebar/blog-sidebar.component';
-import { BlogDetailComponent } from './pages/post/blog-detail.component';
+import { BlogDetailComponent } from './pages/blog-detail/blog-detail.component';
 import { OnepageComponent } from './pages/onepage/onepage.component';
 import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
@@ -29,75 +29,83 @@ import { JobOpportunitiesForumComponent } from './pages/forums/job-opportunities
 import { SupportRefugeesComponent } from './pages/forums/support-refugees-forum/support-refugees-forum.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminNavbarComponent } from './back/admin/admin-navbar/admin-navbar.component';
+import { AnimalsComponent } from './pages/animals/animals.component';
+import { AddAnimalsComponent } from './pages/add-animals/add-animals.component';
+import { AnimalProfileComponent } from './pages/animal-profile/animal-profile.component';
+import { PostsComponent } from './posts/posts.component';
+import { AnimalsAdminComponent } from './back/admin/animals-admin/animals-admin.component';
+import { EditAnimalComponent } from './back/admin/edit-animal/edit-animal.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'onepage', pathMatch: 'full' },
   { path: 'onepage', component: OnepageComponent },
-  
-    {path:'index', component:IndexComponent,canActivate:[AuthGuard]},
-    {path:'aboutus', component:AboutusComponent},
-    {path:'services', component:ServicesComponent},
-    {path:'service-detail', component:ServiceDetailComponent},
-    {path:'forums', component:ForumsComponent},
-    {path:'team', component:TeamComponent},
-    {path:'testimonial', component:TestimonialComponent},
-    {path:'faqs', component:FaqsComponent},
-    {path:'blogs', component:BlogsComponent},
-    {path:'blog-sidebar', component:BlogSidebarComponent},
-    {path:'blog-detail', component:BlogDetailComponent},
-    {path:'blog-detail/:id', component:BlogDetailComponent},
-    {path:'login', component:LoginComponent},
-    {path:'signup', component:SignupComponent},
-    {path:'signup/:role', component:SignupComponent},
-  
-    {path:'reset-password', component:ResetPasswordComponent},
-    {path:'lock-screen', component:LockScreenComponent},
-    {path:'terms', component:TermsComponent},
-    {path:'privacy', component:PrivacyComponent},
-    {path:'comingsoon', component:ComingsoonComponent},
-    {path:'maintenance', component:MaintenanceComponent},
-    {path:'error', component:ErrorComponent},
-    {path:'contactus', component:ContactusComponent},
-    {path:'admin-navbar', component:AdminNavbarComponent},
-    {
-      path: 'association-signup',
-      loadComponent: () => 
-        import('./pages/association/association-signup/association-signup.component')
-          .then(m => m.AssociationSignupComponent)
-    },
-   
-    {
-      path: 'association/account',
-      loadComponent: () => 
-        import('./back/association-account/association-account.component')
-          .then(m => m.AssociationAccountComponent)
 
-    },
-    
-    {
-      path: 'admin',
-      loadChildren: () => import('./back/admin/admin.routes')
-        .then(m => m.ADMIN_ROUTES)
-    },
-    {
-      path: 'forums',
-      children: [
-        {
-          path: '',
-          component: ForumsComponent
-        },
-        { path: 'job-opportunities', component: JobOpportunitiesForumComponent }
-        ,
-        {
-          path: 'support-refugees',
-          component: SupportRefugeesComponent
-        }
-      ]
-    }
+  { path: 'index', component: IndexComponent, canActivate: [AuthGuard] },
+  { path: 'aboutus', component: AboutusComponent },
+  { path: 'services', component: ServicesComponent },
+  { path: 'service-detail', component: ServiceDetailComponent },
+  { path: 'forums', component: ForumsComponent },
+  { path: 'team', component: TeamComponent },
+  { path: 'testimonial', component: TestimonialComponent },
+  { path: 'faqs', component: FaqsComponent },
+  { path: 'blogs', component: BlogsComponent },
+  { path: 'blog-sidebar', component: BlogSidebarComponent },
+  { path: 'blog-detail', component: BlogDetailComponent },
+  { path: 'blog-detail/:id', component: BlogDetailComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent },
+  { path: 'signup/:role', component: SignupComponent },
 
-    
-    
+  { path: 'animals', component: AnimalsComponent },
+  { path: 'add-animals', component: AddAnimalsComponent },
+  { path: 'animal-profile/:id', component: AnimalProfileComponent },
+  { path: 'animals-admin', component: AnimalsAdminComponent },
+  { path: 'edit-animal/:id', component: EditAnimalComponent },
 
+  { path: 'posts', component: PostsComponent },
 
-    
+  { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'lock-screen', component: LockScreenComponent },
+  { path: 'terms', component: TermsComponent },
+  { path: 'privacy', component: PrivacyComponent },
+  { path: 'comingsoon', component: ComingsoonComponent },
+  { path: 'maintenance', component: MaintenanceComponent },
+  { path: 'error', component: ErrorComponent },
+  { path: 'contactus', component: ContactusComponent },
+  { path: 'admin-navbar', component: AdminNavbarComponent },
+  {
+    path: 'association-signup',
+    loadComponent: () =>
+      import(
+        './pages/association/association-signup/association-signup.component'
+      ).then((m) => m.AssociationSignupComponent),
+  },
+
+  {
+    path: 'association/account',
+    loadComponent: () =>
+      import('./back/association-account/association-account.component').then(
+        (m) => m.AssociationAccountComponent
+      ),
+  },
+
+  {
+    path: 'admin',
+    loadChildren: () =>
+      import('./back/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+  },
+  {
+    path: 'forums',
+    children: [
+      {
+        path: '',
+        component: ForumsComponent,
+      },
+      { path: 'job-opportunities', component: JobOpportunitiesForumComponent },
+      {
+        path: 'support-refugees',
+        component: SupportRefugeesComponent,
+      },
+    ],
+  },
 ];

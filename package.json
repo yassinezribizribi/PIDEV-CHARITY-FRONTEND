@@ -27,6 +27,7 @@
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.7",
     "feather-icons": "^4.29.2",
+    "jwt-decode": "^4.0.0",
     "ng-apexcharts": "^1.15.0",
     "ngx-countup": "^13.2.0",
     "primeicons": "^7.0.0",

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AdminGuard } from '../../guards/admin.guard';
+import { EditAnimalComponent } from './edit-animal/edit-animal.component';
 
 
 export const ADMIN_ROUTES: Routes = [
@@ -24,4 +25,6 @@ export const ADMIN_ROUTES: Routes = [
    
   },
   
+
+
 ]; 
