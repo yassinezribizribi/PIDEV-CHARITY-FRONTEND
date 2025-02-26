@@ -8,8 +8,8 @@ import { TeamComponent } from './pages/team/team.component';
 import { TestimonialComponent } from './pages/testimonial/testimonial.component';
 import { FaqsComponent } from './pages/faqs/faqs.component';
 import { BlogsComponent } from './pages/blogs/blogs.component';
-import { BlogSidebarComponent } from './pages/blog-sidebar/blog-sidebar.component';
-import { BlogDetailComponent } from './pages/post/blog-detail.component';
+import { BlogSidebarComponent } from './pages/events/blog-sidebar.component';
+import { BlogDetailComponent } from './pages/events-details/blog-detail.component';
 import { OnepageComponent } from './pages/onepage/onepage.component';
 import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
@@ -29,6 +29,11 @@ import { JobOpportunitiesForumComponent } from './pages/forums/job-opportunities
 import { SupportRefugeesComponent } from './pages/forums/support-refugees-forum/support-refugees-forum.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminNavbarComponent } from './back/admin/admin-navbar/admin-navbar.component';
+import { FormulaireEventsComponent } from './pages/formulaire-events/formulaire-events.component';
+import { TrainingComponent } from './pages/training/training.component';
+import { TrainingDetailsComponent } from './pages/training-details/training-details.component';
+import { FormulaireTrainingComponent } from './pages/formulaire-training/formulaire-training.component';
+import { EventsAdminComponent } from './back/admin/events-admin/events-admin.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'onepage', pathMatch: 'full' },
@@ -44,12 +49,17 @@ export const routes: Routes = [
     {path:'faqs', component:FaqsComponent},
     {path:'blogs', component:BlogsComponent},
     {path:'blog-sidebar', component:BlogSidebarComponent},
+    {path:'trainig', component:TrainingComponent},
+    {path:'training-details/:id', component:TrainingDetailsComponent},
+    {path:'training-details', component:TrainingDetailsComponent},
+    {path:'formulaire-training/:id', component:FormulaireTrainingComponent},
+
     {path:'blog-detail', component:BlogDetailComponent},
     {path:'blog-detail/:id', component:BlogDetailComponent},
     {path:'login', component:LoginComponent},
     {path:'signup', component:SignupComponent},
     {path:'signup/:role', component:SignupComponent},
-  
+    { path: 'formulaire-events/:idEvent', component: FormulaireEventsComponent },    
     {path:'reset-password', component:ResetPasswordComponent},
     {path:'lock-screen', component:LockScreenComponent},
     {path:'terms', component:TermsComponent},
@@ -59,6 +69,8 @@ export const routes: Routes = [
     {path:'error', component:ErrorComponent},
     {path:'contactus', component:ContactusComponent},
     {path:'admin-navbar', component:AdminNavbarComponent},
+    {path:'events-admin', component:EventsAdminComponent},
+
     {
       path: 'association-signup',
       loadComponent: () => 

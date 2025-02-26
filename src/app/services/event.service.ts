@@ -1,58 +1,47 @@
+// event.service.ts
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Event, AssociationEvent } from '../interfaces/association.interface';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface Event {
+  idEvent: number; // Correspond à idEvent dans l’entité Java
+  title: string;
+  description: string;
+  dateTime: string; // Remplace "date" par "dateTime" comme dans l’entité
+  location: string;
+  typeEvent: string; // Enum côté Java, mais reçu comme string en JSON
+  reservationDate: string; // Reçu comme string depuis le JSON
+  associationId?: number;
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EventService {
-  private events = new BehaviorSubject<Event[]>([]);
+  private apiUrl = 'http://localhost:8089/api/events'; // Port 8089 comme dans ton erreur
 
-  constructor() {
-    const stored = localStorage.getItem('association_events');
-    if (stored) {
-      this.events.next(JSON.parse(stored));
-    }
+  constructor(private http: HttpClient) {}
+
+  getAllEvents(): Observable<Event[]> {
+    return this.http.get<Event[]>(`${this.apiUrl}/getAllEvents`);
   }
 
-  getEvents(): Observable<Event[]> {
-    return this.events.asObservable();
+  getEventById(id: number): Observable<Event> {
+    return this.http.get<Event>(`${this.apiUrl}/getEventById/${id}`);
+  }
+  addEvent(event: Event): Observable<Event> {
+    return this.http.post<Event>(`${this.apiUrl}/add`, event);
   }
 
-  createEvent(data: Partial<Event>): Promise<Event> {
-    const newEvent: Event = {
-      id: 'event-' + Date.now(),
-      ...data,
-      status: 'upcoming',
-      attendees: 0,
-      images: [],
-      registrations: []
-    } as Event;
-
-    const current = this.events.value;
-    current.push(newEvent);
-    this.events.next(current);
-    this.saveToStorage();
-
-    return Promise.resolve(newEvent);
+  // Mettre à jour un événement
+  updateEvent(id: number, event: Event): Observable<Event> {
+    return this.http.put<Event>(`${this.apiUrl}/updateEvent/${id}`, event);
   }
-
-  updateEvent(id: string, data: Partial<Event>): Promise<Event> {
-    const current = this.events.value;
-    const index = current.findIndex(e => e.id === id);
-    
-    if (index === -1) {
-      return Promise.reject('Event not found');
-    }
-
-    current[index] = { ...current[index], ...data };
-    this.events.next(current);
-    this.saveToStorage();
-
-    return Promise.resolve(current[index]);
+  deleteEvent(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/deleteEvent/${id}`);
   }
-
-  private saveToStorage() {
-    localStorage.setItem('association_events', JSON.stringify(this.events.value));
-  }
-} 
+  //registerParticipant(eventId: number, participant: any): Observable<any> {
+  //  return this.http.post<any>(`${this.apiUrl}/registerParticipant/${eventId}`, participant);
+ // }
+  
+}

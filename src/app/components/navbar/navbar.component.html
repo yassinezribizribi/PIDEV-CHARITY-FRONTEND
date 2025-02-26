@@ -40,9 +40,12 @@
                         <li [ngClass]="menu === '/forums' ? 'active' : ''"><a [routerLink]="'/forums'" class="sub-menu-item">Forums</a></li>
                         <li [ngClass]="menu === '/team' ? 'active' : ''"><a [routerLink]="'/team'" class="sub-menu-item">Team</a></li>
                         <li [ngClass]="menu === '/testimonial' ? 'active' : ''"><a [routerLink]="'/testimonial'" class="sub-menu-item">Testimonial</a></li>
+                        <li [ngClass]="menu === '/blog-sidebar' ? 'active' : ''"><a [routerLink]="'/blog-sidebar'" class="sub-menu-item"> Event </a></li>
+                        
+                        <li [ngClass]="menu === '/trainig' ? 'active' : ''"><a [routerLink]="'/trainig'" class="sub-menu-item"> Training </a></li>
 
                         <li [ngClass]="menu === '/faqs' ? 'active' : ''"><a [routerLink]="'/faqs'" class="sub-menu-item">FAQs</a></li>
-
+<!--
                         <li class="has-submenu parent-menu-item" [ngClass]="['/blog-item','/blogs','/blog-sidebar','/blog-detail'].includes(menu) ? 'active' : ''"><a [routerLink]="'#'" (click)="setmanu('/blog-item', $event)"> Blog </a><span class="submenu-arrow"></span>
                             <ul class="submenu" [ngClass]="['/blog-item','/blogs','/blog-sidebar','/blog-detail'].includes(menu) ? 'open' : ''">
                                 <li [ngClass]="menu === '/blogs' ? 'active' : ''"><a [routerLink]="'/blogs'" class="sub-menu-item"> Events</a></li>
@@ -50,7 +53,7 @@
                                 <li [ngClass]="menu === '/blog-detail' ? 'active' : ''"><a [routerLink]="'/blog-detail'" class="sub-menu-item"> Post</a></li>
                             </ul> 
                         </li>
-
+-->
                         
 
                         <li class="has-submenu parent-menu-item" [ngClass]="['/terms-item','/terms','/privacy'].includes(menu) ? 'active' : ''"><a [routerLink]="'#'" (click)="setmanu('/terms-item', $event)"> Utility </a><span class="submenu-arrow"></span>
