@@ -1,0 +1,36 @@
+<!-- Start Hero -->
+<section class="bg-home d-flex align-items-center" style="background: url('assets/images/hero/auth.jpg') center;">
+    <div class="bg-overlay bg-linear-gradient-2"></div>
+    <div class="container">
+        <div class="row justify-content-end">
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="p-4 bg-white rounded shadow-md mx-auto w-100" style="max-width: 400px;">
+                    <form [formGroup]="loginForm" (ngSubmit)="login()"> 
+                        <a [routerLink]="'/'"><img [src]="['assets/images/logo-dark.png']" class="mb-4 d-block mx-auto" alt=""></a>
+                        <h6 class="mb-3 text-uppercase fw-semibold">Please sign in</h6>
+                    
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Your Email</label>
+                            <input name="email" formControlName="email" type="email" class="form-control" placeholder="example@website.com">
+                        </div>
+  
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="loginpass">Password</label>
+                            <input type="password" formControlName="password" class="form-control" id="loginpass" placeholder="Password">
+                        </div>
+                    
+                        
+        
+                        <button class="btn btn-primary w-100" type="submit">Sign in</button> 
+  
+                        <div class="col-12 text-center mt-3">
+                            <span><span class="text-muted me-2 small">Don't have an account ?</span> <a [routerLink]="'/signup'" class="text-dark fw-semibold small">Sign Up</a></span>
+                        </div><!--end col-->
+                    </form>
+                </div>
+            </div><!--end col-->
+        </div><!--end row-->
+    </div><!--end container-->
+  </section><!--end section-->
+  <!-- ENd Hero -->
+  

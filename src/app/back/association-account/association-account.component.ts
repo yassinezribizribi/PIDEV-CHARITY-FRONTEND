@@ -32,6 +32,8 @@ interface Activity {
     ModalComponent,
     TndPipe,
     AdminNavbarComponent
+
+
   ],
   templateUrl: './association-account.component.html',
   styleUrls: ['./association-account.component.scss']
@@ -40,6 +42,18 @@ export class AssociationAccountComponent implements OnInit {
   association: Association | null = null;
   loading = true;
   error: string | null = null;
+  statistics: {
+    totalDonations: number;
+    totalCases: number;
+    totalEvents: number;
+    totalMembers: number;
+  } = {
+    totalDonations: 0,
+    totalCases: 0,
+    totalEvents: 0,
+    totalMembers: 0
+  };  
+  
   activityFilter: 'all' | 'donations' | 'cases' = 'all';
   recentActivities: Activity[] = [];
 
@@ -126,6 +140,7 @@ export class AssociationAccountComponent implements OnInit {
       default: return 'secondary';
     }
   }
+  
 
   async onCreateAidAnnouncement() {
     this.modalService.open('aid-announcement-form', {

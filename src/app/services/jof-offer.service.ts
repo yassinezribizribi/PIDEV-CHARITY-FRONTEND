@@ -9,6 +9,7 @@ import { JobOffer } from '../models/job-offer.model';
 export class JobOfferService {
 
   private apiUrl = 'http://localhost:8089/api/jobOffers'; // Adjust this URL as necessary
+  
 
   constructor(private http: HttpClient) {}
 
@@ -25,4 +26,11 @@ export class JobOfferService {
 
     return this.http.post<JobOffer>(this.apiUrl, jobOffer, { headers });
   }
+
+  updateJobOffer(jobOffer: JobOffer): Observable<JobOffer> {
+    const token = localStorage.getItem('auth_token'); // Retrieve the token from localStorage
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.put<JobOffer>(`${this.apiUrl}/${jobOffer.idJobOffer}`, jobOffer, { headers });
+}
 }

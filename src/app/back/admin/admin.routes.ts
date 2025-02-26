@@ -22,6 +22,7 @@ export const ADMIN_ROUTES: Routes = [
       import('./association-details/association-details.component')
         .then(m => m.AssociationDetailsComponent),
    
-  },
+  }
+  
   
 ]; 

@@ -1,1 +1,34 @@
-
+/* Style général des boutons */
+.btn-primary {
+    background: linear-gradient(135deg, #ff9800, #ff6f00); /* Dégradé attractif */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  /* Effet au survol */
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #e68900, #d65a00);
+    transform: scale(1.05);
+  }
+  
+  /* Désactiver un bouton */
+  .btn-primary:disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Adaptation pour le bouton Apply Now */
+  .apply-button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+  }
+  

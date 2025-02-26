@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { SignupService } from 'src/app/services/sign-up.service';
 @Component({
   selector: 'app-signup',
+  standalone:true,
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, CommonModule, RouterModule, HttpClientModule,RouterLink]
@@ -44,6 +45,7 @@ export class SignupComponent {
       });
     } else {
       console.log("❌ Form is invalid:", this.signupForm.errors);
+
     }
   }
   

@@ -1,30 +1,91 @@
 <app-navbar></app-navbar>
 
-<section class="container mt-5">
-  <h2>Job Opportunities</h2>
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Job Opportunities</h5>
+                </div>
+            </div><!--end col-->
+        </div><!--end row-->
 
-  <!-- Loading & Error Handling -->
-  <div *ngIf="loading" class="text-center"><p>Loading job offers...</p></div>
-  <div *ngIf="error" class="text-danger"><p>{{ error }}</p></div>
+        <div class="position-middle-bottom">
+            <nav aria-label="breadcrumb" class="d-block">
+                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+                    <li class="breadcrumb-item"><a [routerLink]="'/'">Solidarity&Refugee</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Job Opportunities</li>
+                </ul>
+            </nav>
+        </div>
+    </div><!--end container-->
+</section><!--end section-->
 
-  <!-- Add Job Offer -->
-  <div class="card p-3 mb-4">
-    <h5>Add a New Job Offer</h5>
-    <input [(ngModel)]="newJobOffer.title" class="form-control mb-2" placeholder="Title">
-    <textarea [(ngModel)]="newJobOffer.description" class="form-control mb-2" placeholder="Description"></textarea>
-    <input [(ngModel)]="newJobOffer.requirements" class="form-control mb-2" placeholder="Requirements">
-    <button class="btn btn-primary" (click)="addJobOffer()" [disabled]="!newJobOffer.title.trim()">Post Job</button>
-  </div>
+<div class="position-relative">
+    <div class="shape overflow-hidden text-white">
+        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+        </svg>
+    </div>
+</div>
+<!-- Hero End -->
 
-  <!-- Job Offers List -->
-  <div *ngFor="let job of jobOffers" class="card p-3 mb-4">
-    <h5>{{ job.title }}</h5>
-    <p>{{ job.description }}</p>
-    <p><strong>Requirements:</strong> {{ job.requirements }}</p>
-    <span class="badge" [ngClass]="{'bg-success': job.isActive, 'bg-danger': !job.isActive}">
-      {{ job.isActive ? 'Active' : 'Closed' }}
-    </span>
-  </div>
+<!-- Job Listings Section -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <!-- Job Offers -->
+            <div class="col-lg-8">
+                <h3 class="mb-4">Current Job Opportunities</h3>
+                <div *ngIf="loading" class="text-center text-primary"><p>Loading job offers...</p></div>
+                <div *ngIf="error" class="text-danger"><p>{{ error }}</p></div>
+
+                <!-- Job Offer Cards -->
+                <div *ngFor="let job of jobOffers" class="card shadow-sm border-0 p-4 mb-4">
+                    <h5 class="fw-bold">{{ job.title }}</h5>
+                    <p class="text-muted">{{ job.description }}</p>
+                    <p><strong>Requirements:</strong> {{ job.requirements }}</p>
+
+                    <!-- Active/Closed Toggle and Apply Now Button -->
+                    <div class="d-flex justify-content-start gap-2 mt-3">
+                        <!-- Active/Closed Toggle Button -->
+                        <button class="btn btn-sm" 
+                                [ngClass]="{'btn-success': job.isActive, 'btn-danger': !job.isActive}"
+                                (click)="toggleJobStatus(job)">
+                            {{ job.isActive ? 'Active' : 'Closed' }}
+                        </button>
+
+                        <button *ngIf="job.idJobOffer" (click)="applyForJob(job.idJobOffer)" class="btn btn-primary">
+                            Apply for Job
+                          </button>
+                          
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add New Job Offer -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 p-4">
+                    <h5 class="fw-bold mb-3">Post a New Job</h5>
+                    <form (ngSubmit)="addJobOffer()">
+                        <div class="mb-2">
+                            <input [(ngModel)]="newJobOffer.title" [ngModelOptions]="{standalone: true}" placeholder="Title" >
+                        </div>
+                        <div class="mb-2">
+                            <input [(ngModel)]="newJobOffer.description" [ngModelOptions]="{standalone: true}" placeholder="Description">
+                        </div>
+                        <div class="mb-2">
+                            <input [(ngModel)]="newJobOffer.requirements" [ngModelOptions]="{standalone: true}" placeholder="Requirements" >
+                        </div>
+                        <button class="btn btn-primary w-100" type="submit"  [disabled]="!newJobOffer.title.trim()">Post Job</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <app-footer></app-footer>

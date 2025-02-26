@@ -41,7 +41,7 @@ export class EmailService {
   }
 
   getVerificationEmailTemplate(association: any): EmailTemplate {
-    const loginUrl = `${this.BASE_URL}/association/login`;
+    const loginUrl = `/login`;
     
     return {
       to: association.email,

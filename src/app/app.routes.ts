@@ -24,7 +24,7 @@ import { ContactusComponent } from './pages/contactus/contactus.component';
 import { AdminGuard } from './guards/admin.guard';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { AssociationTestComponent } from './pages/association/association-test/association-test.component';
+
 import { JobOpportunitiesForumComponent } from './pages/forums/job-opportunities-forum/job-opportunities-forum.component';
 import { SupportRefugeesComponent } from './pages/forums/support-refugees-forum/support-refugees-forum.component';
 import { AuthGuard } from './guards/auth.guard';
@@ -65,6 +65,12 @@ export const routes: Routes = [
         import('./pages/association/association-signup/association-signup.component')
           .then(m => m.AssociationSignupComponent)
     },
+    {
+      path: 'association-login',
+      loadComponent: () => 
+        import('./back/association-login/association-login.component')
+          .then(m => m.AssociationLoginComponent)
+    },
    
     {
       path: 'association/account',
@@ -86,7 +92,7 @@ export const routes: Routes = [
           path: '',
           component: ForumsComponent
         },
-        { path: 'job-opportunities', component: JobOpportunitiesForumComponent }
+        { path: 'job-opportunities', component: JobOpportunitiesForumComponent,canActivate:[AuthGuard] }
         ,
         {
           path: 'support-refugees',
