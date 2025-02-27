@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { IndexComponent } from './pages/index/index.component';
 import { AboutusComponent } from './pages/aboutus/aboutus.component';
-import { ServicesComponent } from './pages/services/services.component';
+import {HealthcareComponent } from './pages/Healthcare/healthcare.component';
 import { ServiceDetailComponent } from './pages/service-detail/service-detail.component';
 import { ForumsComponent } from './pages/forums/forums.component';
 import { TeamComponent } from './pages/team/team.component';
@@ -11,6 +11,7 @@ import { BlogsComponent } from './pages/blogs/blogs.component';
 import { BlogSidebarComponent } from './pages/blog-sidebar/blog-sidebar.component';
 import { BlogDetailComponent } from './pages/post/blog-detail.component';
 import { OnepageComponent } from './pages/onepage/onepage.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
@@ -21,7 +22,9 @@ import { ComingsoonComponent } from './pages/comingsoon/comingsoon.component';
 import { MaintenanceComponent } from './pages/maintenance/maintenance.component';
 import { ErrorComponent } from './pages/error/error.component';
 import { ContactusComponent } from './pages/contactus/contactus.component';
-import { AdminGuard } from './guards/admin.guard';
+import { AdminGuard } from './guards/admin.guard';  // Import the guard
+import { AssociationSignupComponent } from './pages/association/association-signup/association-signup.component'; // Import the component
+import { AssociationAccountComponent } from './back/association-account/association-account.component'; // Import the component
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { AssociationTestComponent } from './pages/association/association-test/association-test.component';
@@ -36,7 +39,7 @@ export const routes: Routes = [
   
     {path:'index', component:IndexComponent,canActivate:[AuthGuard]},
     {path:'aboutus', component:AboutusComponent},
-    {path:'services', component:ServicesComponent},
+    {path:'services', component:HealthcareComponent},
     {path:'service-detail', component:ServiceDetailComponent},
     {path:'forums', component:ForumsComponent},
     {path:'team', component:TeamComponent},
@@ -49,6 +52,7 @@ export const routes: Routes = [
     {path:'login', component:LoginComponent},
     {path:'signup', component:SignupComponent},
     {path:'signup/:role', component:SignupComponent},
+    {path: 'forgot-password', component: ForgotPasswordComponent }, 
   
     {path:'reset-password', component:ResetPasswordComponent},
     {path:'lock-screen', component:LockScreenComponent},
@@ -59,6 +63,7 @@ export const routes: Routes = [
     {path:'error', component:ErrorComponent},
     {path:'contactus', component:ContactusComponent},
     {path:'admin-navbar', component:AdminNavbarComponent},
+    
     {
       path: 'association-signup',
       loadComponent: () => 

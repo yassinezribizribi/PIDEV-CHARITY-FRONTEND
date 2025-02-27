@@ -1,0 +1,58 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h2 class="text-white fw-bold">Bienvenue dans le Module Médical</h2>
+                    <p class="text-white-50">Accédez aux services de santé en ligne</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Patient -->
+<div *ngIf="isRequester" class="container mt-5">
+  <h2 class="text-primary">Demande de Soins Médicaux</h2>
+  <form [formGroup]="healthcareForm" (ngSubmit)="submitHealthcareRequest()" class="shadow p-4 rounded bg-light">
+      <div class="mb-3">
+          <label for="history" class="form-label">Symptômes</label>
+          <textarea id="history" formControlName="history" class="form-control"></textarea>
+      </div>
+      <div class="mb-3">
+          <label for="bookingDate" class="form-label">Date de Rendez-vous</label>
+          <input type="date" id="bookingDate" formControlName="bookingDate" class="form-control">
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Envoyer la Demande</button>
+  </form>
+</div>
+
+<!-- Section Médecin -->
+<div *ngIf="isVolunteer" class="container mt-5">
+    <h2 class="text-success">Liste des Patients</h2>
+    <table class="table table-striped table-hover shadow-sm">
+    
+        <p *ngIf="healthcareList.length === 0" class="text-danger">Aucun patient trouvé dans la base de données.</p>
+
+
+
+        <div *ngFor="let patient of healthcareList" class="card p-3 mb-2">
+            <h5>👤 {{ patient.subscriberName || 'Nom inconnu' }}</h5>
+            <p>🩺 Symptômes: {{ patient.symptoms || 'Non spécifié' }}</p>
+            <p>📅 Date: {{ patient.bookingDate || 'Non précisée' }}</p>
+            <p>
+                <span class="badge bg-warning" *ngIf="patient.status === 'PENDING'">En attente</span>
+                <span class="badge bg-info" *ngIf="patient.status === 'IN_PROGRESS'">En cours</span>
+                <span class="badge bg-success" *ngIf="patient.status === 'COMPLETED'">Terminé</span>
+            </p>
+            <button class="btn btn-primary btn-sm" (click)="selectPatient(patient)">🔍 Voir Détails</button>
+        </div>
+        
+    </table>
+</div>
+
+<app-footer></app-footer>

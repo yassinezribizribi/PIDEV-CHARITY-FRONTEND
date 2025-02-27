@@ -1,136 +1,72 @@
-<app-navbar/>
-
- <!-- Hero Start -->
- <section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
     <div class="bg-overlay bg-gradient-overlay"></div>
-    <div class="container">
-        <div class="row mt-5 justify-content-center">
-            <div class="col-12">
-                <div class="title-heading text-center">
-                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Testimonial</h5>
-                </div>
-            </div><!--end col-->
-        </div><!--end row-->
-
-        <div class="position-middle-bottom">
-            <nav aria-label="breadcrumb" class="d-block">
-                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                    <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Testimonial</li>
-                </ul>
-            </nav>
-        </div>
-    </div><!--end container-->
-</section><!--end section-->
-<div class="position-relative">
-    <div class="shape overflow-hidden text-white">
-        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
-        </svg>
+    <div class="container text-center">
+        <h5 class="heading fw-semibold sub-heading text-white title-dark">Témoignages</h5>
     </div>
-</div>
-<!-- Hero End -->
+</section>
 
-<!-- Start -->
-<section class="section">
+<!-- Testimonial Section -->
+<section class="section py-5">
     <div class="container">
+        <!-- ✅ Affichage du chargement -->
+        <div *ngIf="testimonials.length === 0" class="text-center text-muted">
+            <p>Aucun témoignage disponible.</p>
+        </div>
+
         <div class="row">
-            <div class="col-lg-4 col-md-6 col-12">
-                <div class="row g-4">
-                    <div *ngFor="let item of clientData | slice:0:3" class="col-12">
-                        <div class="position-relative overflow-hidden z-1 bg-white rounded shadow p-4">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <h6 class="mb-0">{{item.tag}}</h6>
-
-                                <ul class="list-unstyled mb-0 text-warning">
-                                    <li *ngFor="let el of item.rate" class="list-inline-item me-1"><i [ngClass]="el"></i></li>
-                                </ul>
-                            </div>
-
-                            <p class="text-muted fst-italic mt-2">" {{item.desc}} "</p>
-
-                            <div class="d-flex align-items-center">
-                                <img [src]="item.image" class="avatar avatar-small rounded-pill shadow object-fit-cover" alt="">
-                                <div class="ms-2">
-                                    <h6 class="text-dark small mb-0">{{item.name}}</h6>
-                                    <small class="text-muted d-block">{{item.position}}</small>
-                                </div>
-                            </div>
-
-                            <i class="mdi mdi-format-quote-open text-primary position-absolute top-50 start-50 translate-middle z-n1 testi-icon"></i>
+            <div *ngFor="let testimonial of testimonials; let i = index" class="col-lg-4 col-md-6 col-12">
+                <div class="testimonial-card p-4 shadow rounded">
+                    <h6 class="mb-2">Témoignage #{{ i + 1 }}</h6>
+                    <p class="text-muted fst-italic">" {{ testimonial.content }} "</p>
+                    <div class="d-flex align-items-center">
+                        <img *ngIf="testimonial.beforePhoto" [src]="testimonial.beforePhoto" class="avatar rounded-circle shadow" alt="Before">
+                        <div class="ms-2">
+                            <h6 class="text-dark small">{{ testimonial.description }}</h6>
                         </div>
-                    </div><!--end col-->
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 col-12 mt-4 mt-md-0">
-                <div class="row g-4">
-                    <div *ngFor="let item of clientData | slice:3:6" class="col-12">
-                        <div class="position-relative overflow-hidden z-1 bg-white rounded shadow p-4">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <h6 class="mb-0">{{item.tag}}</h6>
-
-                                <ul class="list-unstyled mb-0 text-warning">
-                                    <li *ngFor="let el of item.rate" class="list-inline-item me-1"><i [ngClass]="el"></i></li>
-                                </ul>
-                            </div>
-
-                            <p class="text-muted fst-italic mt-2">" {{item.desc}} "</p>
-
-                            <div class="d-flex align-items-center">
-                                <img [src]="item.image" class="avatar avatar-small rounded-pill shadow object-fit-cover" alt="">
-                                <div class="ms-2">
-                                    <h6 class="text-dark small mb-0">{{item.name}}</h6>
-                                    <small class="text-muted d-block">{{item.position}}</small>
-                                </div>
-                            </div>
-
-                            <i class="mdi mdi-format-quote-open text-primary position-absolute top-50 start-50 translate-middle z-n1 testi-icon"></i>
-                        </div>
-                    </div><!--end col-->
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-12 mt-4 mt-lg-0">
-                <div class="row g-4">
-                    <div *ngFor="let item of clientData | slice:6:9" class="col-md-6 col-lg-12">
-                        <div class="position-relative overflow-hidden z-1 bg-white rounded shadow p-4">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <h6 class="mb-0">{{item.tag}}</h6>
-
-                                <ul class="list-unstyled mb-0 text-warning">
-                                    <li *ngFor="let el of item.rate" class="list-inline-item me-1"><i [ngClass]="el"></i></li>
-                                </ul>
-                            </div>
-
-                            <p class="text-muted fst-italic mt-2">" {{item.desc}} "</p>
-
-                            <div class="d-flex align-items-center">
-                                <img [src]="item.image" class="avatar avatar-small rounded-pill shadow object-fit-cover" alt="">
-                                <div class="ms-2">
-                                    <h6 class="text-dark small mb-0">{{item.name}}</h6>
-                                    <small class="text-muted d-block">{{item.position}}</small>
-                                </div>
-                            </div>
-
-                            <i class="mdi mdi-format-quote-open text-primary position-absolute top-50 start-50 translate-middle z-n1 testi-icon"></i>
-                        </div>
-                    </div><!--end col-->
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col mt-4">
-                <div class="text-center">
-                    <a routerLink="#" (click)="$event.preventDefault()" class="text-primary">See More <i class="mdi mdi-chevron-right"></i></a>
-                </div>
-            </div>
+        <!-- ✅ Bouton "Recharger" pour rafraîchir les témoignages -->
+        <div class="row justify-content-center mt-4">
+            <button class="btn btn-primary btn-lg" (click)="refreshTestimonials()">🔄 Recharger</button>
         </div>
     </div>
 </section>
-<!-- End -->
 
-<app-footer/>
-
-<app-scroll-to-top/>
+<!-- Formulaire d'Ajout -->
+<section class="section py-5">
+    <div class="container">
+        <h2 class="text-center">Ajouter un Témoignage</h2>
+        <form [formGroup]="testimonialForm" (ngSubmit)="saveTestimonial()" class="testimonial-form">
+            <div class="mb-3">
+                <label for="content" class="form-label">Contenu</label>
+                <input id="content" formControlName="content" class="form-control" required>
+                <small class="text-danger" *ngIf="testimonialForm.controls['content'].invalid && testimonialForm.controls['content'].touched">
+                    Le contenu est obligatoire et doit contenir au moins 10 caractères.
+                </small>
+            </div>
+            <div class="mb-3">
+                <label for="beforePhoto" class="form-label">Photo Avant</label>
+                <input id="beforePhoto" formControlName="beforePhoto" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="afterPhoto" class="form-label">Photo Après</label>
+                <input id="afterPhoto" formControlName="afterPhoto" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" formControlName="description" class="form-control"></textarea>
+                <small class="text-danger" *ngIf="testimonialForm.controls['description'].invalid && testimonialForm.controls['description'].touched">
+                    La description est obligatoire.
+                </small>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success btn-lg">➕ Ajouter</button>
+            </div>
+        </form>
+    </div>
+</section>
+<app-footer></app-footer>
