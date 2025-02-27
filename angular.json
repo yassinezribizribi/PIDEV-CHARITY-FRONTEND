@@ -35,9 +35,12 @@
             ],
             "styles": [
               "./node_modules/bootstrap/scss/bootstrap.scss",
+              
               "src/assets/scss/style.scss",
               "src/assets/css/materialdesignicons.min.css",
-              "src/styles.scss"
+              "src/styles.scss",
+              
+  "node_modules/ngx-toastr/toastr.css"
               
 
             ],

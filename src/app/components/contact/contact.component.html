@@ -1,99 +1,63 @@
 <div class="container">
     <div class="row align-items-center">
         <div class="col-md-6">
-            <img [src]="'assets/images/contact.png'" class="img-fluid d-block mx-auto" alt="">
+            <img src="assets/images/contact.png" class="img-fluid d-block mx-auto" alt="Crisis Alert">
         </div>
         <div class="col-md-6">
             <div class="p-4 rounded shadow bg-white ms-lg-5">
-                <h4>Get in touch !</h4>
-                <form class="mt-4">
+                <h4>Submit Crisis Report</h4>
+                <form [formGroup]="crisisForm" (ngSubmit)="sendCrisis()">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Your Name <span class="text-danger">*</span></label>
-                                <input name="name" id="name" type="text" class="form-control" placeholder="Name :">
+                                <label class="form-label fw-semibold">Crisis Category <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" formControlName="category" placeholder="Category">
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Your Email <span class="text-danger">*</span></label>
-                                <input name="email" id="email" type="email" class="form-control" placeholder="Email :">
-                            </div> 
-                        </div><!--end col-->
-
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Subject</label>
-                                <input name="subject" id="subject" class="form-control" placeholder="Subject :">
-                            </div>
-                        </div><!--end col-->
-
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Comments <span class="text-danger">*</span></label>
-                                <textarea name="comments" id="comments" rows="4" class="form-control" placeholder="Message :"></textarea>
+                                <label class="form-label fw-semibold">Location <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" formControlName="location" placeholder="Location">
                             </div>
                         </div>
+
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+                                <textarea rows="4" class="form-control" formControlName="description" placeholder="Describe the crisis"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Crisis Date</label>
+                                <input type="date" class="form-control" formControlName="crisis_date">
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Updates</label>
+                                <textarea rows="4" class="form-control" formControlName="updates" placeholder="Add any updates (optional)"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Champ User ID (désactivé, rempli automatiquement) -->
+                        
+                        
                     </div>
+
                     <div class="row">
                         <div class="col-12">
                             <div class="d-grid">
-                                <button type="submit" id="submit" name="send" class="btn btn-primary">Send Message</button>
+                                <button type="submit" class="btn btn-primary" [disabled]="!crisisForm.valid">Send Crisis Alert</button>
                             </div>
-                        </div><!--end col-->
-                    </div><!--end row-->
+                        </div>
+                    </div>
                 </form>
-            </div>
-        </div><!--end col-->
-    </div><!--end row-->
-</div><!--end container-->
 
-<div class="container mt-100 mt-60">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="position-relative features text-center mx-lg-4 px-md-1">
-                <div class="position-relative d-flex justify-content-center">
-                    <i data-feather="phone" class="fea icon-md text-primary z-1"></i>
-                    <div class="feature-icon bg-soft-primary position-absolute top-0 translate-middle"></div>
-                </div>
-
-                <div class="mt-4">
-                    <h5 class="mb-3">Phone</h5>
-                    <p class="text-muted">Start working with Smilecare that can provide everything</p>
-                    <a href="tel:+152534-468-854"  class="text-primary">+152 534-468-854</a>
-                </div>
             </div>
-        </div><!--end col-->
-        
-        <div class="col-md-4 mt-5 pt-2 mt-md-0 pt-md-0">
-            <div class="position-relative features text-center mx-lg-4 px-md-1">
-                <div class="position-relative d-flex justify-content-center">
-                    <i data-feather="mail" class="fea icon-md text-primary z-1"></i>
-                    <div class="feature-icon bg-soft-primary position-absolute top-0 translate-middle"></div>
-                </div>
-
-                <div class="mt-4">
-                    <h5 class="mb-3">Email</h5>
-                    <p class="text-muted">Start working with Smilecare that can provide everything</p>
-                    <a href="mailto:contact@example.com" class="text-primary">contact&#64;example.com</a>
-                </div>
-            </div>
-        </div><!--end col-->
-        
-        <div class="col-md-4 mt-5 pt-2 mt-md-0 pt-md-0">
-            <div class="position-relative features text-center mx-lg-4 px-md-1">
-                <div class="position-relative d-flex justify-content-center">
-                    <i data-feather="map-pin" class="fea icon-md text-primary z-1"></i>
-                    <div class="feature-icon bg-soft-primary position-absolute top-0 translate-middle"></div>
-                </div>
-
-                <div class="mt-4">
-                    <h5 class="mb-3">Location</h5>
-                    <p class="text-muted">C/54 Northwest Freeway, Suite 558, <br>Houston, USA 485</p>
-                    <a routerLink="#" (click)="$event.preventDefault()" class="text-primary">View on Google map</a>
-                </div>
-            </div>
-        </div><!--end col-->
-    </div><!--end row-->
-</div><!--end container-->
+        </div>
+    </div>
+</div>

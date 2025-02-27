@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
         CommonModule,
         RouterLink
     ],
-    templateUrl: './services.component.html',
+    templateUrl: './healthcare.component.html',
     styleUrl: './services.component.scss'
 })
 export class ServicesComponent {

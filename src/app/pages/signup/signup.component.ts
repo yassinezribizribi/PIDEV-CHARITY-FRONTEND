@@ -1,9 +1,9 @@
 import { Component, inject   } from '@angular/core';
-import { FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule  } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule, Router  } from '@angular/router'; 
 import { HttpClientModule } from '@angular/common/http';
 import { SignupService } from 'src/app/services/sign-up.service';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',

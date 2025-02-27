@@ -24,7 +24,6 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
         CommonModule,
         RouterLink,
         SingleNavbarComponent,
-        ServicesComponent,
         AboutOneComponent,
         AboutTwoComponent,
         ForumComponent,

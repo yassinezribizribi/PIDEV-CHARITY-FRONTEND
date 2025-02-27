@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
     selector: 'app-nav-setting',
@@ -11,6 +12,19 @@ import { RouterLink } from '@angular/router';
     templateUrl: './nav-setting.component.html',
     styleUrl: './nav-setting.component.scss'
 })
-export class NavSettingComponent {
+export class NavSettingComponent implements OnInit{
+    isAuthenticated: boolean = false;
 
+constructor(private authService: AuthService){}
+ngOnInit(): void {
+    
+    this.authService.isAuthenticated$.subscribe(isAuthenticated => {
+        this.isAuthenticated = isAuthenticated;
+        console.log(isAuthenticated)
+      });
+    
+  }
+logout(){
+this.authService.logout()
+}
 }
