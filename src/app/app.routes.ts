@@ -35,6 +35,7 @@ import { AnimalProfileComponent } from './pages/animal-profile/animal-profile.co
 import { PostsComponent } from './posts/posts.component';
 import { AnimalsAdminComponent } from './back/admin/animals-admin/animals-admin.component';
 import { EditAnimalComponent } from './back/admin/edit-animal/edit-animal.component';
+import { PostsManageComponent } from './back/admin/posts-management/posts-manage.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'onepage', pathMatch: 'full' },
@@ -63,6 +64,8 @@ export const routes: Routes = [
   { path: 'edit-animal/:id', component: EditAnimalComponent },
 
   { path: 'posts', component: PostsComponent },
+  { path: 'posts-manage', component: PostsManageComponent },
+
 
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'lock-screen', component: LockScreenComponent },

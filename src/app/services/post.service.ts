@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Post {
   idPosts?: number;
   content: string;
   creationDate?: Date;
-  likesCount: number;
-  shareCount: number;
+  likesCount?: number; // Toujours optionnel après suppression
+  shareCount?: number;
   isLiked?: boolean;
   actionId?: number;
 }
@@ -17,8 +17,18 @@ export interface PostActionDTO {
   posts: { idPosts: number };
 }
 
+// Récupérer le token (depuis localStorage ou un service d'authentification)
+const token = localStorage.getItem('token');
+
+const httpOptions = {
+  headers: new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}` // Ajout du token
+  })
+};
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PostService {
   private apiUrl = 'http://localhost:8089/api/posts';
@@ -34,15 +44,20 @@ export class PostService {
   likePost(postId: number): Observable<any> {
     const postActionDTO: PostActionDTO = {
       typeAction: 'LIKE',
-      posts: { idPosts: postId }
+      posts: { idPosts: postId },
     };
     console.log('Like post:', postId, 'DTO:', postActionDTO);
-    return this.http.post<any>(`${this.postActionUrl}/createPostAction`, postActionDTO);
+    return this.http.post<any>(
+      `${this.postActionUrl}/createPostAction`,
+      postActionDTO
+    );
   }
 
   unlikePost(actionId: number): Observable<string> {
     console.log('Unlike post avec actionId:', actionId);
-    return this.http.delete<string>(`${this.postActionUrl}/deletePostAction/${actionId}`);
+    return this.http.delete<string>(
+      `${this.postActionUrl}/deletePostAction/${actionId}`
+    );
   }
 
   addPost(post: Post): Observable<Post> {
@@ -52,6 +67,13 @@ export class PostService {
 
   deletePost(id: number): Observable<string> {
     console.log('Delete post avec id:', id);
-    return this.http.delete<string>(`${this.apiUrl}/deletePost/${id}`);
+    return this.http.delete(`${this.apiUrl}/deletePost/${id}`, {
+      responseType: 'text',
+    });
+  }
+
+  getLikesCountByPost(): Observable<Map<number, number>> {
+    console.log('Requête vers:', `${this.apiUrl}/likes-count`);
+    return this.http.get<Map<number, number>>(`${this.apiUrl}/likes-count`);
   }
 }

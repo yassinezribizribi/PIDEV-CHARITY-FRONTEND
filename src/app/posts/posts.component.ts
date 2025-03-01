@@ -83,7 +83,6 @@ export class PostsComponent implements OnInit {
           console.log('Réponse unlike:', response);
           // Garder le like visuellement "toggled" côté client
           post.isLiked = true; // On garde le like visuellement "toggled"
-          post.likesCount--; // Décrémentation locale
           post.actionId = undefined;
           console.log(`Post ${postId} unliked avec succès`);
           this.errorMessage = '';
@@ -95,7 +94,6 @@ export class PostsComponent implements OnInit {
       this.postService.likePost(postId).subscribe({
         next: (response) => {
           post.isLiked = true;
-          post.likesCount++; // Incrémentation locale
           post.actionId = response.idAction;
           console.log(`Post ${postId} liked avec succès`, response);
           this.errorMessage = '';

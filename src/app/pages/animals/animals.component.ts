@@ -35,18 +35,18 @@ export class AnimalsComponent implements OnInit {
   constructor(private animalService: AnimalService) {}
 
   ngOnInit(): void {
-    this.getAllAnimals();
+    this.getNonAdoptedAnimals(); // Changement ici
   }
 
-  getAllAnimals(): void {
-    this.animalService.getAllAnimals().subscribe({
+  getNonAdoptedAnimals(): void { // Remplace getAllAnimals
+    this.animalService.getNonAdoptedAnimals().subscribe({
       next: (data) => {
         this.animals = data;
-        console.log('Animals fetched:', data);
+        console.log('Non-adopted animals fetched:', data);
       },
       error: (error) => {
-        console.error('Error fetching animals:', error);
-        this.errorMessage = 'Erreur lors de la récupération des animaux';
+        console.error('Error fetching non-adopted animals:', error);
+        this.errorMessage = 'Erreur lors de la récupération des animaux non adoptés';
       }
     });
   }

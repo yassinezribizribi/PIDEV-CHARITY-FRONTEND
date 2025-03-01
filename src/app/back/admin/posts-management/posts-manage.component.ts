@@ -1,117 +1,196 @@
+import { Component, OnInit, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FooterComponent } from '@component/footer/footer.component';
-import { NavbarComponent } from '@component/navbar/navbar.component';
 import { AdminNavbarComponent } from '../admin-navbar/admin-navbar.component';
 import { ScrollToTopComponent } from '@component/scroll-to-top/scroll-to-top.component';
-import { PostService, Post } from 'src/app/services/post.service';
+import { PostsService, Post } from 'src/app/services/Posts-manage.service';
+import { AuthService } from 'src/app/services/auth.service';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { TokenInterceptor } from 'src/app/interceptors/token.interceptor';
-import { BlogSidebarsComponent } from '@component/blog-sidebars/blog-sidebars.component';
+import { BlogSidebarsComponent } from "../../../components/blog-sidebars/blog-sidebars.component";
 
 @Component({
-  selector: 'app-posts-admin',
+  selector: 'app-posts-manage',
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
+    RouterModule,
     FormsModule,
-    NavbarComponent,
+    ReactiveFormsModule,
     AdminNavbarComponent,
     FooterComponent,
     ScrollToTopComponent,
     HttpClientModule,
     BlogSidebarsComponent
-  ],
+],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
-    PostService
+    PostsService
   ],
   templateUrl: './posts-manage.component.html',
   styleUrls: ['./posts-manage.component.scss']
 })
 export class PostsManageComponent implements OnInit {
+  postService = inject(PostsService);
+  authService = inject(AuthService);
+
   posts: Post[] = [];
   newPostContent: string = '';
-  loading = true;
-  error: string | null = null;
+  subscriptionId: number | null = null;
+  userId: number | null = null;
+  errorMessage = '';
   currentDate = new Date();
+  hasToken = false;
 
-  constructor(
-    private postService: PostService,
-    private router: Router
-  ) {}
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
-    this.loadPosts();
+    this.checkUserAuth();
+    if (this.hasToken) {
+      this.getAllPosts();
+    }
   }
 
-  loadPosts(): void {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      this.error = 'Aucun token d’authentification trouvé. Veuillez vous connecter.';
-      this.loading = false;
+  checkUserAuth(): void {
+    const token = this.authService.getToken(); // ✅ getToken existe
+    this.hasToken = !!token;
+
+    if (!this.hasToken) {
+      console.warn("⚠️ L'utilisateur n'est pas connecté !");
+      this.errorMessage = "Aucun token d’authentification trouvé. Veuillez vous connecter.";
       return;
     }
 
+    // Décoder manuellement le token pour obtenir l’ID
+    const decodedToken = this.decodeToken(token!);
+    if (decodedToken) {
+      this.userId = decodedToken.idUser || Number(decodedToken.sub); // Ajustez selon votre token
+      console.log("👤 ID utilisateur détecté :", this.userId);
+    } else {
+      console.warn("⚠️ Impossible de décoder l’ID utilisateur.");
+      this.userId = null;
+    }
+  }
+
+  // Décoder le token localement
+  private decodeToken(token: string): any {
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch (error) {
+      console.error('❌ Erreur lors du décodage du token:', error);
+      return null;
+    }
+  }
+
+  getAllPosts(): void {
+    console.log("🔍 Vérification du token avant requête :", this.authService.getToken());
     this.postService.getAllPosts().subscribe({
-      next: (data: Post[]) => {
+      next: (data) => {
         this.posts = data;
-        this.loading = false;
-        console.log('Posts chargés:', this.posts);
+        this.loadLikesCount();
+        console.log('✅ Données reçues:', this.posts);
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des posts:', error);
-        this.error = 'Erreur lors du chargement des posts : ' + (error.message || 'Vérifiez la console');
-        this.loading = false;
+        console.error('❌ Détails de l’erreur:', error);
+        this.errorMessage = 'Erreur lors de la récupération des posts : ' + (error.message || 'Vérifiez la console');
       }
     });
   }
 
-  onSharePost(): void {
+  loadLikesCount(): void {
+    this.postService.getLikesCountByPost().subscribe({
+      next: (likesCountMap) => {
+        this.posts.forEach(post => {
+          post.likesCount = likesCountMap.get(post.idPosts!) || 0;
+        });
+        console.log('✅ Likes mis à jour:', this.posts);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des likes:', error);
+        this.errorMessage = 'Erreur lors du chargement des likes : ' + (error.message || 'Vérifiez la console');
+      }
+    });
+  }
+
+  sharePost(): void {
+    if (!this.hasToken) {
+      this.errorMessage = 'Aucun token d’authentification trouvé. Veuillez vous connecter.';
+      return;
+    }
+
     if (!this.newPostContent.trim()) {
-      this.error = 'Le contenu du post ne peut pas être vide';
+      this.errorMessage = 'Le contenu du post ne peut pas être vide.';
       return;
     }
 
-    const newPostContent: Post = { content: this.newPostContent };
+    if (!this.subscriptionId) {
+      this.errorMessage = 'L’ID de la subscription est requis.';
+      return;
+    }
+
+    const newPost: Post = {
+      content: this.newPostContent,
+      creationDate: new Date(),
+      subscription: { idSubscription: this.subscriptionId }
+    };
+
     this.postService.addPost(newPost).subscribe({
-      next: (response: Post) => {
-        this.posts.unshift(response); // Ajoute le nouveau post en haut de la liste
-        this.newPostContent = ''; // Réinitialise le champ
-        console.log('Post ajouté avec succès:', response);
-        this.error = null;
+      next: (createdPost) => {
+        const postWithUser: Post = { ...createdPost, userId: this.userId }; // ✅ userId reconnu
+        this.posts.unshift(postWithUser);
+        this.newPostContent = '';
+        this.subscriptionId = null;
+        this.errorMessage = '';
+        console.log('✅ Post créé avec succès:', postWithUser);
       },
       error: (error) => {
-        console.error('Erreur lors de l’ajout du post:', error);
-        this.error = 'Erreur lors de l’ajout du post : ' + (error.message || 'Vérifiez la console');
+        console.error('❌ Erreur lors de la création du post:', error);
+        this.errorMessage = 'Erreur lors de la création du post : ' + (error.message || 'Voir console');
       }
     });
   }
 
-  deletePost(id: number | undefined): void {
-    if (id === undefined) {
-      this.error = 'ID du post manquant';
+  editPost(postId: number | undefined): void {
+    if (postId === undefined) {
+      this.errorMessage = 'ID du post manquant';
       return;
     }
+
+    const post = this.posts.find(p => p.idPosts === postId);
+    if (!post) {
+      this.errorMessage = 'Post non trouvé';
+      return;
+    }
+
+    const updatedContent = prompt('Modifier le contenu du post :', post.content);
+    if (updatedContent && updatedContent !== post.content) {
+      post.content = updatedContent;
+      this.posts = [...this.posts];
+      console.log('✅ Post mis à jour localement (simulation):', post);
+    }
+  }
+
+  deletePost(postId: number | undefined): void {
+    if (postId === undefined) {
+      this.errorMessage = 'ID du post manquant';
+      return;
+    }
+
     if (confirm('Voulez-vous vraiment supprimer ce post ?')) {
-      this.postService.deletePost(id).subscribe({
+      this.postService.deletePost(postId).subscribe({
         next: () => {
-          this.posts = this.posts.filter(post => post.idPosts !== id);
-          console.log(`Post ${id} supprimé avec succès`);
-          this.error = null;
+          this.posts = this.posts.filter(p => p.idPosts !== postId);
+          console.log(`✅ Post ${postId} supprimé avec succès`);
+          this.errorMessage = '';
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
-          this.error = 'Erreur lors de la suppression du post : ' + (error.message || 'Vérifiez la console');
+          console.error('❌ Erreur lors de la suppression:', error);
+          this.errorMessage = 'Erreur lors de la suppression du post : ' + (error.message || 'Voir console');
         }
       });
     }
-  }
-
-  editPost(post: Post): void {
-    this.router.navigate(['/edit-post', post.idPosts]);
   }
 }

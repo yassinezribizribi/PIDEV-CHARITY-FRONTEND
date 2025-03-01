@@ -9,7 +9,7 @@ export interface Animal {
   race: string;
   medicalHistory: string;
   isAdopted: boolean;
-  subscriberId?: number; 
+  subscriberId?: number;
 }
 
 @Injectable({
@@ -41,6 +41,13 @@ export class AnimalService {
   }
 
   getAnimalsByUserId(userId: number): Observable<Animal[]> {
-    return this.http.get<Animal[]>(`${this.apiUrl}/getAnimalsByUserId/${userId}`);
+    return this.http.get<Animal[]>(
+      `${this.apiUrl}/getAnimalsByUserId/${userId}`
+    );
+  }
+
+  getNonAdoptedAnimals(): Observable<Animal[]> {
+    console.log('Requête vers:', `${this.apiUrl}/non-adopted`);
+    return this.http.get<Animal[]>(`${this.apiUrl}/non-adopted`);
   }
 }
