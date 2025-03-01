@@ -1,20 +1,19 @@
 <div class="refugee-support-forum">
-    <h3>Support Refugees Discussion</h3>
-  
-    <!-- Display Thread -->
-    <div class="thread">
-      <h4>{{ thread.title }}</h4>
-      <p>{{ thread.author }}: {{ thread.content }}</p>
-  
-      <div class="replies">
-        <h5>Replies:</h5>
-        <div *ngFor="let reply of thread.replies">
-          <p><strong>{{ reply.author }}:</strong> {{ reply.message }}</p>
-        </div>
+  <h3>Support Refugees Discussion</h3>
+
+  <!-- Display Thread -->
+  <div class="thread">
+    <h4>{{ thread.title }}</h4>
+    <p>{{ thread.author }}: {{ thread.content }} </p>
+
+    <div class="replies">
+      <h5>Replies:</h5>
+      <div *ngFor="let reply of thread.replies">
+        <p><strong>{{ reply.author }}:</strong> {{ reply.message }}</p>
       </div>
-  
-      <textarea [(ngModel)]="newReply" placeholder="Add a reply..."></textarea>
-      <button (click)="addReply()">Post Reply</button>
     </div>
+
+    <textarea [(ngModel)]="newReply" placeholder="Add a reply..."></textarea>
+    <button (click)="addReply()">Post Reply</button>
   </div>
-  
+</div>

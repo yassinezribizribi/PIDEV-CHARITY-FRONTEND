@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SupportRefugeesForumComponent } from './support-refugees-forum.component';
+import { SupportRefugeesComponent } from './support-refugees-forum.component';
 
 describe('SupportRefugeesForumComponent', () => {
-  let component: SupportRefugeesForumComponent;
-  let fixture: ComponentFixture<SupportRefugeesForumComponent>;
+  let component: SupportRefugeesComponent;
+  let fixture: ComponentFixture<SupportRefugeesComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SupportRefugeesForumComponent]
+      imports: [SupportRefugeesComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SupportRefugeesForumComponent);
+    fixture = TestBed.createComponent(SupportRefugeesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

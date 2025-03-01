@@ -81,7 +81,7 @@ import { ScrollToTopComponent } from '../../components/scroll-to-top/scroll-to-t
               <div class="card-body p-0 mt-4">
                 <h5 class="mb-3">Support Refugees</h5>
                 <p class="text-muted mb-3">Connect with the community, share stories, and get support from others.</p>
-                <a routerLink="/forums/support-refugees" class="text-primary">Join Discussion</a>
+                <a routerLink="/forums/list-rquest" class="text-primary">Join Discussion</a>
               </div>
             </div>
           </div>

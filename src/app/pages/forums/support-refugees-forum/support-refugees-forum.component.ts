@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../components/navbar/navbar.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
 import { RouterLink } from '@angular/router';
+
 @Component({
   selector: 'app-support-refugees',
   standalone: true,
@@ -50,7 +51,7 @@ import { RouterLink } from '@angular/router';
           <div class="col-lg-8">
             <div class="card shadow rounded border-0">
               <div class="card-body p-4">
-                <h3 class="mb-4">Support Refugees Discussion</h3>
+                <h3 class="mb-4">Support Refugees Discussion </h3>
                 
                 <div class="forum-thread mb-4">
                   <h4 class="mb-3">{{thread.title}}</h4>

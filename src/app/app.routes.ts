@@ -29,6 +29,7 @@ import { JobOpportunitiesForumComponent } from './pages/forums/job-opportunities
 import { SupportRefugeesComponent } from './pages/forums/support-refugees-forum/support-refugees-forum.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminNavbarComponent } from './back/admin/admin-navbar/admin-navbar.component';
+import { ListRequestComponent } from './pages/forums/list-request/list-request.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'onepage', pathMatch: 'full' },
@@ -91,6 +92,10 @@ export const routes: Routes = [
         {
           path: 'support-refugees',
           component: SupportRefugeesComponent
+        }
+        ,{
+          path: 'list-rquest',
+          component: ListRequestComponent
         }
       ]
     }

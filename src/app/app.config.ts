@@ -15,6 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     JobSearchService,
     JobOfferService,
+
     provideAnimations()
   ]
 };
