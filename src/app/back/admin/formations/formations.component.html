@@ -1,0 +1,157 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12 text-center">
+        <h5 class="heading fw-semibold text-white title-dark">Management</h5>
+      </div>
+    </div>
+    <div class="position-middle-bottom">
+      <nav aria-label="breadcrumb" class="d-block">
+        <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+          <li class="breadcrumb-item"><a [routerLink]="'/admin'">Admin</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Training</li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<section class="section py-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12">
+        
+         
+          <button (click)="openajouter=true" *ngIf="!openajouter" class="btn btn-primary">
+           {{openajouter ? "Close" :"Ajouter"}}
+          </button>
+          <div class="" *ngIf="openajouter">
+            <h2>{{ isEditMode ? 'Modifier la formation' : 'Ajouter une formation' }}</h2>
+  
+            <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()">
+              <div class="form-group">
+                <label for="trainingName">Nom de la formation</label>
+                <input id="trainingName" formControlName="trainingName" type="text" class="form-control" />
+              </div>
+            
+              <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" formControlName="description" class="form-control"></textarea>
+              </div>
+            
+              <div class="form-group">
+                <label for="duration">Durée (en jours)</label>
+                <input id="duration" formControlName="duration" type="number" class="form-control" />
+              </div>
+            
+              <div class="form-group">
+                <label for="capacity">Capacité</label>
+                <input id="capacity" formControlName="capacity" type="number" class="form-control" />
+              </div>
+            
+              <div class="form-group">
+                <label for="level">Niveau</label>
+                <select id="level" formControlName="level" class="form-control">
+                  <option value="INTERMIDIATE">INTERMIDIATE</option>
+                  <option value="BEGINNER">BEGINNER</option>
+                  <option value="PROFESSIONAL">PROFESSIONAL</option>
+                </select>
+              </div>
+            
+              <div class="form-group">
+                <label for="type">Type de formation</label>
+                <select id="type" formControlName="type" class="form-control">
+                  <option value="SKILLTRAINING">SKILLTRAINING</option>
+                  <option value="COURSE">COURSE</option>
+                </select>
+              </div>
+            
+              <div class="form-group">
+                <label for="sessionDate">Date de la session</label>
+                <input id="sessionDate" formControlName="sessionDate" type="date" class="form-control" />
+              </div>
+              <button (click)="close()" class="btn btn-secondary">
+                Close
+               </button>
+              <button type="submit" [disabled]="trainingForm.invalid" class="btn btn-primary">
+                {{ isEditMode ? 'Mettre à jour' : 'Ajouter' }}
+              </button>
+            </form>
+          </div>
+          <!-- Liste des formations avec table Bootstrap -->
+        <div *ngIf="!openajouter">
+            <h3>Liste des formations</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Nom de la formation</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Durée</th>
+                  <th scope="col">Capacité</th>
+                  <th scope="col">Niveau</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Date de session</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody *ngFor="let training of trainings">
+                <tr >
+                  <td>{{ training.trainingName }}</td>
+                  <td>{{ training.description }}</td>
+                  <td>{{ training.duration }}</td>
+                  <td>{{ training.capacity }}</td>
+                  <td>{{ training.level }}</td>
+                  <td>{{ training.type }}</td>
+                  <td>{{ training.sessionDate | date:'yyyy-MM-dd' }}</td>
+                  <td>
+                    <button class="btn btn-warning" (click)="editTraining(training)  ">Modifier</button>
+                </td>
+                <td>
+                    <button class="btn btn-danger " (click)="deleteTraining(training.idTraining)">Supprimer</button>
+                  </td>
+                  <td>
+                    <button class="btn btn-info" (click)="toggleSubscribers(training.idTraining)">
+                      {{ selectedTrainingId === training.idTraining ? 'Masquer abonnés' : 'Voir abonnés' }}
+                    </button>
+                  </td>
+                  
+                </tr>
+                <tr *ngIf="selectedTrainingId === training.idTraining">
+                    <td colspan="8">
+                      <ul *ngIf="training.subscribers?.length > 0; else noSubscribers">
+                        <li *ngFor="let subscriber of training.subscribers">
+                          {{ subscriber.name }} ({{ subscriber.email }})  
+                        
+                                          </li>
+                       
+                      </ul>
+                      <ng-template #noSubscribers>
+                        <p>Aucun abonné pour cette formation.</p>
+                      </ng-template>
+                    </td>
+                  </tr>
+              </tbody>
+            </table>
+        </div>
+          
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Modal -->
+
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

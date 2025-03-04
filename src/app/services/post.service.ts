@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
+import { User } from './Animal.service';
+import { AuthService } from './auth.service';
 
 export interface Post {
   idPosts?: number;
@@ -10,6 +12,7 @@ export interface Post {
   shareCount?: number;
   isLiked?: boolean;
   actionId?: number;
+  likedByUser: boolean; 
 }
 
 export interface PostActionDTO {
@@ -33,12 +36,25 @@ const httpOptions = {
 export class PostService {
   private apiUrl = 'http://localhost:8089/api/posts';
   private postActionUrl = 'http://localhost:8089/api/postActions';
+  private apiUrlUser = 'http://localhost:8089/api/users';
+  private authService = inject(AuthService);
+  
+
 
   constructor(private http: HttpClient) {}
-
   getAllPosts(): Observable<Post[]> {
-    console.log('Requête vers:', `${this.apiUrl}/getAllPosts`);
-    return this.http.get<Post[]>(`${this.apiUrl}/getAllPosts`);
+    const headers = this.authService.getAuthHeaders();
+    
+    return this.http.get(`${this.apiUrl}/getAllPosts`, { headers, responseType: 'text' }).pipe(
+      tap(response => console.log("Raw response:", response)), // Debugging
+      map(response => JSON.parse(response)) // Manually parse JSON
+    );
+  }
+  
+  toggleLike(postId: number, userId: number): Observable<Post> {
+    const headers = this.authService.getAuthHeaders();
+
+    return this.http.put<any>(`http://localhost:8089/api/posts/likePost/${postId}/user/${userId}`, {headers});
   }
 
   likePost(postId: number): Observable<any> {
@@ -63,6 +79,10 @@ export class PostService {
   addPost(post: Post): Observable<Post> {
     console.log('Ajout du post:', post);
     return this.http.post<Post>(`${this.apiUrl}/createPost`, post);
+  }
+
+  getUserById(id: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrlUser}/getUserById/${id}`);
   }
 
   deletePost(id: number): Observable<string> {

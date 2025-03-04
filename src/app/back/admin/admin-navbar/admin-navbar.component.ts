@@ -40,7 +40,7 @@ export class AdminNavbarComponent {
 
   // Method to handle logout
   logout() {
-    localStorage.removeItem('token');  // Remove token or session
-    this.router.navigate(['/lockScreen']);   // Redirect to lock screen/login page
+    localStorage.removeItem('auth_token');  // Remove token or session
+    window.location.href="/"
   }
 }

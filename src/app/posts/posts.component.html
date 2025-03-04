@@ -44,9 +44,16 @@
               </div>
             </div>
             <p class="text-muted">{{ post.content }}</p>
-            <button class="btn btn-sm" [class.btn-primary]="post.isLiked" [class.btn-outline-primary]="!post.isLiked" (click)="toggleLike(post.idPosts)">
-              <i class="mdi mdi-heart"></i> {{ post.likesCount }} Like
+            <button class="btn btn-sm"
+                    [ngClass]="{'btn-danger': post.likedByUser, 'btn-outline-primary': !post.likedByUser}"
+                    (click)="toggleLike(post)">
+                <i class="mdi" [ngClass]="post.likedByUser ? 'mdi-heart' : 'mdi-heart-outline'"></i>
+                {{ post.likedByUser ? 'Unlike' : 'Like' }}
             </button>
+
+
+       
+          
             <button class="btn btn-sm">
                 <i class="mdi mdi-like"></i> {{ post.shareCount }} share
               </button>

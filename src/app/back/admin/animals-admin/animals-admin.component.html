@@ -60,6 +60,7 @@
                 <th>Espèce</th>
                 <th>Race</th>
                 <th>Statut</th>
+                <th>User</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -73,6 +74,7 @@
                     {{animal.isAdopted ? 'Adopté' : 'Disponible'}}
                   </span>
                 </td>
+                <td>{{animal.subscriber.firstName}}</td>
                 <td (click)="$event.stopPropagation()"> <!-- Empêche le clic sur la ligne de propager aux boutons -->
                   <button class="btn btn-sm btn-danger me-1" (click)="deleteAnimal(animal.idAnimal)">
                     Supprimer

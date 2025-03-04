@@ -31,20 +31,25 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class AnimalProfileComponent implements OnInit {
   animal: Animal | null = null;
+  userEmail: string | undefined;
+  telephone: string | undefined;
   isLoading = true;
   errorMessage = '';
 
   constructor(
     private animalService: AnimalService,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getAnimalDetails();
+    if (this.animal?.subscriberId) {  // Check if subscriberId is defined and not undefined
+      this.getUserById(this.animal.subscriberId); // Use animal's subscriberId
+    }
   }
 
   getAnimalDetails(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id')); // Récupère l'ID depuis l'URL
+    const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
       this.isLoading = true;
       this.animalService.getAnimalById(id).subscribe({
@@ -52,6 +57,11 @@ export class AnimalProfileComponent implements OnInit {
           this.animal = data;
           this.isLoading = false;
           console.log('Animal details fetched:', data);
+
+          // After animal details are fetched, call getUserById
+          if (this.animal?.subscriberId) {
+            this.getUserById(this.animal.subscriberId); // Call with the actual subscriberId
+          }
         },
         error: (error) => {
           this.isLoading = false;
@@ -64,4 +74,20 @@ export class AnimalProfileComponent implements OnInit {
       this.errorMessage = 'ID de l’animal invalide';
     }
   }
+
+
+  getUserById(id: number): void {
+    this.animalService.getUserById(id).subscribe({
+      next: (data) => {
+        console.log('User details fetched:', data); // Check the response
+        this.userEmail = data.email; // Assign fetched user's email
+        this.telephone = data.telephone; // Assign fetched user
+
+      },
+      error: (error) => {
+        console.error('Error fetching user details:', error);
+      }
+    });
+  }
+
 }

@@ -47,6 +47,19 @@ export class AuthService {
     );
   }
 
+  getUserRole(): string | null {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return null;
+
+    try {
+      const decodedToken: any = JSON.parse(atob(token.split('.')[1])); // Decode JWT
+      return decodedToken.roles[0] ?? null; // Extract role from token
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
+
   getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
     return new HttpHeaders({

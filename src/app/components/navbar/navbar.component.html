@@ -43,7 +43,8 @@
                         <li [ngClass]="menu === '/blog-detail' ? 'active' : ''"><a [routerLink]="'/blog-sidebar'" class="sub-menu-item"> Events</a></li>
                         <li [ngClass]="menu === '/animals' ? 'active' : ''"><a [routerLink]="'/animals'" class="sub-menu-item"> Animals</a></li>
                         <li [ngClass]="menu === '/posts' ? 'active' : ''"><a [routerLink]="'/posts'" class="sub-menu-item"> Posts</a></li>
-
+                        
+                        <li [ngClass]="menu === '/trainig' ? 'active' : ''"><a [routerLink]="'/trainig'" class="sub-menu-item"> Training </a></li>
 
                         <li [ngClass]="menu === '/faqs' ? 'active' : ''"><a [routerLink]="'/faqs'" class="sub-menu-item">FAQs</a></li>
 <!--
@@ -81,6 +82,8 @@
                 </li>
         
                 <li [ngClass]="menu === '/contactus' ? 'active' : ''"><a [routerLink]="'/contactus'" class="sub-menu-item">Contact Us</a></li>
+                <li [ngClass]="menu === '/logout' ? 'active' : ''"><a role="button" (click)="logout()" class="sub-menu-item">Logout</a></li>
+
             </ul><!--end navigation menu-->
         </div><!--end navigation-->
     </div>

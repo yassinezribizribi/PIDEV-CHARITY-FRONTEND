@@ -34,11 +34,12 @@
     <div class="row justify-content-center">
       <div class="col-lg-6 col-md-8 col-12">
         <div class="add-form-card">
+        <form [formGroup]="animalForm">
           <div class="form-group">
-            <input type="text" placeholder="Nom" [(ngModel)]="newAnimal.name" class="form-control form-input mb-3">
-            <input type="text" placeholder="Espèce" [(ngModel)]="newAnimal.animalSpecies" class="form-control form-input mb-3">
-            <input type="text" placeholder="Race" [(ngModel)]="newAnimal.race" class="form-control form-input mb-3">
-            <input type="text" placeholder="Historique Médical" [(ngModel)]="newAnimal.medicalHistory" class="form-control form-input mb-3">
+            <input type="text" placeholder="Nom" formControlName="name"  class="form-control form-input mb-3">
+            <input type="text" placeholder="Espèce" formControlName="animalSpecies" class="form-control form-input mb-3">
+            <input type="text" placeholder="Race" formControlName="race"  class="form-control form-input mb-3">
+            <input type="text" placeholder="Historique Médical" formControlName="medicalHistory"   class="form-control form-input mb-3">
 <!--          <div class="form-check mb-3">
               <input type="checkbox" class="form-check-input" [(ngModel)]="newAnimal.isAdopted" id="isAdopted">
               <label class="form-check-label" for="isAdopted">Adopté</label>
@@ -48,6 +49,7 @@
             <p *ngIf="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
             <p *ngIf="successMessage" class="text-success mt-3">{{ successMessage }}</p>
           </div>
+        </form>
         </div>
       </div>
     </div>

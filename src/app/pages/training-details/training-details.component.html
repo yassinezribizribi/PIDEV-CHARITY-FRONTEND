@@ -1,0 +1,86 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">
+                        {{ training?.trainingName || 'Détails de la formation' }}
+                    </h5>
+                </div>
+            </div>
+        </div>
+        <div class="position-middle-bottom">
+            <nav aria-label="breadcrumb" class="d-block">
+                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+                    <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
+                    <li class="breadcrumb-item"><a [routerLink]="'/trainings'">Formations</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {{ training?.trainingName || 'Détails' }}
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+<div class="position-relative">
+    <div class="shape overflow-hidden text-white">
+        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+        </svg>
+    </div>
+</div>
+<!-- Hero End -->
+
+<!-- Start -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-7">
+                <!-- Chargement -->
+                <div *ngIf="isLoading" class="text-center">
+                    <p>Chargement des détails de la formation...</p>
+                </div>
+
+                <!-- Erreur -->
+                <div *ngIf="!isLoading && errorMessage" class="text-center text-danger">
+                    <p>{{ errorMessage }}</p>
+                </div>
+
+                <!-- Détails de la formation -->
+                <div *ngIf="!isLoading && !errorMessage && training" class="card border-0 shadow rounded overflow-hidden">
+                    <div class="card-body">
+                        <h4 class="text-dark">{{ training.trainingName }}</h4>
+                        <p class="text-muted">{{ training.description }}</p>
+                        <p class="text-muted"><strong>Durée :</strong> {{ training.duration }} heures</p>
+                        <p class="text-muted"><strong>Capacité :</strong> {{ training.capacity }} participants</p>
+                        <p class="text-muted"><strong>Niveau :</strong> {{ training.level }}</p>
+                        <p class="text-muted"><strong>Type :</strong> {{ training.type }}</p>
+                        <p class="text-muted"><strong>Date de la session :</strong> {{ training.sessionDate | date:'medium' }}</p>
+
+                        <button class="btn btn-primary mt-3" (click)="addsub(training.idTraining)">
+                            Register
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Si pas de données -->
+                <div *ngIf="!isLoading && !errorMessage && !training" class="text-center">
+                    <p>Aucun détail disponible pour cette formation.</p>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4 col-md-5 col-12 mt-4 pt-2 mt-md-0 pt-md-0">
+                <app-blog-sidebars></app-blog-sidebars>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End -->
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

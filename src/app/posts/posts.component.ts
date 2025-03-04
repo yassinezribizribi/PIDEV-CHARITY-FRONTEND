@@ -8,6 +8,7 @@ import { ScrollToTopComponent } from '@component/scroll-to-top/scroll-to-top.com
 import { PostService, Post } from 'src/app/services/post.service';
 import { TokenInterceptor } from 'src/app/interceptors/token.interceptor';
 import { BlogSidebarsComponent } from '@component/blog-sidebars/blog-sidebars.component';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-posts',
@@ -31,6 +32,8 @@ import { BlogSidebarsComponent } from '@component/blog-sidebars/blog-sidebars.co
 export class PostsComponent implements OnInit {
   posts: Post[] = [];
   errorMessage = '';
+  userId: number | null = null;
+
 
   constructor(private postService: PostService) {}
 
@@ -61,7 +64,44 @@ export class PostsComponent implements OnInit {
     });
   }
 
-  toggleLike(postId: number | undefined): void {
+    getUserIdFromToken(): number | null {
+      const token = localStorage.getItem('auth_token');
+      console.log("token:", token);
+      
+      if (!token) return null;
+    
+      try {
+        const decodedToken: any = jwtDecode(token);
+        
+        return decodedToken.idUser;
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        return null;
+      }
+    }
+
+  toggleLike(post: any): void {
+  this.userId = this.getUserIdFromToken();
+
+  if (this.userId === null) {
+    console.error("User ID is null. Cannot toggle like.");
+    return;
+  }
+
+  this.postService.toggleLike(post.idPosts, this.userId).subscribe({
+    next: (updatedPost) => {
+      post.likesCount = updatedPost.likesCount;
+      post.likedByUser = !post.likedByUser;
+    },
+    error: (err) => {
+      console.error('Error toggling like:', err);
+    }
+  });
+}
+
+  
+
+  toggleLikeOld(postId: number | undefined): void {
     console.log('Clic sur J’aime, postId:', postId);
     if (postId === undefined) {
       console.log('postId undefined, arrêt');

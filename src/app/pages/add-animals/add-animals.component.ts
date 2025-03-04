@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router'; // Added Router
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { FooterComponent } from '@component/footer/footer.component';
 import { NavbarComponent } from '@component/navbar/navbar.component';
 import { ScrollToTopComponent } from '@component/scroll-to-top/scroll-to-top.component';
 import { AnimalService } from 'src/app/services/Animal.service';
 import { TokenInterceptor } from 'src/app/interceptors/token.interceptor';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-add-animals',
@@ -19,7 +20,7 @@ import { TokenInterceptor } from 'src/app/interceptors/token.interceptor';
     FooterComponent,
     ScrollToTopComponent,
     HttpClientModule,
-    FormsModule
+    ReactiveFormsModule // Importation de ReactiveFormsModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
@@ -29,75 +30,68 @@ import { TokenInterceptor } from 'src/app/interceptors/token.interceptor';
   styleUrls: ['./add-animals.component.scss']
 })
 export class AddAnimalsComponent {
-  newAnimal: any = { 
-    name: '', 
-    animalSpecies: '', 
-    race: '', 
-    medicalHistory: '', 
-    isAdopted: false,
-    subscriberId: 2 // Optional, set if needed
-  };
+  animalForm: FormGroup;
   errorMessage = '';
   successMessage = '';
 
   constructor(
+    private fb: FormBuilder, // FormBuilder pour initialiser les formulaires
     private animalService: AnimalService,
-    private router: Router // Added Router injection
-  ) {}
+    private router: Router
+  ) {
+    this.animalForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      animalSpecies: ['', Validators.required],
+      race: ['', Validators.required],
+      medicalHistory: [''],
+      isAdopted: [false]
+    });
+  }
+
+  // Récupération du userId depuis le token JWT
+  getUserIdFromToken(): number | null {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return null;
+
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.idUser;
+    } catch (error) {
+      console.error("Erreur de décodage du token:", error);
+      return null;
+    }
+  }
 
   addAnimal(): void {
-    if (!this.newAnimal.name || !this.newAnimal.animalSpecies) {
-      this.errorMessage = 'Veuillez remplir les champs obligatoires (Nom et Espèce)';
-      console.error(this.errorMessage);
+    if (this.animalForm.invalid) {
+      this.errorMessage = "Veuillez remplir correctement tous les champs requis.";
       return;
     }
 
-    const animalData = { ...this.newAnimal };
-    console.log('Sending animal data to POST /api/animals/add:', animalData);
+    const userId = this.getUserIdFromToken();
+    if (!userId) {
+      this.errorMessage = "Utilisateur non identifié.";
+      return;
+    }
 
-    this.animalService.addAnimal(animalData).subscribe({
+   
+   console.log(this.animalForm.value);
+   
+    this.animalService.addAnimal(this.animalForm.value,userId).subscribe({
       next: (response) => {
-        console.log('Response from POST /api/animals/add:', response);
-        const addedAnimal = response; // Expecting the animal object directly
-        if (addedAnimal && addedAnimal.idAnimal) { // Check for idAnimal
-          this.newAnimal = { 
-            name: '', 
-            animalSpecies: '', 
-            race: '', 
-            medicalHistory: '', 
-            isAdopted: false,
-            subscriberId: null 
-          };
-          this.successMessage = 'Animal ajouté avec succès !';
-          this.errorMessage = '';
-          // Redirect to /animals on successful submission
-          this.router.navigate(['/animals']);
-        } else {
-          this.errorMessage = 'Ajout réussi mais réponse inattendue';
-          console.warn('Unexpected response format:', response);
-        }
+        console.log('Réponse API:', response);
+        this.successMessage = 'Animal ajouté avec succès !';
+        this.errorMessage = '';
+        this.animalForm.reset(); // Réinitialisation du formulaire
+        this.router.navigate(['/animals']);
       },
       error: (error) => {
-        console.error('Error from POST /api/animals/add:', error.status, error.statusText, error.error);
-        if (error.status === 200) {
-          // Handle quirky 200 OK error case
-          this.successMessage = 'Animal ajouté (statut OK mais traité comme erreur)';
-          this.errorMessage = '';
-          this.newAnimal = { 
-            name: '', 
-            animalSpecies: '', 
-            race: '', 
-            medicalHistory: '', 
-            isAdopted: false,
-            subscriberId: null 
-          };
-        } else {
-          this.errorMessage = `Erreur: ${error.status || ''} - ${error.statusText || 'Inconnue'}`;
-          this.successMessage = '';
-        }
+        console.error('Erreur API:', error);
+        this.errorMessage = `Erreur: ${error.status || ''} - ${error.statusText || 'Inconnue'}`;
+        this.successMessage = '';
       },
       complete: () => {
-        console.log('Add animal request completed');
+        console.log('Ajout de l’animal terminé.');
       }
     });
   }

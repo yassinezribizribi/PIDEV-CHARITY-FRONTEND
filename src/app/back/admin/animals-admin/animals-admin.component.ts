@@ -31,7 +31,7 @@ import { BlogSidebarsComponent } from '@component/blog-sidebars/blog-sidebars.co
   styleUrls: ['./animals-admin.component.scss'],
 })
 export class AnimalsAdminComponent implements OnInit {
-  animals: Animal[] = [];
+  animals: any[] = [];
   loading = true;
   error: string | null = null;
 
@@ -91,15 +91,15 @@ export class AnimalsAdminComponent implements OnInit {
   }
 
   editAnimal(animal: Animal): void {
-    this.router.navigate(['/edit-animal', animal.idAnimal]); // À ajuster selon votre route d’édition
+    this.router.navigate(['/admin/edit-animal', animal.idAnimal]); // À ajuster selon votre route d’édition
   }
 
   onAddAnimal(): void {
-    this.router.navigate(['/add-animals']);
+    this.router.navigate(['/admin/add-animals']);
   }
 
   viewAnimal(animal: Animal): void {
-    this.router.navigate(['/animal-profile', animal.idAnimal]);
+    this.router.navigate(['/admin/animal-profile', animal.idAnimal]);
   }
 
   getStatusClass(status: string): string {

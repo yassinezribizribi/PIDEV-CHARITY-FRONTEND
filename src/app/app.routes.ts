@@ -36,11 +36,16 @@ import { PostsComponent } from './posts/posts.component';
 import { AnimalsAdminComponent } from './back/admin/animals-admin/animals-admin.component';
 import { EditAnimalComponent } from './back/admin/edit-animal/edit-animal.component';
 import { PostsManageComponent } from './back/admin/posts-management/posts-manage.component';
+import { TrainingComponent } from './pages/training/training.component';
+import { TrainingDetailsComponent } from './pages/training-details/training-details.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'onepage', pathMatch: 'full' },
   { path: 'onepage', component: OnepageComponent },
-
+  { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent },
+  {path:"",canActivate:[AuthGuard],children:[
+    
   { path: 'index', component: IndexComponent, canActivate: [AuthGuard] },
   { path: 'aboutus', component: AboutusComponent },
   { path: 'services', component: ServicesComponent },
@@ -53,18 +58,18 @@ export const routes: Routes = [
   { path: 'blog-sidebar', component: BlogSidebarComponent },
   { path: 'blog-detail', component: BlogDetailComponent },
   { path: 'blog-detail/:id', component: BlogDetailComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'signup', component: SignupComponent },
-  { path: 'signup/:role', component: SignupComponent },
 
+  { path: 'signup/:role', component: SignupComponent },
+  {path:'trainig', component:TrainingComponent},
+    {path:'training-details/:id', component:TrainingDetailsComponent},
+    {path:'training-details', component:TrainingDetailsComponent},
   { path: 'animals', component: AnimalsComponent },
   { path: 'add-animals', component: AddAnimalsComponent },
   { path: 'animal-profile/:id', component: AnimalProfileComponent },
-  { path: 'animals-admin', component: AnimalsAdminComponent },
-  { path: 'edit-animal/:id', component: EditAnimalComponent },
+
 
   { path: 'posts', component: PostsComponent },
-  { path: 'posts-manage', component: PostsManageComponent },
+ 
 
 
   { path: 'reset-password', component: ResetPasswordComponent },
@@ -76,6 +81,11 @@ export const routes: Routes = [
   { path: 'error', component: ErrorComponent },
   { path: 'contactus', component: ContactusComponent },
   { path: 'admin-navbar', component: AdminNavbarComponent },
+  { path: 'admin', component: AdminNavbarComponent, canActivate: [AuthGuard], data: { role: ['admin'] } },
+  { path: 'association/account', component: AssociationTestComponent, canActivate: [AuthGuard], data: { role: ['association'] } },
+  { path: 'mentor-dashboard', component: TeamComponent, canActivate: [AuthGuard], data: { role: ['mentor'] } },
+
+  ]},
   {
     path: 'association-signup',
     loadComponent: () =>

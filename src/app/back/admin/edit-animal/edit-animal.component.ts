@@ -49,8 +49,7 @@ export class EditAnimalComponent implements OnInit {
       animalSpecies: ['', Validators.required],
       race: ['', Validators.required],
       medicalHistory: [''],
-      isAdopted: [false],
-      subscriberId: [null]
+      isAdopted: [false]
     });
   }
 
@@ -81,7 +80,6 @@ export class EditAnimalComponent implements OnInit {
             race: animal.race,
             medicalHistory: animal.medicalHistory,
             isAdopted: animal.isAdopted,
-            subscriberId: animal.subscriberId
           });
           this.loading = false;
           console.log('Animal chargé:', animal);
@@ -105,7 +103,7 @@ export class EditAnimalComponent implements OnInit {
     this.animalService.updateAnimal(this.animalId, updatedAnimal).subscribe({
       next: (response: Animal) => {
         console.log('Animal mis à jour avec succès:', response);
-        this.router.navigate(['/animals-admin']);
+        this.router.navigate(['/admin/animals-admin']);
       },
       error: (error) => {
         console.error('Erreur lors de la mise à jour:', error);
@@ -115,6 +113,6 @@ export class EditAnimalComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/animals-admin']);
+    this.router.navigate(['/admin/animals-admin']);
   }
 }

@@ -40,6 +40,9 @@
                 <li class="has-submenu" [ngClass]="activeSection === 'blogs' ? 'active' : ''">
                     <a href="#" (click)="scrollToSection('blogs', $event)">Blogs</a>
                 </li>
+                <li class="has-submenu" [ngClass]="activeSection === 'blogs' ? 'active' : ''">
+                    <a routerLink="/login" (click)="scrollToSection('login', $event)">signin</a>
+                </li>
             </ul><!--end navigation menu-->
         </div><!--end navigation-->
     </div>

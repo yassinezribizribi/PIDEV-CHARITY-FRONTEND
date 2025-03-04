@@ -7,7 +7,7 @@
     <div class="row mt-5 justify-content-center">
       <div class="col-12 text-center">
         <h5 class="heading fw-semibold text-white title-dark">Gestion des Publications</h5>
-        <p *ngIf="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
+        <!-- <p *ngIf="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p> -->
       </div>
     </div>
   </div>
@@ -51,14 +51,27 @@
               <img src="assets/images/association/ss.jpeg" class="rounded-circle me-3" style="width: 50px; height: 50px;" alt="Association">
               <div>
                 <h6 class="mb-0">Association</h6>
-                <small class="text-muted">{{ post.creationDate | date:'medium' }} - Ajouté par : {{ post.userId || 'Inconnu' }}</small>
+                <small class="text-muted">{{ post.creationDate | date:'medium' }} - Ajouté par : {{ username || 'Inconnu' }}</small>
               </div>
             </div>
-            <p class="text-muted">{{ post.content }}</p>
+            <p *ngIf="editPostId !== post.idPosts" class="text-muted">{{ post.content }}</p>
+
+            <!-- Show textarea when editing -->
+            <textarea *ngIf="editPostId === post.idPosts" class="text-muted" [(ngModel)]="post.content" rows="4" cols="80"></textarea>
+        
             <p class="text-muted">Likes: {{ post.likesCount || 0 }}</p>
+            
+        
+            <!-- Edit Button -->
             <button class="btn btn-sm btn-outline-warning me-2" (click)="editPost(post.idPosts)">
               <i class="mdi mdi-pencil"></i> Modifier
             </button>
+        
+            <!-- Save Button (Visible only when editing) -->
+            <button *ngIf="editPostId === post.idPosts" class="btn btn-sm btn-outline-success me-2" (click)="savePost(post)">
+              <i class="mdi mdi-check"></i> Enregistrer
+            </button>
+        
             <button class="btn btn-sm btn-outline-danger" (click)="deletePost(post.idPosts)">
               <i class="mdi mdi-delete"></i> Supprimer
             </button>

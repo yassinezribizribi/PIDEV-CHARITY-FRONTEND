@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { User } from './Animal.service';
 
 export interface Subscription {
   idSubscription: number;
@@ -23,6 +24,7 @@ export interface Post {
 })
 export class PostsService {
   private apiUrl = 'http://localhost:8089/api/posts';
+  private apiUrlUser = 'http://localhost:8089/api/users';
   private http = inject(HttpClient);
   private authService = inject(AuthService);
 
@@ -50,6 +52,20 @@ export class PostsService {
     );
   }
 
+  getUserById(id: number): Observable<User> {
+    const headers = this.authService.getAuthHeaders();
+
+    return this.http.get<User>(`${this.apiUrlUser}/getUserById/${id}`, { headers });
+  }
+
+  updatePost(postId: number, updatedPost: any): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    console.log("updatedPost",updatedPost);
+    
+    return this.http.put<any>(`${this.apiUrl}/updatePost/${postId}`, updatedPost, {headers});
+  }
+  
+
   deletePost(id: number): Observable<string> {
     const headers = this.authService.getAuthHeaders();
     console.log('Delete post avec id:', id);
@@ -59,6 +75,11 @@ export class PostsService {
         return throwError(() => error);
       })
     );
+  }
+
+  getLikesCount(postId: number): Observable<number> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<number>(`${this.apiUrl}/${postId}/likes-count`, { headers });
   }
 
   getLikesCountByPost(): Observable<Map<number, number>> {

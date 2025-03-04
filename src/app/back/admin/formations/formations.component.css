@@ -1,0 +1,43 @@
+/* Container to keep the table fixed */
+.table-container {
+    position: fixed;
+    top: 120px; /* Adjust based on navbar height */
+    left: 0;
+    width: 100%;
+    max-height: 70vh; /* Ensures it doesn't take the full screen */
+    overflow-y: auto; /* Allows vertical scrolling */
+    background: white;
+    padding: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+  
+  /* Ensure the table structure remains intact */
+  .table-fixed {
+    width: 100%;
+    table-layout: fixed;
+  }
+  
+  /* Fixed table header */
+  .table-fixed thead {
+    position: sticky;
+    top: 0;
+    background: #343a40;
+    color: white;
+    z-index: 100;
+  }
+  
+  /* Ensure table body is scrollable while header remains fixed */
+  .table-fixed tbody {
+    display: block;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .table-fixed th, .table-fixed td {
+    padding: 12px;
+    white-space: nowrap;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+  }
+  
