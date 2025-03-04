@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { Router } from '@angular/router'; 
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -10,10 +10,10 @@ import { Router } from '@angular/router';
 export class AuthService {
   private apiUrl = 'http://localhost:8089/api/auth/signin';
   private registerUrl = 'http://localhost:8089/api/auth/signup';
-  
+
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  private router = inject(Router);  
+  private router = inject(Router);
 
   constructor(private http: HttpClient) {
     const token = localStorage.getItem('auth_token');
@@ -30,6 +30,7 @@ export class AuthService {
   isAuthenticated(): boolean {
     return this.isAuthenticatedSubject.value;
   }
+
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post<LoginResponse>(this.apiUrl, credentials, {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -40,15 +41,24 @@ export class AuthService {
           localStorage.setItem('auth_token', token);
           this.isAuthenticatedSubject.next(true);
           console.log('Token saved:', token);
-  
-          // Redirect to 'index' only if the user is authenticated
           this.router.navigate(['/index']);
         }
       })
     );
   }
-  
-  
+
+  getUserRole(): string | null {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return null;
+
+    try {
+      const decodedToken: any = JSON.parse(atob(token.split('.')[1])); // Decode JWT
+      return decodedToken.roles[0] ?? null; // Extract role from token
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
 
   getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
@@ -66,8 +76,6 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('auth_token');
     this.isAuthenticatedSubject.next(false);
-
-    // 🔥 Redirection après déconnexion
     this.router.navigate(['/onepage']);
   }
 
@@ -78,6 +86,16 @@ export class AuthService {
 
   private isTokenExpired(expiration: number): boolean {
     return expiration < Math.floor(Date.now() / 1000);
+  }
+
+  public getToken(): string | null {
+    const token = localStorage.getItem('auth_token');
+    if (token && this.isTokenExpired(this.decodeToken(token).exp)) {
+      console.warn("⚠️ Token expiré ! Vous devez vous reconnecter.");
+      alert("⚠️ Votre session a expiré. Veuillez vous reconnecter.");
+      return null;
+    }
+    return token;
   }
 }
 

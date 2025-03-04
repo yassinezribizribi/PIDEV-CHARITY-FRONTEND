@@ -1,17 +1,17 @@
 <app-admin-navbar></app-admin-navbar>
 
 <!-- Hero Section -->
-<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+<section class="bg-half-170 d-table w-100 position-relative" style="background: url('assets/images/hero/pages.jpg') center/cover no-repeat;">
   <div class="bg-overlay bg-gradient-overlay"></div>
   <div class="container">
-    <div class="row mt-5 justify-content-center">
-      <div class="col-12 text-center">
-        <h5 class="heading fw-semibold text-white title-dark">Event Management</h5>
+    <div class="row mt-5 justify-content-center text-center">
+      <div class="col-12">
+        <h2 class="heading fw-bold text-white title-dark">Event Management</h2>
       </div>
     </div>
     <div class="position-middle-bottom">
       <nav aria-label="breadcrumb" class="d-block">
-        <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+        <ul class="breadcrumb breadcrumb-light mb-0 p-0">
           <li class="breadcrumb-item"><a [routerLink]="'/admin'">Admin</a></li>
           <li class="breadcrumb-item active" aria-current="page">Events</li>
         </ul>
@@ -20,6 +20,7 @@
   </div>
 </section>
 
+<!-- Decorative Shape -->
 <div class="position-relative">
   <div class="shape overflow-hidden text-white">
     <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,24 +34,28 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-12">
-        <div class="d-flex justify-content-between mb-4">
-          <h4>Events List</h4>
-          <button class="btn btn-primary" (click)="onAddEvent()">Add Event</button>        </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="fw-semibold text-dark">Events List</h4>
+          <button class="btn btn-primary shadow-sm px-4" (click)="onAddEvent()">
+            <i class="bi bi-plus-circle me-2"></i> Add Event
+          </button>
+        </div>
 
         <!-- Loading State -->
-        <div *ngIf="loading" class="text-center">
-          <p>Loading events...</p>
+        <div *ngIf="loading" class="text-center py-3">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 text-muted">Loading events...</p>
         </div>
 
         <!-- Error State -->
-        <div *ngIf="error && !loading" class="alert alert-danger">
+        <div *ngIf="error && !loading" class="alert alert-danger text-center">
           {{ error }}
         </div>
 
         <!-- Events Table -->
         <div *ngIf="!loading && !error && events.length > 0" class="table-responsive">
-          <table class="table table-striped">
-            <thead>
+          <table class="table table-hover align-middle text-center">
+            <thead class="table-dark">
               <tr>
                 <th>ID</th>
                 <th>Title</th>
@@ -63,10 +68,10 @@
             </thead>
             <tbody>
               <tr *ngFor="let event of events">
-                <td>{{ event.idEvent }}</td>
+                <td><strong>{{ event.idEvent }}</strong></td>
                 <td>{{ event.title }}</td>
-                <td>{{ event.description }}</td>
-                <td>{{ event.dateTime | date:'medium' }}</td>
+                <td class="text-truncate" style="max-width: 250px;">{{ event.description }}</td>
+                <td>{{ event.dateTime | date:'yyyy-MM-dd HH:mm' }}</td>
                 <td>{{ event.location }}</td>
                 <td>
                   <span class="badge bg-{{ getStatusClass(event.typeEvent) }}">
@@ -74,9 +79,15 @@
                   </span>
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-info me-2" [routerLink]="['/blog-detail', event.idEvent]">View</button>
-                  <button class="btn btn-sm btn-warning me-2" (click)="editEvent(event)">Edit</button>
-                  <button class="btn btn-sm btn-danger" (click)="deleteEvent(event.idEvent)">Delete</button>
+                  <button class="btn btn-sm btn-outline-info me-2" [routerLink]="['/admin/view-event-admin', event.idEvent]">
+                    <i class="bi bi-eye"></i> View
+                  </button>
+                  <button class="btn btn-sm btn-outline-warning me-2" [routerLink]="['/admin/edit-event-admin', event.idEvent]" (click)="editEvent(event)">
+                    <i class="bi bi-pencil-square"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteEvent(event.idEvent)">
+                    <i class="bi bi-trash"></i> Delete
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -84,8 +95,9 @@
         </div>
 
         <!-- No Data State -->
-        <div *ngIf="!loading && !error && events.length === 0" class="text-center">
-          <p>No events found.</p>
+        <div *ngIf="!loading && !error && events.length === 0" class="text-center py-4">
+          <i class="bi bi-calendar-x fs-1 text-muted"></i>
+          <p class="mt-2 text-muted">No events found.</p>
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import { ScrollToTopComponent } from '@component/scroll-to-top/scroll-to-top.com
 import { EventService, Event } from 'src/app/services/event.service';
 import { TokenInterceptor } from 'src/app/interceptors/token.interceptor';
 import { BlogSidebarsComponent } from '@component/blog-sidebars/blog-sidebars.component';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-events-admin',
@@ -34,32 +35,27 @@ export class EventsAdminComponent implements OnInit {
   events: Event[] = [];
   loading = true;
   error: string | null = null;
+  errorMessage = '';
+  openajouter = false;
+  isEditMode = false;
+  currentEventId: number | null = null;
+  eventForm!: FormGroup;
 
-  constructor(private eventService: EventService, private router: Router) {}
+  constructor(private eventService: EventService, private router: Router, private fb: FormBuilder) {}
 
   ngOnInit(): void {
     this.loadEvents();
+    this.initForm();
   }
 
   loadEvents(): void {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      this.error = 'No authentication token found. Please log in.';
-      this.loading = false;
-      return;
-    }
-
     this.eventService.getAllEvents().subscribe({
       next: (data: Event[]) => {
         this.events = data;
         this.loading = false;
-        console.log('Events loaded:', this.events);
       },
       error: (error) => {
-        console.error('Error loading events:', error);
-        this.error =
-          'Error loading events: ' +
-          (error.message || 'Check the console');
+        this.error = 'Error loading events: ' + (error.message || 'Check the console');
         this.loading = false;
       },
     });
@@ -74,26 +70,85 @@ export class EventsAdminComponent implements OnInit {
       this.eventService.deleteEvent(id).subscribe({
         next: () => {
           this.events = this.events.filter((event) => event.idEvent !== id);
-          console.log(`Event ${id} deleted successfully`);
           this.error = null;
         },
         error: (error) => {
-          console.error('Error during deletion:', error);
-          this.error =
-            'Error deleting event: ' +
-            (error.message || 'Check the console');
+          this.error = 'Error deleting event: ' + (error.message || 'Check the console');
         },
       });
     }
   }
 
-  editEvent(event: Event): void {
-    this.router.navigate(['/edit-event', event.idEvent]);
+  initForm(event?: Event): void {
+    this.isEditMode = !!event;
+    this.currentEventId = event ? event.idEvent : null;
+
+    this.eventForm = this.fb.group({
+      title: [event?.title || '', Validators.required],
+      description: [event?.description || '', Validators.required],
+      dateTime: [event?.dateTime || '', Validators.required],
+      location: [event?.location || '', Validators.required],
+      typeEvent: [event?.typeEvent || '', Validators.required],
+      reservationDate: [event?.reservationDate || '', Validators.required]
+    });
   }
 
-  onAddEvent(): void {
-    this.router.navigate(['/add-event']);
+  formatDateTimeForInput(dateTime: string): string {
+    if (!dateTime) return '';
+    const date = new Date(dateTime);
+    const offset = date.getTimezoneOffset(); // Get local timezone offset in minutes
+    date.setMinutes(date.getMinutes()-60);
+
+    return date.toISOString().slice(0, 16); // Extracts "yyyy-MM-ddTHH:mm"
   }
+
+  resetForm(): void {
+    this.isEditMode = false;
+    this.currentEventId = null;
+    this.eventForm.reset();
+  }
+
+  close(): void {
+    this.resetForm();
+    this.openajouter = false;
+  }
+
+  updateEvent(id: number, eventData: any): void {
+    this.eventService.updateEvent(id, eventData).subscribe(() => {
+      this.loadEvents();
+      this.close();
+    });
+  }
+  onAddEvent(): void {
+    this.router.navigate(['/admin/add-event']);
+  }
+
+  editEvent(event: Event): void {
+    this.initForm(event);
+    this.openajouter = true;
+  }
+
+  onSubmit(): void {
+    if (this.eventForm.invalid) {
+      return;
+    }
+
+    const eventData = this.eventForm.value;
+
+    if (this.isEditMode) {
+      this.updateEvent(this.currentEventId!, eventData);
+    } else {
+      this.addEvent(eventData);
+    }
+  }
+
+  addEvent(eventData: any): void {
+    this.eventService.addEvent(eventData).subscribe(() => {
+      this.loadEvents();
+      this.close();
+    });
+  }
+
   getStatusClass(typeEvent: string): string {
     switch (typeEvent.toLowerCase()) {
       case 'conference':

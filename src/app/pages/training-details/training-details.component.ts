@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { BlogSidebarsComponent } from '../../components/blog-sidebars/blog-sidebars.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ScrollToTopComponent } from '../../components/scroll-to-top/scroll-to-top.component';
-import { TrainingService, Training } from '../../services/training.service';
+import { TrainingService } from '../../services/training.service';
 import { TokenInterceptor } from '../../interceptors/token.interceptor';
 import { ActivatedRoute } from '@angular/router';
+import { Training } from 'src/app/models/Training';
 
 @Component({
   selector: 'app-training-details', // Changé de training-detail à training-details
@@ -29,8 +30,9 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './training-details.component.html', // Changé à training-details.component.html
   styleUrl: './training-details.component.scss' // Changé à training-details.component.scss
 })
-export class TrainingDetailsComponent implements OnInit { // Changé à TrainingDetailsComponent
-  training: Training | null = null;
+export class TrainingDetailsComponent implements OnInit {
+ // Changé à TrainingDetailsComponent
+  training: any | null = null;
   isLoading = true;
   errorMessage = '';
 
@@ -38,8 +40,11 @@ export class TrainingDetailsComponent implements OnInit { // Changé à Training
     private trainingService: TrainingService,
     private route: ActivatedRoute
   ) {}
-
+idUser:any
   ngOnInit(): void {
+    this.idUser=localStorage.getItem("idUser");
+    console.log(this.idUser);
+    
     this.getTrainingDetails();
   }
 
@@ -63,5 +68,15 @@ export class TrainingDetailsComponent implements OnInit { // Changé à Training
       this.isLoading = false;
       this.errorMessage = 'ID de la formation invalide';
     }
+  }
+  addsub(idTraining:number) {
+this.trainingService.addSubscriberToTraining(idTraining,this.idUser).subscribe((data:any)=>{
+  console.log(data);
+  alert("register successfully ")
+  
+},(error:HttpErrorResponse)=>{
+  alert("L'abonné est déjà inscrit à cette formation")
+  
+})
   }
 }

@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { AuthGuard } from 'src/app/guards/auth.guard';
+import { jwtDecode } from 'jwt-decode';
 
 
 @Component({
@@ -43,20 +44,29 @@ constructor( private authService: AuthService,private router:Router){}
         if (response.token) {
           localStorage.setItem('auth_token', response.token);
           console.log('Token saved:', response.token); // Check if token is saved
-          
-          // Directly navigate without delay
-          this.router.navigate(['/index']).then(
-            (success) => {
-              if (success) {
-                console.log('Navigation successful');
+          try {
+            const decodedToken: any = jwtDecode(response.token);
+            console.log(decodedToken.roles.includes('ROLE_ADMIN'));
+            
+            if (decodedToken && decodedToken.roles && Array.isArray(decodedToken.roles)) {
+              if (decodedToken.roles.includes('ROLE_ADMIN')) {
+                this.router.navigate(['/admin/formations']).then(success => {
+                  if (!success) console.error('Navigation to /admin/formations failed');
+                });
               } else {
-                console.error('Navigation failed: Redirect to /onepage did not work');
+                this.router.navigate(['/index']).then(success => {
+                  if (!success) console.error('Navigation to /onepage failed');
+                });
               }
-            },
-            (error) => {
-              console.error('Navigation failed', error);
+            } else {
+              console.error('Invalid token structure:', decodedToken);
+              this.errorMessage = 'Login failed: Invalid token';
             }
-          );
+          } catch (error) {
+            console.error('Token decoding failed:', error);
+            this.errorMessage = 'Login failed: Unable to decode token';
+          }
+          
           console.log('rrrrttttt')
         } else {
           console.error('No token received');

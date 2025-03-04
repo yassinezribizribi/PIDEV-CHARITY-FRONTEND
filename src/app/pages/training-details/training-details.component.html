@@ -61,7 +61,7 @@
                         <p class="text-muted"><strong>Type :</strong> {{ training.type }}</p>
                         <p class="text-muted"><strong>Date de la session :</strong> {{ training.sessionDate | date:'medium' }}</p>
 
-                        <button class="btn btn-primary mt-3" [routerLink]="['/formulaire-training', training.idTraining]">
+                        <button class="btn btn-primary mt-3" (click)="addsub(training.idTraining)">
                             Register
                         </button>
                     </div>

@@ -1,0 +1,92 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/animals.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">{{ animal?.name || 'Profil de l’animal' }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="position-middle-bottom">
+            <nav aria-label="breadcrumb" class="d-block">
+                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+                    <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
+                    <li class="breadcrumb-item"><a [routerLink]="'/animals'">Animaux</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ animal?.name || 'Profil' }}</li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+<div class="position-relative">
+    <div class="shape overflow-hidden text-white">
+        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+        </svg>
+    </div>
+</div>
+<!-- Hero End -->
+
+<!-- Start -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-7">
+                <!-- Chargement -->
+                <div *ngIf="isLoading" class="text-center">
+                    <p>Chargement des détails de l’animal...</p>
+                </div>
+
+                <!-- Erreur -->
+                <div *ngIf="!isLoading && errorMessage" class="text-center text-danger">
+                    <p>{{ errorMessage }}</p>
+                </div>
+
+                <!-- Détails de l’animal -->
+                <div *ngIf="!isLoading && !errorMessage && animal" class="card border-0 shadow rounded overflow-hidden">
+                    <!-- Pas d'image dans le modèle, ajoutez-la si nécessaire -->
+                    <img src="assets/images/animals/Golden-Retriever.webp" class="img-fluid" alt="{{ animal.name }}">
+
+                    <div class="card-body">
+                        <h4 class="text-dark">{{ animal.name }}</h4>
+                        <p class="text-muted"><strong>Espèce :</strong> {{ animal.animalSpecies }}</p>
+                        <p class="text-muted"><strong>Race :</strong> {{ animal.race }}</p>
+                        <p class="text-muted"><strong>Historique médical :</strong> {{ animal.medicalHistory }}</p>
+                        <p class="text-muted"><strong>Adopté :</strong> {{ animal.isAdopted ? 'Oui' : 'Non' }}</p>
+                        <p class="text-muted"><strong>Email Propriétaire :</strong> {{ userEmail }}</p>
+                        <p class="text-muted"><strong>Télephone :</strong> {{ telephone }}</p>
+
+                        <!-- Citation décorative -->
+                        <blockquote class="text-center mx-auto blockquote">
+                            <i class="mdi mdi-format-quote-open mdi-48px text-muted opacity-2 d-block"></i>
+                            Chaque animal a une histoire unique à raconter.
+                            <small class="d-block text-muted mt-2">- Smilecare</small>
+                        </blockquote>
+
+                        <!-- Tags -->
+                        <a routerLink="#" (click)="$event.preventDefault()" class="badge badge-link bg-primary me-1">{{ animal.animalSpecies }}</a>
+                        <a routerLink="#" (click)="$event.preventDefault()" class="badge badge-link bg-primary me-1">{{ animal.isAdopted ? 'Adopté' : 'À adopter' }}</a>
+                    </div>
+                </div>
+
+                <!-- Si pas de données -->
+                <div *ngIf="!isLoading && !errorMessage && !animal" class="text-center">
+                    <p>Aucun détail disponible pour cet animal.</p>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4 col-md-5 col-12 mt-4 pt-2 mt-md-0 pt-md-0">
+                <app-blog-sidebars></app-blog-sidebars>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End -->
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

@@ -1,0 +1,104 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12">
+        <div class="title-heading text-center">
+          <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Modifier un Animal</h5>
+        </div>
+      </div><!--end col-->
+    </div><!--end row-->
+
+    <div class="position-middle-bottom">
+      <nav aria-label="breadcrumb" class="d-block">
+        <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+          <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
+          <li class="breadcrumb-item"><a [routerLink]="'/animals-admin'">Gestion Animaux</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Modifier</li>
+        </ul>
+      </nav>
+    </div>
+  </div><!--end container-->
+</section><!--end section-->
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+<!-- Hero End -->
+
+<section class="section">
+  <div class="container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center p-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="alert alert-danger">
+      {{error}}
+    </div>
+
+    <!-- Form -->
+    <div *ngIf="!loading && !error" class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent">
+        <h5 class="mb-0">Modifier l'Animal</h5>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="animalForm" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="name" class="form-label">Nom <span class="text-danger">*</span></label>
+                <input type="text" id="name" formControlName="name" class="form-control" placeholder="Nom de l'animal" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="animalSpecies" class="form-label">Espèce <span class="text-danger">*</span></label>
+                <input type="text" id="animalSpecies" formControlName="animalSpecies" class="form-control" placeholder="Espèce" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="race" class="form-label">Race <span class="text-danger">*</span></label>
+                <input type="text" id="race" formControlName="race" class="form-control" placeholder="Race" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="medicalHistory" class="form-label">Historique Médical</label>
+                <textarea id="medicalHistory" formControlName="medicalHistory" class="form-control" rows="3" placeholder="Historique médical"></textarea>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="isAdopted" class="form-label">Statut d'Adoption</label>
+                <select id="isAdopted" formControlName="isAdopted" class="form-select">
+                  <option [value]="true">Adopté</option>
+                  <option [value]="false">Disponible</option>
+                </select>
+              </div>
+            </div>
+           
+          </div>
+          <div class="text-end">
+            <button type="button" class="btn btn-secondary me-2" (click)="cancel()">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="animalForm.invalid">Mettre à jour</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

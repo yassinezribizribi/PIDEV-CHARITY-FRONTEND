@@ -1,0 +1,98 @@
+// Card Styling
+.animal-card {
+    border-radius: 12px; // Larger rounded corners
+    overflow: hidden; // Ensure image respects border-radius
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); // Subtle shadow
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+    &:hover {
+      transform: translateY(-5px); // Lift on hover
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); // Deeper shadow
+    }
+  
+    .card-img {
+      img {
+        object-fit: cover; // Ensures image fills the card nicely
+        height: 250px; // Fixed height for consistency
+        width: 100%;
+      }
+    }
+  
+    .card-body {
+      padding: 20px; // More padding for breathing room
+      background-color: #ffffff;
+  
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+      }
+  
+      .card-text {
+        font-size: 0.95rem;
+      }
+    }
+  }
+  
+  // Status Badges
+  .status-badge {
+    display: inline-block;
+    padding: 8px 20px; // Larger, rounded badge
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 24px; // More rounded for pill shape
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  
+    &.adopted {
+      background-color: #28a745; // Green for "Adopté"
+      color: white;
+      box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3); // Subtle shadow
+    }
+  
+    &.available {
+      background-color: #ffc107; // Yellow for "Disponible"
+      color: #333; // Darker text for contrast
+      box-shadow: 0 2px 6px rgba(255, 193, 7, 0.3);
+    }
+  }
+  
+  // Delete Button
+  .delete-btn {
+    padding: 10px 24px; // Wider, rounded button
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 24px; // Rounded like badges
+    background-color: #dc3545; // Red for "Supprimer"
+    border: none;
+    color: white;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  
+    &:hover {
+      background-color: #c82333; // Darker red on hover
+      transform: scale(1.05); // Slight grow effect
+    }
+  
+    &:active {
+      transform: scale(0.95); // Click feedback
+    }
+  }
+  
+  // Layout Adjustments
+  .section {
+    padding: 60px 0; // More vertical space
+  }
+  
+  .row.g-6 {
+    margin: -20px; // Offset Bootstrap gutter for cleaner spacing
+    > div {
+      padding: 20px; // Consistent padding for each card
+    }
+  }
+  
+  // Ensure cards stack nicely on mobile
+  @media (max-width: 768px) {
+    .animal-card {
+      margin-bottom: 20px; // Extra space on mobile
+    }
+  }

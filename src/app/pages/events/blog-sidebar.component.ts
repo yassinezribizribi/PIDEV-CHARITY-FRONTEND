@@ -37,27 +37,26 @@ export class BlogSidebarComponent implements OnInit {
   constructor(private eventService: EventService, private router: Router) {}
 
   ngOnInit(): void {
-    this.getAllEvents();
+    this.getFutureEvents();
   }
 
-  getAllEvents(): void {
+  getFutureEvents(): void { // Nouvelle méthode pour les événements futurs
     this.isLoading = true;
-    this.eventService.getAllEvents().subscribe({
+    this.eventService.getFutureEvents().subscribe({
       next: (data) => {
         this.events = data;
         this.isLoading = false;
-        console.log('Events fetched:', data);
+        console.log('Future events fetched:', data);
       },
       error: (error) => {
         this.isLoading = false;
-        console.error('Error fetching events:', error);
-        this.errorMessage = 'Erreur lors de la récupération des événements';
-      }
+        console.error('Error fetching future events:', error);
+        this.errorMessage = 'Error fetching future events';
+      },
     });
   }
 
   goToEventDetails(id: number): void {
-    this.router.navigate(['/events', id]); 
+    this.router.navigate(['/events', id]);
   }
-
 }

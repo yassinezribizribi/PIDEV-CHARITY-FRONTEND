@@ -1,1 +1,109 @@
-<p>add-event works!</p>
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12 text-center">
+        <h5 class="heading fw-semibold text-white title-dark">Event Management</h5>
+      </div>
+    </div>
+    <div class="position-middle-bottom">
+      <nav aria-label="breadcrumb" class="d-block">
+        <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+          <li class="breadcrumb-item"><a [routerLink]="'/admin'">Admin</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Events</li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<!-- Events List Section -->
+<section class="section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <div class="d-flex justify-content-between mb-4">
+          <form class="mt-4">
+            <div class="row">
+              <div class="col-12">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="title">Title</label>
+                  <input name="title" id="title" type="text" class="form-control" [(ngModel)]="newEvent.title" required>
+                </div>
+              </div>
+          
+              <div class="col-md-6 col-12">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="description">Description</label>
+                  <input name="description" type="text" class="form-control" id="description" [(ngModel)]="newEvent.description" required>
+                </div>
+              </div>
+          
+              <div class="col-md-6 col-12">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="dateTime">Date Time</label>
+                  <input name="dateTime" type="datetime-local" class="form-control" id="dateTime" [(ngModel)]="newEvent.dateTime" required>
+                </div>
+              </div>
+          
+              <div class="col-md-6 col-12">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="location">Location</label>
+                  <input name="location" type="text" class="form-control" id="location" [(ngModel)]="newEvent.location" required>
+                </div>
+              </div>
+          
+              <div class="col-md-6 col-12">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="typeEvent">Type Event</label>
+                  <select id="typeEvent" name="typeEvent" class="form-control" [(ngModel)]="newEvent.typeEvent" required>
+                    <option *ngFor="let eventType of eventTypes" [value]="eventType">
+                      {{ eventType }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+          
+              <div class="col-md-6 col-12">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="reservationDate">Reservation Date</label>
+                  <input name="reservationDate" type="date" class="form-control" id="reservationDate" [(ngModel)]="newEvent.reservationDate" required>
+                </div>
+              </div>
+          
+              <div class="col-12 mt-3">
+                <button type="button" class="btn btn-primary" (click)="addEvent()">Add Event</button>
+              </div>
+            </div>
+          </form>
+          
+        </div>
+
+     
+
+        <!-- Error State
+        <div *ngIf="error && !loading" class="alert alert-danger">
+          {{ error }}
+        </div> -->
+
+
+
+    
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

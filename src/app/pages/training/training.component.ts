@@ -6,9 +6,10 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { BlogSidebarsComponent } from '../../components/blog-sidebars/blog-sidebars.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ScrollToTopComponent } from '../../components/scroll-to-top/scroll-to-top.component';
-import { TrainingService, Training } from '../../services/training.service';
+import { TrainingService } from '../../services/training.service';
 import { TokenInterceptor } from '../../interceptors/token.interceptor';
 import { Router } from '@angular/router';
+import { Training } from 'src/app/models/Training';
 
 @Component({
   selector: 'app-training',
@@ -43,7 +44,7 @@ export class TrainingComponent implements OnInit {  // Changé de TrainingListCo
   getAllTrainings(): void {
     this.isLoading = true;
     this.trainingService.getAllTrainings().subscribe({
-      next: (data) => {
+      next: (data:any) => {
         this.trainings = data;
         this.isLoading = false;
         console.log('Trainings fetched:', data);

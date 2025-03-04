@@ -55,6 +55,10 @@ export class NavbarComponent {
       this.menu = item;
     }
   }
+  logout() {
+    localStorage.removeItem('auth_token');  // Remove token or session
+    window.location.href="/"
+  }
 
   @HostListener('window:scroll', [])
   scrollHandler() {

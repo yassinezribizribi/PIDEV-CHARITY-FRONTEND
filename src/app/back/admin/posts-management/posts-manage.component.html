@@ -1,0 +1,91 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12 text-center">
+        <h5 class="heading fw-semibold text-white title-dark">Gestion des Publications</h5>
+        <!-- <p *ngIf="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p> -->
+      </div>
+    </div>
+  </div>
+  <div class="position-middle-bottom">
+    <nav aria-label="breadcrumb" class="d-block">
+      <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+        <li class="breadcrumb-item"><a [routerLink]="'/index'">Smilecare</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Gestion des Posts</li>
+      </ul>
+    </nav>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<!-- Posts Management Section -->
+<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-7">
+        <!-- Champ pour ajouter un post -->
+        <div class="card shadow rounded mb-4">
+          <div class="card-body">
+            <div class="mb-3">
+              <textarea class="form-control" [(ngModel)]="newPostContent" placeholder="Écrivez un nouveau post..." rows="4"></textarea>
+            </div>
+            <button class="btn btn-primary" (click)="sharePost()">Partager le Post</button>
+          </div>
+        </div>
+
+        <!-- Liste des posts -->
+        <div *ngFor="let post of posts" class="card shadow rounded mb-4">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <img src="assets/images/association/ss.jpeg" class="rounded-circle me-3" style="width: 50px; height: 50px;" alt="Association">
+              <div>
+                <h6 class="mb-0">Association</h6>
+                <small class="text-muted">{{ post.creationDate | date:'medium' }} - Ajouté par : {{ username || 'Inconnu' }}</small>
+              </div>
+            </div>
+            <p *ngIf="editPostId !== post.idPosts" class="text-muted">{{ post.content }}</p>
+
+            <!-- Show textarea when editing -->
+            <textarea *ngIf="editPostId === post.idPosts" class="text-muted" [(ngModel)]="post.content" rows="4" cols="80"></textarea>
+        
+            <p class="text-muted">Likes: {{ post.likesCount || 0 }}</p>
+            
+        
+            <!-- Edit Button -->
+            <button class="btn btn-sm btn-outline-warning me-2" (click)="editPost(post.idPosts)">
+              <i class="mdi mdi-pencil"></i> Modifier
+            </button>
+        
+            <!-- Save Button (Visible only when editing) -->
+            <button *ngIf="editPostId === post.idPosts" class="btn btn-sm btn-outline-success me-2" (click)="savePost(post)">
+              <i class="mdi mdi-check"></i> Enregistrer
+            </button>
+        
+            <button class="btn btn-sm btn-outline-danger" (click)="deletePost(post.idPosts)">
+              <i class="mdi mdi-delete"></i> Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4 col-md-5 col-12 mt-4 pt-2 mt-md-0 pt-md-0">
+        <app-blog-sidebars></app-blog-sidebars>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

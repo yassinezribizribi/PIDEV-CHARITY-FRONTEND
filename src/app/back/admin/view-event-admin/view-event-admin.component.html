@@ -1,0 +1,90 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">{{ event?.title || 'Détails de l’événement' }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="position-middle-bottom">
+            <nav aria-label="breadcrumb" class="d-block">
+               
+            </nav>
+        </div>
+    </div>
+</section>
+<div class="position-relative">
+    <div class="shape overflow-hidden text-white">
+        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+        </svg>
+    </div>
+</div>
+<!-- Hero End -->
+
+<!-- Start -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-7">
+                <!-- Chargement -->
+              
+                <button (click)="getEventSubscribers()" class="btn btn-info">
+                    View Interested Users
+                  </button>
+
+                  <div class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+              
+                          <th>name</th>
+                          <th>email</th>
+                      
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let subscriber of eventSubscribers">
+                          <td>{{ subscriber.firstName }}</td>
+                
+                          <td>{{ subscriber.email}}</td>
+                        
+                          <td>
+                            <button  (click)="affect(subscriber.idUser!)"
+                           
+                            class="btn btn-sm me-2" 
+                            [class.btn-success]="isAffected" 
+                            [class.btn-info]="!isAffected">
+                      {{ isAffected ? 'Affected' : 'Affect' }}
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  
+
+                    
+                </div>
+
+
+            </div>
+
+        </div>
+    
+</section>
+
+
+
+
+
+  
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>
+  
