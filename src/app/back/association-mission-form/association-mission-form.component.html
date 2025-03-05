@@ -1,0 +1,143 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Créer une Mission</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 rounded shadow">
+                    <div class="card-body">
+                        <form (ngSubmit)="onSubmit()" #missionForm="ngForm">
+                            <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+                            <div class="row">
+                                <div class="col-12 mb-4">
+                                    <label class="form-label fw-bold">Description de la mission <span class="text-danger">*</span></label>
+                                    <textarea 
+                                        class="form-control" 
+                                        [(ngModel)]="mission.description" 
+                                        name="description" 
+                                        rows="4" 
+                                        placeholder="Décrivez la mission en détail"
+                                        required
+                                        minlength="3"
+                                        #description="ngModel">
+                                    </textarea>
+                                    <div *ngIf="description.invalid && description.touched" class="text-danger">
+                                        La description est requise et doit comporter au moins 3 caractères.
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mb-4">
+                                    <label class="form-label fw-bold">Localisation <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        [(ngModel)]="mission.location" 
+                                        name="location" 
+                                        placeholder="Adresse de la mission"
+                                        required
+                                        minlength="3"
+                                        #location="ngModel">
+                                    <div *ngIf="location.invalid && location.touched" class="text-danger">
+                                        La localisation est requise et doit comporter au moins 3 caractères.
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold">Date de début <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="date" 
+                                        class="form-control" 
+                                        [(ngModel)]="mission.startDate" 
+                                        name="startDate" 
+                                        required
+                                        #startDate="ngModel">
+                                    <div *ngIf="startDate.invalid && startDate.touched" class="text-danger">La date de début est requise.</div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold">Date de fin <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="date" 
+                                        class="form-control" 
+                                        [(ngModel)]="mission.endDate" 
+                                        name="endDate" 
+                                        required
+                                        #endDate="ngModel">
+                                    <div *ngIf="endDate.invalid && endDate.touched" class="text-danger">La date de fin est requise.</div>
+                                    <div *ngIf="endDate.value && mission.startDate && endDate.value < mission.startDate" class="text-danger">
+                                        La date de fin doit être après la date de début.
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold">Nombre de volontaires <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="number" 
+                                        class="form-control" 
+                                        [(ngModel)]="mission.volunteerCount" 
+                                        name="volunteerCount" 
+                                        min="1"
+                                        placeholder="Nombre de volontaires requis"
+                                        required
+                                        #volunteerCount="ngModel">
+                                    <div *ngIf="volunteerCount.invalid && volunteerCount.touched" class="text-danger">Le nombre de volontaires est requis.</div>
+                                    <div *ngIf="volunteerCount.value < 1 && volunteerCount.touched" class="text-danger">
+                                        Le nombre de volontaires doit être supérieur ou égal à 1.
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mb-4">
+                                    <label class="form-label fw-bold">Statut de la mission</label>
+                                    <select 
+                                        id="status"
+                                        name="status"
+                                        class="form-control"
+                                        [(ngModel)]="mission.status"
+                                        required
+                                        #status="ngModel">
+                                        <option *ngFor="let status of missionStatuses" [value]="status">
+                                            {{status}}
+                                        </option>
+                                    </select>
+                                    <div *ngIf="status.invalid && status.touched" class="text-danger">Le statut est requis.</div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                        <button 
+                                            type="button" 
+                                            class="btn btn-light me-md-2" 
+                                            (click)="onCancel()">
+                                            Annuler
+                                        </button>
+                                        <button 
+                                            type="submit" 
+                                            class="btn btn-primary" 
+                                            [disabled]="!missionForm.form.valid || submitted">
+                                            {{ submitted ? 'Création en cours...' : 'Créer la mission' }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

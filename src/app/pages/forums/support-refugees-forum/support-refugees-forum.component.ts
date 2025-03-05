@@ -1,124 +1,100 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ResponseService } from '../../../services/response.service';
+import { Response } from '../../../models/Response.model';
+import { RequestService } from '../../../services/request.service';
 import { NavbarComponent } from '../../../components/navbar/navbar.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
-import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+
 @Component({
-  selector: 'app-support-refugees',
+  selector: 'app-support-refugees-forum',
+  templateUrl: './support-refugees-forum.component.html',
+  styleUrls: ['./support-refugees-forum.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent,RouterLink],
-  template: `
-    <app-navbar />
-     <!-- Hero Start -->
-<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
-    <div class="bg-overlay bg-gradient-overlay"></div>
-    <div class="container">
-        <div class="row mt-5 justify-content-center">
-            <div class="col-12">
-                <div class="title-heading text-center">
-                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Support Refugees Discussion</h5>
-                </div>
-            </div><!--end col-->
-        </div><!--end row-->
-
-        <div class="position-middle-bottom">
-            <nav aria-label="breadcrumb" class="d-block">
-                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                    <li class="breadcrumb-item"><a [routerLink]="'/'">solidarity</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Support Refugees Discussion</li>
-                </ul>
-            </nav>
-        </div>
-    </div><!--end container-->
-</section><!--end section-->
-
-<div class="position-relative">
-    <div class="shape overflow-hidden text-white">
-        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
-        </svg>
-    </div>
-</div>
-<!-- Hero End -->
-
-    
-    
-    <section class="section">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-8">
-            <div class="card shadow rounded border-0">
-              <div class="card-body p-4">
-                <h3 class="mb-4">Support Refugees Discussion</h3>
-                
-                <div class="forum-thread mb-4">
-                  <h4 class="mb-3">{{thread.title}}</h4>
-                  <div class="thread-content p-3 bg-light rounded">
-                    <p class="mb-2"><strong>{{thread.author}}</strong></p>
-                    <p class="mb-0">{{thread.content}}</p>
-                  </div>
-                
-                  <div class="replies mt-4">
-                    <h5 class="mb-3">Replies:</h5>
-                    <div class="reply-list">
-                      <div *ngFor="let reply of thread.replies" class="reply p-3 mb-3 bg-light rounded">
-                        <p class="mb-2"><strong>{{reply.author}}</strong></p>
-                        <p class="mb-0">{{reply.message}}</p>
-                      </div>
-                    </div>
-                  </div>
-                
-                  <div class="reply-form mt-4">
-                    <h5 class="mb-3">Add Reply</h5>
-                    <textarea 
-                      [(ngModel)]="newReply" 
-                      class="form-control mb-3" 
-                      rows="3"
-                      placeholder="Write your reply..."></textarea>
-                    <button 
-                      class="btn btn-primary" 
-                      (click)="addReply()"
-                      [disabled]="!newReply.trim()">
-                      Post Reply
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <app-footer />
-  `,
-  styles: [`
-    .reply {
-      border-left: 3px solid #2f55d4;
-    }
-  `]
+  imports: [NavbarComponent, FooterComponent, FormsModule]
 })
-export class SupportRefugeesComponent {
-  thread = {
-    title: 'How can we help refugee families settle?',
-    author: 'CommunityMember',
-    content: 'Looking for ideas to help newly arrived refugee families integrate into our community.',
-    replies: [
-      { author: 'Volunteer1', message: 'We can organize language classes and cultural orientation sessions.' },
-      { author: 'SupportGroup2', message: 'Our organization assists with job placements and housing.' }
-    ]
+export class SupportRefugeesForumComponent implements OnInit {
+  listResponses: Response[] = [];
+  newResponse: Response = {
+    content: '',
+    object: '',
+    requestId: 0
   };
+  showForm: boolean = false;
+  idRequest: number | null = null;
+  request: any; // Replace 'any' with a proper Request model if available
 
-  newReply: string = '';
+  constructor(
+    private responseService: ResponseService,
+    private requestService: RequestService,
+    private route: ActivatedRoute
+  ) {}
 
-  addReply() {
-    if (this.newReply.trim()) {
-      this.thread.replies.push({ 
-        author: 'You', 
-        message: this.newReply.trim() 
-      });
-      this.newReply = '';
+  ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      this.idRequest = +params['idRequest']; // Convert to number
+      console.log('ID Request:', this.idRequest);
+      if (this.idRequest) {
+        this.newResponse.requestId = this.idRequest; // Set requestId for new responses
+        this.getRequestDetails(this.idRequest);
+        this.getAllResponses(this.idRequest);
+      }
+    });
+  }
+
+  getRequestDetails(idRequest: number): void {
+    this.requestService.getRequestById(idRequest).subscribe({
+      next: (request) => {
+        this.request = request;
+        console.log('Request loaded:', this.request);
+      },
+      error: (err) => {
+        console.error('Error fetching request:', err);
+      }
+    });
+  }
+
+  getAllResponses(idRequest: number): void {
+    this.responseService.getAllResponsesByRequest(idRequest).subscribe({
+      next: (responses) => {
+        this.listResponses = responses;
+        console.log('Responses loaded:', this.listResponses);
+      },
+      error: (err) => {
+        console.error('Error fetching responses:', err);
+      }
+    });
+  }
+
+  addResponse(): void {
+    if (!this.newResponse.content || !this.idRequest) {
+      console.error('Content and Request ID are required.');
+      return;
+    }
+
+    this.requestService.addResponseToRequest(this.idRequest, this.newResponse).subscribe({
+      next: (response) => {
+        console.log('✅ Response added successfully', response);
+        this.listResponses.push(response); // Add the new response to the list
+        this.resetResponseForm();
+        this.showForm = false; // Hide the form after submission
+      },
+      error: (err) => {
+        console.error('❌ Error adding response:', err);
+        alert('Failed to add response. Please try again.');
+      }
+    });
+  }
+
+  resetResponseForm(): void {
+    this.newResponse = { content: '', object: '', requestId: this.idRequest || 0 };
+  }
+
+  toggleForm(): void {
+    this.showForm = !this.showForm;
+    if (!this.showForm) {
+      this.resetResponseForm(); // Reset form when closing
     }
   }
 }

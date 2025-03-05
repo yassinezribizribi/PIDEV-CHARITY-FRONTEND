@@ -4,7 +4,7 @@ export interface JobOffer {
     description: string;
     requirements: string;
     isActive: boolean;
-    forum?: Forum;
+    forumId: 1;
     jobApplications?: JobApplication[];
   }
   

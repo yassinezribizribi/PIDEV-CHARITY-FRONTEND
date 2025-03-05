@@ -2,45 +2,38 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { NavSettingComponent } from '@component/nav-setting/nav-setting.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
+import { AuthService } from '../../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-admin-navbar',
+  standalone: true,
   imports: [
     CommonModule,
     RouterLink,
-    NavSettingComponent,
     MatToolbarModule,
     MatIconModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatSidenavModule,
-    MatListModule,
+    MatButtonModule,FormsModule
   ],
   templateUrl: './admin-navbar.component.html',
-  standalone: true,
   styleUrls: ['./admin-navbar.component.scss']
 })
 export class AdminNavbarComponent {
-  // Property to track the menu's state
   menuOpen = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService // Fixed injection
+  ) {}
 
-  // Method to toggle the menu visibility
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
   }
 
-  // Method to handle logout
   logout() {
-    localStorage.removeItem('token');  // Remove token or session
-    this.router.navigate(['/lockScreen']);   // Redirect to lock screen/login page
+    this.authService.logout(); // Direct logout without confirmation
   }
 }

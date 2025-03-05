@@ -1,1 +1,139 @@
- 
+<app-admin-navbar />
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+<div class="bg-overlay bg-gradient-overlay"></div>
+<div class="container">
+  <div class="row mt-5 justify-content-center">
+      <div class="col-12">
+          <div class="title-heading text-center">
+              <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Detailed view and verification panel</h5>
+          </div>
+      </div><!--end col-->
+  </div><!--end row-->
+
+  <div class="position-middle-bottom">
+      <nav aria-label="breadcrumb" class="d-block">
+          <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+              <li class="breadcrumb-item"><a [routerLink]="'/'">solidarity</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Admin Dashboard</li>
+          </ul>
+      </nav>
+  </div>
+</div><!--end container-->
+</section><!--end section-->
+
+<div class="position-relative">
+<div class="shape overflow-hidden text-white">
+  <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+  </svg>
+</div>
+</div>
+<!-- Hero End -->
+
+<section class="section pt-5 pb-0">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <!-- Loading spinner -->
+        <div *ngIf="loading" class="text-center py-5">
+          <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3 text-muted">Loading association details...</p>
+        </div>
+
+        <!-- Association details card -->
+        <div *ngIf="association" class="card border-0 shadow-lg rounded-3 overflow-hidden">
+          <div class="card-header bg-primary text-white py-4">
+            <h2 class="h4 mb-0">{{ association.associationName }}</h2>
+          </div>
+          
+          <div class="card-body p-4">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="bg-light p-3 rounded-2">
+                  <h5 class="text-primary mb-3"><i class="bi bi-geo-alt me-2"></i>Address</h5>
+                  <p class="mb-0">{{ association.associationAddress }}</p>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="bg-light p-3 rounded-2">
+                  <h5 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Status</h5>
+                  <span [ngClass]="{
+                    'badge bg-warning': association.status === 'PENDING',
+                    'badge bg-success': association.status === 'APPROVED',
+                    'badge bg-danger': association.status === 'REJECTED'
+                  }" class="fs-6">
+                    {{ association.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <h4 class="text-primary mb-3"><i class="bi bi-card-text me-2"></i>Description</h4>
+              <p class="lead text-muted">{{ association.description }}</p>
+            </div>
+
+            <!-- Logo Section -->
+            <div class="mt-4" *ngIf="association.associationLogoPath">
+              <h4 class="text-primary mb-3"><i class="bi bi-image me-2"></i>Logo</h4>
+              <div class="border rounded-3 p-3 bg-light">
+                <div class="ratio ratio-1x1" style="max-width: 200px;">
+                  <img [src]="imageUrl" 
+                       alt="Association Logo" 
+                       class="img-fluid rounded-2 object-fit-cover"
+                       *ngIf="imageUrl">
+                  <div *ngIf="!imageUrl" class="d-flex align-items-center justify-content-center h-100">
+                    <div class="spinner-border text-primary"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Documents Section -->
+            <div class="mt-4">
+              <h4 class="text-primary mb-3"><i class="bi bi-files me-2"></i>Documents</h4>
+              <div class="d-flex gap-3 flex-wrap">
+                <button *ngIf="association.registrationDocumentPath"
+                        class="btn btn-outline-primary d-flex align-items-center"
+                        (click)="downloadDocument(association.registrationDocumentPath)">
+                  <i class="bi bi-file-earmark-pdf me-2"></i>
+                  Registration Document
+                </button>
+                
+                <button *ngIf="association.legalDocumentPath"
+                        class="btn btn-outline-primary d-flex align-items-center"
+                        (click)="downloadDocument(association.legalDocumentPath)">
+                  <i class="bi bi-file-earmark-text me-2"></i>
+                  Legal Document
+                </button>
+              </div>
+            </div>
+
+            <!-- Verification Actions -->
+            <div class="mt-5 pt-4 border-top" *ngIf="association.status === 'PENDING'">
+              <h4 class="text-primary mb-4">Verification Actions</h4>
+              <div class="d-flex gap-3">
+                <button class="btn btn-success px-4 py-2 d-flex align-items-center"
+                        (click)="verifyAssociation()">
+                  <i class="bi bi-check-circle me-2"></i>
+                  Verify Association
+                </button>
+                
+                <button class="btn btn-danger px-4 py-2 d-flex align-items-center"
+                        (click)="rejectAssociation()">
+                  <i class="bi bi-x-circle me-2"></i>
+                  Reject Application
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+

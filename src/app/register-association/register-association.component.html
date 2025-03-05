@@ -1,0 +1,156 @@
+<!-- register-association.component.html -->
+<app-navbar />
+<!-- Hero Section (unchanged) -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <!-- ... existing hero section content ... -->
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Register Your Association</h2>
+
+  <form (ngSubmit)="onSubmit()" #associationForm="ngForm">
+    <!-- Association Name -->
+    <div class="form-group">
+      <label for="associationName">Association Name</label>
+      <input
+        type="text"
+        id="associationName"
+        name="associationName"
+        [(ngModel)]="association.associationName"
+        class="form-control"
+        required
+        minlength="3"
+        maxlength="100"
+        #associationName="ngModel"
+      />
+      <div *ngIf="associationName.invalid && (associationName.touched || associationName.dirty || submitted)" class="text-danger">
+        <div *ngIf="associationName.errors?.['required']">Association name is required.</div>
+        <div *ngIf="associationName.errors?.['minlength']">Name must be at least 3 characters.</div>
+        <div *ngIf="associationName.errors?.['maxlength']">Name cannot exceed 100 characters.</div>
+      </div>
+    </div>
+
+    <!-- Association Address -->
+    <div class="form-group">
+      <label for="associationAddress">Association Address</label>
+      <input
+        type="text"
+        id="associationAddress"
+        name="associationAddress"
+        [(ngModel)]="association.associationAddress"
+        class="form-control"
+        required
+        minlength="5"
+        maxlength="255"
+        #associationAddress="ngModel"
+      />
+      <div *ngIf="associationAddress.invalid && (associationAddress.touched || associationAddress.dirty || submitted)" class="text-danger">
+        <div *ngIf="associationAddress.errors?.['required']">Address is required.</div>
+        <div *ngIf="associationAddress.errors?.['minlength']">Address must be at least 5 characters.</div>
+        <div *ngIf="associationAddress.errors?.['maxlength']">Address cannot exceed 255 characters.</div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        name="description"
+        [(ngModel)]="association.description"
+        class="form-control"
+        rows="4"
+        required
+        minlength="10"
+        maxlength="500"
+        #description="ngModel"
+      ></textarea>
+      <div *ngIf="description.invalid && (description.touched || description.dirty || submitted)" class="text-danger">
+        <div *ngIf="description.errors?.['required']">Description is required.</div>
+        <div *ngIf="description.errors?.['minlength']">Description must be at least 10 characters.</div>
+        <div *ngIf="description.errors?.['maxlength']">Description cannot exceed 500 characters.</div>
+      </div>
+    </div>
+
+    <!-- File Uploads -->
+    <div class="form-group">
+      <label for="associationLogo">Association Logo (PNG, JPG, max 5MB)</label>
+      <input
+        type="file"
+        id="associationLogo"
+        (change)="onFileChange($event, 'associationLogoPath')"
+        class="form-control"
+        accept="image/png, image/jpeg, image/jpg"
+      />
+      <div *ngIf="logoError" class="text-danger">{{ logoError }}</div>
+    </div>
+
+    <div class="form-group">
+      <label for="registrationDocument">Registration Document (PDF, max 5MB)</label>
+      <input
+        type="file"
+        id="registrationDocument"
+        (change)="onFileChange($event, 'registrationDocumentPath')"
+        class="form-control"
+        accept="application/pdf"
+        required
+      />
+      <div *ngIf="(submitted || registrationDocumentTouched) && !association.registrationDocumentPath" class="text-danger">
+        Registration document is required.
+      </div>
+      <div *ngIf="registrationDocError" class="text-danger">{{ registrationDocError }}</div>
+    </div>
+
+    <div class="form-group">
+      <label for="legalDocument">Legal Document (PDF, max 5MB)</label>
+      <input
+        type="file"
+        id="legalDocument"
+        (change)="onFileChange($event, 'legalDocumentPath')"
+        class="form-control"
+        accept="application/pdf"
+        required
+      />
+      <div *ngIf="(submitted || legalDocumentTouched) && !association.legalDocumentPath" class="text-danger">
+        Legal document is required.
+      </div>
+      <div *ngIf="legalDocError" class="text-danger">{{ legalDocError }}</div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-group text-center">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="!associationForm.form.valid || isSubmitting || !areFilesValid()"
+      >
+        {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+      </button>
+    </div>
+
+    <!-- Status Messages -->
+    <div *ngIf="isSubmitting" class="text-center mt-3">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div *ngIf="submissionSuccess" class="alert alert-success mt-3" role="alert">
+      Your association has been successfully registered!
+    </div>
+
+    <div *ngIf="submissionError" class="alert alert-danger mt-3" role="alert">
+      {{ errorMessage }}
+    </div>
+  </form>
+</div>
+
+<app-footer />

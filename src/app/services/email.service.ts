@@ -44,15 +44,15 @@ export class EmailService {
     const loginUrl = `/login`;
     
     return {
-      to: association.email,
+      to: association.subscriber ? association.subscriber.email : association.email,
       subject: 'Your Association Account Has Been Verified',
       body: `
         <h2>Congratulations!</h2>
-        <p>Dear ${association.name},</p>
+        <p>Dear ${association.associationName},</p>
         <p>We are pleased to inform you that your association account has been verified successfully.</p>
         <p>You can now log in to your account using:</p>
         <ul>
-          <li>Email: ${association.email}</li>
+          <li>Email: ${association.subscriber ? association.subscriber.email : association.email}</li>
           <li>Password: The password you created during registration</li>
         </ul>
         <p><a href="${loginUrl}" style="padding: 10px 20px; background-color: #2f55d4; color: white; text-decoration: none; border-radius: 5px;">Login to Your Account</a></p>
@@ -61,4 +61,40 @@ export class EmailService {
       `
     };
   }
-} 
+
+  getRejectionEmailTemplate(association: any): EmailTemplate {
+    const loginUrl = `/login`;
+    
+    return {
+      to: association.subscriber ? association.subscriber.email : association.email,
+      subject: 'Your Association Account Has Been Rejected',
+      body: `
+        <h2>We're Sorry</h2>
+        <p>Dear ${association.associationName},</p>
+        <p>After careful consideration, we regret to inform you that your association account did not meet our verification criteria and has been rejected.</p>
+        <p>If you believe this is a mistake or if you have additional information to support your application, please contact our support team.</p>
+        <p><a href="${loginUrl}" style="padding: 10px 20px; background-color: #d9534f; color: white; text-decoration: none; border-radius: 5px;">Contact Support</a></p>
+        <p>Best regards,<br>The Solidarity & Refugee Team</p>
+      `
+    };
+  }
+
+  sendVerificationEmail(email: string, associationName: string): Promise<boolean> {
+    // Build a minimal association object that contains the needed properties
+    const association = {
+      subscriber: { email },
+      associationName
+    };
+    const template = this.getVerificationEmailTemplate(association);
+    return this.sendEmail(template);
+  }
+
+  sendRejectionEmail(email: string, associationName: string): Promise<boolean> {
+    const association = {
+      subscriber: { email },
+      associationName
+    };
+    const template = this.getRejectionEmailTemplate(association);
+    return this.sendEmail(template);
+  }
+}

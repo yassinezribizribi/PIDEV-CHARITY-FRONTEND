@@ -1,43 +1,24 @@
-export interface Association {
-  id: string;
-  name: string;
-  description: string;
-  logo: string;
-  email: string;
-  password?: string;
-  phone: string;
-  address: string;
-  website?: string;
-  socialMedia?: {
-    facebook?: string;
-    twitter?: string;
-    instagram?: string;
-    linkedin?: string;
-  };
-  verificationStatus: 'pending' | 'verified' | 'rejected';
-  verificationDate?: Date;
-  documents: {
-    registrationDoc: string;
-    legalDoc: string;
-  };
-  status: 'pending' | 'active' | 'suspended';
-  verificationDocuments?: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  teamMembers: TeamMember[];
-  metrics: AssociationMetrics;
-  statistics: {
-    totalDonations: number;
-    totalBeneficiaries: number;
-    activeAidCases: number;
-    completedAidCases: number;
-  };
-  aidCases: AidCase[];
-  events: AssociationEvent[];
-  mediaGallery: MediaItem[];
-  notifications: Notification[];
-  collaborations: Collaboration[];
+// interfaces/association.interface.ts
+
+export enum AssociationStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED'
 }
+export interface Association {
+  idAssociation: number;
+  associationName: string;
+  associationAddress: string;
+  description: string;
+  associationLogoPath: string | null;  // Changed to string
+  registrationDocumentPath: string | null;  // Changed to string
+  legalDocumentPath: string | null;  
+  status: AssociationStatus;
+  subscriber?:any;
+}
+
+
+
 
 export interface TeamMember {
   id: string;

@@ -1,0 +1,42 @@
+<app-navbar></app-navbar>
+
+<section class="section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow rounded border-0">
+          <div class="card-body p-4">
+            <h3 class="mb-4">Support Refugees Discussion</h3>
+
+            <!-- Affichage des demandes -->
+            <div *ngFor="let request of listRequestes" class="forum-thread mb-4" [routerLink]="'/forums/support-refugees'">
+              <h4 class="mb-3">{{request.content}}</h4>
+              <div class="thread-content p-3 bg-light rounded">
+                <p class="mb-0">{{request.object}}</p>
+              </div>
+            </div>
+
+            <!-- Bouton pour ouvrir/fermer le formulaire -->
+            <button class="btn btn-success mb-4" (click)="toggleForm()">
+              {{ showForm ? 'Cancel' : 'Add New Request' }}
+            </button>
+
+            <!-- Formulaire d'ajout de demande, visible uniquement si showForm est true -->
+            <div *ngIf="showForm">
+              <input [(ngModel)]="newRequest.object" class="form-control mb-2" placeholder="Object" />
+              <textarea [(ngModel)]="newRequest.content" class="form-control mb-2" placeholder="Content"></textarea>
+              <label>
+                <input type="checkbox" [(ngModel)]="newRequest.isUrgent" /> Is Urgent
+              </label>
+
+              <!-- Bouton pour ajouter la demande -->
+              <button class="btn btn-primary mt-3" (click)="addRequest()">Add Request</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>

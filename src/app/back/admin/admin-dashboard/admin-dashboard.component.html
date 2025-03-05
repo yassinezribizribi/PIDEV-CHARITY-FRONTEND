@@ -74,30 +74,58 @@
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Email</th>
                 <th>Status</th>
-                <th>Created</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let association of associations">
-                <td>{{association.name}}</td>
-                <td>{{association.email}}</td>
+                <td>{{association.associationName}}</td>
                 <td>
-                  <span [class]="'badge ' + getStatusBadgeClass(association.verificationStatus)">
-                    {{association.verificationStatus}}
+                  <span [class]="'badge ' + getStatusBadgeClass(association.status)">
+                    {{association.status}}
                   </span>
                 </td>
-                <td>{{association.createdAt | date}}</td>
                 <td>
                   <button class="btn btn-sm btn-primary me-2" 
-                          [routerLink]="['/admin/associations', association.id]">
+                          [routerLink]="['/admin/associations', association.idAssociation]">
                     View Details
                   </button>
                 </td>
               </tr>
             </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card shadow border-0 p-4">
+        <h5 class="card-title">Manage Crises</h5>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Reported By (User ID)</th>
+                <th>Actions</th> <!-- Nouvelle colonne pour les actions -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let crisis of crises">
+                <td>{{ crisis.id || 'N/A' }}</td>
+                <td>{{ crisis.name || 'N/A' }}</td>
+                <td>{{ crisis.location || 'N/A' }}</td>
+                <td>{{ crisis.description || 'N/A' }}</td>
+                <td>{{ crisis.date ? (crisis.date | date) : 'N/A' }}</td>
+                <td>{{ crisis.idUser || 'N/A' }}</td>
+                <td>
+                  <button class="btn btn-danger btn-sm" (click)="openDialog(crisis.id ?? 0, '0ms', '0ms')">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+            
           </table>
         </div>
       </div>

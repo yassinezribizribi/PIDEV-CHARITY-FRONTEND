@@ -23,7 +23,7 @@ import { NavbarComponent } from '@component/navbar/navbar.component';
 })
 export class JobOpportunitiesForumComponent implements OnInit {
   jobOffers: JobOffer[] = [];
-  newJobOffer: JobOffer = { idJobOffer: 0, title: '', description: '', requirements: '', isActive: true };
+  newJobOffer: JobOffer = { idJobOffer: 0, title: '', description: '', requirements: '', isActive: true,forumId:1 };
   loading: boolean = true;
   error: string | null = null;
 
@@ -39,26 +39,55 @@ export class JobOpportunitiesForumComponent implements OnInit {
   fetchJobOffers() {
     this.loading = true;
     this.jobService.getJobOffers().subscribe({
-      next: (data: JobOffer[]) => {
-        this.jobOffers = data;
+      next: (data: any) => {
+        try {
+          // Log the raw data to inspect its structure
+          console.log('Received data:', data);
+  
+          // If data is a string, attempt to fix it
+          if (typeof data === 'string') {
+            // Remove trailing invalid characters (e.g., circular reference artifacts)
+            const correctedData = data.replace(/]}}]+$/, "]");
+            this.jobOffers = JSON.parse(correctedData);
+          } else {
+            this.jobOffers = data;
+          }
+        } catch (e) {
+          console.error('Malformed JSON:', e);
+          this.error = 'Error parsing job offers data';
+        }
         this.loading = false;
       },
       error: (err: any) => {
         this.error = 'Error fetching job offers';
+        console.error('Error details:', err);
         this.loading = false;
       }
     });
   }
+  
 
   addJobOffer() {
-    this.jobService.createJobOffer(this.newJobOffer).subscribe({
-      next: (createdJob: JobOffer) => {
-        this.jobOffers.push(createdJob);
-        this.newJobOffer = { idJobOffer: 0, title: '', description: '', requirements: '', isActive: true };
-      },
-      error: (err: any) => console.error('Error adding job offer', err)
+    // Remove idJobOffer or set it to null for new entities
+    const payload = {
+      title: this.newJobOffer.title,
+      description: this.newJobOffer.description,
+      requirements: this.newJobOffer.requirements,
+      isActive: this.newJobOffer.isActive,
+      forumId: this.newJobOffer.forumId  // Ajoute cet attribut si nécessaire
+  };
+  
+
+    this.jobService.createJobOffer(payload).subscribe({
+        next: (createdJob: JobOffer) => {
+            this.jobOffers.push(createdJob);
+            this.newJobOffer = { idJobOffer: 0, title: '', description: '', requirements: '', isActive: true,forumId:1 };
+        },
+        error: (err: any) => {
+            console.error('Error adding job offer:', err);
+        }
     });
-  }
+}
 
   toggleJobStatus(job: JobOffer) {
     job.isActive = !job.isActive;

@@ -1,0 +1,82 @@
+.bg-half-170 {
+    padding: 170px 0;
+    background-size: cover;
+    background-position: center center;
+}
+
+.card {
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-5px);
+    }
+}
+
+.form-control {
+    border-radius: 5px;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    
+    &:focus {
+        border-color: #2f55d4;
+        box-shadow: 0 0 0 0.2rem rgba(47, 85, 212, 0.25);
+    }
+}
+
+.btn {
+    padding: 8px 20px;
+    border-radius: 5px;
+    
+    &.btn-primary {
+        background-color: #2f55d4;
+        border-color: #2f55d4;
+        
+        &:hover {
+            background-color: #244bb4;
+            border-color: #244bb4;
+        }
+        
+        &:disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+    }
+    
+    &.btn-light {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        
+        &:hover {
+            background-color: #e2e6ea;
+            border-color: #dae0e5;
+        }
+    }
+}
+
+.alert {
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.form-label {
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.section {
+    padding: 60px 0;
+    position: relative;
+    
+    @media (max-width: 768px) {
+        padding: 40px 0;
+    }
+} 
