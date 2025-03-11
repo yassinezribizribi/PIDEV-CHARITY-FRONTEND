@@ -1,10 +1,9 @@
+// src/app/models/Response.model.ts
 export interface Response {
-    idRespons?: number; // Optionnel car généré par le backend
-    idSender: number;
-    idReceiver: number;
-    dateRespons: Date;
-    content: string;
-    object: string;
-    requests?: Request[]; // Liste des demandes associées
-  }
-  
+  idResponse: number; // ID de la réponse
+  dateResponse: any; // Date de la réponse
+  content: string; // Contenu de la réponse
+  object?: string; // Objet de la réponse (optionnel)
+  requestId?: number; // ID de la demande associée
+  senderId?: number; // ID de l'utilisateur qui a envoyé la réponse
+}

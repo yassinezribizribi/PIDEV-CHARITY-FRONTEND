@@ -99,7 +99,7 @@ export class AdminDashboardComponent implements OnInit {
       if(result== 'no'|| result== undefined){
         return;
       }
-        this.toastr.success('Hello world!', 'Toastr fun!');
+        this.toastr.success('Crisis deleted !', 'successful!');
         this.loadCrises();
       
     });

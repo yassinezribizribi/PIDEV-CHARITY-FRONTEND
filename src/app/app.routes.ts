@@ -26,15 +26,17 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { AssociationTestComponent } from './pages/association/association-test/association-test.component';
 import { JobOpportunitiesForumComponent } from './pages/forums/job-opportunities-forum/job-opportunities-forum.component';
-import { SupportRefugeesComponent } from './pages/forums/support-refugees-forum/support-refugees-forum.component';
+import { SupportRefugeesForumComponent } from './pages/forums/support-refugees-forum/support-refugees-forum.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminNavbarComponent } from './back/admin/admin-navbar/admin-navbar.component';
 import { ListRequestComponent } from './pages/forums/list-request/list-request.component';
 
+
 export const routes: Routes = [
   { path: '', redirectTo: 'onepage', pathMatch: 'full' },
   { path: 'onepage', component: OnepageComponent },
-  
+  { path: 'support-refugees-forum/:idRequest', component: SupportRefugeesForumComponent },
+
     {path:'index', component:IndexComponent,canActivate:[AuthGuard]},
     {path:'aboutus', component:AboutusComponent},
     {path:'services', component:ServicesComponent},
@@ -60,6 +62,7 @@ export const routes: Routes = [
     {path:'error', component:ErrorComponent},
     {path:'contactus', component:ContactusComponent},
     {path:'admin-navbar', component:AdminNavbarComponent},
+    
     {
       path: 'association-signup',
       loadComponent: () => 
@@ -91,8 +94,9 @@ export const routes: Routes = [
         ,
         {
           path: 'support-refugees',
-          component: SupportRefugeesComponent
+          component: SupportRefugeesForumComponent
         }
+        
         ,{
           path: 'list-rquest',
           component: ListRequestComponent

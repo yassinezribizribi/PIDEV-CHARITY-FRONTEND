@@ -1,29 +1,87 @@
+// src/app/components/list-request/list-request.component.ts
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RequestService } from '../../../services/request.service';
+import { Request } from '../../../models/Request.model';
+import { Response } from '../../../models/Response.model';
+import { AuthService } from '../../../services/auth.service';
 import { NavbarComponent } from "../../../components/navbar/navbar.component";
+import { FormsModule } from '@angular/forms';
 import { FooterComponent } from "../../../components/footer/footer.component";
-import { RequestService } from 'src/app/services/request.service';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-request',
-  imports: [RouterLink, NavbarComponent, FooterComponent,CommonModule],
   templateUrl: './list-request.component.html',
-  styleUrl: './list-request.component.scss'
+  styleUrls: ['./list-request.component.scss'],
+  imports: [NavbarComponent, FormsModule, FooterComponent,CommonModule],
+  
+
 })
-export class ListRequestComponent implements OnInit{
-listRequestes:any=[
-  {content:'eeeeeee', object:'tttttttt'},
-  {content:'k,nkl,kl', object:'ttttttt51465654t'},
-]
-  constructor( private requestService: RequestService){}
+
+export class ListRequestComponent implements OnInit {
+  listRequests: Request[] = []; // Liste des demandes
+  newRequest: any = {
+    idRequest:0,
+    object: '',
+    content: '',
+    isUrgent: false,
+    dateRequest: new Date(),
+  }; // Nouvelle demande
+  showForm: boolean = false; // Afficher/masquer le formulaire
+
+  constructor(
+    private requestService: RequestService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
   ngOnInit(): void {
-    console.log('eeeee')
-    this.requestService.getAllRequests().subscribe((res:any)=>{
-      console.log('rrrrrrrr')
-      console.log(res)
-     // this.listRequestes=res
-    })
+    this.loadRequests(); // Charge les demandes au démarrage
   }
 
+  // Charger toutes les demandes
+  loadRequests(): void {
+    this.requestService.getAllRequests().subscribe({
+      next: (requests) => {
+        this.listRequests = requests; // Met à jour la liste des demandes
+      },
+      error: (err) => {
+        console.error('Error loading requests:', err);
+      },
+    });
+  }
+
+  // Ajouter une nouvelle demande
+  // Dans la méthode addRequest
+addRequest(): void {
+  this.newRequest = {
+        
+    "dateRequest":  new Date(),
+  "object": this.newRequest.object,
+  "content": this.newRequest.content,
+  "isUrgent": this.newRequest.isUrgent,
+  "forumId": 0
+  
+};
+  this.requestService.addRequest(this.newRequest).subscribe({
+    next: (addedRequest: Request) => { // Ajoutez le type `Request`
+      this.listRequests.push(addedRequest);
+      
+      this.showForm = false;
+    },
+    error: (err: any) => { // Ajoutez le type `any` ou un type spécifique
+      console.error('Error adding request:', err);
+    },
+  });
+}
+
+  // Afficher/masquer le formulaire
+  test() {
+     this.showForm = !this.showForm;
+    console.log(this.showForm)
+  }
+  response(id:any){
+    this.router.navigateByUrl('support-refugees-forum/'+id)
+  }
 }

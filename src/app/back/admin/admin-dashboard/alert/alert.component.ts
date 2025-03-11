@@ -26,24 +26,21 @@ export class AlertComponent {
   ){}
 
   readonly dialogRef = inject(MatDialogRef<AdminDashboardComponent>);
-  deleteCrisis( result:any): void {
-   
-  
-    
-      this.crisisService.deleteCrisis(this.data.id).subscribe(
-        () => {
-          console.log(`Crisis with ID ${this.data.id} deleted successfully.`);
-          //this.loadCrises(); // Recharge la liste après suppression
-          this.closeDialog('ok')
-        },
-        (error) => {
-          console.error("Error deleting crisis:", error);
-          alert("Failed to delete crisis. Check authentication and server.");
-          this.closeDialog('no')
-        }
-      );
-    
+  deleteCrisis(): void {
+    this.crisisService.deleteCrisis(this.data.id).subscribe(
+      () => {
+        console.log(`Crisis with ID ${this.data.id} deleted successfully.`);
+        this.dialogRef.close('yes'); // ✅ On ferme le dialog en renvoyant "yes"
+      },
+      (error) => {
+        console.error("Error deleting crisis:", error);
+        alert("Failed to delete crisis.");
+        this.dialogRef.close('no'); // ❌ En cas d'erreur
+      }
+    );
   }
+  
+  
   closeDialog(result: string): void {
     this.dialogRef.close(result);
   }
