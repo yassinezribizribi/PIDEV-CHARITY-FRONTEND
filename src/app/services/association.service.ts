@@ -1,13 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Association,AssociationStatus } from '../interfaces/association.interface';
-
+import { Association, AssociationStatus } from '../interfaces/association.interface';
 import { Router } from '@angular/router';
-
-
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +26,63 @@ export class AssociationService {
     return throwError(() => error);
   }
 
+  // ============== LOGO METHODS ==============
+  getAssociationLogo(filename: string): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/protected/files/${filename}`,
+      { 
+        headers: this.authService.getAuthHeaders(),
+        responseType: 'blob' 
+      }
+    ).pipe(catchError(this.handleError));
+  }
+
+  getPartnerLogo(filename: string): Observable<Blob> {
+    return this.getAssociationLogo(filename);
+  }
+
+  getPotentialPartnerLogo(filename: string): Observable<Blob> {
+    return this.getAssociationLogo(filename);
+  }
+
+  // ============== PARTNERSHIP METHODS ==============
+  createPartnership(associationId: number, partnerId: number): Observable<Association> {
+    return this.http.post<Association>(
+      `${this.apiUrl}/${associationId}/partners/${partnerId}`,
+      null,
+      { headers: this.authService.getAuthHeaders() }
+    ).pipe(
+      tap(() => console.log('Partnership created successfully')),
+      catchError(this.handleError)
+    );
+  }
+
+  getPartners(associationId: number): Observable<Association[]> {
+    return this.http.get<Association[]>(
+      `${this.apiUrl}/${associationId}/partners`,
+      { 
+        headers: this.authService.getAuthHeaders(),
+        observe: 'response'
+      }
+    ).pipe(
+      map(response => response.body || []),
+      catchError(this.handleError)
+    );
+  }
+
+  getPotentialPartners(associationId: number): Observable<Association[]> {
+    return this.http.get<Association[]>(
+      `${this.apiUrl}/${associationId}/potential-partners`,
+      { headers: this.authService.getAuthHeaders() }
+    ).pipe(catchError(this.handleError));
+  }
+
+  removePartnership(associationId: number, partnerId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/${associationId}/partners/${partnerId}`,
+      { headers: this.authService.getAuthHeaders() }
+    ).pipe(catchError(this.handleError));
+  }
   getAssociationByUserId(userId: string): Observable<Association> {
     const token = this.authService.getToken();
     if (!token) {

@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
 import { JobApplication } from '../models/job-application.model';
-import { JobOfferService } from './jof-offer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,41 +11,59 @@ import { JobOfferService } from './jof-offer.service';
 export class JobApplicationService {
   private apiUrl = `${environment.apiUrl}/jobApplications`;
 
-  constructor(private http: HttpClient, private authService: AuthService, private jobOfferService: JobOfferService) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // Get headers with authorization token
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      // You should throw an error or handle it appropriately where this method is called
-      throw new Error('No token found');
-    }
+    const token = this.authService.getToken();
     return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
 
   // Get all job applications
   getAllJobApplications(): Observable<JobApplication[]> {
-    const headers = this.getHeaders(); // Ensure headers are retrieved properly
-    return this.http.get<JobApplication[]>(this.apiUrl, { headers });
+    return this.http.get<JobApplication[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
-  // Get job application by ID
+  // Get a specific job application by ID
   getJobApplicationById(id: number): Observable<JobApplication> {
-    const headers = this.getHeaders(); // Ensure headers are retrieved properly
-    return this.http.get<JobApplication>(`${this.apiUrl}/${id}`, { headers });
+    return this.http.get<JobApplication>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // Create a job application
+  // Create a new job application
   createJobApplication(jobOfferId: number, jobApplication: JobApplication): Observable<JobApplication> {
-    const headers = this.getHeaders();  // Ensure headers are retrieved properly
-    const url = `${this.apiUrl}/${jobOfferId}`;  // Append jobOfferId to the API URL
-    return this.http.post<JobApplication>(url, jobApplication, { headers });
+    return this.http.post<JobApplication>(`${this.apiUrl}/${jobOfferId}`, jobApplication, { headers: this.getHeaders() });
   }
-  
 
-  // Delete job application
+  // Delete a job application
   deleteJobApplication(id: number): Observable<void> {
-    const headers = this.getHeaders(); // Ensure headers are retrieved properly
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  // Update the status of a job application (e.g., accept or reject)
+  updateApplicationStatus(id: number, status: string): Observable<JobApplication> {
+    return this.http.patch<JobApplication>(
+      `${this.apiUrl}/${id}/status`,
+      { status },
+      { headers: this.getHeaders() }
+    );
+  }
+  acceptApplication(id: number): Observable<JobApplication> {
+    return this.http.put<JobApplication>(
+      `${this.apiUrl}/${id}/accept`, 
+      {}, 
+      { headers: this.getHeaders() }
+    );
+  }
+
+  rejectApplication(id: number, reason: string = ''): Observable<JobApplication> {
+    return this.http.put<JobApplication>(
+      `${this.apiUrl}/${id}/reject`,
+      { reason },
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Get all applications for a specific job offer
+  getApplicationsForJobOffer(jobOfferId: number): Observable<JobApplication[]> {
+    return this.http.get<JobApplication[]>(`${this.apiUrl}/job-offer/${jobOfferId}`, { headers: this.getHeaders() });
   }
 }

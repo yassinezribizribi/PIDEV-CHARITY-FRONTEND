@@ -1,119 +1,196 @@
-/* Style the donation cards */
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.col-lg-4, .col-md-6 {
-  padding: 0.5rem;
-}
-
-/* Card Style */
-.position-relative {
-  border: 1px solid #ddd;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-}
-
-.position-relative:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.1);
-}
-
-/* Background overlay */
-.bg-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-}
-
-/* Button and Links */
-.link-title {
-  text-decoration: none;
-  color: #fff;
-  font-weight: bold;
-}
-
-.link-title:hover {
-  text-decoration: underline;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #004085;
-}
-
-/* Progress Bar */
-.progress-box {
-  margin-top: 20px;
-}
-
-.progress {
-  background-color: #f3f3f3;
-}
-
-.progress-bar {
-  background-color: #28a745;
-}
-
-.progress-bar .progress-value {
-  color: #fff;
-  font-size: 14px;
-}
-
-/* Badge styling */
-.badge.bg-info {
-  background-color: #17a2b8;
-}
-
-/* Text styling for truncation */
-.text-truncate {
-  white-space: nowrap;
+/* ====== CARD STYLES ====== */
+.donation-card {
+  border-radius: 10px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  background: white;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 1px solid #eee;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  }
 }
-.progress-value {
+
+/* ====== CAGNOTTE INDICATOR ====== */
+.cagnotte-indicator {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #fff;
-  font-size: 14px;
-}
-.smaller-btn {
-  font-size: 14px;  /* Adjust the font size */
-  padding: 8px 16px;  /* Adjust the padding */
-}
-/* Ensuring enough space for the cagnotte section */
-.cagnotte-section {
-background-color: #f8f9fa;
-border-radius: 8px;
-padding: 10px;
-margin-top: 15px;
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: #f8f9fa;
+  color: #6c757d;
+  z-index: 2;
+
+  &.has-cagnotte {
+    background: #e6f7ee;
+    color: #198754;
+  }
 }
 
-.cagnotte-details p {
-margin-bottom: 5px;
-}
-/* Ensuring enough space for the cagnotte section */
-.cagnotte-section {
-background-color: #f8f9fa;
-border-radius: 8px;
-padding: 10px;
-margin-top: 15px;
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* ====== CAGNOTTE HEADER ====== */
+.cagnotte-header {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+
+  h6 {
+    color: #198754;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  .progress {
+    height: 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+
+    &-bar {
+      background: #198754;
+    }
+  }
+
+  .amounts {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+  }
 }
 
-.cagnotte-details p {
-margin-bottom: 5px;
+/* ====== CARD CONTENT ====== */
+.card-content {
+  padding: 1.25rem;
+  flex-grow: 1;
+
+  .donation-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #212529;
+  }
+
+  .donation-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .donation-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+
+      .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+      }
+
+      .stat-value {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+/* ====== PROGRESS BAR ====== */
+.donation-progress {
+  margin: 1rem 0;
+
+  .progress {
+    height: 10px;
+    border-radius: 5px;
+    background: #e9ecef;
+
+    &-bar {
+      background: #0d6efd;
+      position: relative;
+    }
+  }
+
+  .progress-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+  }
+}
+
+/* ====== CARD FOOTER ====== */
+.card-footer {
+  padding: 1rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .donation-type {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+
+    &.success { background: #e6f7ee; color: #198754; }
+    &.info { background: #e7f8ff; color: #0dcaf0; }
+    &.danger { background: #fce8e9; color: #dc3545; }
+    &.secondary { background: #f8f9fa; color: #6c757d; }
+  }
+
+  .donation-actions {
+    display: flex;
+    gap: 0.5rem;
+
+    button {
+      border: none;
+      border-radius: 4px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s;
+
+      i {
+        font-size: 0.9rem;
+      }
+
+      &.money-donation-btn {
+        background: #198754;
+        color: white;
+
+        &:hover {
+          background: #157347;
+        }
+      }
+
+      &.item-donation-btn {
+        background: #f8f9fa;
+        color: #212529;
+
+        &:hover {
+          background: #e9ecef;
+        }
+      }
+    }
+  }
 }

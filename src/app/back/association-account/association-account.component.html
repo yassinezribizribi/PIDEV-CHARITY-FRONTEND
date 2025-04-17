@@ -1,5 +1,6 @@
 <app-admin-navbar></app-admin-navbar>
-<!-- Hero Start -->
+
+<!-- Hero Section -->
 <section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
   <div class="bg-overlay bg-gradient-overlay"></div>
   <div class="container">
@@ -37,29 +38,45 @@
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
+      <p class="mt-2">Loading your dashboard...</p>
     </div>
 
     <!-- Error State -->
     <div *ngIf="error" class="alert alert-danger">
+      <i class="uil uil-exclamation-triangle me-2"></i>
       {{error}}
+      <button class="btn btn-sm btn-outline-danger ms-3" (click)="refreshData()">
+        <i class="uil uil-redo"></i> Retry
+      </button>
     </div>
 
     <!-- Dashboard Content -->
     <div *ngIf="association && !loading" class="dashboard">
-      <!-- Welcome Banner with Image -->
+      <!-- Welcome Banner -->
       <div class="row mb-4">
         <div class="col-12">
           <div class="card bg-primary text-white">
             <div class="card-body d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center">
-                <img [src]="imageUrl" alt="Association Logo" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
-                <div>
+                <div class="position-relative">
+                  <img [src]="imageUrl || defaultLogo" 
+                       alt="Association Logo" 
+                       class="rounded-circle"
+                       style="width: 100px; height: 100px; object-fit: cover;">
+                  <span *ngIf="association.status === AssociationStatus.APPROVED" 
+                        class="position-absolute bottom-0 end-0 bg-success rounded-circle p-1 border border-2 border-white">
+                  </span>
+                </div>
+                <div class="ms-3">
                   <h4 class="text-white mb-1">Welcome back, {{association.associationName}}!</h4>
                   <p class="mb-0">Here's what's happening with your association today.</p>
                 </div>
               </div>
-              <div class="text-end">
+              <div>
                 <span class="badge bg-light text-primary">{{association.status | titlecase}}</span>
+                <button class="btn btn-sm btn-light ms-2" (click)="refreshData()" title="Refresh data">
+                  <i class="uil uil-redo"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -97,8 +114,8 @@
         <!-- Statistics Cards -->
         <div class="row g-4 mb-4">
           <div class="col-md-3" *ngFor="let stat of statistics">
-            <div class="card border-0 shadow-sm">
-              <div class="card-body">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body" [ngbTooltip]="getStatTooltip(stat.key)">
                 <div class="d-flex align-items-center">
                   <div class="rounded-circle bg-opacity-10 p-3" [ngClass]="stat.bgClass">
                     <i class="uil fs-4" [ngClass]="stat.iconClass"></i>
@@ -116,9 +133,10 @@
         <!-- Quick Actions & Recent Activity -->
         <div class="row">
           <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
-              <div class="card-header bg-transparent">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Quick Actions</h5>
+                <i class="uil uil-bolt text-warning"></i>
               </div>
               <div class="card-body">
                 <div class="list-group">
@@ -153,16 +171,23 @@
           </div>
 
           <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm h-100">
               <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Recent Activity</h5>
-                <div class="btn-group">
-                  <button *ngFor="let filter of activityFilters"
-                          class="btn btn-sm btn-outline-primary"
-                          [class.active]="filterKey === filter"
-                          (click)="setActivityFilter(filter)">
-                    {{ filter | titlecase }}
-                  </button>
+                <div class="d-flex">
+                  <div class="input-group input-group-sm me-2" style="width: 200px;">
+                    <span class="input-group-text"><i class="uil uil-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search activities..." 
+                           [(ngModel)]="activitySearchTerm">
+                  </div>
+                  <div class="btn-group">
+                    <button *ngFor="let filter of activityFilters"
+                            class="btn btn-sm btn-outline-primary"
+                            [class.active]="filterKey === filter"
+                            (click)="setActivityFilter(filter)">
+                      {{ filter | titlecase }}
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="card-body p-0">
@@ -177,16 +202,135 @@
                       <p class="mb-0 text-muted small">{{activity.description}}</p>
                     </div>
                     <small class="text-muted">{{activity.date | timeAgo}}</small>
-                    <!-- Add Delete and Edit Buttons -->
                     <div class="ms-3">
                       <button class="btn btn-sm btn-outline-danger me-2" (click)="onDeleteActivity(activity)">
                         <i class="uil uil-trash-alt"></i> Delete
                       </button>
-                      <button class="btn btn-sm btn-outline-primary" (click)="onEditActivity(activity)">
+                      <button class="btn btn-sm btn-outline-primary me-2" (click)="onEditActivity(activity)">
                         <i class="uil uil-edit"></i> Edit
+                      </button>
+                      <button *ngIf="activity.type === 'donation'" 
+                              class="btn btn-sm btn-outline-success" 
+                              (click)="onManageDons(activity)">
+                        <i class="uil uil-check-circle"></i> Manage Dons
                       </button>
                     </div>
                   </div>
+                  <div *ngIf="filteredActivities.length === 0" class="list-group-item text-center py-4">
+                    <i class="uil uil-exclamation-circle fs-4 text-muted"></i>
+                    <p class="mt-2 mb-0">No activities found</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Partnership Management Section -->
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Partnership Management</h5>
+                <span class="badge bg-primary">Score: {{ association.partnershipScore }}</span>
+              </div>
+              <div class="card-body">
+                <div *ngIf="partnershipError" class="alert alert-danger">
+                  <i class="uil uil-exclamation-triangle me-2"></i>
+                  {{ partnershipError }}
+                </div>
+                <div *ngIf="partnershipSuccess" class="alert alert-success">
+                  <i class="uil uil-check-circle me-2"></i>
+                  {{ partnershipSuccess }}
+                </div>
+
+                <!-- Current Partners -->
+                <div class="mb-5">
+                  <h6 class="d-flex align-items-center">
+                    <i class="uil uil-users-alt me-2"></i>
+                    Current Partners ({{partners.length}})
+                  </h6>
+                  <div class="row g-3" *ngIf="partners.length > 0; else noPartners">
+                    <div class="col-md-4" *ngFor="let partner of partners">
+                      <div class="card border h-100">
+                        <div class="card-body">
+                          <div class="d-flex align-items-center">
+                            <div *ngIf="logoLoadingStates[partner.idAssociation]" class="me-3">
+                              <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                              </div>
+                            </div>
+                            <img *ngIf="!logoLoadingStates[partner.idAssociation]" 
+                                 [src]="getPartnerLogo(partner)" 
+                                 class="rounded-circle me-3" 
+                                 style="width: 60px; height: 60px; object-fit: cover;"
+                                 (click)="showPartnerDetails(partner)"
+                                 role="button">
+                            <div>
+                              <h6 class="mb-1">{{ partner.associationName }}</h6>
+                              <p class="text-muted small mb-0">{{ partner.associationAddress }}</p>
+                            </div>
+                          </div>
+                          <div class="mt-3 text-end">
+                            <button class="btn btn-sm btn-danger" 
+                                    (click)="removePartnership(partner.idAssociation)">
+                              <i class="uil uil-times me-1"></i> Remove
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <ng-template #noPartners>
+                    <div class="alert alert-info">
+                      <i class="uil uil-info-circle me-2"></i>
+                      No current partnerships
+                    </div>
+                  </ng-template>
+                </div>
+
+                <!-- Potential Partners -->
+                <div class="mb-4">
+                  <h6 class="d-flex align-items-center">
+                    <i class="uil uil-user-plus me-2"></i>
+                    Suggested Partners ({{potentialPartners.length}})
+                  </h6>
+                  <div class="row g-3" *ngIf="potentialPartners.length > 0; else noPotentialPartners">
+                    <div class="col-md-4" *ngFor="let partner of potentialPartners">
+                      <div class="card border h-100">
+                        <div class="card-body">
+                          <div class="d-flex align-items-center">
+                            <div *ngIf="logoLoadingStates[partner.idAssociation]" class="me-3">
+                              <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                              </div>
+                            </div>
+                            <img *ngIf="!logoLoadingStates[partner.idAssociation]" 
+                                 [src]="getPotentialPartnerLogo(partner)" 
+                                 class="rounded-circle me-3" 
+                                 style="width: 60px; height: 60px; object-fit: cover;"
+                                 (click)="showPartnerDetails(partner)"
+                                 role="button">
+                            <div>
+                              <h6 class="mb-1">{{ partner.associationName }}</h6>
+                            </div>
+                          </div>
+                          <div class="mt-3 text-end">
+                            <button class="btn btn-sm btn-success" 
+                                    (click)="createPartnership(partner.idAssociation!)">
+                              <i class="uil uil-plus me-1"></i> Partner
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <ng-template #noPotentialPartners>
+                    <div class="alert alert-info">
+                      <i class="uil uil-info-circle me-2"></i>
+                      No potential partners found
+                    </div>
+                  </ng-template>
                 </div>
               </div>
             </div>

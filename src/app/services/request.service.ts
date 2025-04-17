@@ -46,7 +46,6 @@ export class RequestService {
       return throwError(() => new Error('User ID not found'));
     }
 
-    request.idSender = userId; // Ajouter l'ID de l'utilisateur dans la demande
 
     return this.http.post<Request>(`${this.apiUrl}/add`, request, {
       headers: this.authService.getAuthHeaders(), // Utiliser les headers d'authentification
@@ -75,13 +74,11 @@ export class RequestService {
   }*/
 
     getRequestById(id: number): Observable<Request> {
-      return this.http.get<Request>(`${this.apiUrl}/${id}`);
+      const headers = this.authService.getAuthHeaders();
+      return this.http.get<Request>(`${this.apiUrl}/${id}`, { headers });
     }
+    
 
-
-    // Dans request.service.ts
-
-// Ajouter une réponse à une demande
 addResponseToRequest(requestId: number, responseData : any): Observable<any> {
   const token = localStorage.getItem('auth_token'); // Récupère le token
   if (!token) {

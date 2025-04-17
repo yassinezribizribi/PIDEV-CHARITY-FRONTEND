@@ -1,0 +1,142 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Section -->
+<section class="bg-dark text-light py-5 text-center"
+         style="background: url('assets/images/hero/pages.jpg') no-repeat center center / cover;">
+  <div class="container py-5">
+    <h1 class="display-4 fw-bold">🏥 Espace Médical</h1>
+    <p class="lead">Simplifiez la gestion de vos soins médicaux.</p>
+  </div>
+</section>
+
+<!-- Notifications générales -->
+<div *ngIf="notificationMessage" class="container mt-4">
+  <div class="alert alert-info text-center shadow-sm">
+    {{ notificationMessage }}
+  </div>
+</div>
+
+<!-- ==================== SECTION PATIENT ==================== -->
+<div *ngIf="isRequester" class="container py-5">
+  <div class="card shadow-lg border-0">
+    <div class="card-body">
+      <h3 class="mb-4">📝 Demande de soins</h3>
+      <form [formGroup]="healthcareForm" (ngSubmit)="submitHealthcareRequest()">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">⚕️ Symptômes ou antécédents</label>
+          <textarea formControlName="history" class="form-control" rows="4" placeholder="Décrivez vos symptômes..."></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">📅 Date souhaitée</label>
+          <input type="date" formControlName="bookingDate" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary w-100" [disabled]="healthcareForm.invalid">
+          📤 Envoyer la demande
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notifications spécifiques patient -->
+  <div class="mt-5" *ngIf="notifications.length > 0">
+    <h5 class="mb-3">🔔 Vos notifications</h5>
+    <ul class="list-group shadow-sm">
+      <li *ngFor="let notif of notifications" class="list-group-item d-flex justify-content-between align-items-center">
+        <span>{{ notif.message }}</span>
+        <small class="text-muted">{{ notif.createdAt | date: 'short' }}</small>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== SECTION MÉDECIN ==================== -->
+<div *ngIf="isVolunteer" class="container py-5">
+  <h3 class="mb-4">📋 Demandes de soins à traiter</h3>
+
+  <div class="row">
+    <div class="col-md-6" *ngFor="let patient of healthcareList">
+      <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">👤 {{ patient.subscriberName }}</h5>
+          <p>🩺 Symptômes : {{ patient.symptoms }}</p>
+          <p>📅 Rendez-vous : <strong>{{ patient.bookingDate | date:'shortDate' }}</strong></p>
+          <span class="badge"
+                [ngClass]="{
+                  'bg-warning': patient.status === 'PENDING',
+                  'bg-info': patient.status === 'IN_PROGRESS',
+                  'bg-success': patient.status === 'COMPLETED'
+                }">
+            {{ patient.status }}
+          </span>
+          <button class="btn btn-sm btn-outline-primary float-end" (click)="selectPatient(patient)">
+            🔍 Détails
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire de mise à jour du soin -->
+  <div *ngIf="selectedPatient" class="card shadow border-0 mt-4">
+    <div class="card-body">
+      <h4 class="mb-4">🛠️ Modifier le soin pour <span class="text-primary">{{ selectedPatient.subscriberName }}</span></h4>
+      <form [formGroup]="doctorForm" (ngSubmit)="updateHealthcare()">
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">🩺 Diagnostic</label>
+          <input type="text" formControlName="disease" class="form-control" placeholder="Diagnostic médical">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">💊 Plan de traitement</label>
+          <textarea formControlName="treatmentPlan" class="form-control" rows="3" placeholder="Médicaments, recommandations..."></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">📅 Replanifier la date</label>
+          <input type="date" formControlName="bookingDate" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">📌 Statut du soin</label>
+          <select formControlName="status" class="form-select">
+            <option value="PENDING">🟡 En attente</option>
+            <option value="IN_PROGRESS">🔵 En cours</option>
+            <option value="COMPLETED">✅ Terminé</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100" [disabled]="doctorForm.invalid">
+          ✔️ Enregistrer les modifications
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Consultation vidéo -->
+  <div *ngIf="selectedPatient?.meetingUrl" class="card shadow border-0 mt-4">
+    <div class="card-body">
+      <h4 class="mb-3">📹 Consultation vidéo</h4>
+      <p>
+        Rejoindre la salle :
+        <a [href]="selectedPatient.meetingUrl" target="_blank" class="btn btn-outline-primary ms-2">
+          🔗 Jitsi Meet
+        </a>
+      </p>
+
+      <button class="btn btn-sm btn-secondary mt-2" (click)="toggleVideo()">
+        {{ showVideo ? '❌ Fermer la vidéo' : '📺 Intégrer la vidéo ici' }}
+      </button>
+
+      <div class="ratio ratio-16x9 mt-3" *ngIf="showVideo">
+        <iframe [src]="getSafeUrl(selectedPatient.meetingUrl)"
+                allow="camera; microphone; fullscreen"
+                allowfullscreen
+                frameborder="0">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subscriber } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router'; 
+import {Applicant } from '../models/job-application.model';
+
 import { Association,AssociationStatus } from '../interfaces/association.interface';
 import { jwtDecode } from 'jwt-decode';
 
@@ -54,29 +56,48 @@ export class AuthService {
     );
   }
   
+// auth.service.ts
+
 
 
   isAuthenticated(): boolean {
     return this.isAuthenticatedSubject.value;
   }
   // AuthService: Method to retrieve user info from token
-  getUserInfo(): { email: string | null; idUser: number | null } {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      try {
-        const decodedToken: any = jwtDecode(token);
-        console.log("Decoded Token:", decodedToken);  // Log the decoded token for debugging
-        return {
-          email: decodedToken.sub || null, // 'sub' usually contains the user's email
-          idUser: decodedToken.idUser || decodedToken.userId || null, // Extract idUser or fallback to sub or userId
-        };
-      } catch (error) {
-        console.error("Error decoding token:", error);
-      }
+  // In your AuthService
+getUserInfo(): { email: string | null; idUser: number | null; roles?: string[] } {
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    try {
+      const decodedToken: any = jwtDecode(token);
+      console.log("Decoded Token:", decodedToken);
+      return {
+        email: decodedToken.sub || null,
+        idUser: decodedToken.idUser || null,
+        roles: decodedToken.roles || []
+      };
+    } catch (error) {
+      console.error("Error decoding token:", error);
     }
-    return { email: null, idUser: null }; // Return null if token is invalid or missing
+  }
+  return { email: null, idUser: null };
+}
+  getCurrentUser(): any {
+    return this.getUserInfo(); // Ou utilisez une autre méthode qui récupère les informations de l'utilisateur
   }
   
+ // New method for role checking
+ getUserRoles(): string[] {
+  const token = this.getToken();
+  if (!token) return [];
+  
+  try {
+    const decoded = jwtDecode(token) as any;
+    return decoded.roles || [];
+  } catch {
+    return [];
+  }
+}
 
   // auth.service.ts
   login(credentials: { email: string; password: string }): Observable<any> {
@@ -126,6 +147,11 @@ export class AuthService {
     }
     return null;
   }
+  // In AuthService
+  getUserById(userId: number): Observable<Applicant> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<Applicant>(`${this.apiUrl}/user/${userId}`, { headers });
+  }
   getToken(): string {
     const token = localStorage.getItem('auth_token'); // Use the correct key
     console.log('Token from localStorage:', token); // Debugging: Log the token
@@ -133,15 +159,28 @@ export class AuthService {
   }
 
   getAuthHeaders(): HttpHeaders {
-    const token = this.getToken(); // Use the getToken() method
-    console.log('Token in getAuthHeaders:', token); // Debugging: Log the token
-    if (!token) return new HttpHeaders(); // Avoid sending an empty header
+    const token = this.getToken();
+    if (!token) {
+      console.error("⛔ Aucun token JWT trouvé !");
+      return new HttpHeaders();
+    }
   
+    console.log('🔐 Token utilisé dans l’en-tête Authorization:', token);
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
   }
+  getUserName(): string | null {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    return user?.fullName || null;
+  }
   
+  getUserByEmail(email: string): Observable<Applicant> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<Applicant>(
+      `http://localhost:8089/api/auth/user/email/${email}`, 
+      { headers }
+    );}
   
   fetchData(): Observable<any> {
     return this.http.get('http://localhost:8089/api/protected', {

@@ -1,0 +1,252 @@
+<app-navbar />
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" 
+         style="background: linear-gradient(rgba(0, 32, 96, 0.8), rgba(0, 32, 96, 0.8)), url('assets/images/hero/pages.jpg') center/cover;">
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12">
+        <div class="title-heading text-center">
+          <h1 class="display-5 fw-bold text-white mb-3">Application Management</h1>
+          <nav aria-label="breadcrumb" class="d-inline-block bg-light rounded-pill px-4 py-2">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item"><a [routerLink]="'/'">Dashboard</a></li>
+              <li class="breadcrumb-item"><a [routerLink]="['/jobApplications']">Applications</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Case</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Main Content -->
+<section class="section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-xl-9">
+        <!-- Action Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <button class="btn btn-soft-primary" [routerLink]="['/jobApplications']">
+            <i class="bi bi-arrow-left me-2"></i>Back to Cases
+          </button>
+          <div class="d-flex gap-2" *ngIf="jobApplication">
+            <span class="badge fs-6 rounded-pill p-2" 
+                   [ngClass]="getStatusBadgeClass(jobApplication.jobApplicationStatus)">
+              <i class="bi me-1" [ngClass]="getStatusIcon(jobApplication.jobApplicationStatus)"></i>
+              {{ getStatusDisplay(jobApplication.jobApplicationStatus) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- System Alerts -->
+        <div *ngIf="error" class="alert alert-danger d-flex align-items-center shadow-sm">
+          <i class="bi bi-exclamation-octagon-fill fs-4 me-3"></i>
+          <div>
+            <h5 class="alert-heading mb-2">System Error</h5>
+            <p class="mb-0">{{ error }}</p>
+            <button class="btn btn-link text-danger p-0 mt-2" (click)="retry()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Retry Loading
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading Skeleton -->
+        <ng-container *ngIf="loading">
+          <div class="card shadow-lg border-0">
+            <div class="card-body">
+              <div class="placeholder-glow">
+                <div class="placeholder col-3 mb-4" style="height: 30px"></div>
+                <div class="row g-3">
+                  <div class="col-12">
+                    <div class="placeholder w-100" style="height: 100px"></div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="placeholder w-100" style="height: 200px"></div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="placeholder w-100" style="height: 200px"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Application Details -->
+        <div *ngIf="jobApplication && !loading" class="card shadow-lg border-0">
+          <!-- Card Header -->
+          <div class="card-header bg-primary text-white py-3">
+            <h2 class="h5 mb-0">
+              <i class="bi bi-file-earmark-text me-2"></i>
+              Case Details
+            </h2>
+          </div>
+
+          <!-- Card Body -->
+          <div class="card-body">
+            <!-- Applicant Profile Section -->
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-light p-4 rounded-3 h-100">
+                  <h5 class="text-primary mb-4 d-flex align-items-center">
+                    <i class="bi bi-person-badge me-2"></i>
+                    Applicant details
+                  </h5>
+                  <div class="d-flex align-items-center mb-4">
+                    <div class="avatar avatar-lg bg-primary text-white rounded-circle me-3">
+                      {{ initials(jobApplication.applicant) }}
+                    </div>
+                    <div>
+                      <h6 class="mb-1">{{ fullName(jobApplication.applicant) }}</h6>
+                      <small class="text-muted">Refugee Applicant </small>
+                    </div>
+                  </div>
+                  <dl class="row mb-0">
+                    <dt class="col-sm-4">Contact Email:</dt>
+                    <dd class="col-sm-8">{{ jobApplication.applicant.email || 'N/A' }}</dd>
+
+                    <dt class="col-sm-4">Contact Phone:</dt>
+                    <dd class="col-sm-8">{{ jobApplication.applicant.telephone || 'N/A' }}</dd>
+
+                    <dt class="col-sm-4">Application Date:</dt>
+                    <dd class="col-sm-8">{{ jobApplication.applicationDate | date: 'mediumDate' }}</dd>
+                  </dl>
+                </div>
+              </div>
+
+              <!-- Status Timeline -->
+              <div class="col-md-6">
+                <div class="bg-light p-4 rounded-3 h-100">
+                  <h5 class="text-primary mb-4 d-flex align-items-center">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Status Timeline
+                  </h5>
+                  <ul class="timeline">
+                    <li class="timeline-item">
+                      <span class="timeline-marker bg-success"></span>
+                      <div class="timeline-content">
+                        <h6 class="mb-1">Application Submitted</h6>
+                        <p class="text-muted mb-0 small">
+                          {{ jobApplication.applicationDate | date: 'medium' }}
+                        </p>
+                      </div>
+                    </li>
+                    <li class="timeline-item" *ngIf="getStatusDisplay(jobApplication.jobApplicationStatus) !== 'Pending'">
+                      <span class="timeline-marker bg-primary"></span>
+                      <div class="timeline-content">
+                        <h6 class="mb-1">Decision Made</h6>
+                        <p class="text-muted mb-0 small">
+                          {{ currentDate | date: 'medium' }}
+                        </p>
+                        <small class="text-muted">Status: {{ getStatusDisplay(jobApplication.jobApplicationStatus) }}</small>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Panel -->
+            <div class="border-top pt-4 mt-4">
+              <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
+                <div class="d-flex gap-3 flex-wrap" *ngIf="getStatusDisplay(jobApplication.jobApplicationStatus) === 'Pending'">
+                  <button class="btn btn-success px-4 py-2" 
+                          (click)="handleDecision('accept')"
+                          [disabled]="processingDecision">
+                    <i class="bi bi-check2-circle me-2"></i>
+                    Approve Application
+                    <span *ngIf="processingDecision === 'accept'" 
+                          class="spinner-border spinner-border-sm ms-2"></span>
+                  </button>
+                  
+                  <button class="btn btn-danger px-4 py-2" 
+                          (click)="handleDecision('reject')"
+                          [disabled]="processingDecision">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Reject Application
+                    <span *ngIf="processingDecision === 'reject'" 
+                          class="spinner-border spinner-border-sm ms-2"></span>
+                  </button>
+                </div>
+                
+                <div *ngIf="getStatusDisplay(jobApplication.jobApplicationStatus) !== 'Pending'" 
+                     class="d-flex gap-3 flex-wrap">
+                  <button class="btn btn-outline-primary px-4 py-2" 
+                          (click)="handleStatusChange()"
+                          [disabled]="processingDecision">
+                    <i class="bi bi-arrow-repeat me-2"></i>
+                    Reverse Decision
+                    <span *ngIf="processingDecision" 
+                          class="spinner-border spinner-border-sm ms-2"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Decision Modal -->
+<div class="modal fade" [class.show]="showDecisionModal" [style.display]="showDecisionModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi me-2" [ngClass]="{
+            'bi-check-circle text-success': decisionType === 'accept',
+            'bi-x-circle text-danger': decisionType === 'reject'
+          }"></i>
+          Confirm {{ decisionType === 'accept' ? 'Approval' : 'Rejection' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="cancelDecision()"></button>
+      </div>
+      <div class="modal-body">
+        <p *ngIf="decisionType === 'accept'">
+          You are about to approve this application. This action will notify the applicant and 
+          update system records. Confirm approval?
+        </p>
+        
+        <div *ngIf="decisionType === 'reject'">
+          <p>Please provide a reason for rejecting this application:</p>
+          <textarea class="form-control" rows="3" 
+                    [(ngModel)]="rejectionReason" 
+                    placeholder="Enter rejection reason..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cancelDecision()">Cancel</button>
+        <button type="button" class="btn" 
+                [class.btn-success]="decisionType === 'accept'"
+                [class.btn-danger]="decisionType === 'reject'"
+                (click)="confirmDecision()">
+          Confirm {{ decisionType === 'accept' ? 'Approval' : 'Rejection' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div aria-live="polite" aria-atomic="true" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+  <div #toastElement class="toast fade" [class.show]="toastMessage" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header" [ngClass]="{
+      'bg-success text-white': toastMessage?.type === 'success',
+      'bg-danger text-white': toastMessage?.type === 'error'
+    }">
+      <i class="bi me-2" [ngClass]="{
+        'bi-check-circle': toastMessage?.type === 'success',
+        'bi-exclamation-triangle': toastMessage?.type === 'error'
+      }"></i>
+      <strong class="me-auto">{{ toastMessage?.type | titlecase }}</strong>
+      <button type="button" class="btn-close" (click)="toastMessage = null"></button>
+    </div>
+    <div class="toast-body bg-light">
+      {{ toastMessage?.message }}
+    </div>
+  </div>
+</div>

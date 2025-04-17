@@ -1,3 +1,4 @@
+<!-- src/app/components/support-refugees-forum/support-refugees-forum.component.html -->
 <app-navbar></app-navbar>
 
 <section class="section">
@@ -6,25 +7,16 @@
       <div class="col-lg-8">
         <div class="card shadow rounded border-0">
           <div class="card-body p-4">
-            <!-- Display Request Details -->
-            <div *ngIf="request" class="mb-4">
-              <h3 class="mb-3">Request: {{ request.title || 'Request #' + idRequest }}</h3>
-              <p>{{ request.description || 'No description available' }}</p>
-            </div>
+            <h3 class="mb-4">Support Refugees Forum</h3>
 
-            <h3 class="mb-4">Responses</h3>
-
-            <!-- Liste des réponses -->
-            <div *ngFor="let response of listResponses" class="forum-thread mb-4">
-              <h4 class="mb-3">{{ response.object || 'No Subject' }}</h4>
+            <!-- Liste des demandes -->
+            <div *ngFor="let request of listRequests" class="forum-thread mb-4">
+              <h4 class="mb-3">{{ request.object }}</h4>
               <div class="thread-content p-3 bg-light rounded">
-                <p class="mb-0">{{ response.content }}</p>
-                <small class="text-muted">Sent by: {{ response.idSender || 'Unknown' }}</small>
+                <p class="mb-0">{{ request.content }}</p>
+                <small class="text-muted">Date: {{ request.dateRequest }}</small>
               </div>
             </div>
-
-            <!-- Message si aucune réponse -->
-            <p *ngIf="listResponses.length === 0" class="text-muted">No responses yet.</p>
 
             <!-- Bouton pour ouvrir/fermer le formulaire -->
             <button class="btn btn-success mb-4" (click)="toggleForm()">
@@ -32,23 +24,44 @@
             </button>
 
             <!-- Formulaire d'ajout de réponse -->
-            <div *ngIf="showForm" class="border p-3 rounded">
-              <div class="mb-2">
-                <input [(ngModel)]="newResponse.object" class="form-control" placeholder="Object" />
-              </div>
-              <div class="mb-2">
-                <textarea [(ngModel)]="newResponse.content" class="form-control" placeholder="Content" required></textarea>
-              </div>
-              <p class="text-danger" *ngIf="!newResponse.content">
-                Content is required.
-              </p>
-              <button class="btn btn-primary" (click)="addResponse()" [disabled]="!newResponse.content">Submit</button>
+            <div *ngIf="showForm" class="mt-4">
+              <h4>Add a New Response</h4>
+              <form (ngSubmit)="addResponse()">
+                <div class="form-group">
+                  <label for="content">Content</label>
+                  <textarea
+                    id="content"
+                    class="form-control"
+                    [(ngModel)]="newResponse.content"
+                    name="content"
+                    placeholder="Enter content"
+                    required
+                  ></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Submit</button>
+              </form>
             </div>
+
+            <!-- Liste des réponses -->
+            <div *ngFor="let response of listResponses" class="forum-thread mb-4">
+              <h4 class="mb-3">{{ response.object }}</h4>
+              <div class="thread-content p-3 bg-light rounded">
+                <p class="mb-0">{{ response.content }}</p>
+                <small class="text-muted">Date: {{ response.dateResponse | date:'short' }}</small>
+              </div>
+            </div>
+            <div class="button-center">
+              <a class="return-button" (click)="back()">
+                <i class="fas fa-arrow-left"></i> Back
+              </a>
+            </div>
+            
           </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
 
 <app-footer></app-footer>

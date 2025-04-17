@@ -13,6 +13,13 @@ export class MissionService {
   constructor(private http: HttpClient,
     private router: Router
   ) {}
+// Method to get missions by association ID from the token
+getMissionsByAssociation(): Observable<Mission[]> {
+  const token = localStorage.getItem('auth_token');
+  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  
+  return this.http.get<Mission[]>(`${this.apiUrl}/my-missions`, { headers });
+}
 
   getMissions(): Observable<Mission[]> {
     const token = localStorage.getItem('auth_token');

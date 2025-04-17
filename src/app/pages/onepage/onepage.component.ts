@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener  } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SingleNavbarComponent } from '../../components/single-navbar/single-navbar.component';
-import { ServicesComponent } from '../../components/healthcare/services.component';
+import { HealthcareComponent } from '../../pages/Healthcare/healthcare.component';
 import { AboutOneComponent } from '../../components/about-one/about-one.component';
 import { AboutTwoComponent } from '../../components/about-two/about-two.component';
 import { ForumComponent } from '../../components/forum/forum.component';
@@ -24,7 +24,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
         CommonModule,
         RouterLink,
         SingleNavbarComponent,
-        ServicesComponent,
+        HealthcareComponent,
         AboutOneComponent,
         AboutTwoComponent,
         ForumComponent,

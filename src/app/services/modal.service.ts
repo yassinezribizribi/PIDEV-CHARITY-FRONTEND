@@ -1,16 +1,22 @@
+// modal.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export interface ModalConfig {
+export interface IModalConfig {
   component: string;
-  data?: any;
+  data?: {
+    title?: string;
+    content?: string;
+    size?: 'sm' | 'md' | 'lg';
+    [key: string]: any;
+  };
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ModalService {
-  private modalSubject = new BehaviorSubject<ModalConfig | null>(null);
+  private modalSubject = new BehaviorSubject<IModalConfig | null>(null);
   modal$ = this.modalSubject.asObservable();
 
   open(component: string, data?: any) {
@@ -20,4 +26,4 @@ export class ModalService {
   close() {
     this.modalSubject.next(null);
   }
-} 
+}

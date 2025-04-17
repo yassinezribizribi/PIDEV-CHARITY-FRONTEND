@@ -1,0 +1,118 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12">
+        <div class="title-heading text-center">
+          <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">User Profile</h5>
+        </div>
+      </div>
+    </div>
+
+    <div class="position-middle-bottom">
+      <nav aria-label="breadcrumb" class="d-block">
+        <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+          <li class="breadcrumb-item"><a [routerLink]="'/'">Solidarity&Refugee</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Profile</li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <!-- Loading State -->
+    <div *ngIf="!currentUser" class="text-center p-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- User Profile Content -->
+    <div *ngIf="currentUser" class="dashboard">
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card bg-primary text-white">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <img [src]="currentUser.profileImage || 'assets/images/user/default-avatar.png'" 
+                     alt="User Avatar" 
+                     class="rounded-circle" 
+                     width="100" 
+                     height="100">
+                <div class="ms-3">
+                  <h4 class="text-white mb-1">Welcome, {{ currentUser.firstName || 'User' }}!</h4>
+                  <p class="mb-0">{{ currentUser.email }}</p>
+                </div>
+              </div>
+              <button class="btn btn-outline-light" (click)="logout()">
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Job Offers Section -->
+      <div *ngIf="userJobOffers && userJobOffers.length > 0">
+        <div class="row">
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Your Job Offers</h5>
+                <button class="btn btn-sm btn-primary" [routerLink]="['/create-job-offer']">
+                  <i class="bi bi-plus"></i> New Offer
+                </button>
+              </div>
+              <div class="card-body">
+                <ul class="list-group">
+                  <li *ngFor="let offer of userJobOffers" 
+                      class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6>{{ offer.title }}</h6>
+                    </div>
+                    <div>
+                      <span class="badge bg-primary me-2">
+                        {{ getApplicationsForJobOffer(offer.idJobOffer)?.length || 0 }} Applications
+                      </span>
+                      <button class="btn btn-sm btn-outline-primary" 
+                              (click)="viewApplications(offer.idJobOffer)">
+                        <i class="bi bi-eye"></i> View
+                      </button>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="userJobOffers && userJobOffers.length === 0" class="row mt-4">
+        <div class="col-12">
+          <div class="card shadow-sm text-center py-5">
+            <i class="bi bi-briefcase display-4 text-muted mb-3"></i>
+            <h4>No Job Offers Yet</h4>
+            <p class="text-muted mb-4">You haven't posted any job offers yet</p>
+            <button class="btn btn-primary" [routerLink]="['/create-job-offer']">
+              <i class="bi bi-plus"></i> Create Job Offer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

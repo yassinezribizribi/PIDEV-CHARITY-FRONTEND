@@ -1,141 +1,351 @@
-import { Component, OnInit, Inject, NgModule } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpEvent, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { JwtHelperService } from '@auth0/angular-jwt'; // Import the JWT helper library (if not already imported)
+import { RouterLink } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { JobOfferService } from '../../../services/jof-offer.service';
 import { JobApplicationService } from '../../../services/job-application.service';
-import { JobOffer } from '../../../models/job-offer.model';
-import { JobApplication, JobApplicationStatus } from '../../../models/job-application.model';            
+import { AuthService } from 'src/app/services/auth.service';
 
-import { RouterLink } from '@angular/router';
+import { JobOffer } from '../../../models/job-offer.model';
+import { JobApplication, JobApplicationStatus, Applicant } from '../../../models/job-application.model';
+
 import { FooterComponent } from '@component/footer/footer.component';
 import { NavbarComponent } from '@component/navbar/navbar.component';
 
 @Component({
   selector: 'app-job-opportunities-forum',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './job-opportunities-forum.component.html',
-  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent, FooterComponent], 
+  styleUrls: ['./job-opportunities-forum.component.scss'],
+  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent, FooterComponent, MatTooltipModule],
   standalone: true,
-  providers: [JobOfferService, JobApplicationService],    
-  styleUrls: ['./job-opportunities-forum.component.css']
+  providers: [JobOfferService, JobApplicationService]
 })
 export class JobOpportunitiesForumComponent implements OnInit {
   jobOffers: JobOffer[] = [];
-  newJobOffer: JobOffer = { idJobOffer: 0, title: '', description: '', requirements: '', isActive: true,forumId:1 };
+  filteredOffers: JobOffer[] = [];
+  currentUserId: number | null = null;
+  currentUserEmail: string | null = null;
+  appliedJobs: { [key: number]: JobApplication } = {};
+  newJobOffer: JobOffer = { 
+    idJobOffer: 0, 
+    title: '', 
+    description: '', 
+    requirements: '', 
+    active: true, 
+    forumId: 1 
+  };
+  
   loading: boolean = true;
   error: string | null = null;
-
+  searchTerm: string = '';
+  statusFilter: string = 'all';
+  sortOption: string = 'newest';
+  selectedApplication: JobApplication | null = null;
+  showStatusModal = false;
+  
+  statusTimeline = [
+    { 
+      status: 'PENDING' as JobApplicationStatus, 
+      icon: 'fa-hourglass-start', 
+      label: 'Pending',
+      color: 'secondary'
+    },
+    { 
+      status: 'UNDER_REVIEW' as JobApplicationStatus, 
+      icon: 'fa-search-plus', 
+      label: 'Review',
+      color: 'info'
+    },
+    { 
+      status: 'INTERVIEW' as JobApplicationStatus, 
+      icon: 'fa-user-tie', 
+      label: 'Interview',
+      color: 'warning'
+    },
+    { 
+      status: 'ACCEPTED' as JobApplicationStatus, 
+      icon: 'fa-check-double', 
+      label: 'Accepted',
+      color: 'success'
+    },
+    { 
+      status: 'REJECTED' as JobApplicationStatus, 
+      icon: 'fa-times-circle', 
+      label: 'Rejected', 
+      color: 'danger'
+    }
+  ];
   constructor(
-    @Inject(JobOfferService) private jobService: JobOfferService,
-    @Inject(JobApplicationService) private jobApplicationService: JobApplicationService,
+    private jobService: JobOfferService,
+    private jobApplicationService: JobApplicationService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
     this.fetchJobOffers();
+    const userInfo = this.authService.getUserInfo();
+    this.currentUserId = userInfo.idUser;
+    this.currentUserEmail = userInfo.email;
   }
 
   fetchJobOffers() {
     this.loading = true;
     this.jobService.getJobOffers().subscribe({
-      next: (data: any) => {
-        try {
-          // Log the raw data to inspect its structure
-          console.log('Received data:', data);
-  
-          // If data is a string, attempt to fix it
-          if (typeof data === 'string') {
-            // Remove trailing invalid characters (e.g., circular reference artifacts)
-            const correctedData = data.replace(/]}}]+$/, "]");
-            this.jobOffers = JSON.parse(correctedData);
-          } else {
-            this.jobOffers = data;
-          }
-        } catch (e) {
-          console.error('Malformed JSON:', e);
-          this.error = 'Error parsing job offers data';
-        }
+      next: (data: JobOffer[]) => {
+        this.jobOffers = Array.isArray(data) ? data : [];
+        this.filteredOffers = [...this.jobOffers];
+        this.applyFilters();
         this.loading = false;
       },
-      error: (err: any) => {
+      error: (err) => {
         this.error = 'Error fetching job offers';
         console.error('Error details:', err);
         this.loading = false;
       }
     });
   }
-  
+
+  applyFilters() {
+    this.filteredOffers = this.jobOffers.filter(job => {
+      const matchesSearch = this.searchTerm === '' || 
+        job.title.toLowerCase().includes(this.searchTerm.toLowerCase()) || 
+        job.description.toLowerCase().includes(this.searchTerm.toLowerCase());
+      
+      const matchesStatus = this.statusFilter === 'all' || 
+        (this.statusFilter === 'active' && job.active) || 
+        (this.statusFilter === 'inactive' && !job.active);
+      
+      return matchesSearch && matchesStatus;
+    });
+
+    this.sortJobs();
+  }
+
+  sortJobs() {
+    switch(this.sortOption) {
+      case 'newest':
+        this.filteredOffers.sort((a, b) => 
+          new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        break;
+      case 'oldest':
+        this.filteredOffers.sort((a, b) => 
+          new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+        break;
+      case 'title':
+        this.filteredOffers.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+    }
+  }
+
+  getInitials(name?: string): string {
+    if (!name) return '?';
+    const names = name.split(' ');
+    let initials = names[0].charAt(0).toUpperCase();
+    if (names.length > 1) {
+      initials += names[names.length - 1].charAt(0).toUpperCase();
+    }
+    return initials;
+  }
+
+  getCreatorName(job: JobOffer): string {
+    if (!job.createdBy) return 'Unknown';
+    return `${job.createdBy.firstName} ${job.createdBy.lastName}`.trim() || 'Anonymous';
+  }
 
   addJobOffer() {
-    // Remove idJobOffer or set it to null for new entities
-    const payload = {
-      title: this.newJobOffer.title,
-      description: this.newJobOffer.description,
-      requirements: this.newJobOffer.requirements,
-      isActive: this.newJobOffer.isActive,
-      forumId: this.newJobOffer.forumId  // Ajoute cet attribut si nécessaire
-  };
-  
+    if (!this.newJobOffer.title || !this.newJobOffer.description || !this.newJobOffer.requirements) {
+      console.error('All fields are required');
+      return;
+    }
 
-    this.jobService.createJobOffer(payload).subscribe({
-        next: (createdJob: JobOffer) => {
-            this.jobOffers.push(createdJob);
-            this.newJobOffer = { idJobOffer: 0, title: '', description: '', requirements: '', isActive: true,forumId:1 };
-        },
-        error: (err: any) => {
-            console.error('Error adding job offer:', err);
-        }
-    });
-}
-
-  toggleJobStatus(job: JobOffer) {
-    job.isActive = !job.isActive;
-    this.jobService.updateJobOffer(job).subscribe({
-      next: () => console.log('Job status updated'),
-      error: (err: any) => console.error('Error updating job status', err),
+    this.jobService.createJobOffer(this.newJobOffer).subscribe({
+      next: (createdJob: JobOffer) => {
+        this.jobOffers.unshift(createdJob);
+        this.applyFilters();
+        this.newJobOffer = { 
+          idJobOffer: 0, 
+          title: '', 
+          description: '', 
+          requirements: '', 
+          active: true, 
+          forumId: 1 
+        };
+      },
+      error: (err) => console.error('Error adding job offer:', err)
     });
   }
-  
-  applyForJob(jobOfferId: number) {
-    const token = localStorage.getItem('auth_token');
-    
-    if (!token) {
-      console.error('No token found in localStorage!');
-      return;
-    }
-  
-    const jwtHelper = new JwtHelperService();
-    const decodedToken = jwtHelper.decodeToken(token);
-    console.log('Decoded Token:', decodedToken);
-  
-    const userId = decodedToken?.userId || decodedToken?.sub;
-    if (!userId) {
-      console.error('User ID not found in token!', decodedToken);
-      return;
-    }
-  
-    // Now include the jobOfferId in the JobApplication
-    const jobApplication: JobApplication = {
-      idApplication: undefined, // The ID will be generated on the backend
-      applicationDate: new Date(),
-      jobApplicationStatus: JobApplicationStatus.PENDING,
-      jobOfferId: jobOfferId,  // Ensure jobOfferId is included
-      userId: userId
+
+  getButtonText(job: JobOffer): string {
+    if (this.hasApplied(job.idJobOffer!)) return 'Applied';
+    return job.active ? 'Apply Now' : 'Closed';
+  }
+
+  getTooltipText(job: JobOffer): string {
+    if (!job.active) return 'This position is closed';
+    if (this.hasApplied(job.idJobOffer!)) return 'You already applied';
+    return 'Apply for this position';
+  }
+
+  hasApplied(jobOfferId: number): boolean {
+    return !!this.appliedJobs[jobOfferId] || 
+      this.jobOffers.some(job => 
+        job.idJobOffer === jobOfferId &&
+        job.jobApplications?.some(app => 
+          app.applicant.idUser === this.currentUserId
+        )
+      );
+  }
+
+  toggleJobStatus(job: JobOffer) {
+    const updatedJob = { 
+      ...job,
+      active: !job.active
     };
   
-    // Now call the createJobApplication method with the jobOfferId in the URL
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.jobApplicationService.createJobApplication(jobOfferId, jobApplication).subscribe({
-      next: (response) => {
-        console.log('Application submitted successfully', response);
-        // Optionally, handle a successful response (e.g., show a message or update UI)
-      },
+    this.jobOffers = this.jobOffers.map(j => 
+      j.idJobOffer === job.idJobOffer ? updatedJob : j
+    );
+    this.applyFilters();
+  
+    this.jobService.updateJobOffer(updatedJob).subscribe({
       error: (err) => {
-        console.error('Error submitting job application', err);
-        // Optionally, handle error feedback (e.g., show an error message)
+        console.error('Update failed:', err);
+        this.jobOffers = this.jobOffers.map(j => 
+          j.idJobOffer === job.idJobOffer ? {...job} : j
+        );
+        this.applyFilters();
       }
     });
   }
-  
+
+  get openPositionsCount(): number {
+    return this.filteredOffers.filter(job => job.active).length;
+  }
+
+  isOwnJob(job: JobOffer): boolean {
+    return !!this.currentUserId && 
+      !!job.createdBy?.idUser && 
+      this.currentUserId === job.createdBy.idUser;
+  }
+
+  applyForJob(jobOfferId: number) {
+    const job = this.jobOffers.find(j => j.idJobOffer === jobOfferId);
+    if (this.hasApplied(jobOfferId)) {
+      this.openApplicationStatus(jobOfferId);
+      return;
+    }
+
+    if (job && this.isOwnJob(job)) {
+      alert("You cannot apply to your own job post!");
+      return;
+    }
+
+    if (!this.currentUserEmail) {
+      console.error('No email found in token!');
+      return;
+    }
+
+    this.authService.getUserByEmail(this.currentUserEmail).subscribe({
+      next: (applicant: Applicant) => {
+        const jobApplication: JobApplication = {
+          idApplication: 0,
+          applicationDate: new Date(),
+          jobApplicationStatus: JobApplicationStatus.PENDING,
+          jobOfferId: jobOfferId,
+          applicant: applicant,
+          statusHistory: [{
+            status: JobApplicationStatus.PENDING,
+            date: new Date(),
+            notes: 'Application submitted'
+          }]
+        };
+
+        this.jobApplicationService.createJobApplication(jobOfferId, jobApplication).subscribe({
+          next: (response: JobApplication) => {
+            this.appliedJobs[jobOfferId] = response;
+            this.openApplicationStatus(jobOfferId);
+          },
+          error: (err) => {
+            alert(`Error: ${err.error?.message || 'Unknown error occurred'}`);
+          }
+        });
+      },
+      error: (err) => {
+        alert("Failed to load your user information");
+      }
+    });
+  }
+
+  getAvatarColor(job: JobOffer): string {
+    const userId = job.createdBy?.idUser ?? 0;
+    return '#' + userId.toString(16).padStart(6, '0');
+  }
+
+  openApplicationStatus(jobId: number): void {
+    const application = this.getUserApplication(jobId);
+    if (application) {
+      this.selectedApplication = {
+        ...application,
+        statusHistory: application.statusHistory || []
+      };
+      this.showStatusModal = true;
+    }
+  }
+  getNextStatus(currentStatus: JobApplicationStatus): JobApplicationStatus | null {
+    const currentIndex = this.statusTimeline.findIndex(s => s.status === currentStatus);
+    if (currentIndex === -1 || currentIndex >= this.statusTimeline.length - 1) {
+      return null;
+    }
+    return this.statusTimeline[currentIndex + 1].status;
+  }
+// Add this method to your component class
+getStatusHistory(): any[] {
+  return this.selectedApplication?.statusHistory || [];
+}
+  closeStatusModal(): void {
+    this.showStatusModal = false;
+    this.selectedApplication = null;
+  }
+
+  getUserApplication(jobId: number): JobApplication | null {
+    return this.appliedJobs[jobId] || 
+      this.jobOffers.find(j => j.idJobOffer === jobId)?.jobApplications
+        ?.find(app => app.applicant.idUser === this.currentUserId) || null;
+  }
+
+  isStatusReached(status: JobApplicationStatus | null): boolean {
+    if (!status || !this.selectedApplication) return false;
+    const currentIndex = this.statusTimeline.findIndex(s => s.status === this.selectedApplication?.jobApplicationStatus);
+    const statusIndex = this.statusTimeline.findIndex(s => s.status === status);
+    return statusIndex <= currentIndex;
+  }
+  getStatusDate(status: JobApplicationStatus | undefined): Date | null {
+    if (!status || !this.selectedApplication?.statusHistory) return null;
+    const historyItem = this.selectedApplication.statusHistory.find(h => h.status === status);
+    return historyItem?.date || null;
+  }
+  getJobTitle(jobId: number | undefined): string {
+    if (!jobId) return '';
+    const job = this.jobOffers.find(j => j.idJobOffer === jobId);
+    return job?.title || '';
+  }
+
+  isLastStatus(status: JobApplicationStatus): boolean {
+    return this.statusTimeline[this.statusTimeline.length - 1].status === status;
+  }
+
+  getStatusColor(): string {
+    if (!this.selectedApplication) return 'secondary';
+    switch(this.selectedApplication.jobApplicationStatus) {
+      case 'PENDING': return 'secondary';
+      case 'UNDER_REVIEW': return 'info';
+      case 'INTERVIEW': return 'warning';
+      case 'ACCEPTED': return 'success';
+      case 'REJECTED': return 'danger';
+      default: return 'secondary';
+    }
+  }
 }

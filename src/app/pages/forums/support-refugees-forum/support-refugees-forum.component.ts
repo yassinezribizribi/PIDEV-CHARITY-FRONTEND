@@ -1,100 +1,98 @@
+// src/app/components/support-refugees-forum/support-refugees-forum.component.ts
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ResponseService } from '../../../services/response.service';
-import { Response } from '../../../models/Response.model';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RequestService } from '../../../services/request.service';
-import { NavbarComponent } from '../../../components/navbar/navbar.component';
-import { FooterComponent } from '../../../components/footer/footer.component';
+import { ResponseService } from '../../../services/response.service';
+import { Request } from '../../../models/Request.model';
+import { Response } from '../../../models/Response.model';
+import { FooterComponent } from "../../../components/footer/footer.component";
+import { NavbarComponent } from "../../../components/navbar/navbar.component";
 import { FormsModule } from '@angular/forms';
-
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-support-refugees-forum',
   templateUrl: './support-refugees-forum.component.html',
   styleUrls: ['./support-refugees-forum.component.scss'],
-  standalone: true,
-  imports: [NavbarComponent, FooterComponent, FormsModule]
+  imports: [FooterComponent, NavbarComponent,FormsModule,CommonModule,RouterModule],
 })
 export class SupportRefugeesForumComponent implements OnInit {
-  listResponses: Response[] = [];
+  listRequests: Request[] = []; // Liste des demandes
+  listResponses: Response[] = []; // Liste des réponses
   newResponse: Response = {
-    content: '',
-    object: '',
-    requestId: 0
-  };
-  showForm: boolean = false;
-  idRequest: number | null = null;
-  request: any; // Replace 'any' with a proper Request model if available
+    content: '', requestId: 0,
+    idResponse: 0,
+    dateResponse: null, // Date de la réponse
+  }; // Nouvelle réponse
+  showForm: boolean = false; // Afficher/masquer le formulaire
+  requestId: number | null = null; // ID de la demande sélectionnée
 
   constructor(
-    private responseService: ResponseService,
     private requestService: RequestService,
-    private route: ActivatedRoute
+    private responseService: ResponseService,
+    private route: ActivatedRoute,
+    private router:Router
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      this.idRequest = +params['idRequest']; // Convert to number
-      console.log('ID Request:', this.idRequest);
-      if (this.idRequest) {
-        this.newResponse.requestId = this.idRequest; // Set requestId for new responses
-        this.getRequestDetails(this.idRequest);
-        this.getAllResponses(this.idRequest);
+    this.route.params.subscribe((params) => {
+      this.requestId = +params['idRequest']; // Récupère l'ID de la demande
+      if (this.requestId) {
+        this.loadRequestDetails(this.requestId);
+        this.loadResponses(this.requestId);
       }
     });
   }
 
-  getRequestDetails(idRequest: number): void {
-    this.requestService.getRequestById(idRequest).subscribe({
-      next: (request) => {
-        this.request = request;
-        console.log('Request loaded:', this.request);
+  // Charger les détails de la demande
+  loadRequestDetails(requestId: number): void {
+    this.requestService.getRequestById(requestId).subscribe({
+      next: (request: any) => {
+        this.listRequests = [request]; // Ajoute la demande à la liste
       },
-      error: (err) => {
-        console.error('Error fetching request:', err);
-      }
-    });
-  }
-
-  getAllResponses(idRequest: number): void {
-    this.responseService.getAllResponsesByRequest(idRequest).subscribe({
-      next: (responses) => {
-        this.listResponses = responses;
-        console.log('Responses loaded:', this.listResponses);
+      error: (err: any) => {
+        console.error('Error loading request:', err);
       },
-      error: (err) => {
-        console.error('Error fetching responses:', err);
-      }
     });
   }
 
+  // Charger les réponses pour une demande
+  loadResponses(requestId: number): void {
+    this.responseService.getResponsesByRequestId(requestId).subscribe({
+      next: (responses: Response[]) => {
+        this.listResponses = responses; // Met à jour la liste des réponses
+      },
+      error: (err: any) => {
+        console.error('Error loading responses:', err);
+      },
+    });
+  }
+
+  // Ajouter une nouvelle réponse
   addResponse(): void {
-    if (!this.newResponse.content || !this.idRequest) {
-      console.error('Content and Request ID are required.');
+    if (!this.newResponse.content.trim()) {
+      console.error('Content is required');
       return;
     }
 
-    this.requestService.addResponseToRequest(this.idRequest, this.newResponse).subscribe({
-      next: (response) => {
-        console.log('✅ Response added successfully', response);
-        this.listResponses.push(response); // Add the new response to the list
-        this.resetResponseForm();
-        this.showForm = false; // Hide the form after submission
+    this.newResponse.requestId = this.requestId!; // Associe la réponse à la demande
+
+    this.responseService.addResponse(this.newResponse,this.requestId??0).subscribe({
+      next: (response: any) => {
+        this.loadRequestDetails(this.requestId??0);
+        this.loadResponses(this.requestId??0);
+        this.showForm = false; // Masque le formulaire
       },
-      error: (err) => {
-        console.error('❌ Error adding response:', err);
-        alert('Failed to add response. Please try again.');
-      }
+      error: (err: any) => {
+        console.error('Error adding response:', err);
+      },
     });
   }
 
-  resetResponseForm(): void {
-    this.newResponse = { content: '', object: '', requestId: this.idRequest || 0 };
-  }
-
+  // Afficher/masquer le formulaire
   toggleForm(): void {
     this.showForm = !this.showForm;
-    if (!this.showForm) {
-      this.resetResponseForm(); // Reset form when closing
-    }
+  }
+  back(){
+    this.router.navigateByUrl('forums/list-rquest')
   }
 }

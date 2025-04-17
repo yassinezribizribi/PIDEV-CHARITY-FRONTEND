@@ -1,63 +1,45 @@
 <div class="container">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <img src="assets/images/contact.png" class="img-fluid d-block mx-auto" alt="Crisis Alert">
+    <div class="form-container">
+        <div class="image-container" >
+            <img src="assets/images/contact.png" alt="Crisis Alert">
         </div>
-        <div class="col-md-6">
-            <div class="p-4 rounded shadow bg-white ms-lg-5">
-                <h4>Submit Crisis Report</h4>
-                <form [formGroup]="crisisForm" (ngSubmit)="sendCrisis()">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Crisis Category <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="category" placeholder="Category">
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Location <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="location" placeholder="Location">
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
-                                <textarea rows="4" class="form-control" formControlName="description" placeholder="Describe the crisis"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Crisis Date</label>
-                                <input type="date" class="form-control" formControlName="crisis_date">
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Updates</label>
-                                <textarea rows="4" class="form-control" formControlName="updates" placeholder="Add any updates (optional)"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Champ User ID (désactivé, rempli automatiquement) -->
-                        
-                        
+        <div class="form-content">
+            <h4>Submit Crisis Report</h4>
+            <form [formGroup]="crisisForm" (ngSubmit)="sendCrisis()">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Crisis Category <span class="required">*</span></label>
+                        <select formControlName="categorie">
+                            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Location <span class="required">*</span></label>
+                        <input type="text" formControlName="location" placeholder="Location">
+                    </div>
+                </div><br>
+                <div class="form-group">
+                    <label>Description <span class="required">*</span></label>
+                    <textarea rows="4" formControlName="description" placeholder="Describe the crisis"></textarea>
+                </div>
+                <br>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Crisis Date</label>
+                        <input type="date" formControlName="crisisDate">
                     </div>
 
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary" [disabled]="!crisisForm.valid">Send Crisis Alert</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-
-            </div>
+                </div>
+                <br>
+                <div class="form-group">
+                    <label>Updates</label>
+                    <textarea rows="4" formControlName="updates" placeholder="Add any updates (optional)"></textarea>
+                </div>
+                <br>
+        <div class="submit-container">
+            <button type="submit" [disabled]="!crisisForm.valid">Send Crisis Alert</button>
         </div>
+        </form>
     </div>
+</div>
 </div>

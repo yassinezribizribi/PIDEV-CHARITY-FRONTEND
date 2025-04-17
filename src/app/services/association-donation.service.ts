@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Donation, DonationType } from '../interfaces/donation.interface';
+import { Donation, DonationType, CagnotteEnligne } from '../interfaces/donation.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -19,23 +19,27 @@ export class AssociationDonationService {
 
   //   return this.http.get<Donation[]>(this.apiUrl, { headers });
   // }
-  getDonations(): Observable<Donation[]> {
+
+  // Method to get donations by association ID from the token
+  getDonationsByAssociation(): Observable<Donation[]> {
     const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`);
- 
-    return this.http.get<Donation[]>(`${this.apiUrl}/getall`, { headers });
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    
+    return this.http.get<Donation[]>(`${this.apiUrl}/my-donations`, { headers });
+  }
+  
+
+  getDonations(): Observable<Donation[]> {
+    return this.http.get<Donation[]>(`${this.apiUrl}/getall`);
   }
   
   getDonationById(id: number): Observable<Donation> {
-    const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json');
-  
-    return this.http.get<Donation>(`${this.apiUrl}/get/${id}`, { headers });
+    return this.http.get<Donation>(`${this.apiUrl}/get/${id}`);
   }
   
+  getCagnotteByDonationId(id: number): Observable<CagnotteEnligne> {
+    return this.http.get<CagnotteEnligne>(`${this.apiUrl}/cagnotte/${id}`);
+  }
 
   createDonation(donation: Partial<Donation>): Observable<Donation> {
     const token = localStorage.getItem('auth_token');

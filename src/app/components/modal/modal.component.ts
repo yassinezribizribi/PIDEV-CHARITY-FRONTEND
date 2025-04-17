@@ -1,109 +1,57 @@
-import { Component, OnInit } from '@angular/core';
+// modal.component.ts
+import { Component, TemplateRef, ViewChild, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ModalService, ModalConfig } from '../../services/modal.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalService, IModalConfig } from '../../services/modal.service';
 
 @Component({
   selector: 'app-modal',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div *ngIf="isOpen" class="modal-overlay">
-      <div class="modal-container">
-        <div class="modal-header">
-          <h5 class="modal-title">{{title}}</h5>
-          <button type="button" class="btn-close" (click)="close()"></button>
-        </div>
-        <div class="modal-body">
-          <!-- Dynamic content will be loaded here -->
-          <ng-container [ngSwitch]="currentModal?.component">
-            <ng-container *ngSwitchCase="'aid-announcement-form'">
-              <!-- Load Aid Announcement Form -->
-            </ng-container>
-            <ng-container *ngSwitchCase="'event-form'">
-              <!-- Load Event Form -->
-            </ng-container>
-            <!-- Add more cases for other modal types -->
-          </ng-container>
-        </div>
+    <ng-template #modalTemplate>
+      <div class="modal-header">
+        <h4 class="modal-title">{{modalData?.title}}</h4>
+        <button type="button" class="btn-close" (click)="close()"></button>
       </div>
-    </div>
+      <div class="modal-body" [innerHTML]="modalData?.content"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+      </div>
+    </ng-template>
   `,
   styles: [`
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1050;
-    }
-
-    .modal-container {
-      background: white;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 500px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      padding: 1rem;
-      border-bottom: 1px solid #dee2e6;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
     .modal-body {
-      padding: 1rem;
+      white-space: pre-line;
     }
   `]
 })
-export class ModalComponent implements OnInit {
-  currentModal: ModalConfig | null = null;
-  isOpen = false;
-  title = '';
+export class ModalComponent {
+  @ViewChild('modalTemplate') modalTemplate!: TemplateRef<any>;
+  modalData: { title?: string; content?: string } | null = null;
+  private modalRef: any;
 
-  constructor(private modalService: ModalService) {}
-
-  ngOnInit() {
-    this.modalService.modal$.subscribe(modal => {
-      this.currentModal = modal;
-      this.isOpen = !!modal;
-      if (modal) {
-        this.setModalTitle(modal.component);
+  constructor(
+    @Inject(ModalService) private modalService: ModalService,
+    @Inject(NgbModal) private ngbModal: NgbModal
+  ) {
+    this.modalService.modal$.subscribe(config => {
+      if (config?.component === 'partner-details') {
+        this.modalData = {
+          title: config.data?.title,
+          content: config.data?.content
+        };
+        this.modalRef = this.ngbModal.open(this.modalTemplate, { 
+          size: config.data?.size || 'md' 
+        });
       }
     });
   }
 
-  private setModalTitle(component: string) {
-    switch (component) {
-      case 'aid-announcement-form':
-        this.title = 'Create Aid Announcement';
-        break;
-      case 'event-form':
-        this.title = 'Schedule Event';
-        break;
-      case 'media-upload':
-        this.title = 'Upload Media';
-        break;
-      case 'member-management':
-        this.title = 'Manage Members';
-        break;
-      case 'aid-case-details':
-        this.title = 'Aid Case Details';
-        break;
-      default:
-        this.title = 'Modal';
-    }
-  }
-
   close() {
+    if (this.modalRef) {
+      this.modalRef.close();
+    }
     this.modalService.close();
   }
-} 
+}

@@ -14,10 +14,15 @@ export interface Association {
   registrationDocumentPath: string | null;  // Changed to string
   legalDocumentPath: string | null;  
   status: AssociationStatus;
+  partnershipScore?: number;
+  partners?: Association[];
+
   subscriber?:any;
 }
 
-
+interface PartnerAssociation extends Association {
+  partnershipId?: number;
+}
 
 
 export interface TeamMember {

@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { IndexComponent } from './pages/index/index.component';
 import { AboutusComponent } from './pages/aboutus/aboutus.component';
-import { ServicesComponent } from './pages/services/services.component';
 import { ServiceDetailComponent } from './pages/service-detail/service-detail.component';
 import { ForumsComponent } from './pages/forums/forums.component';
 import { TeamComponent } from './pages/team/team.component';
@@ -16,6 +15,7 @@ import { SignupComponent } from './pages/signup/signup.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
 import { TermsComponent } from './pages/terms/terms.component';
+import { JobApplicationsComponent } from './job-applications/job-applications.component';
 import { PrivacyComponent } from './pages/privacy/privacy.component';
 import { ComingsoonComponent } from './pages/comingsoon/comingsoon.component';
 import { MaintenanceComponent } from './pages/maintenance/maintenance.component';
@@ -27,6 +27,7 @@ import { AssociationDetailsComponent } from './back/admin/association-details/as
 import { JobOpportunitiesForumComponent } from './pages/forums/job-opportunities-forum/job-opportunities-forum.component';
 import { SupportRefugeesForumComponent } from './pages/forums/support-refugees-forum/support-refugees-forum.component';
 import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard } from './guards/role.guard';
 import { AdminNavbarComponent } from './back/admin/admin-navbar/admin-navbar.component';
 import { AssociationListComponent } from './pages/associationList/associationList.component';
 import { AdminDashboardComponent } from './back/admin/admin-dashboard/admin-dashboard.component';
@@ -39,6 +40,11 @@ import { BlogDetailComponentCopy } from './pages/post copy/blog-detail.component
 import { ListRequestComponent } from './pages/forums/list-request/list-request.component';
 import { EditMissionComponent } from './back/edit-mission/edit-mission.component';
 import { EditDonationComponent } from './back/edit-donation/edit-donation.component';
+import { ProfileComponent } from './profile/profile.component';
+import { ApplicationDetailsComponent } from './application-details/application-details.component';
+import {HealthcareComponent } from './pages/Healthcare/healthcare.component';
+import { ValidateDonsComponent } from './back/validate-dons/validate-dons.component';
+import { CagnotteDetailsComponent } from '@component/cagnotte-details/cagnotte-details.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'onepage', pathMatch: 'full' },
   { path: 'onepage', component: OnepageComponent },
@@ -47,7 +53,6 @@ export const routes: Routes = [
 
   { path: 'index', component: IndexComponent, canActivate: [AuthGuard] },
   { path: 'aboutus', component: AboutusComponent },
-  { path: 'services', component: ServicesComponent },
   { path: 'service-detail', component: ServiceDetailComponent },
   { path: 'forums', component: ForumsComponent },
   { path: 'team', component: TeamComponent },
@@ -68,15 +73,19 @@ export const routes: Routes = [
   { path: 'maintenance', component: MaintenanceComponent },
   { path: 'error', component: ErrorComponent },
   { path: 'contactus', component: ContactusComponent },
+  {path:'jobApplications/:jobOfferId',component:JobApplicationsComponent},
+  {path:'applicationDetails/:id',component:ApplicationDetailsComponent},
   {path :'associationList',component:AssociationListComponent},
   { path: 'admin-navbar', component: AdminNavbarComponent },
   { path: 'register-association', component: RegisterAssociationComponent },
   { path: 'app-admin-dashboard', component: AdminDashboardComponent },
   { path: 'associations/:id', component: AssociationDetailsComponent },
   { path: 'blog-detail-copy/:id', component: BlogDetailComponentCopy },
+  {path:'app-profile', component:ProfileComponent},
   { path: 'make-donation/:idDonation', component: MakeDonationComponent },
   { path: 'blog-sidebar-copy', component: BlogSidebarComponentCopy },
-
+  { path: 'validate-dons/:id', component: ValidateDonsComponent },
+  { path: 'cagnotte/:id', component: CagnotteDetailsComponent },
   {
     path: 'association',
     children: [
@@ -110,6 +119,12 @@ export const routes: Routes = [
       
     ]
   },
+  { 
+    path: 'services', 
+    component: HealthcareComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['ROLE_VOLUNTEER', 'ROLE_REFUGEE', 'ROLE_ASSOCIATION_MEMBER'] }
+  },
 
   {
     path: 'admin',
@@ -134,6 +149,7 @@ export const routes: Routes = [
         path: 'list-rquest',
         component: ListRequestComponent
       }
+      
     ]
   }
 ];

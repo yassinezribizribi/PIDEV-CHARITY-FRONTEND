@@ -62,13 +62,30 @@ export class DonsService {
   }
 
   // Method to contribute to a specific donation
-  contributeToDonation(idDonation: number, donation: Partial<Dons>): Observable<Dons> {
+  contributeToDonation(idDonation: number, dons: Dons): Observable<Dons> {
     const token = localStorage.getItem('auth_token');
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json');
 
-    // Correct endpoint to match the backend method
-    return this.http.post<Dons>(`${this.apiUrl}/${idDonation}/contribute`, donation, { headers });
+    return this.http.post<Dons>(`${this.apiUrl}/${idDonation}/contribute`, dons, { headers });
+  }
+
+  validateDonsByAssociation(idDons: number): Observable<Dons> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+
+    return this.http.post<Dons>(`${this.apiUrl}/${idDons}/validate`, null, { headers });
+  }
+
+  getDonsByDonationId(donationId: number): Observable<Dons[]> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+
+    return this.http.get<Dons[]>(`${this.apiUrl}/donations/${donationId}/dons`, { headers });
   }
 }
