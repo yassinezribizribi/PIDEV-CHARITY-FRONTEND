@@ -63,4 +63,9 @@ export class RequestService {
     }
     return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
+
+  getAllRequestsWithResponses(): Observable<Request[]> {
+    return this.http.get<Request[]>(`${this.apiUrl}/requests-with-responses`);
+  }
+  
 }

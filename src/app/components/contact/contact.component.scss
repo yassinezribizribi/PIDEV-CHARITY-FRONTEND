@@ -1,0 +1,88 @@
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .btn-info,
+  .btn-success {
+    width: 48%;
+  }
+
+  .d-flex.gap-2 {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+button.btn:hover {
+  transform: scale(1.02);
+  transition: transform 0.2s ease;
+}
+/* Global styles */
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+h4 {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Form spacing */
+.form-label {
+  font-weight: 500;
+}
+
+.form-control,
+.form-select,
+textarea {
+  border-radius: 0.5rem;
+  box-shadow: none;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Buttons */
+.btn {
+  border-radius: 0.5rem;
+}
+
+.btn-info,
+.btn-success,
+.btn-outline-secondary {
+  width: 100%;
+}
+
+.d-grid {
+  margin-top: 1rem;
+}
+
+/* Camera + Image display */
+#cameraContainer {
+  width: 100%;
+  height: auto;
+  border: 2px dashed #ccc;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  background-color: #f8f9fa;
+}
+
+img.img-thumbnail {
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Map */
+#map {
+  margin-top: 2rem;
+  border: 2px solid #ccc;
+  border-radius: 0.5rem;
+}

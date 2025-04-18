@@ -14,7 +14,7 @@
               <h4 class="mb-3">{{ request.object }}</h4>
               <div class="thread-content p-3 bg-light rounded">
                 <p class="mb-0">{{ request.content }}</p>
-                <small class="text-muted">Date: {{ request.dateRequest   }}</small>
+                <small class="text-muted">Date: {{ request.dateRequest }}</small>
               </div>
             </div>
 
@@ -50,14 +50,18 @@
                 <small class="text-muted">Date: {{ response.dateResponse | date:'short' }}</small>
               </div>
             </div>
-            <a class="return-button" (click)="back()" >
-              <i class="fas fa-arrow-left"></i> Back
-            </a>
+            <div class="button-center">
+              <a class="return-button" (click)="back()">
+                <i class="fas fa-arrow-left"></i> Back
+              </a>
+            </div>
+            
           </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
 
 <app-footer></app-footer>

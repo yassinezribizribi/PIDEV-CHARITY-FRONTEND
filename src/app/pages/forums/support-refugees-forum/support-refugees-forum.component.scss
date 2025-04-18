@@ -1,25 +1,171 @@
+$primary-color: #004085;
+$success-color: #1e7e34;
+$info-color: #117a8b;
+$background-color: #f4f6f9;
+$dark-gray: #343a40;
+$border-radius: 12px;
+$shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+
+.section {
+  padding: 60px 0;
+  background-color: $background-color;
+}
+
+.card {
+  border-radius: $border-radius;
+  box-shadow: $shadow;
+  border: none;
+  background: white;
+}
+
+.card-body {
+  padding: 40px;
+}
+
+h3, h4 {
+  color: $primary-color;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+button {
+  border-radius: 10px;
+  font-weight: 700;
+  padding: 12px 24px;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-success {
+  background-color: $success-color;
+  border: none;
+  &:hover {
+    background-color: darken($success-color, 15%);
+    transform: scale(1.05);
+  }
+}
+
+.button-center {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn-info {
+  background-color: $info-color;
+  border: none;
+  font-size: 14px;
+  padding: 12px 24px;
+  border-radius: 50px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  &:hover {
+    background-color: darken($info-color, 15%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.form-group {
+  margin-bottom: 25px;
+  label {
+    font-weight: 700;
+    color: $dark-gray;
+    display: block;
+    margin-bottom: 8px;
+  }
+}
+
+input, textarea {
+  border-radius: 8px;
+  border: 2px solid #ccc;
+  padding: 14px;
+  width: 100%;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out;
+  background: white;
+  &:focus {
+    border-color: $primary-color;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 64, 133, 0.3);
+  }
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+}
+
+.btn-primary {
+  background-color: $primary-color;
+  border: none;
+  font-size: 16px;
+  padding: 14px 20px;
+  width: 100%;
+  text-transform: uppercase;
+  &:hover {
+    background-color: darken($primary-color, 15%);
+  }
+}
+
+.forum-thread {
+  padding: 30px;
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $shadow;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+  h4 {
+    color: $primary-color;
+  }
+}
+
+.thread-content {
+  border-left: 8px solid $primary-color;
+  padding: 20px;
+  background: rgba(0, 64, 133, 0.05);
+  border-radius: 8px;
+}
 .return-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    text-decoration: none;
-    width: max-content;
-    place-self: center;
-  }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $primary-color;
+  color: white;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+  transition: all 0.3s ease-in-out;
+  text-decoration: none; /* Supprimer le soulignement du lien */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   
-  .return-button:hover {
-    background-color: #0056b3;
+  &:hover {
+    background-color: darken($primary-color, 15%);
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
-  
-  .return-button i {
-    font-size: 18px;
+
+  i {
+    margin-right: 8px; /* Espacement entre l'icône et le texte */
   }
-  
+}
+
+.button-center {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 30px; /* Ajout d'une marge en haut pour espacer du contenu précédent */
+}

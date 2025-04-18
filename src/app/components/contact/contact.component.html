@@ -1,66 +1,86 @@
-<div class="container">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <img src="assets/images/contact.png" class="img-fluid d-block mx-auto" alt="Crisis Alert">
-        </div>
-        <div class="col-md-6">
-            <div class="p-4 rounded shadow bg-white ms-lg-5">
-                <h4>Submit Crisis Report</h4>
-                <form [formGroup]="crisisForm" (ngSubmit)="sendCrisis()">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Crisis Category <span class="text-danger">*</span></label>
-                                <select class="form-control" formControlName="categorie">
-                                    <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-                                </select>
-                            </div>
-                            
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Location <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="location" placeholder="Location">
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
-                                <textarea rows="4" class="form-control" formControlName="description" placeholder="Describe the crisis"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Crisis Date</label>
-                                <input type="date" class="form-control" formControlName="crisisDate">
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Updates</label>
-                                <textarea rows="4" class="form-control" formControlName="updates" placeholder="Add any updates (optional)"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Champ User ID (désactivé, rempli automatiquement) -->
-                        
-                        
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary" [disabled]="!crisisForm.valid">Send Crisis Alert</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-
-            </div>
-        </div>
+<div class="container py-4">
+  <div class="row">
+    <div class="col-md-5 mb-4">
+      <img src="assets/images/contact.png" alt="Crisis Alert" class="img-fluid rounded shadow">
     </div>
+
+    <div class="col-md-7">
+      <h4 class="mb-3 text-primary">Submit Crisis Report</h4>
+
+      <form [formGroup]="crisisForm" (ngSubmit)="onSubmit()">
+
+        <!-- Category -->
+        <div class="mb-3">
+          <label class="form-label">Crisis Category <span class="text-danger">*</span></label>
+          <select class="form-select" formControlName="categorie">
+            <option *ngFor="let cat of categories" [value]="cat">{{ formatEnum(cat) }}</option>
+          </select>
+        </div>
+
+        <!-- Location -->
+        <div class="mb-3">
+          <label class="form-label">Location <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="location" placeholder="Enter location" (blur)="getCoordinates()">
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label class="form-label">Description <span class="text-danger">*</span></label>
+          <textarea rows="4" class="form-control" formControlName="description" placeholder="Enter the description of the crisis"></textarea>
+        </div>
+
+        <!-- Severity -->
+        <div class="mb-3">
+          <label class="form-label">Severity <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="severity" placeholder="Enter the severity">
+        </div>
+
+        
+
+        <!-- Date -->
+        <div class="mb-3">
+          <label class="form-label">Crisis Date <span class="text-danger">*</span></label>
+          <input type="date" class="form-control" formControlName="crisisDate">
+        </div>
+
+        <!-- Updates -->
+        <div class="mb-3">
+          <label class="form-label">Updates</label>
+          <textarea rows="3" class="form-control" formControlName="updates" placeholder="Enter updates (if any)"></textarea>
+        </div>
+
+        <!-- Get Current Location -->
+        <div class="mb-3">
+          <button type="button" (click)="getLocation()" class="btn btn-outline-secondary w-100">Get Current Location</button>
+        </div>
+
+        <!-- Image & Camera -->
+        <div class="mb-3">
+          <label class="form-label">Image (Optional)</label>
+          <div class="d-flex gap-2 mb-2">
+            <button type="button" class="btn btn-sm btn-info" (click)="startCamera()">Start Camera</button>
+            <button type="button" class="btn btn-sm btn-success" (click)="captureImage()">Capture Image</button>
+          </div>
+          <div id="cameraContainer" class="mb-2 border rounded p-2" style="min-height: 240px;"></div>
+          <div *ngIf="capturedImage">
+            <img [src]="capturedImage" alt="Captured Image" class="img-thumbnail" width="200">
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <!-- Bouton Submit modifié -->
+<div class="d-grid">
+  <form [formGroup]="crisisForm" (ngSubmit)="onSubmit()">
+    <!-- champs du formulaire -->
+    <button type="submit">Créer</button>
+  </form>
+  
+</div>
+
+      </form>
+
+      <!-- Map -->
+      <div id="map" class="mt-4 border rounded" style="height: 400px; width: 100%;"></div>
+    </div>
+  </div>
 </div>
