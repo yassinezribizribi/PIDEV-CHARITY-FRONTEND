@@ -1,58 +1,129 @@
-<!-- src/app/components/list-request/list-request.component.html -->
 <app-navbar></app-navbar>
 
-<section class="section">
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
   <div class="container">
-    <div class="row justify-content-center">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12">
+        <div class="title-heading text-center">
+          <h1 class="display-5 fw-bold mb-3 text-white">Requests & Responses</h1>
+          <p class="lead text-white-50 mb-0">Post your needs and receive help from others</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Main Section -->
+<section class="section bg-light">
+  <div class="container">
+    <div class="row g-4">
+      <!-- Requests List Column -->
       <div class="col-lg-8">
-        <div class="card shadow rounded border-0">
+        <!-- Filters for Urgency and Search -->
+        <div class="d-flex justify-content-between mb-4">
+          <div>
+            <label for="urgentFilter" class="form-label">Filter:</label>
+            <select id="urgentFilter" class="form-select" [(ngModel)]="urgentFilter" (change)="applyFilters()">
+              <option value="">All</option>
+              <option value="true">Urgent</option>
+              <option value="false">Not Urgent</option>
+            </select>
+          </div>
+          <div>
+            <label for="searchInput" class="form-label">Search:</label>
+            <input id="searchInput" type="text" class="form-control" [(ngModel)]="searchQuery" (input)="applyFilters()" placeholder="Search requests">
+          </div>
+        </div>
+
+        <!-- Add Request Button -->
+        <div class="mb-4 text-end">
+          <button class="btn btn-primary" (click)="test()">
+            <i class="fas fa-plus-circle me-1"></i>
+            {{ showForm ? 'Cancel' : 'Add New Request' }}
+          </button>
+        </div>
+
+        <!-- Form for Adding New Request -->
+        <div *ngIf="showForm" class="card mb-4 border-0 shadow-lg rounded-lg">
+          <div class="card-body">
+            <h5 class="mb-3">Add a New Request</h5>
+            <form (ngSubmit)="addRequest()">
+              <div class="mb-3">
+                <label class="form-label">Object</label>
+                <input type="text" class="form-control" [(ngModel)]="newRequest.object" name="object" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" [(ngModel)]="newRequest.content" name="content" required></textarea>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" [(ngModel)]="newRequest.isUrgent" name="isUrgent">
+                <label class="form-check-label">Mark as Urgent</label>
+              </div>
+              <button type="submit" class="btn btn-success w-100">Submit Request</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Requests Display -->
+        <div *ngFor="let req of filteredRequests" class="card mb-4 border-0 shadow-lg rounded-lg">
           <div class="card-body p-4">
-            <h3 class="mb-4">List of Requests</h3>
+            <div class="d-flex align-items-start gap-3">
+              <!-- Avatar -->
+              <div class="avatar avatar-lg bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
+                {{ req.object.charAt(0) }} <!-- Placeholder using object name initial -->
+              </div>
+              <!-- Content -->
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h5 class="fw-bold mb-0">{{ req.object }}</h5>
+                  <!-- Urgency Indicator -->
+                  <span *ngIf="req.isUrgent" class="badge bg-danger text-white">
+                    Urgent
+                  </span>
+                </div>
+                <p class="mb-3">{{ req.content }}</p>
 
-            <!-- Bouton pour ouvrir/fermer le formulaire -->
-            <button class="btn btn-success mb-4" (click)="test()">
-              {{ showForm ? 'Cancel' : 'Add New Request' }}
-            </button>
+                <!-- Display Responses -->
+                <div *ngIf="req.responses && req.responses.length > 0" class="bg-light p-3 rounded-lg">
+                  <h6 class="text-secondary mb-2">Responses:</h6>
+                  <ul class="list-unstyled mb-0">
+                    <li *ngFor="let resp of req.responses" class="mb-2">
+                      <i class="fas fa-reply me-2 text-primary"></i>
+                      {{ resp.text }}
+                    </li>
+                  </ul>
+                </div>
 
-            <!-- Formulaire d'ajout de demande -->
-            <div *ngIf="showForm" class="mt-4">
-              <h4>Add a New Request</h4>
-              <form (ngSubmit)="addRequest()">
-                <div class="form-group">
-                  <label for="object">Object</label>
-                  <input type="text" id="object" class="form-control" [(ngModel)]="newRequest.object" name="object"
-                    placeholder="Enter object" required />
+                <!-- Add Response Button -->
+                <div class="mt-3">
+                  <button class="btn btn-outline-primary btn-sm" (click)="openResponseModal(req)">
+                    <i class="fas fa-reply me-1"></i>
+                    Add Response
+                  </button>
                 </div>
-                <div class="form-group">
-                  <label for="content">Content</label>
-                  <textarea id="content" class="form-control" [(ngModel)]="newRequest.content" name="content"
-                    placeholder="Enter content" required></textarea>
-                </div>
-                <div class="form-group">
-                  <label>
-                    <input type="checkbox" [(ngModel)]="newRequest.isUrgent" name="isUrgent" />
-                    Is Urgent
-                  </label>
-                </div>
-                <button type="submit" class="btn btn-primary mt-3">Submit</button>
-              </form>
+              </div>
             </div>
-<br><br>
-            <!-- Liste des demandes -->
-            <div *ngFor="let request of listRequests" class="forum-thread mb-4">
-              <h4 class="mb-3">{{ request.object }}</h4>
-              <div class="thread-content p-3 bg-light rounded">
-                <p class="mb-0">{{ request.content }}</p>
-                <small class="text-muted">Date: {{ request.dateRequest | date:'fullDate'}}</small>
-                <small class="text-muted d-block">Urgent: {{ request.isUrgent ? 'Yes' : 'No' }}</small>
-              </div>
-<br>
-              <!-- Bouton pour afficher les réponses -->
-              <div class="button-center">
-                <button class="btn btn-info btn-sm mt-2" (click)="response(request.idRequest)">
-                  View Responses
-                </button>
-              </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips or Info Column -->
+      <div class="col-lg-4">
+        <div class="sticky-top" style="top: 100px;">
+          <div class="card border-0 shadow-sm rounded-lg">
+            <div class="card-header bg-light py-3">
+              <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Tips for Posting</h5>
+            </div>
+            <div class="card-body p-4">
+              <ul class="list-unstyled text-muted small">
+                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Be clear and specific</li>
+                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Use respectful language</li>
+                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Follow up on responses</li>
+                <li><i class="fas fa-check-circle text-success me-2"></i> Update status when resolved</li>
+              </ul>
             </div>
           </div>
         </div>

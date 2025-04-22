@@ -1,4 +1,3 @@
-<!-- src/app/components/support-refugees-forum/support-refugees-forum.component.html -->
 <app-navbar></app-navbar>
 
 <section class="section">
@@ -14,7 +13,23 @@
               <h4 class="mb-3">{{ request.object }}</h4>
               <div class="thread-content p-3 bg-light rounded">
                 <p class="mb-0">{{ request.content }}</p>
-                <small class="text-muted">Date: {{ request.dateRequest }}</small>
+                <small class="text-muted">Date: {{ request.dateRequest | date:'short' }}</small>
+              </div>
+
+              <!-- Liste des réponses sous la demande -->
+              <div *ngIf="listResponses.length > 0" class="bg-light p-3 rounded mt-3">
+                <h5 class="mb-3 text-secondary">Responses:</h5>
+                <div *ngFor="let response of listResponses" class="forum-thread mb-2">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="avatar avatar-lg bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
+                      {{ response.content.charAt(0) }} <!-- Utilise la première lettre du contenu de la réponse comme avatar -->
+                    </div>
+                    <div class="flex-grow-1">
+                      <p class="mb-2">{{ response.content }}</p>
+                      <small class="text-muted">Date: {{ response.dateResponse | date:'short' }}</small>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -42,15 +57,7 @@
               </form>
             </div>
 
-            <!-- Liste des réponses -->
-            <div *ngFor="let response of listResponses" class="forum-thread mb-4">
-              <h4 class="mb-3">{{ response.object }}</h4>
-              <div class="thread-content p-3 bg-light rounded">
-                <p class="mb-0">{{ response.content }}</p>
-                <small class="text-muted">Date: {{ response.dateResponse | date:'short' }}</small>
-              </div>
-            </div>
-            <div class="button-center">
+            <div class="button-center mt-4">
               <a class="return-button" (click)="back()">
                 <i class="fas fa-arrow-left"></i> Back
               </a>
@@ -62,6 +69,5 @@
     </div>
   </div>
 </section>
-
 
 <app-footer></app-footer>
