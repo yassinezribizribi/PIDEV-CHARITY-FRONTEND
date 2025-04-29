@@ -12,6 +12,8 @@ export interface Crisis {
   idUser?: number;     // ID de l'utilisateur qui a signalé la crise
     missions?: any[];    // Liste des missions associées à la crise
     image?: string | File;     // URL de l'image ou objet File pour upload
+    imageUrl?: string;             // Pour affichage rapide depuis une URL backend, ex: /images/nom.jpg
+
 
 }
 

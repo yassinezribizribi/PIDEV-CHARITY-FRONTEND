@@ -3,6 +3,14 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
+
+export enum CrisisStatus {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  RESOLVED = 'RESOLVED'
+}
+
+
 export interface Crisis {
   idCrisis?: number;
   categorie: string;
@@ -11,13 +19,15 @@ export interface Crisis {
   description: string;
   crisisDate: string;
   severity: string;
-  status: string;
+  status: CrisisStatus;
   latitude?: number;
   longitude?: number;
   idUser?: number;
   missions?: any[];
   image?: string | File;
 }
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -71,34 +81,37 @@ export class CrisisService {
     );
   }
 
-  // ✅ Récupérer toutes les crises
-  getAllCrises(): Observable<Crisis[]> {
-    const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+ // Mise à jour de la méthode pour récupérer les crises
+getAllCrises(): Observable<Crisis[]> {
+  const token = localStorage.getItem('auth_token');
+  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    return this.http.get<any[]>(`${this.apiUrl}/all`, { headers }).pipe(
-      map((crises) =>
-        crises.map((crisis) => ({
-          idCrisis: crisis.idCrisis,
-          categorie: crisis.category,
-          location: crisis.location,
-          updates: crisis.update,
-          description: crisis.description,
-          crisisDate: crisis.crisisDate,
-          severity: crisis.severity,
-          status: crisis.status,
-          latitude: crisis.latitude,
-          longitude: crisis.longitude,
-          idUser: crisis.subscriber?.idUser,
-          image: crisis.image
-        }))
-      ),
-      catchError((error) => {
-        console.error('Error fetching crises:', error);
-        return throwError(() => new Error('Failed to fetch crises'));
-      })
-    );
-  }
+  return this.http.get<any[]>(`${this.apiUrl}/all`, { headers }).pipe(
+    map((crises) =>
+      crises.map((crisis) => ({
+        idCrisis: crisis.idCrisis,
+        categorie: crisis.categorie,
+        location: crisis.location,
+        updates: crisis.update,
+        description: crisis.description,
+        crisisDate: crisis.crisisDate,
+        severity: crisis.severity,
+        status: crisis.status,
+        latitude: crisis.latitude,
+        longitude: crisis.longitude,
+        idUser: crisis.subscriber?.idUser,
+        image: crisis.image,
+        imageUrl: crisis.image ? `http://localhost:8089/images/${crisis.image}` : null  // URL de l'image récupérée depuis le backend
+      }))
+    ),
+    catchError((error) => {
+      console.error('Error fetching crises:', error);
+      return throwError(() => new Error('Failed to fetch crises'));
+    })
+  );
+}
+
+  
 
   // ✅ Supprimer une crise
   deleteCrisis(id: number): Observable<void> {
@@ -127,11 +140,39 @@ export class CrisisService {
   }
 
   // ✅ Récupérer les catégories
-  getCategories(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/categories`).pipe(
+  getCategories(): Observable<Crisis> {
+
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.get<Crisis>(`${this.apiUrl}/categories`).pipe(
       catchError((error) => {
         console.error('Error fetching categories:', error);
         return throwError(() => new Error('Failed to fetch categories'));
+      })
+    );
+  }
+
+  updateCrisisStatus(id: number, status: CrisisStatus): Observable<Crisis> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+  
+    return this.http.patch<Crisis>(`http://localhost:8089/api/crises/${id}/status?status=${status}`, {}, { headers });
+  }
+  
+  
+  
+  assignCrisisToAssociation(crisisId: number): Observable<void> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  
+    return this.http.post<void>(`${this.apiUrl}/${crisisId}/assignToAssociation`, {}, { headers }).pipe(
+      catchError((error) => {
+        console.error('Error assigning crisis to association:', error);
+        return throwError(() => new Error('Failed to assign crisis to association'));
       })
     );
   }

@@ -23,6 +23,8 @@ export class SignupComponent {
       password: new FormControl(''),
       role: new FormControl('REFUGEE'),
       telephone: new FormControl(''),
+      location: new FormControl(''), // <-- Ajouté ici pour la location
+
       job: new FormControl(''),
     });
   }
