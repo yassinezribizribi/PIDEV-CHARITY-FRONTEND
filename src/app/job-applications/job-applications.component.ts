@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { JobApplicationService } from '../services/job-application.service';
 import { JobApplication, JobApplicationStatus } from '../models/job-application.model';
-import { Router, RouterLink, NavigationEnd } from '@angular/router';
+import { Router, RouterLink, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '@component/navbar/navbar.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FooterComponent } from '@component/footer/footer.component';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-job-applications',
@@ -22,81 +23,148 @@ import { FooterComponent } from '@component/footer/footer.component';
 export class JobApplicationsComponent implements OnInit {
   applications: JobApplication[] = [];
   JobApplicationStatus = JobApplicationStatus;
+  isLoading = true;
+  currentUserId: number | null = null;
+  jobOfferId: number | null = null;
 
   constructor(
     private jobApplicationService: JobApplicationService,
-    private router: Router
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.loadApplications();
+    this.currentUserId = this.authService.getUserInfo().idUser;
     
-    // Listen for navigation events to handle state updates
+    // Get job offer ID from route parameters
+    this.route.params.subscribe(params => {
+      this.jobOfferId = params['jobOfferId'] ? +params['jobOfferId'] : null;
+    
+      if (this.currentUserId) {
+        this.loadApplications();
+      } else {
+        this.isLoading = false;
+      }
+    });
+    
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         const navigation = this.router.getCurrentNavigation();
         const updatedApp = navigation?.extras.state?.['updatedApplication'];
         
         if (updatedApp) {
-          const index = this.applications.findIndex(app => 
-            app.idApplication === updatedApp.idApplication);
-          if (index !== -1) {
-            this.applications[index] = updatedApp;
-          } else {
-            // If new application, add it to the list
-            this.applications.unshift(updatedApp);
-          }
+          this.handleUpdatedApplication(updatedApp);
         }
       }
     });
   }
 
-  loadApplications(): void {
-    this.jobApplicationService.getAllJobApplications().subscribe({
-      next: (data) => {
-        // Ensure status values match the enum
-        this.applications = data.map(app => ({
-          ...app,
-          jobApplicationStatus: this.normalizeStatus(app.jobApplicationStatus)
-        }));
-      },
-      error: (err) => {
-        console.error('Failed to load applications:', err);
-      }
-    });
+  private loadApplications(): void {
+    this.isLoading = true;
+    
+    if (this.jobOfferId) {
+      // Load applications for specific job offer
+      this.jobApplicationService.getApplicationsForJobOffer(this.jobOfferId).subscribe({
+        next: (data: JobApplication[]) => {
+          this.applications = data.map(app => this.normalizeApplicationStatus(app));
+        },
+        error: (err: any) => {
+          this.applications = [];
+        },
+        complete: () => {
+          this.isLoading = false;
+        }
+      });
+    } else {
+      // Load all applications for current user
+      this.jobApplicationService.getCurrentUserApplications().subscribe({
+        next: (data: JobApplication[]) => {
+          this.applications = data.map(app => this.normalizeApplicationStatus(app));
+        },
+        error: (err: any) => {
+          this.applications = [];
+        },
+        complete: () => {
+          this.isLoading = false;
+        }
+      });
+    }
+  }
+
+  private handleUpdatedApplication(updatedApp: JobApplication): void {
+    const index = this.applications.findIndex(app => 
+      app.idApplication === updatedApp.idApplication);
+    
+    if (index !== -1) {
+      this.applications[index] = this.normalizeApplicationStatus(updatedApp);
+    } else {
+      this.applications.unshift(this.normalizeApplicationStatus(updatedApp));
+    }
+  }
+
+  private normalizeApplicationStatus(application: JobApplication): JobApplication {
+    const normalizedApp = {
+      ...application,
+      status: this.normalizeStatus(application.status || application.jobApplicationStatus),
+      jobApplicationStatus: this.normalizeStatus(application.status || application.jobApplicationStatus),
+      statusHistory: application.statusHistory || []
+    };
+
+    // Restructure applicant data from the backend format
+    if (application.applicantId) {
+      normalizedApp.applicant = {
+        idUser: application.applicantId || 0,
+        firstName: application.applicantName?.split(' ')[0] || '',
+        lastName: application.applicantName?.split(' ')[1] || '',
+        email: application.applicantEmail || '',
+        telephone: application.applicantTelephone || '',
+        isBanned: false,
+        banreason: null,
+        photo: null
+      };
+    }
+
+    return normalizedApp;
   }
 
   private normalizeStatus(status: any): JobApplicationStatus {
     if (!status) return JobApplicationStatus.PENDING;
     
-    // Convert to string and uppercase for comparison
     const statusStr = String(status).toUpperCase().trim();
     
-    // Handle all possible variations
-    if (statusStr === 'ACCEPTED' || statusStr === 'APPROVED') {
-      return JobApplicationStatus.ACCEPTED;
-    } else if (statusStr === 'REJECTED' || statusStr === 'DENIED') {
-      return JobApplicationStatus.REJECTED;
-    } else if (statusStr === 'PENDING' || statusStr === 'IN_REVIEW') {
-      return JobApplicationStatus.PENDING;
+    switch (statusStr) {
+      case 'PENDING':
+      case 'UNDER_REVIEW':
+      case 'INTERVIEW':
+      case 'ACCEPTED':
+      case 'REJECTED':
+        return statusStr as JobApplicationStatus;
+      default:
+        console.warn('Unknown status value:', status);
+        return JobApplicationStatus.PENDING;
     }
-    
-    console.warn('Unknown status value:', status);
-    return JobApplicationStatus.PENDING; // Default fallback
   }
 
-  getStatusDisplay(status: JobApplicationStatus): string {
-    switch (status) {
-      case JobApplicationStatus.ACCEPTED: return 'Accepted';
-      case JobApplicationStatus.REJECTED: return 'Rejected';
-      case JobApplicationStatus.PENDING: return 'Pending';
-      default: return 'Unknown';
-    }
+  getStatusDisplay(status: JobApplicationStatus | undefined): string {
+    if (!status) return 'Unknown Status';
+    return status.split('_').map(word => 
+      word.charAt(0) + word.slice(1).toLowerCase()
+    ).join(' ');
   }
 
   getStatusCount(status: JobApplicationStatus): number {
     return this.applications.filter(app => 
-      this.normalizeStatus(app.jobApplicationStatus) === status).length;
+      app.status === status).length;
+  }
+
+  getLatestStatusNote(application: JobApplication): string | undefined {
+    if (!application.statusHistory || application.statusHistory.length === 0) {
+      return undefined;
+    }
+    const latestStatus = [...application.statusHistory]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    return latestStatus.notes;
   }
 
   deleteApplication(id: number): void {

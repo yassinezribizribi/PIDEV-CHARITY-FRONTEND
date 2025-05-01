@@ -1,27 +1,45 @@
 // Correct import
 import { JobApplication } from '../models/job-application.model';
+
+export interface JobOfferReport {
+  idReport?: number;
+  jobOfferId: number;
+  reporterId: number;
+  reason: string;
+  description: string;
+  status: 'PENDING' | 'REVIEWED' | 'RESOLVED';
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
 export interface JobOffer {
   idJobOffer?: number;
   title: string;
   description: string;
   requirements: string;
+  location?: string;
+  salary?: number;
+  type?: string;
   active: boolean;
-  forumId?: number;
-  createdBy?: { idUser: number;
+  createdAt: string | Date;
+  createdBy: {
+    idUser: number;
     firstName: string;
     lastName: string;
-    photo?: string | null;   };
+    photo?: string | null;
+    isBanned?: boolean;
+    banreason?: string | null;
+  };
+  reportCount: number;
   jobApplications?: JobApplication[];
-  forum?: any; // Add this if present in backend response
-  createdAt?: string; // Add this if present
+  forum?: Forum;
+  reports?: JobOfferReport[];
+}
 
-
-  }
-  
-  export interface Forum {
-    id: number;
-    name: string;
-  }
+export interface Forum {
+  id: number;
+  name: string;
+}
   
   
   

@@ -33,13 +33,7 @@ export class EditDonationComponent implements OnInit {
       quantiteDonnee: ['', [Validators.required, Validators.min(0)]],
       availability: [false, Validators.required],
       lastUpdated: ['', Validators.required],
-      donationType: ['', Validators.required],
-      // Cagnotte en ligne fields
-      enableCagnotte: [false],
-      cagnotteTitle: [''],
-      cagnotteDescription: [''],
-      goalAmount: ['', [Validators.min(0)]],
-      currentAmount: ['', [Validators.min(0)]]
+      donationType: ['', Validators.required]
     });
 
     this.donationId = +this.route.snapshot.paramMap.get('id')!;
@@ -59,14 +53,9 @@ export class EditDonationComponent implements OnInit {
           description: donation.description,
           quantiteDemandee: donation.quantiteDemandee,
           quantiteDonnee: donation.quantiteDonnee,
+          availability: donation.availability,
           lastUpdated: this.formatDate(new Date(donation.lastUpdated)),
-          donationType: donation.donationType,
-          // Cagnotte en ligne fields
-          enableCagnotte: !!donation.cagnotteenligne,
-          cagnotteTitle: donation.cagnotteenligne?.title || '',
-          cagnotteDescription: donation.cagnotteenligne?.description || '',
-          goalAmount: donation.cagnotteenligne?.goalAmount || 0,
-          currentAmount: donation.cagnotteenligne?.currentAmount || 0
+          donationType: donation.donationType
         });
         this.loading = false;
       },
@@ -88,18 +77,10 @@ export class EditDonationComponent implements OnInit {
       return;
     }
 
-    const formValue = this.donationForm.value;
     const updatedDonation: Donation = {
       ...this.donation,
-      ...formValue,
-      lastUpdated: new Date(formValue.lastUpdated),
-      cagnotteenligne: formValue.enableCagnotte ? {
-        idCagnotte: this.donation?.cagnotteenligne?.idCagnotte,
-        title: formValue.cagnotteTitle,
-        description: formValue.cagnotteDescription,
-        goalAmount: formValue.goalAmount,
-        currentAmount: formValue.currentAmount
-      } : null
+      ...this.donationForm.value,
+      lastUpdated: new Date(this.donationForm.value.lastUpdated)
     };
 
     this.donationService.updateDonation(this.donationId, updatedDonation).subscribe({

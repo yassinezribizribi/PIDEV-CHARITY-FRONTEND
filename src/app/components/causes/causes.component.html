@@ -1,70 +1,52 @@
 <div class="row">
   <div *ngFor="let donation of donationsData" class="col-lg-4 col-md-6 mt-4 pt-2">
-    <div class="donation-card">
-      <!-- Cagnotte Indicator -->
-      <div class="cagnotte-indicator" [class.has-cagnotte]="donation.cagnotteenligne">
-        {{ donation.cagnotteenligne ? 'Online Donation Available' : 'Physical Donation Only' }}
+    <div class="position-relative rounded bg-white shadow-lg overflow-hidden">
+      <!-- Image or background section -->
+      
+      <div class="position-absolute bottom-0 p-4">
+        <!-- Donate button -->
+        <button 
+        [routerLink]="['/make-donation', donation.idDonation]" 
+        class="text-white fw-semibold link-title btn btn-sm btn-primary">
+          Donate Now <i class="mdi mdi-arrow-right"></i>
+      </button>
       </div>
 
-      <!-- Cagnotte Section -->
-      <div *ngIf="donation.cagnotteenligne" class="cagnotte-header">
-        <h6>{{donation.cagnotteenligne.title}}</h6>
-        
-        <div class="progress">
-          <div class="progress-bar" 
-               [style.width]="getCagnotteProgress(donation.cagnotteenligne) + '%'">
-          </div>
-        </div>
-        
-        <div class="amounts">
-          <span>Raised: {{donation.cagnotteenligne.currentAmount | currency:'EUR':'symbol':'1.0-0'}}</span>
-          <span>Goal: {{donation.cagnotteenligne.goalAmount | currency:'EUR':'symbol':'1.0-0'}}</span>
-        </div>
-      </div>
+      <div class="content p-4">
+        <!-- Title of Donation -->
+        <h5>
+          <a [routerLink]="['/donation', donation.idDonation]" 
+             class="text-dark link-title text-truncate" 
+             title="{{ donation.titre }}">
+            {{ donation.titre }}
+          </a>
+        </h5>
 
-      <!-- Donation Content -->
-      <div class="card-content">
-        <h5 class="donation-title">{{ donation.titre }}</h5>
-        <p class="donation-description">{{ donation.description }}</p>
+        <!-- Description of Donation -->
+        <p class="text-muted mb-0 text-truncate" title="{{ donation.description }}">{{ donation.description }}</p>
 
-        <div class="donation-stats">
-          <div class="stat-item">
-            <span class="stat-label">Requested:</span>
-            <span class="stat-value">{{ donation.quantiteDemandee }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Donated:</span>
-            <span class="stat-value">{{ donation.quantiteDonnee }}</span>
-          </div>
+        <!-- Display Requested and Donated Quantities -->
+        <div class="mt-3">
+          <h6><strong>Requested Quantity:</strong> <span class="text-success">{{ donation.quantiteDemandee }}</span></h6>
+          <h6><strong>Donated Quantity:</strong> <span class="text-primary">{{ donation.quantiteDonnee }}</span></h6>
         </div>
 
-        <!-- Progress Bar -->
-        <div class="donation-progress">
-          <div class="progress">
-            <div class="progress-bar" 
-                 [style.width]="getDonationProgress(donation) + '%'">
-              <span class="progress-value">{{ getDonationProgress(donation) | number:'1.0-0' }}%</span>
+        <!-- Donation Type -->
+        <div class="progress-box mt-5">
+          <div class="progress rounded" style="height: 8px;">
+            <div class="progress-bar position-relative bg-primary rounded" 
+                 [style.width]="(donation.quantiteDonnee / donation.quantiteDemandee) * 100 + '%'">
+              <div class="progress-value d-block text-dark h6 mb-0">{{ (donation.quantiteDonnee / donation.quantiteDemandee) * 100 | number:'1.0-0' }}%</div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Card Footer -->
-      <div class="card-footer">
-        <span class="donation-type" [class]="getDonationTypeClass(donation.donationType)">
-          {{ donation.donationType }}
-        </span>
-        
-        <!-- Donation Buttons -->
-        <div class="donation-actions">
-          <button *ngIf="donation.cagnotteenligne && donation.idDonation" class="money-donation-btn" (click)="navigateToCagnotteDetails(donation.idDonation)">
-            <i class="mdi mdi-credit-card"></i> Donate Money
-          </button>
-          <button  [routerLink]="['/make-donation', donation.idDonation]"  class="item-donation-btn">
-            <i class="mdi mdi-gift"></i> Donate Items
-          </button>
+        <!-- Amount Raised and Goal Amount -->
+        <div class="d-flex align-items-center justify-content-between mt-3">
+          <h6 class="text-muted mb-0">{{ donation.quantiteDonnee }} / {{ donation.quantiteDemandee }}</h6>
+          <h6 class="text-muted mb-0">{{ donation.donationType }}</h6>
         </div>
       </div>
-    </div>
-  </div>
+    </div><!-- end col -->
+  </div><!-- end row -->
 </div>

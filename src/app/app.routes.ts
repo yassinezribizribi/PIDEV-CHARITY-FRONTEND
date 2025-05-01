@@ -43,8 +43,8 @@ import { EditDonationComponent } from './back/edit-donation/edit-donation.compon
 import { ProfileComponent } from './profile/profile.component';
 import { ApplicationDetailsComponent } from './application-details/application-details.component';
 import {HealthcareComponent } from './pages/Healthcare/healthcare.component';
-import { ValidateDonsComponent } from './back/validate-dons/validate-dons.component';
-import { CagnotteDetailsComponent } from '@component/cagnotte-details/cagnotte-details.component';
+import { AssociationProfileComponent } from './pages/association-profile/association-profile.component';
+
 export const routes: Routes = [
   { path: '', redirectTo: 'onepage', pathMatch: 'full' },
   { path: 'onepage', component: OnepageComponent },
@@ -79,13 +79,17 @@ export const routes: Routes = [
   { path: 'admin-navbar', component: AdminNavbarComponent },
   { path: 'register-association', component: RegisterAssociationComponent },
   { path: 'app-admin-dashboard', component: AdminDashboardComponent },
-  { path: 'associations/:id', component: AssociationDetailsComponent },
+  { path: 'admin/associations/:id', component: AssociationDetailsComponent },
+  { path: 'associations/:id', component: AssociationProfileComponent },
   { path: 'blog-detail-copy/:id', component: BlogDetailComponentCopy },
-  {path:'app-profile', component:ProfileComponent},
+  {
+    path: 'app-profile',
+    component: ProfileComponent,
+    canActivate: [AuthGuard]
+  },
   { path: 'make-donation/:idDonation', component: MakeDonationComponent },
   { path: 'blog-sidebar-copy', component: BlogSidebarComponentCopy },
-  { path: 'validate-dons/:id', component: ValidateDonsComponent },
-  { path: 'cagnotte/:id', component: CagnotteDetailsComponent },
+
   {
     path: 'association',
     children: [
@@ -94,7 +98,11 @@ export const routes: Routes = [
         component: AssociationAccountComponent,
         canActivate: [AuthGuard]
       },
-      
+      {
+        path: 'missions',
+        component: AssociationAccountComponent,  // Temporarily using AssociationAccountComponent
+        canActivate: [AuthGuard]
+      },
       {
         path: 'account/creedoantion',
         component: AssociationDonationFormComponent,
@@ -105,7 +113,6 @@ export const routes: Routes = [
         component: AssociationMissionFormComponent,
         canActivate: [AuthGuard]
       },
-    
       {
         path: 'account/edit-mission/:id',
         component: EditMissionComponent,
@@ -116,7 +123,6 @@ export const routes: Routes = [
         component: EditDonationComponent,
         canActivate: [AuthGuard]
       }
-      
     ]
   },
   { 
@@ -151,5 +157,9 @@ export const routes: Routes = [
       }
       
     ]
+  },
+  {
+    path: 'conversation/:id',
+    loadComponent: () => import('./conversation/conversation.component').then(m => m.ConversationComponent)
   }
 ];

@@ -3,32 +3,103 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DonsService } from '../../services/dons.service';
-import { DeliveryMethod } from '../../interfaces/dons.interface'; // Assuming your DeliveryMethod enum is in this file
+import { DonationType } from '../../interfaces/donation.interface';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { NavbarComponent } from "../../components/navbar/navbar.component";
 import { AboutTwoComponent } from '../../components/about-two/about-two.component';
 import { HomeBannerComponent } from "../../components/home-banner/home-banner.component";
 import { AboutOneComponent } from '../../components/about-one/about-one.component';
 import { AboutOneComponentCopy } from '../about-one copy/about-one.component';
-
 @Component({
     selector: 'app-make-donation',
     standalone: true,
-    imports: [FormsModule, AboutOneComponent, FooterComponent, HomeBannerComponent, NavbarComponent, AboutOneComponentCopy, CommonModule],
-    templateUrl: './make-donation.component.html',
-})
+    imports: [FormsModule,
+        AboutOneComponent,
 
+        FooterComponent,
+        HomeBannerComponent,
+        NavbarComponent,
+        AboutOneComponentCopy,
+        CommonModule],
+    templateUrl: './make-donation.component.html',
+//     <div class="features-absolute">
+//         <div class="p-4 rounded shadow position-relative bg-white">
+//             <div class="section-title">
+//                 <h4 class="title mb-3">Faire un don</h4>
+//             </div>
+
+//             <form class="mt-4" (ngSubmit)="onSubmit()" #donationForm="ngForm">
+//                 <div *ngIf="errorMessage" class="alert alert-danger">
+//                     {{ errorMessage }}
+//                 </div>
+
+//                 <div class="mb-3">
+//                     <label class="form-label fw-semibold">Nom</label>
+//                     <input [(ngModel)]="dons.nomDoneur" 
+//                            name="nomDoneur" 
+//                            type="text" 
+//                            class="form-control" 
+//                            placeholder="Votre nom" 
+//                            required>
+//                 </div>
+
+//                 <div class="mb-3">
+//                     <label class="form-label fw-semibold">Prénom</label>
+//                     <input [(ngModel)]="dons.prenomDoneur" 
+//                            name="prenomDoneur" 
+//                            type="text" 
+//                            class="form-control" 
+//                            placeholder="Votre prénom" 
+//                            required>
+//                 </div>
+
+//                 <div class="mb-3">
+//                     <label class="form-label fw-semibold">Type de don</label>
+//                     <select [(ngModel)]="dons.donationType" 
+//                             class="form-select" 
+//                             name="donationType" 
+//                             required>
+//                         <option value="FOOD">Nourriture</option>
+//                         <option value="CLOTHES">Vêtements</option>
+//                         <option value="MEDICAL">Matériel médical</option>
+//                         <option value="OTHER">Autre</option>
+//                     </select>
+//                 </div>
+
+//                 <div class="mb-3">
+//                     <label class="form-label fw-semibold">Quantité</label>
+//                     <div class="input-group">
+//                         <button type="button" 
+//                                 class="btn btn-outline-secondary" 
+//                                 (click)="decrementQuantity()">-</button>
+//                         <input [(ngModel)]="dons.quantite" 
+//                                name="quantite" 
+//                                type="number" 
+//                                class="form-control text-center" 
+//                                min="1"
+//                                required>
+//                         <button type="button" 
+//                                 class="btn btn-outline-secondary" 
+//                                 (click)="incrementQuantity()">+</button>
+//                     </div>
+//                 </div>
+
+//                 <button type="submit" 
+//                         class="btn btn-primary w-100" 
+//                         [disabled]="!donationForm.form.valid || submitted">
+//                     {{ submitted ? 'En cours...' : 'Faire un don' }}
+//                 </button>
+//             </form>
+//         </div>
+//     </div>
+//     `
+})
 export class MakeDonationComponent implements OnInit {
     dons = {
         nomDoneur: '',
         prenomDoneur: '',
         quantite: 1,
-        scheduledDateTime: new Date(),
-        associationValidated: true,
-        donorNote: '',
-        deliveryMethod: DeliveryMethod.DROP_OFF, // Or 'PICK_UP' based on your form input
-        donorAddress: '',
-        idDonation: 0 // Added idDonation if needed directly here
+        donationType: DonationType.FOOD
     };
 
     submitted = false;
@@ -70,6 +141,14 @@ export class MakeDonationComponent implements OnInit {
             return;
         }
 
+        if (!localStorage.getItem('auth_token')) {
+            this.errorMessage = 'Veuillez vous connecter pour faire un don';
+            this.submitted = false;
+            setTimeout(() => {
+                this.router.navigate(['/login']);
+            }, 2000);
+            return;
+        }
 
         // Pass the idDonation from the URL to the service
         this.donsService.contributeToDonation(this.idDonation, this.dons).subscribe({
@@ -99,12 +178,7 @@ export class MakeDonationComponent implements OnInit {
             nomDoneur: '',
             prenomDoneur: '',
             quantite: 1,
-            scheduledDateTime: new Date(),
-            associationValidated: true,
-            donorNote: '',
-            deliveryMethod: DeliveryMethod.DROP_OFF, // Reset delivery method as DROP_OFF
-            donorAddress: '',
-            idDonation: 0
+            donationType: DonationType.FOOD
         };
         this.submitted = false;
     }

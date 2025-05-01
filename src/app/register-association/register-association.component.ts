@@ -19,11 +19,16 @@ import { AuthService } from '../services/auth.service';
 })
 export class RegisterAssociationComponent {
   @ViewChild('associationForm') associationForm!: NgForm;
+  @ViewChild('nameField') nameField: any;
+  @ViewChild('emailField') emailField: any;
+  @ViewChild('phoneField') phoneField: any;
 
   association: Association = {
     idAssociation: 0,
     associationName: '',
     associationAddress: '',
+    associationPhone: '',
+    associationEmail: '',
     description: '',
     associationLogoPath: null,
     registrationDocumentPath: null,
@@ -48,6 +53,17 @@ export class RegisterAssociationComponent {
     private authService: AuthService,
     private router: Router
   ) {}
+
+  ngAfterViewInit() {
+    // Add a delay to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      if (this.associationForm) {
+        this.associationForm.statusChanges?.subscribe(status => {
+          // Form status changes subscription
+        });
+      }
+    });
+  }
 
   onFileChange(event: any, field: 'associationLogoPath' | 'registrationDocumentPath' | 'legalDocumentPath') {
     const file = event.target.files[0];
@@ -103,18 +119,36 @@ export class RegisterAssociationComponent {
     return registrationValid && legalValid && logoValid;
   }
 
+  validateAssociationName(): boolean {
+    if (!this.association.associationName) {
+      return false;
+    }
+    const namePattern = /^[A-Za-z\s]{3,50}$/;
+    return namePattern.test(this.association.associationName);
+  }
+
+  isFormValid(): boolean {
+    if (!this.associationForm) return false;
+    
+    const basicFieldsValid = this.associationForm.form.valid;
+    const filesValid = this.areFilesValid();
+    const nameValid = this.validateAssociationName();
+    
+    return basicFieldsValid && filesValid && nameValid;
+  }
+
   onSubmit() {
     this.submitted = true;
+
+    if (!this.isFormValid()) {
+      this.isSubmitting = false;
+      return;
+    }
+
     this.isSubmitting = true;
     this.submissionSuccess = false;
     this.submissionError = false;
     this.errorMessage = '';
-
-    // Check form validity
-    if (!this.associationForm.form.valid || !this.areFilesValid()) {
-      this.isSubmitting = false;
-      return;
-    }
 
     // Check required files
     if (!this.association.registrationDocumentPath) {
@@ -131,6 +165,8 @@ export class RegisterAssociationComponent {
     const formData = new FormData();
     formData.append('associationName', this.association.associationName);
     formData.append('associationAddress', this.association.associationAddress);
+    formData.append('associationPhone', this.association.associationPhone);
+    formData.append('associationEmail', this.association.associationEmail);
     formData.append('description', this.association.description);
     formData.append('status', this.association.status);
 
@@ -150,7 +186,6 @@ export class RegisterAssociationComponent {
           this.isSubmitting = false;
         },
         error: (error) => {
-          console.error('Error creating association:', error);
           this.submissionError = true;
           this.errorMessage = error.error?.message || 'There was an error while submitting the form. Please try again.';
           this.isSubmitting = false;

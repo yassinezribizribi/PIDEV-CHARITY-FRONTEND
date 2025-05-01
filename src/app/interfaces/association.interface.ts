@@ -1,5 +1,3 @@
-// interfaces/association.interface.ts
-
 export enum AssociationStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
@@ -9,19 +7,87 @@ export interface Association {
   idAssociation: number;
   associationName: string;
   associationAddress: string;
+  associationPhone: string;
+  associationEmail: string;
+  associationLogoPath: string | null;
+  registrationDocumentPath: string | null;
+  legalDocumentPath: string | null;
   description: string;
-  associationLogoPath: string | null;  // Changed to string
-  registrationDocumentPath: string | null;  // Changed to string
-  legalDocumentPath: string | null;  
   status: AssociationStatus;
+  partnershipTier?: string;
   partnershipScore?: number;
   partners?: Association[];
-
-  subscriber?:any;
+  missions?: any[];
+  donations?: any[];
+  tags?: string[];
+  subscriber?: {
+    email: string;
+    [key: string]: any;
+  };
+  similarityScore?: number;
+}
+export interface PartnershipRecommendation extends Association {
+  similarityScore?: number;
 }
 
-interface PartnerAssociation extends Association {
+export enum PartnershipTierLevel {
+  BRONZE = 'BRONZE',
+  SILVER = 'SILVER',
+  GOLD = 'GOLD'
+}
+export interface PartnerAssociation extends Association {
   partnershipId?: number;
+}
+
+export interface Activity {
+  id: string;
+  type: ActivityType;
+  title: string;
+  description: string;
+  date: Date;
+}
+
+export enum ActivityType {
+  DONATION = 'donation',
+  MISSION = 'mission',
+  EVENT = 'event',
+  MEMBER = 'member'
+}
+
+export interface PartnerRecommendation extends Association {
+  similarityScore?: number;
+}
+
+export interface AppMetrics {
+  key: keyof PartnershipImpactReport;
+  label: string;
+  icon: string;
+  color: string;
+  suffix: string;
+}
+
+export interface StatisticItem {
+  key: string;
+  label: string;
+  iconClass: string;
+  bgClass: string;
+}
+export interface PartnershipTier {
+  tier: string;
+  currentTier?: string;  // For backward compatibility
+  maxPartners: number;
+  benefits: string[];
+  nextThreshold: number;
+  nextTierThreshold?: number;  // For backward compatibility
+  score: number;
+}
+
+export interface PartnershipImpactReport {
+  jointMissionsCompleted: number;
+  volunteersShared: number;
+  efficiencyImprovement: number;
+  partnershipScore: number;
+  recommendations?: string[];
 }
 
 
@@ -120,6 +186,8 @@ export interface AssociationMetrics {
     description: string;
   }[];
 }
+
+
 
 export interface MediaItem {
   id: string;

@@ -5,6 +5,7 @@ import { Applicant, JobApplication, JobApplicationStatus } from '../models/job-a
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '@component/navbar/navbar.component';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-application-details',
@@ -53,7 +54,8 @@ export class ApplicationDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private jobApplicationService: JobApplicationService
+    private jobApplicationService: JobApplicationService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -71,15 +73,51 @@ export class ApplicationDetailsComponent implements OnInit {
     this.loading = true;
     this.jobApplicationService.getJobApplicationById(+id).subscribe({
       next: (data) => {
-        this.jobApplication = data;
+        // Use the existing applicant data if available
+        const applicantData: Applicant = data.applicant || {
+          idUser: data.applicantId || 0,
+          firstName: data.applicantName?.split(' ')[0] || '',
+          lastName: data.applicantName?.split(' ')[1] || '',
+          email: data.applicantEmail || '',
+          telephone: data.applicantTelephone || '',
+          isBanned: false,
+          banreason: null,
+          photo: null
+        };
+
+        // Normalize the application data
+        this.jobApplication = {
+          ...data,
+          status: this.normalizeStatus(data.status || data.jobApplicationStatus),
+          jobApplicationStatus: this.normalizeStatus(data.status || data.jobApplicationStatus),
+          applicant: applicantData
+        };
+
         this.loading = false;
       },
       error: (err) => {
-        console.error('Application load error:', err);
         this.error = 'Failed to load application details. Please check your connection.';
         this.loading = false;
       }
     });
+  }
+
+  private normalizeStatus(status: any): JobApplicationStatus {
+    if (!status) return JobApplicationStatus.PENDING;
+    
+    const statusStr = String(status).toUpperCase().trim();
+    
+    switch (statusStr) {
+      case 'PENDING':
+      case 'UNDER_REVIEW':
+      case 'INTERVIEW':
+      case 'ACCEPTED':
+      case 'REJECTED':
+        return statusStr as JobApplicationStatus;
+      default:
+        console.warn('Unknown status value:', status);
+        return JobApplicationStatus.PENDING;
+    }
   }
 
   handleDecision(action: 'accept' | 'reject'): void {
@@ -126,7 +164,7 @@ export class ApplicationDetailsComponent implements OnInit {
     }
   
     const applicationId = this.jobApplication.idApplication;
-    this.jobApplicationService.rejectApplication(applicationId).subscribe({
+    this.jobApplicationService.rejectApplication(applicationId, this.rejectionReason).subscribe({
       next: () => this.handleDecisionSuccess('rejected'),
       error: (err) => this.handleDecisionError(err, 'reject')
     });
@@ -141,7 +179,8 @@ export class ApplicationDetailsComponent implements OnInit {
     // Create a new object to ensure change detection
     this.jobApplication = {
       ...this.jobApplication!,
-      jobApplicationStatus: newStatus
+      status: newStatus,
+      jobApplicationStatus: newStatus // Keep for backward compatibility
     };
     
     this.showToast('success', `Application ${action} successfully`);
@@ -154,7 +193,6 @@ export class ApplicationDetailsComponent implements OnInit {
   }
 
   private handleDecisionError(error: any, action: string): void {
-    console.error(`${action} error:`, error);
     this.processingDecision = null;
     this.showToast('error', `Failed to ${action} application. Please try again.`);
   }
@@ -169,11 +207,14 @@ export class ApplicationDetailsComponent implements OnInit {
     this.showDecisionModal = true;
   }
 
-  initials(applicant: Applicant): string {
+  initials(applicant: Applicant | undefined): string {
+    if (!applicant) return '';
     return `${applicant.firstName?.[0] || ''}${applicant.lastName?.[0] || ''}`.toUpperCase();
   }
+  
 
-  fullName(applicant: Applicant): string {
+  fullName(applicant: Applicant | undefined): string {
+    if (!applicant) return 'N/A';
     return `${applicant.firstName} ${applicant.lastName}`.trim();
   }
 
@@ -188,15 +229,24 @@ export class ApplicationDetailsComponent implements OnInit {
   }
 
   // Type-safe status methods
-  getStatusBadgeClass(status: JobApplicationStatus): string {
-    return this.statusBadgeClasses[status] ?? 'bg-secondary';
+  getStatusBadgeClass(status: JobApplicationStatus | undefined): string {
+    return status ? this.statusBadgeClasses[status] : 'bg-secondary';
   }
 
-  getStatusIcon(status: JobApplicationStatus): string {
-    return this.statusIcons[status] ?? 'bi-question-circle';
+  getStatusIcon(status: JobApplicationStatus | undefined): string {
+    return status ? this.statusIcons[status] : 'bi-question-circle';
   }
 
-  getStatusDisplay(status: JobApplicationStatus): string {
-    return this.statusDisplay[status] ?? 'Unknown Status';
+  getStatusDisplay(status: JobApplicationStatus | undefined): string {
+    return status ? this.statusDisplay[status] : 'Unknown Status';
+  }
+
+  contactApplicant(): void {
+    if (!this.jobApplication?.applicant) {
+      this.showToast('error', 'Cannot start conversation: applicant information not available');
+      return;
+    }
+
+    this.router.navigate(['/conversation', this.jobApplication.applicant.idUser]);
   }
 }

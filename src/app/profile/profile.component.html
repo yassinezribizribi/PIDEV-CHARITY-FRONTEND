@@ -42,74 +42,142 @@
 
     <!-- User Profile Content -->
     <div *ngIf="currentUser" class="dashboard">
-      <div class="row mb-4">
+      <!-- Banned User Message -->
+      <div *ngIf="isBanned" class="row mb-4">
         <div class="col-12">
-          <div class="card bg-primary text-white">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center">
-                <img [src]="currentUser.profileImage || 'assets/images/user/default-avatar.png'" 
-                     alt="User Avatar" 
-                     class="rounded-circle" 
-                     width="100" 
-                     height="100">
-                <div class="ms-3">
-                  <h4 class="text-white mb-1">Welcome, {{ currentUser.firstName || 'User' }}!</h4>
-                  <p class="mb-0">{{ currentUser.email }}</p>
+          <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+              <i class="bi bi-exclamation-triangle-fill display-4 mb-3"></i>
+              <h4>Account Banned</h4>
+              <p class="mb-0">{{ banReason || 'Your account has been banned for violating our terms of service.' }}</p>
+              <p class="mt-3">Please contact support for more information.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Normal Profile Content (only shown if not banned) -->
+      <div *ngIf="!isBanned">
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card bg-primary text-white">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                  <div class="profile-container">
+                    <div class="profile-image-container">
+                      <img 
+                        [src]="profileImage || 'assets/images/default-logo.jpg'" 
+                        (error)="handleImageError($event)" 
+                        class="profile-image"
+                        alt="Profile picture"
+                      >
+                    </div>
+                  </div>
+                  <div class="ms-3">
+                    <h4 class="text-white mb-1">Welcome, {{ currentUser.firstName || 'User' }}!</h4>
+                    <p class="mb-0">{{ currentUser.email }}</p>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center">
+                  <!-- Notification Icon -->
+                  <div class="dropdown me-3">
+                    <button class="btn btn-outline-light position-relative" 
+                            (click)="toggleNotifications()"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                      <i class="bi bi-bell"></i>
+                      <span *ngIf="unreadMessages.length > 0" 
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ unreadMessages.length }}
+                      </span>
+                    </button>
+                    <!-- Notification Dropdown -->
+                    <ul class="dropdown-menu dropdown-menu-end" [class.show]="showNotifications">
+                      <li class="dropdown-header">
+                        <span>Notifications</span>
+                        <button *ngIf="unreadMessages.length > 0" 
+                                class="mark-all-read" 
+                                (click)="markAllAsRead()">
+                          Mark all as read
+                        </button>
+                      </li>
+                      <li *ngIf="unreadMessages.length === 0">
+                        <div class="notification-item">
+                          <span class="text-muted">No new messages</span>
+                        </div>
+                      </li>
+                      <li *ngFor="let message of unreadMessages">
+                        <div class="notification-item" (click)="markMessageAsRead(message)">
+                          <div class="d-flex align-items-center">
+                            <div class="avatar">
+                              <img [src]="message.senderAvatar || 'assets/images/default-logo.jpg'" 
+                                   [alt]="getSenderName(message)"
+                                   class="rounded-circle"
+                                   (error)="handleImageError($event)">
+                            </div>
+                            <div class="ms-2">
+                              <h6 class="mb-0 fs-sm">{{ getSenderName(message) }}</h6>
+                              <p class="text-muted small mb-0">{{ message.content }}</p>
+                              <small class="text-muted">{{ message.timestamp | date:'short' }}</small>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                    <!-- End Notification Dropdown -->
+                  </div>
+                  <!-- Logout Button -->
+                  <button class="btn btn-outline-light" (click)="logout()">
+                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                  </button>
                 </div>
               </div>
-              <button class="btn btn-outline-light" (click)="logout()">
-                <i class="bi bi-box-arrow-right me-1"></i> Logout
-              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Job Offers Section -->
-      <div *ngIf="userJobOffers && userJobOffers.length > 0">
-        <div class="row">
+        <!-- Job Offers Section -->
+        <div *ngIf="userJobOffers && userJobOffers.length > 0">
+          <div class="row">
+            <div class="col-12">
+              <div class="card shadow-sm">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">Your Job Offers</h5>
+                  
+                </div>
+                <div class="card-body">
+                  <ul class="list-group">
+                    <li *ngFor="let offer of userJobOffers" 
+                        class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <h6>{{ offer.title }}</h6>
+                      </div>
+                      <div>
+                        <span class="badge bg-primary me-2">
+                          {{ getApplicationsForJobOffer(offer.idJobOffer).length || 0 }} Applications
+                        </span>
+                        <button class="btn btn-sm btn-outline-primary" 
+                                (click)="viewApplications(offer.idJobOffer)">
+                          <i class="bi bi-eye"></i> View
+                        </button>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="userJobOffers && userJobOffers.length === 0" class="row mt-4">
           <div class="col-12">
-            <div class="card shadow-sm">
-              <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Your Job Offers</h5>
-                <button class="btn btn-sm btn-primary" [routerLink]="['/create-job-offer']">
-                  <i class="bi bi-plus"></i> New Offer
-                </button>
-              </div>
-              <div class="card-body">
-                <ul class="list-group">
-                  <li *ngFor="let offer of userJobOffers" 
-                      class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                      <h6>{{ offer.title }}</h6>
-                    </div>
-                    <div>
-                      <span class="badge bg-primary me-2">
-                        {{ getApplicationsForJobOffer(offer.idJobOffer)?.length || 0 }} Applications
-                      </span>
-                      <button class="btn btn-sm btn-outline-primary" 
-                              (click)="viewApplications(offer.idJobOffer)">
-                        <i class="bi bi-eye"></i> View
-                      </button>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+            <div class="card shadow-sm text-center py-5">
+              <i class="bi bi-briefcase display-4 text-muted mb-3"></i>
+              <h4>No Job Offers Yet</h4>
+              <p class="text-muted mb-4">You haven't posted any job offers yet</p>
+              
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <div *ngIf="userJobOffers && userJobOffers.length === 0" class="row mt-4">
-        <div class="col-12">
-          <div class="card shadow-sm text-center py-5">
-            <i class="bi bi-briefcase display-4 text-muted mb-3"></i>
-            <h4>No Job Offers Yet</h4>
-            <p class="text-muted mb-4">You haven't posted any job offers yet</p>
-            <button class="btn btn-primary" [routerLink]="['/create-job-offer']">
-              <i class="bi bi-plus"></i> Create Job Offer
-            </button>
           </div>
         </div>
       </div>

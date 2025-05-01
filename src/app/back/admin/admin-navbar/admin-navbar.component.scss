@@ -2,6 +2,11 @@
     background: #1e293b;
     color: white;
     padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
     
     a {
       color: white;
@@ -19,12 +24,13 @@
       flex-direction: column;
       background: #1e293b;
       padding: 10px;
-      position: absolute;
-      top: 60px;
+      position: fixed;
+      top: 64px; // Adjusted to account for navbar height
       right: 0;
       width: 200px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
+      z-index: 1000;
       
       a {
         padding: 10px;
@@ -36,4 +42,9 @@
       }
     }
   }
+  
+// Add spacing for fixed navbar
+body {
+    padding-top: 64px; // Match navbar height
+}
   

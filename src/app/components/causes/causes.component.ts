@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
-import { Donation, DonationType, CagnotteEnligne } from '../../interfaces/donation.interface';
+
+import { RouterLink } from '@angular/router';
+import { Donation , DonationType } from '../../interfaces/donation.interface'; // Import the donation interface
 import { AssociationDonationService } from 'src/app/services/association-donation.service'; 
 import { Component, OnInit } from '@angular/core';
-
 @Component({
     selector: 'app-causes',
-    standalone: true,
     imports: [
         CommonModule,
         RouterLink
@@ -15,70 +14,39 @@ import { Component, OnInit } from '@angular/core';
     styleUrl: './causes.component.scss'
 })
 export class CausesComponent implements OnInit {
-  donationsData: Donation[] = [];
-  errorMessage: string = '';
+  donationsData: Donation[] = [];  // Array to hold donation data
+  errorMessage: string = ''; // Variable to store error message
 
-  constructor(
-    private donationService: AssociationDonationService,
-    private router: Router
-  ) {}
+  constructor(private donationService: AssociationDonationService) {}
 
   ngOnInit(): void {
-    this.loadDonations();
-  }
-
-  loadDonations(): void {
-    this.donationService.getDonations().subscribe({
-      next: (data: Donation[]) => {
-        this.donationsData = data;
+    // Fetch donations from the service on component initialization
+    this.donationService.getDonations().subscribe(
+      (data: Donation[]) => {
+        this.donationsData = data;  // Assign the data to donationsData
       },
-      error: (error) => {
-        this.errorMessage = 'Error fetching donations. Please try again later.';
-        console.error('Error fetching donations:', error);
+      (error) => {
+        this.errorMessage = 'Error fetching donations. Please try again later.'; // Set error message
+        console.error('Error fetching donations:', error); // Log error for debugging
       }
-    });
+    );
   }
-
-  getDonationProgress(donation: Donation): number {
-    if (!donation.quantiteDemandee || donation.quantiteDemandee === 0) return 0;
-    return (donation.quantiteDonnee / donation.quantiteDemandee) * 100;
-  }
-
-  getCagnotteProgress(cagnotte: CagnotteEnligne): number {
-    if (!cagnotte?.goalAmount || cagnotte.goalAmount === 0) return 0;
-    return (cagnotte.currentAmount / cagnotte.goalAmount) * 100;
-  }
-
-  getDonationTypeClass(type: DonationType): string {
-    switch(type) {
-      case DonationType.FOOD: return 'success';
-      case DonationType.CLOTHES: return 'info';
-      case DonationType.MEDICAL: return 'danger';
-      default: return 'secondary';
-    }
-  }
-
-  getDonationTypeLabel(type: DonationType): string {
-    switch(type) {
-      case DonationType.FOOD: return 'Food';
-      case DonationType.CLOTHES: return 'Clothes';
-      case DonationType.MEDICAL: return 'Medical';
-      default: return type;
-    }
-  }
-
-  scrollToMakeDonationSection(donation: Donation): void {
+  // Scroll to the "Make Donation" section
+  scrollToMakeDonationSection(donation: any) {
+    // Scroll smoothly to the Make Donation section
     const donationSection = document.getElementById('make-donation-section');
     if (donationSection) {
       window.scrollTo({
-        top: donationSection.offsetTop - 100,
+        top: donationSection.offsetTop - 100, // Adjust for header offset
         behavior: 'smooth'
       });
     }
-    console.log('Donation selected: ', donation);
+
+    // Optionally, pass donation data to the next section (could be stored or routed)
+    // For example, set it in a service, or navigate with query params if needed
+    console.log('Donation selected: ', donation); // This is where you can use the donation data
   }
 
-  navigateToCagnotteDetails(donationId: number): void {
-    this.router.navigate(['/cagnotte', donationId]);
-  }
+
+  
 }

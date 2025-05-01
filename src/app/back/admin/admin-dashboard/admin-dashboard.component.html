@@ -6,21 +6,13 @@
   <div class="row mt-5 justify-content-center">
       <div class="col-12">
           <div class="title-heading text-center">
-              <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Admin Dashboard</h5>
+              <h5 class="heading fw-semibold mb-0 display-5 text-white title-dark">Admin Dashboard</h5>
+              <p class="text-white-50 mt-3">Monitor and manage your platform</p>
           </div>
-      </div><!--end col-->
-  </div><!--end row-->
-
-  <div class="position-middle-bottom">
-      <nav aria-label="breadcrumb" class="d-block">
-          <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-              <li class="breadcrumb-item"><a [routerLink]="'/'">solidarity</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Admin Dashboard</li>
-          </ul>
-      </nav>
+      </div>
   </div>
-</div><!--end container-->
-</section><!--end section-->
+</div>
+</section>
 
 <div class="position-relative">
 <div class="shape overflow-hidden text-white">
@@ -29,108 +21,897 @@
   </svg>
 </div>
 </div>
-<!-- Hero End -->
-
 
 <section class="section">
-<div class="container">
+<div class="container-fluid px-4">
   <div class="row">
-    <div class="col-12">
-      <h3 class="mb-4">Admin Dashboard</h3>
-      
-      <!-- Stats Cards -->
-      <div class="row g-4 mb-4">
-        <div class="col-md-4">
-          <div class="card bg-primary text-white">
-            <div class="card-body">
-              <h5 class="card-title">Total Associations</h5>
-              <h2>{{associations.length}}</h2>
+    <!-- Left Column: Associations and Crises -->
+    <div class="col-lg-7 col-12">
+      <!-- Associations Management Section -->
+      <div class="card shadow-lg border-0 rounded-4 mb-4">
+        <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-building me-2 text-primary fs-4"></i>
+              <h4 class="mb-0">Manage Associations</h4>
+            </div>
+            <div class="d-flex gap-2">
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input type="text" 
+                       class="form-control border-start-0" 
+                       placeholder="Search associations..." 
+                       [(ngModel)]="searchTerm" 
+                       (keyup)="filterAssociations()">
+              </div>
+              <select class="form-select" [(ngModel)]="statusFilter" (change)="filterAssociations()">
+                <option value="ALL">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="APPROVED">Approved</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card bg-success text-white">
-            <div class="card-body">
-              <h5 class="card-title">Verified Associations</h5>
-              <h2>{{getVerifiedCount()}}</h2>
+
+        <!-- Statistics Section -->
+        <div class="card-body border-bottom p-4">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="stat-card bg-primary bg-opacity-10 rounded-3 p-3">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-primary text-white rounded-circle p-2 me-3">
+                    <i class="bi bi-building"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Total Associations</h6>
+                    <h3 class="mb-0">{{associations.length}}</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-warning text-white rounded-circle p-2 me-3">
+                    <i class="bi bi-clock"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Pending</h6>
+                    <h3 class="mb-0">{{getAssociationsByStatus('PENDING').length}}</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-card bg-success bg-opacity-10 rounded-3 p-3">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-success text-white rounded-circle p-2 me-3">
+                    <i class="bi bi-check-circle"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Approved</h6>
+                    <h3 class="mb-0">{{getAssociationsByStatus('APPROVED').length}}</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-card bg-danger bg-opacity-10 rounded-3 p-3">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-danger text-white rounded-circle p-2 me-3">
+                    <i class="bi bi-x-circle"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Rejected</h6>
+                    <h3 class="mb-0">{{getAssociationsByStatus('REJECTED').length}}</h3>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card bg-warning text-white">
-            <div class="card-body">
-              <h5 class="card-title">Pending Verification</h5>
-              <h2>{{getPendingCount()}}</h2>
+
+        <!-- Quick Actions -->
+        <div class="card-body border-bottom p-4">
+          <div class="d-flex gap-2">
+            <button class="btn btn-soft-primary" (click)="exportAssociations()">
+              <i class="bi bi-download me-2"></i>Export Data
+            </button>
+            <button class="btn btn-soft-success" (click)="refreshData()">
+              <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+            </button>
+            <button class="btn btn-soft-info" (click)="openBulkEmailModal()">
+              <i class="bi bi-envelope me-2"></i>Bulk Email
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+          <!-- Loading State -->
+          <div *ngIf="loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
             </div>
+            <p class="mt-3 text-muted">Loading associations...</p>
+          </div>
+
+          <!-- No Results State -->
+          <div *ngIf="!loading && filteredAssociations.length === 0" class="text-center py-5">
+            <i class="bi bi-search display-4 text-muted"></i>
+            <p class="mt-3 text-muted">No associations found</p>
+          </div>
+
+          <!-- Table -->
+          <div class="table-responsive" *ngIf="!loading && filteredAssociations.length > 0">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th class="border-0">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" (change)="toggleSelectAll($event)">
+                    </div>
+                  </th>
+                  <th class="border-0">Association</th>
+                  <th class="border-0">Status</th>
+                  <th class="border-0">Location</th>
+                  <th class="border-0 text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let association of filteredAssociations" class="border-bottom">
+                  <td>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" 
+                             [checked]="selectedAssociations.includes(association.idAssociation)"
+                             (change)="toggleAssociationSelection(association.idAssociation)">
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm me-2 position-relative">
+                        <img [src]="getAssociationLogo(association)" 
+                             [alt]="association.associationName"
+                             class="rounded-circle"
+                             onerror="this.src='assets/images/default-logo.jpg'">
+                        <div *ngIf="logoLoadingStates[association.idAssociation]" 
+                             class="logo-loading-spinner">
+                          <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <h6 class="mb-0">{{association.associationName}}</h6>
+                        <small class="text-muted">{{association.associationAddress}}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="{
+                      'bg-warning': association.status === 'PENDING',
+                      'bg-success': association.status === 'APPROVED',
+                      'bg-danger': association.status === 'REJECTED'
+                    }">
+                      <i class="bi" [ngClass]="{
+                        'bi-clock': association.status === 'PENDING',
+                        'bi-check-circle': association.status === 'APPROVED',
+                        'bi-x-circle': association.status === 'REJECTED'
+                      }"></i>
+                      {{association.status}}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-geo-alt text-muted me-2"></i>
+                      {{association.associationAddress}}
+                    </div>
+                  </td>
+                  <td class="text-end">
+                    <div class="btn-group">
+                      <button class="btn btn-sm btn-soft-primary" 
+                              [routerLink]="['/admin/associations', association.idAssociation]"
+                              tooltip="View Details">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-soft-success" 
+                              *ngIf="association.status === 'PENDING'" 
+                              (click)="verifyAssociation(association.idAssociation)"
+                              tooltip="Verify Association">
+                        <i class="bi bi-check-lg"></i>
+                      </button>
+                      <button class="btn btn-sm btn-soft-info" 
+                              (click)="openEmailModal(emailModal, association)"
+                              tooltip="Contact Association">
+                        <i class="bi bi-envelope"></i>
+                      </button>
+                      <button class="btn btn-sm btn-soft-danger" 
+                              (click)="deleteAssociation(association.idAssociation)"
+                              tooltip="Delete Association">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <!-- Associations Table -->
-      <div class="card shadow border-0 p-4">
-        <h5 class="card-title">Manage Associations</h5>
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let association of associations">
-                <td>{{association.associationName}}</td>
-                <td>
-                  <span [class]="'badge ' + getStatusBadgeClass(association.status)">
-                    {{association.status}}
-                  </span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-primary me-2" 
-                          [routerLink]="['/admin/associations', association.idAssociation]">
-                    View Details
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Add this after the Associations Management Section -->
+      <div class="card shadow-lg border-0 rounded-4 mb-4">
+        <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-flag me-2 text-danger fs-4"></i>
+              <h4 class="mb-0">Job Offer Reports</h4>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th>Job Title</th>
+                  <th>Posted By</th>
+                  <th>Report Count</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let job of reportedJobs">
+                  <td>{{ job.title }}</td>
+                  <td>{{ getCreatorName(job) }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="{
+                      'bg-warning': job.reportCount < 3,
+                      'bg-danger': job.reportCount >= 3
+                    }">
+                      {{ job.reportCount }} Reports
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="{
+                      'bg-success': !job.createdBy?.isBanned,
+                      'bg-danger': job.createdBy?.isBanned
+                    }">
+                      {{ job.createdBy?.isBanned ? 'Banned' : 'Active' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <button class="btn btn-sm btn-info" 
+                              (click)="viewJobDetails(job)"
+                              [disabled]="!job.active">
+                        <i class="bi bi-eye"></i> View
+                      </button>
+                      <button class="btn btn-sm" 
+                              [ngClass]="{
+                                'btn-danger': !job.createdBy?.isBanned,
+                                'btn-success': job.createdBy?.isBanned
+                              }"
+                              (click)="toggleUserBan(job)">
+                        <i class="bi" [ngClass]="{
+                          'bi-ban': !job.createdBy?.isBanned,
+                          'bi-check': job.createdBy?.isBanned
+                        }"></i>
+                        {{ job.createdBy?.isBanned ? 'Unban' : 'Ban' }}
+                      </button>
+                      <button class="btn btn-sm btn-warning" 
+                              (click)="toggleJobStatus(job)">
+                        <i class="bi" [ngClass]="{
+                          'bi-x': job.active,
+                          'bi-check': !job.active
+                        }"></i>
+                        {{ job.active ? 'Close' : 'Reopen' }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- No Reports Message -->
+          <div *ngIf="!reportedJobs?.length" class="text-center py-4">
+            <i class="bi bi-flag fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Reported Job Offers</h5>
+            <p class="text-muted">There are no job offers that have been reported.</p>
+          </div>
         </div>
       </div>
-      <div class="card shadow border-0 p-4">
-        <h5 class="card-title">Manage Crises</h5>
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Description</th>
-                <th>Date</th>
-                <th>Reported By (User ID)</th>
-                <th>Actions</th> <!-- Nouvelle colonne pour les actions -->
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let crisis of crises">
-                <td>{{ crisis.id || 'N/A' }}</td>
-                <td>{{ crisis.name || 'N/A' }}</td>
-                <td>{{ crisis.location || 'N/A' }}</td>
-                <td>{{ crisis.description || 'N/A' }}</td>
-                <td>{{ crisis.date ? (crisis.date | date) : 'N/A' }}</td>
-                <td>{{ crisis.idUser || 'N/A' }}</td>
-                <td>
-                  <button class="btn btn-danger btn-sm" (click)="openDialog(crisis.id ?? 0, '0ms', '0ms')">Delete</button>
-                </td>
-              </tr>
-            </tbody>
-            
-          </table>
+
+      <!-- Crises Management Section -->
+      <div class="card shadow-lg border-0 rounded-4 mb-4">
+        <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Active Crises</h4>
+            <div class="d-flex gap-2">
+              <input type="text" class="form-control" placeholder="Search crises..." [(ngModel)]="crisisSearchTerm" (keyup)="filterCrises()">
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Location</th>
+                  <th>Description</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let crisis of filteredCrises">
+                  <td>{{ crisis.id || 'N/A' }}</td>
+                  <td>{{ crisis.name || 'N/A' }}</td>
+                  <td>{{ crisis.location || 'N/A' }}</td>
+                  <td>{{ crisis.description || 'N/A' }}</td>
+                  <td>{{ crisis.date ? (crisis.date | date) : 'N/A' }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-primary" (click)="analyzeCrisis(crisis)">Analyze</button>
+                    <button class="btn btn-sm btn-danger" (click)="openDialog(crisis.id ?? 0, '0ms', '0ms')">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: AI Analysis -->
+    <div class="col-lg-5 col-12">
+      <!-- AI Analysis Section -->
+      <div class="card shadow-lg border-0 rounded-4 h-100">
+        <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
+          <h4 class="mb-0">Crisis Management Dashboard</h4>
+        </div>
+        <div class="card-body p-4">
+          <div *ngIf="selectedCrisis">
+            <!-- Crisis Overview -->
+            <div class="crisis-overview mb-4">
+              <h5 class="mb-3">{{selectedCrisis.name}}</h5>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Resource Type</label>
+                  <select class="form-select" [(ngModel)]="selectedResourceType">
+                    <option value="food">Food</option>
+                    <option value="shelter">Shelter</option>
+                    <option value="medical">Medical Aid</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Forecast Period (Days)</label>
+                  <input type="number" class="form-control" [(ngModel)]="forecastPeriod" min="1" max="90">
+                </div>
+              </div>
+              <button class="btn btn-primary w-100 mt-3" (click)="generatePredictions()">
+                <i class="bi bi-graph-up me-2"></i>Generate Analysis
+              </button>
+            </div>
+
+            <!-- Quick Summary -->
+            <div class="quick-summary mb-4" *ngIf="forecast">
+              <h6 class="mb-3">Analysis Results</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="card bg-light">
+                    <div class="card-body">
+                      <h6 class="card-title">Crisis Status</h6>
+                      <p class="card-text">
+                        <span class="badge" [ngClass]="{
+                          'bg-success': urgencyAnalysis?.crisis_status?.toLowerCase().includes('low'),
+                          'bg-warning': urgencyAnalysis?.crisis_status?.toLowerCase().includes('medium'),
+                          'bg-danger': urgencyAnalysis?.crisis_status?.toLowerCase().includes('high')
+                        }">
+                          {{ urgencyAnalysis?.crisis_status }}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card bg-light">
+                    <div class="card-body">
+                      <h6 class="card-title">Risk Score</h6>
+                      <p class="card-text">
+                        <span class="badge" [ngClass]="{
+                          'bg-success': urgencyAnalysis?.risk_score < 0.3,
+                          'bg-warning': urgencyAnalysis?.risk_score >= 0.3 && urgencyAnalysis?.risk_score < 0.7,
+                          'bg-danger': urgencyAnalysis?.risk_score >= 0.7
+                        }">
+                          {{ (urgencyAnalysis?.risk_score * 100) | number:'1.0-0' }}%
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Forecast Chart -->
+            <div class="forecast-chart mb-4" *ngIf="forecast">
+              <h6 class="mb-3">Resource Forecast</h6>
+              <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                <canvas #forecastChart></canvas>
+              </div>
+            </div>
+
+            <!-- Resource Allocation -->
+            <div class="resource-allocation mb-4" *ngIf="resourceAllocation && resourceAllocation.length > 0">
+              <h6 class="mb-3">Resource Distribution Plan</h6>
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Location</th>
+                      <th>Allocated Resources</th>
+                      <th>Priority</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let allocation of resourceAllocation">
+                      <td>{{ allocation.location }}</td>
+                      <td>{{ allocation.resources | number:'1.0-0' }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="{
+                          'bg-success': allocation.priority === 'Low',
+                          'bg-warning': allocation.priority === 'Medium',
+                          'bg-danger': allocation.priority === 'High'
+                        }">
+                          {{ allocation.priority }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- No Resource Allocation Message -->
+            <div class="alert alert-info" *ngIf="!resourceAllocation || resourceAllocation.length === 0">
+              <i class="bi bi-info-circle me-2"></i>
+              No resource distribution plan available for this analysis.
+            </div>
+
+            <!-- Error Message -->
+            <div class="alert alert-danger" *ngIf="error">
+              {{ error }}
+            </div>
+          </div>
+          <div *ngIf="!selectedCrisis" class="text-center text-muted">
+            <i class="bi bi-graph-up display-4"></i>
+            <p class="mt-3">Select a crisis to analyze resource needs</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 </section>
+
+<!-- Email Modal -->
+<ng-template #emailModal let-modal>
+  <div class="modal-header bg-light border-0 px-4 py-3">
+    <h4 class="modal-title fw-semibold" id="modal-basic-title">
+      <i class="bi bi-envelope-paper me-2"></i>Contact Association
+    </h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+  <div class="modal-body p-4">
+    <form>
+      <div class="mb-4">
+        <label for="from" class="form-label text-muted fw-semibold">From</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0">
+            <i class="bi bi-person"></i>
+          </span>
+          <input type="email" 
+                 class="form-control bg-light border-start-0" 
+                 id="from" 
+                 [(ngModel)]="emailData.from" 
+                 name="from" 
+                 readonly>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="to" class="form-label text-muted fw-semibold">To</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0">
+            <i class="bi bi-envelope"></i>
+          </span>
+          <input type="email" 
+                 class="form-control bg-light border-start-0" 
+                 id="to" 
+                 [(ngModel)]="emailData.to" 
+                 name="to" 
+                 readonly>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="subject" class="form-label text-muted fw-semibold">Subject</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0">
+            <i class="bi bi-tag"></i>
+          </span>
+          <input type="text" 
+                 class="form-control border-start-0" 
+                 id="subject" 
+                 [(ngModel)]="emailData.subject" 
+                 name="subject" 
+                 placeholder="Enter email subject">
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="content" class="form-label text-muted fw-semibold">Message</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0">
+            <i class="bi bi-chat-text"></i>
+          </span>
+          <textarea class="form-control border-start-0" 
+                   id="content" 
+                   [(ngModel)]="emailData.content" 
+                   name="content" 
+                   rows="5" 
+                   placeholder="Enter your message"></textarea>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer border-0 px-4 pb-4">
+    <button type="button" 
+            class="btn btn-light" 
+            (click)="modal.dismiss()">
+      <i class="bi bi-x me-1"></i>Cancel
+    </button>
+    <button type="button" 
+            class="btn btn-primary" 
+            (click)="sendEmail()">
+      <i class="bi bi-send me-1"></i>Send Email
+    </button>
+  </div>
+</ng-template>
+
+<!-- Bulk Email Modal -->
+<ng-template #bulkEmailModal let-modal>
+  <div class="modal-header bg-light border-0 px-4 py-3">
+    <h4 class="modal-title fw-semibold" id="modal-basic-title">
+      <i class="bi bi-envelope-paper me-2"></i>Bulk Email to Associations
+    </h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+  <div class="modal-body p-4">
+    <!-- Selected Associations -->
+    <div class="mb-4">
+      <h6 class="mb-3">Selected Associations ({{selectedAssociations.length}})</h6>
+      <div class="selected-associations-list">
+        <div *ngFor="let id of selectedAssociations" class="selected-association-item">
+          <div class="d-flex align-items-center">
+            <div class="avatar-sm me-2">
+              <img [src]="getAssociationById(id) ? getAssociationLogo(getAssociationById(id)!) : defaultLogo" 
+                   [alt]="getAssociationById(id)?.associationName || 'Association'"
+                   class="rounded-circle"
+                   onerror="this.src='assets/images/default-logo.jpg'">
+            </div>
+            <div>
+              <h6 class="mb-0">{{getAssociationById(id)?.associationName || 'Unknown Association'}}</h6>
+              <small class="text-muted">{{getAssociationById(id)?.associationEmail || 'No email'}}</small>
+            </div>
+            <button class="btn btn-sm btn-soft-danger ms-auto" (click)="removeAssociationFromSelection(id)">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Form -->
+    <form>
+      <div class="mb-4">
+        <label for="subject" class="form-label text-muted fw-semibold">Subject</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0">
+            <i class="bi bi-tag"></i>
+          </span>
+          <input type="text" 
+                 class="form-control border-start-0" 
+                 id="subject" 
+                 [(ngModel)]="bulkEmailData.subject" 
+                 name="subject" 
+                 placeholder="Enter email subject">
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="content" class="form-label text-muted fw-semibold">Message</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0">
+            <i class="bi bi-chat-text"></i>
+          </span>
+          <textarea class="form-control border-start-0" 
+                   id="content" 
+                   [(ngModel)]="bulkEmailData.content" 
+                   name="content" 
+                   rows="5" 
+                   placeholder="Enter your message"></textarea>
+        </div>
+      </div>
+
+      <!-- Email Template Selection -->
+      <div class="mb-4">
+        <label class="form-label text-muted fw-semibold">Email Template</label>
+        <select class="form-select" [(ngModel)]="selectedTemplate" (change)="applyTemplate()">
+          <option value="">Select a template</option>
+          <option value="verification">Verification Request</option>
+          <option value="approval">Approval Notification</option>
+          <option value="rejection">Rejection Notification</option>
+          <option value="update">Update Request</option>
+        </select>
+      </div>
+
+      <!-- Preview Section -->
+      <div class="mb-4" *ngIf="bulkEmailData.subject || bulkEmailData.content">
+        <h6 class="mb-3">Preview</h6>
+        <div class="preview-card p-3 bg-light rounded">
+          <div class="preview-header mb-3">
+            <strong>Subject:</strong> {{bulkEmailData.subject}}
+          </div>
+          <div class="preview-content">
+            {{bulkEmailData.content}}
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer border-0 px-4 pb-4">
+    <button type="button" 
+            class="btn btn-light" 
+            (click)="modal.dismiss()">
+      <i class="bi bi-x me-1"></i>Cancel
+    </button>
+    <button type="button" 
+            class="btn btn-primary" 
+            [disabled]="!bulkEmailData.subject || !bulkEmailData.content"
+            (click)="sendBulkEmail()">
+      <i class="bi bi-send me-1"></i>Send to {{selectedAssociations.length}} Associations
+    </button>
+  </div>
+</ng-template>
+
+<style>
+.timeline {
+  position: relative;
+  padding-left: 20px;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.timeline-item:before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background-color: #e9ecef;
+}
+
+.timeline-item:last-child:before {
+  height: 0;
+}
+
+.timeline-header {
+  margin-bottom: 10px;
+}
+
+.timeline-body {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.supply-point {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.supply-point:last-child {
+  margin-bottom: 0;
+}
+
+/* Enhanced styles for Association Management */
+.avatar-sm {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatar-sm img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.avatar-sm:hover img {
+  transform: scale(1.1);
+}
+
+.logo-loading-spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge i {
+  font-size: 0.875rem;
+}
+
+.btn-soft-primary,
+.btn-soft-success,
+.btn-soft-info {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.btn-soft-primary:hover,
+.btn-soft-success:hover,
+.btn-soft-info:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table > :not(caption) > * > * {
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+.table tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+[tooltip] {
+  position: relative;
+}
+
+[tooltip]:hover:before {
+  content: attr(tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 0.75rem;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Enhanced styles for Association Management */
+.stat-card {
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon i {
+  font-size: 1.25rem;
+}
+
+.form-check-input {
+  cursor: pointer;
+}
+
+.form-check-input:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-soft-danger {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+  border-color: transparent;
+}
+
+.btn-soft-danger:hover {
+  color: #fff;
+  background-color: #dc3545;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.selected-associations-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+}
+
+.selected-association-item {
+  padding: 0.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.selected-association-item:last-child {
+  border-bottom: none;
+}
+
+.preview-card {
+  border: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+}
+
+.preview-header {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+}
+
+.preview-content {
+  white-space: pre-wrap;
+}
+</style>
 

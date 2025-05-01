@@ -14,13 +14,13 @@ import { jwtDecode } from 'jwt-decode';
 export class AuthService {
   private apiUrl = 'http://localhost:8089/api/auth/signin';
   private registerUrl = 'http://localhost:8089/api/auth/signup';
-  private associationCheckUrl = 'http://localhost:8089/api/associations'; // Update this URL to match your backend endpoint
+  private associationCheckUrl = 'http://localhost:8089/api/associations';
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   private router = inject(Router);
   private postLogoutRedirect: string | null = null;
-
+  private tokenExpirationWarningTime = 300000;
 
   constructor(private http: HttpClient) {
     this.checkAuthentication();
@@ -37,11 +37,11 @@ export class AuthService {
       }
     }
   }
+
   checkAssociation(): Observable<Association | null> {
     const token = this.getToken();
     if (!token) {
-      console.error("No token found");
-      return of(null); // Return null if no token is found
+      return of(null);
     }
   
     const headers = new HttpHeaders({
@@ -50,38 +50,32 @@ export class AuthService {
   
     return this.http.get<Association>(this.associationCheckUrl, { headers }).pipe(
       catchError(() => {
-        console.error("Error fetching associations");
-        return of(null); // Return null if the request fails or no association is found
+        return of(null);
       })
     );
   }
-  
-// auth.service.ts
-
-
 
   isAuthenticated(): boolean {
     return this.isAuthenticatedSubject.value;
   }
-  // AuthService: Method to retrieve user info from token
-  // In your AuthService
-getUserInfo(): { email: string | null; idUser: number | null; roles?: string[] } {
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    try {
-      const decodedToken: any = jwtDecode(token);
-      console.log("Decoded Token:", decodedToken);
-      return {
-        email: decodedToken.sub || null,
-        idUser: decodedToken.idUser || null,
-        roles: decodedToken.roles || []
-      };
-    } catch (error) {
-      console.error("Error decoding token:", error);
+
+  getUserInfo(): { email: string | null; idUser: number | null; roles?: string[] } {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        return {
+          email: decodedToken.sub || null,
+          idUser: decodedToken.idUser || null,
+          roles: decodedToken.roles || []
+        };
+      } catch (error) {
+        return { email: null, idUser: null };
+      }
     }
+    return { email: null, idUser: null };
   }
-  return { email: null, idUser: null };
-}
+
   getCurrentUser(): any {
     return this.getUserInfo(); // Ou utilisez une autre méthode qui récupère les informations de l'utilisateur
   }
@@ -139,10 +133,9 @@ getUserInfo(): { email: string | null; idUser: number | null; roles?: string[] }
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
-        console.log("Decoded Token:", decodedToken);
         return decodedToken.idUser || decodedToken.userId || decodedToken.sub || null;
       } catch (error) {
-        console.error("Error decoding token:", error);
+        return null;
       }
     }
     return null;
@@ -150,22 +143,19 @@ getUserInfo(): { email: string | null; idUser: number | null; roles?: string[] }
   // In AuthService
   getUserById(userId: number): Observable<Applicant> {
     const headers = this.getAuthHeaders();
-    return this.http.get<Applicant>(`${this.apiUrl}/user/${userId}`, { headers });
+    return this.http.get<Applicant>(`http://localhost:8089/api/auth/user/${userId}`, { headers });
   }
   getToken(): string {
-    const token = localStorage.getItem('auth_token'); // Use the correct key
-    console.log('Token from localStorage:', token); // Debugging: Log the token
-    return token || ''; // Return the token or an empty string if it doesn't exist
+    const token = localStorage.getItem('auth_token');
+    return token || '';
   }
 
   getAuthHeaders(): HttpHeaders {
     const token = this.getToken();
     if (!token) {
-      console.error("⛔ Aucun token JWT trouvé !");
       return new HttpHeaders();
     }
   
-    console.log('🔐 Token utilisé dans l’en-tête Authorization:', token);
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
@@ -209,6 +199,25 @@ getUserInfo(): { email: string | null; idUser: number | null; roles?: string[] }
 
   private isTokenExpired(expiration: number): boolean {
     return expiration < Math.floor(Date.now() / 1000); // Compare with current time in seconds
+  }
+
+  setToken(token: string): void {
+    localStorage.setItem('auth_token', token);
+    this.isAuthenticatedSubject.next(true);
+  }
+
+  removeToken(): void {
+    localStorage.removeItem('auth_token');
+    this.isAuthenticatedSubject.next(false);
+  }
+
+  decodeToken(token: string): { userId: number } | null {
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return { userId: decodedToken.idUser || decodedToken.userId || decodedToken.sub || 0 };
+    } catch (error) {
+      return null;
+    }
   }
 }
 // Update the LoginResponse interface to match actual API response

@@ -15,9 +15,8 @@ export class SignupService {
  constructor(private http: HttpClient, private router: Router) {}
 
   register(user: { email: string; password: string; role: string; firstName: string; lastName: string; telephone: string; job: string }): Observable<any> {
-    console.log(user)
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post(this.apiUrl, user,{headers});
+    return this.http.post(this.apiUrl, user, {headers});
 }
 
 // Method to handle redirection based on role

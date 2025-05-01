@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DonationType, CagnotteEnligne } from '../../interfaces/donation.interface';
+import { DonationType } from '../../interfaces/donation.interface';
 import { AssociationDonationService } from '../../services/association-donation.service';
 import { AdminNavbarComponent } from '../admin/admin-navbar/admin-navbar.component';
 
@@ -20,14 +20,14 @@ export class AssociationDonationFormComponent {
     quantiteDemandee: 1,
     quantiteDonnee: 0,
     availability: false,
-    lastUpdated: new Date(),
+    lastUpdated: new Date().toISOString(),
     donationType: DonationType.FOOD,
     nomDoneur: '',
     prenomDoneur: '',
     numCompte: 0,
     quantite: 0,
     subscribers: [],
-    cagnotteenligne: null as CagnotteEnligne | null,
+    cagnotteenligne: null as { title: string; description: string; goalAmount: number; currentAmount: number } | null,  // Allow null or the object
     doneur: 1
   };
   

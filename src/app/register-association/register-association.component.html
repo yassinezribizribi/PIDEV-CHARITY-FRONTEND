@@ -18,119 +18,120 @@
 
   <form (ngSubmit)="onSubmit()" #associationForm="ngForm">
     <!-- Association Name -->
-    <div class="form-group">
-      <label for="associationName">Association Name</label>
-      <input
-        type="text"
-        id="associationName"
-        name="associationName"
-        [(ngModel)]="association.associationName"
-        class="form-control"
+    <div class="col-12 mb-3">
+      <label class="form-label">Association Name <span class="text-danger">*</span></label>
+      <input 
+        type="text" 
+        class="form-control" 
+        [(ngModel)]="association.associationName" 
+        name="associationName" 
+        #nameField="ngModel"
         required
-        minlength="3"
-        maxlength="100"
-        #associationName="ngModel"
-      />
-      <div *ngIf="associationName.invalid && (associationName.touched || associationName.dirty || submitted)" class="text-danger">
-        <div *ngIf="associationName.errors?.['required']">Association name is required.</div>
-        <div *ngIf="associationName.errors?.['minlength']">Name must be at least 3 characters.</div>
-        <div *ngIf="associationName.errors?.['maxlength']">Name cannot exceed 100 characters.</div>
+        pattern="^[A-Za-z\s]{3,50}$"
+        placeholder="Enter association name (letters only)"
+      >
+      <div class="form-text text-danger" *ngIf="nameField.invalid && (nameField.dirty || nameField.touched)">
+        <div *ngIf="nameField.errors?.['required']">Association name is required.</div>
+        <div *ngIf="nameField.errors?.['pattern']">Association name must be 3-50 characters long and can only contain letters and spaces.</div>
       </div>
     </div>
 
     <!-- Association Address -->
-    <div class="form-group">
-      <label for="associationAddress">Association Address</label>
+    <div class="col-12 mb-3">
+      <label class="form-label">Address <span class="text-danger">*</span></label>
+      <input type="text" class="form-control" [(ngModel)]="association.associationAddress" name="associationAddress" required>
+    </div>
+
+    <!-- Association Phone -->
+    <div class="col-12 mb-3">
+      <label class="form-label">
+        Phone Number <span class="text-danger">*</span>
+      </label>
       <input
-        type="text"
-        id="associationAddress"
-        name="associationAddress"
-        [(ngModel)]="association.associationAddress"
+        type="tel"
         class="form-control"
+        [(ngModel)]="association.associationPhone"
+        name="associationPhone"
+        #phoneField="ngModel"
         required
-        minlength="5"
-        maxlength="255"
-        #associationAddress="ngModel"
+        pattern="[0-9]{8}"
+        placeholder="Enter 8-digit phone number"
+      >
+    
+      <div class="form-text text-danger" *ngIf="phoneField.invalid && (phoneField.dirty || phoneField.touched)">
+        Please enter a valid 8-digit phone number
+      </div>
+    </div>
+    
+
+    <!-- Association Email -->
+    <div class="col-12 mb-3">
+      <label class="form-label">Email <span class="text-danger">*</span></label>
+      <input
+        type="email"
+        class="form-control"
+        [(ngModel)]="association.associationEmail"
+        name="associationEmail"
+        #emailField="ngModel"
+        required
+        pattern="^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$"
+        placeholder="Enter email address"
       />
-      <div *ngIf="associationAddress.invalid && (associationAddress.touched || associationAddress.dirty || submitted)" class="text-danger">
-        <div *ngIf="associationAddress.errors?.['required']">Address is required.</div>
-        <div *ngIf="associationAddress.errors?.['minlength']">Address must be at least 5 characters.</div>
-        <div *ngIf="associationAddress.errors?.['maxlength']">Address cannot exceed 255 characters.</div>
+      <div class="form-text text-danger" *ngIf="emailField.invalid && (emailField.dirty || emailField.touched)">
+        <div *ngIf="emailField.errors?.['required']">Email is required.</div>
+        <div *ngIf="emailField.errors?.['pattern']">Please enter a valid email address.</div>
       </div>
     </div>
 
     <!-- Description -->
-    <div class="form-group">
-      <label for="description">Description</label>
-      <textarea
-        id="description"
-        name="description"
-        [(ngModel)]="association.description"
-        class="form-control"
-        rows="4"
-        required
-        minlength="10"
-        maxlength="500"
-        #description="ngModel"
-      ></textarea>
-      <div *ngIf="description.invalid && (description.touched || description.dirty || submitted)" class="text-danger">
-        <div *ngIf="description.errors?.['required']">Description is required.</div>
-        <div *ngIf="description.errors?.['minlength']">Description must be at least 10 characters.</div>
-        <div *ngIf="description.errors?.['maxlength']">Description cannot exceed 500 characters.</div>
-      </div>
+    <div class="col-12 mb-3">
+      <label class="form-label">Description <span class="text-danger">*</span></label>
+      <textarea class="form-control" rows="4" [(ngModel)]="association.description" name="description" required></textarea>
     </div>
 
-    <!-- File Uploads -->
-    <div class="form-group">
-      <label for="associationLogo">Association Logo (PNG, JPG, max 5MB)</label>
-      <input
-        type="file"
-        id="associationLogo"
-        (change)="onFileChange($event, 'associationLogoPath')"
-        class="form-control"
-        accept="image/png, image/jpeg, image/jpg"
-      />
-      <div *ngIf="logoError" class="text-danger">{{ logoError }}</div>
+    <!-- Logo Upload -->
+    <div class="col-12 mb-3">
+      <label class="form-label">Association Logo</label>
+      <input type="file" 
+       class="form-control" 
+       name="associationLogo" 
+       (change)="onFileChange($event, 'associationLogoPath')" 
+       accept="image/png, image/jpeg, image/jpg">
+
+      <div class="form-text text-danger" *ngIf="logoError">{{ logoError }}</div>
     </div>
 
-    <div class="form-group">
-      <label for="registrationDocument">Registration Document (PDF, max 5MB)</label>
-      <input
-        type="file"
-        id="registrationDocument"
-        (change)="onFileChange($event, 'registrationDocumentPath')"
-        class="form-control"
-        accept="application/pdf"
-        required
-      />
-      <div *ngIf="(submitted || registrationDocumentTouched) && !association.registrationDocumentPath" class="text-danger">
-        Registration document is required.
-      </div>
-      <div *ngIf="registrationDocError" class="text-danger">{{ registrationDocError }}</div>
+    <!-- Registration Document Upload -->
+    <div class="col-12 mb-3">
+      <label class="form-label">Registration Document <span class="text-danger">*</span></label>
+      <input type="file" 
+             class="form-control" 
+             (change)="onFileChange($event, 'registrationDocumentPath')" 
+             accept="application/pdf" 
+             required>
+      <div class="form-text text-danger" *ngIf="registrationDocError">{{ registrationDocError }}</div>
     </div>
 
-    <div class="form-group">
-      <label for="legalDocument">Legal Document (PDF, max 5MB)</label>
-      <input
-        type="file"
-        id="legalDocument"
-        (change)="onFileChange($event, 'legalDocumentPath')"
-        class="form-control"
-        accept="application/pdf"
-        required
-      />
-      <div *ngIf="(submitted || legalDocumentTouched) && !association.legalDocumentPath" class="text-danger">
-        Legal document is required.
-      </div>
-      <div *ngIf="legalDocError" class="text-danger">{{ legalDocError }}</div>
+    <!-- Legal Document Upload -->
+    <div class="col-12 mb-3">
+      <label class="form-label">Legal Document <span class="text-danger">*</span></label>
+      <input type="file" 
+             class="form-control" 
+             (change)="onFileChange($event, 'legalDocumentPath')" 
+             accept="application/pdf" 
+             required>
+      <div class="form-text text-danger" *ngIf="legalDocError">{{ legalDocError }}</div>
     </div>
+
+    
 
     <!-- Submit Button -->
     <div class="form-group text-center">
       <button
         type="submit"
+        id="associationSubmitBtn"
         class="btn btn-primary"
-        [disabled]="!associationForm.form.valid || isSubmitting || !areFilesValid()"
+        [disabled]="!associationForm?.form?.valid || isSubmitting || !areFilesValid()"
       >
         {{ isSubmitting ? 'Submitting...' : 'Submit' }}
       </button>

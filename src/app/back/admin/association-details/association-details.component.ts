@@ -30,6 +30,10 @@ export class AssociationDetailsComponent implements OnInit {
   association: Association | null = null;
   loading = true;
   imageUrl: SafeUrl | null = null;
+  isVerifying = false;
+  isRejecting = false;
+  actionMessage: string = '';
+  showActionMessage = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -87,14 +91,32 @@ export class AssociationDetailsComponent implements OnInit {
     if (!this.association?.idAssociation) return;
   
     try {
+      this.isVerifying = true;
+      this.actionMessage = 'Verifying association...';
+      this.showActionMessage = true;
+
       const updated = await firstValueFrom(
         this.associationService.verifyAssociation(this.association.idAssociation)
       );
-      this.association = updated;
-      this.sendVerificationEmail();
+
+      // Update local state immediately
+      this.association = {
+        ...this.association,
+        status: AssociationStatus.APPROVED
+      };
+
+      await this.sendVerificationEmail();
+      
+      this.actionMessage = 'Association verified successfully!';
+      setTimeout(() => {
+        this.showActionMessage = false;
+      }, 3000);
+
     } catch (error) {
       console.error('Verification failed:', error);
-      alert('Failed to verify association. Please check the console for details.');
+      this.actionMessage = 'Failed to verify association. Please try again.';
+    } finally {
+      this.isVerifying = false;
     }
   }
   
@@ -102,39 +124,66 @@ export class AssociationDetailsComponent implements OnInit {
     if (!this.association?.idAssociation) return;
 
     try {
+      this.isRejecting = true;
+      this.actionMessage = 'Rejecting association...';
+      this.showActionMessage = true;
+
       const updated = await firstValueFrom(
         this.associationService.updateAssociation(
           this.association.idAssociation,
           { ...this.association, status: AssociationStatus.REJECTED }
         )
       );
-      this.association = updated;
-      this.sendRejectionEmail();
+
+      // Update local state immediately
+      this.association = {
+        ...this.association,
+        status: AssociationStatus.REJECTED
+      };
+
+      await this.sendRejectionEmail();
+      
+      this.actionMessage = 'Association rejected successfully.';
+      setTimeout(() => {
+        this.showActionMessage = false;
+      }, 3000);
+
     } catch (error) {
       console.error('Rejection failed:', error);
+      this.actionMessage = 'Failed to reject association. Please try again.';
+    } finally {
+      this.isRejecting = false;
     }
   }
 
-  private sendVerificationEmail(): void {
+  private async sendVerificationEmail(): Promise<void> {
     if (!this.association?.subscriber?.email || !this.association.associationName) return;
 
-    from(this.emailService.sendVerificationEmail(
-      this.association.subscriber.email,
-      this.association.associationName
-    )).subscribe({
-      error: (err) => console.error('Failed to send verification email', err)
-    });
+    try {
+      await firstValueFrom(
+        from(this.emailService.sendVerificationEmail(
+          this.association.subscriber.email,
+          this.association.associationName
+        ))
+      );
+    } catch (err) {
+      console.error('Failed to send verification email', err);
+    }
   }
 
-  private sendRejectionEmail(): void {
+  private async sendRejectionEmail(): Promise<void> {
     if (!this.association?.subscriber?.email || !this.association.associationName) return;
 
-    from(this.emailService.sendRejectionEmail(
-      this.association.subscriber.email,
-      this.association.associationName
-    )).subscribe({
-      error: (err) => console.error('Failed to send rejection email', err)
-    });
+    try {
+      await firstValueFrom(
+        from(this.emailService.sendRejectionEmail(
+          this.association.subscriber.email,
+          this.association.associationName
+        ))
+      );
+    } catch (err) {
+      console.error('Failed to send rejection email', err);
+    }
   }
 
   loadImage(filename: string): void {

@@ -1,1 +1,112 @@
- 
+// Main section styling
+.bg-half-170 {
+  min-height: 170px;
+  position: relative;
+  background-attachment: fixed;
+  padding: 40px 0;
+}
+
+.bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.title-heading {
+  position: relative;
+  z-index: 2;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+}
+
+// Position utilities
+.position-relative {
+  position: relative;
+}
+
+.position-middle-bottom {
+  position: relative;  // Changed from absolute to relative
+  margin-top: 20px;   // Added margin instead of absolute positioning
+  text-align: center;
+}
+
+// Content section
+section.section {
+  padding-top: 2rem !important;
+  position: relative;
+  z-index: 2;  // Higher z-index to appear above the header
+  background: white;
+}
+
+// Shape divider
+.shape {
+  position: relative;
+  z-index: 2;
+  margin-bottom: -1px; // Ensure smooth connection with content
+}
+
+// Association logo
+.association-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+// Status badges
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  
+  &.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  &.status-approved {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  &.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .status-icon {
+    margin-right: 8px;
+  }
+}
+
+// Hover effects
+.hover-shadow {
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Toast styling
+.toast {
+  min-width: 300px;
+  border: none;
+  border-radius: 8px;
+  
+  .toast-header {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+}
+
+.admin-content-wrapper {
+  padding-top: 80px; // Space for navbar
+} 

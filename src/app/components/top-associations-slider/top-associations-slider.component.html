@@ -1,0 +1,49 @@
+<!-- Section -->
+<section class="section bg-gradient-overlay-dark">
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8 text-center">
+        <h2 class="text-white mb-3">Top Performing Associations</h2>
+        <p class="text-white-50">Discover our most active and impactful charity organizations</p>
+      </div>
+    </div>
+
+    <swiper-container 
+      slides-per-view="3"
+      space-between="30"
+      navigation="true"
+      pagination="true"
+      autoplay="true"
+      loop="true">
+      
+      <swiper-slide *ngFor="let association of topAssociations">
+        <div class="testimonial-card p-4">
+          <div class="partnership-badge" [ngClass]="getBadgeClass(association.partnershipScore)">
+            {{ formatScore(association.partnershipScore) }}
+          </div>
+          
+          <div class="text-center mb-4">
+            <img [src]="association.logo || 'assets/images/default-association.png'" 
+                 [alt]="association.name"
+                 class="avatar rounded-circle mb-3">
+            <h5 class="mb-1">{{ association.name }}</h5>
+            <p class="text-muted mb-3">{{ association.location }}</p>
+            
+            <div class="rating mb-3">
+              <i class="mdi mdi-star text-warning" *ngFor="let star of getStars(association.rating)"></i>
+            </div>
+            
+            <p class="text-muted mb-0">{{ association.description | slice:0:150 }}...</p>
+          </div>
+
+          <div class="text-center mt-4">
+            <button class="btn btn-primary" >
+              View Profile
+            </button>
+          </div>
+        </div>
+      </swiper-slide>
+      
+    </swiper-container>
+  </div>
+</section> 
