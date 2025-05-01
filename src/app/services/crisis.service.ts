@@ -3,6 +3,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
+export interface CrisisAssignmentResponse {
+  message: string;
+  assignedAssociationAddress: string;
+}
 
 export enum CrisisStatus {
   PENDING = 'PENDING',
@@ -165,15 +169,21 @@ getAllCrises(): Observable<Crisis[]> {
   
   
   
-  assignCrisisToAssociation(crisisId: number): Observable<void> {
+  assignCrisisToNearestAssociation(crisisId: number): Observable<CrisisAssignmentResponse> {
     const token = localStorage.getItem('auth_token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
   
-    return this.http.post<void>(`${this.apiUrl}/${crisisId}/assignToAssociation`, {}, { headers }).pipe(
+    return this.http.put<CrisisAssignmentResponse>(
+      `${this.apiUrl}/${crisisId}/assign-association`,
+      {},
+      { headers }
+    ).pipe(
       catchError((error) => {
-        console.error('Error assigning crisis to association:', error);
-        return throwError(() => new Error('Failed to assign crisis to association'));
+        console.error('Error assigning crisis:', error);
+        return throwError(() => new Error('Failed to assign crisis to an association'));
       })
     );
   }
+  
+  
 }

@@ -24,3 +24,8 @@ export interface Subscriber {
   email: string;       // Email de l'utilisateur
   telephone?: string;  // Numéro de téléphone (facultatif)
 }
+
+export interface CrisisAssignmentResponse {
+  associationName: string;
+  associationAddress: string;
+}

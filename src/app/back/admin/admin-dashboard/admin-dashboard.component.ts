@@ -289,32 +289,29 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  /*assignToAssociation(crisis: Crisis): void {
-    // Here you might want to open a dialog to select an association
-    // For now, this method just simulates assigning a crisis to an association
-    
-    const associationId = this.getAssociationForCrisis(crisis); // Define this logic to get the association
-  
-    if (associationId) {
-      this.crisisService.assignCrisisToAssociation(crisis.idCrisis,associationId).subscribe({
-        next: () => {
-          this.toastr.success('Crisis assigned successfully!');
-          this.loadCrises(); // Refresh the crisis list after assignment
-        },
-        error: (err) => {
-          console.error('Error assigning crisis:', err);
-          this.toastr.error('Error assigning crisis', 'Error');
-        }
-      });
-    } else {
-      this.toastr.warning('No association found to assign this crisis');
+  assignToNearestAssociation(crisis: Crisis): void {
+    if (!crisis.idCrisis) {
+      this.toastr.warning('Invalid crisis ID');
+      return;
     }
+  
+    this.crisisService.assignCrisisToNearestAssociation(crisis.idCrisis).subscribe({
+      next: () => {
+        this.toastr.success('Crisis successfully assigned to the nearest approved association.');
+        this.loadCrises(); // Refresh list
+      },
+      error: (err) => {
+        console.error('Error assigning crisis:', err);
+        if (err.status === 404) {
+          this.toastr.error('Crisis not found.');
+        } else if (err.status === 400) {
+          this.toastr.warning(err.error); // Display backend message (e.g., no association found)
+        } else {
+          this.toastr.error('Unexpected error assigning crisis.');
+        }
+      }
+    });
   }
   
-  getAssociationForCrisis(crisis: Crisis): number {
-    // Logic to determine which association to assign the crisis to
-    // This could be based on location, type of crisis, etc.
-    return 1; // Placeholder: return the association ID
-  }*/
   
 }

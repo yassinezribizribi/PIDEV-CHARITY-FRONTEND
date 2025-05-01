@@ -177,7 +177,7 @@
                             'bi-arrow-counterclockwise': crisis.status === CrisisStatus.RESOLVED
                           }"></i>
                         </button>
-                      <button class="btn btn-sm btn-outline-success" (click)="(crisis)" title="Assign to Association">
+                      <button class="btn btn-sm btn-outline-success" (click)=" assignToNearestAssociation(crisis)" title="Assign to Association">
                         <i class="bi bi-person-plus"></i> Assign
                       </button>
                       </div>
