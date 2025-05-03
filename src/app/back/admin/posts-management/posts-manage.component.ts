@@ -131,7 +131,7 @@ export class PostsManageComponent implements OnInit {
     // Fetch posts from API (assuming you have a method for that)
     this.postService.getAllPosts().subscribe({
       next: (data) => {
-        this.posts = data;
+        this.posts = data.reverse();
         this.posts.forEach(post => this.loadLikesCount(post));
       },
       error: (err) => {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
@@ -56,11 +56,31 @@ export class AnimalProfileComponent implements OnInit {
     this.getAnimalDetails();
    
   }
-  enregistrerDemande(id:number) {
+  
+  enregistrerDemande(id: number) {
     this.demandeService.enregistrer(this.userId!, id).subscribe({
-      next: (res) => alert('Demande enregistrée avec succès'),
-      error: (err) => alert('Erreur: ' + err.message)
+      next: (res) => {
+        this.showModal('success');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.showModal('error');
+      }
     });
+  }
+  
+  showModal(type: string) {
+    let modalId: string;
+    if (type === 'success') {
+      modalId = 'demandeSuccessModal';
+    } else {
+      modalId = 'demandeErrorModal';
+    }
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      // Utilise l'API Bootstrap native pour afficher le modal
+      // Assumes Bootstrap JS is included in the project
+      (window as any).bootstrap.Modal.getOrCreateInstance(modalElement).show();
+    }
   }
   getAnimalDetails(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));

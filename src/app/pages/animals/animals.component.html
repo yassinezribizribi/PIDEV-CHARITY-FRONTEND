@@ -6,9 +6,9 @@
   <div class="container">
     <div class="row mt-5 justify-content-center">
       <div class="col-12 text-center">
-        <h5 class="heading fw-semibold text-white title-dark">Animaux à Adopter</h5>
+        <h5 class="heading fw-semibold text-white title-dark">Animals for Adoption</h5>
         <!-- Navigation Button to Add Animals -->
-        <a routerLink="/add-animals" class="btn btn-primary mt-3">Ajouter un Animal</a>
+        <a routerLink="/add-animals" class="btn btn-primary mt-3">Add an Animal</a>
         <p *ngIf="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
       </div>
     </div>
@@ -17,8 +17,8 @@
     <nav aria-label="breadcrumb" class="d-block">
       <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
         <li class="breadcrumb-item"><a [routerLink]="'/index'">Smilecare</a></li>
-        <li class="breadcrumb-item active" aria-current="page"> Animals</li>
-    </ul>
+        <li class="breadcrumb-item active" aria-current="page">Animals</li>
+      </ul>
     </nav>
   </div>
 </section>
@@ -35,31 +35,30 @@
 <section class="section">
   <div class="container">
     <div class="row">
-      <!-- Liste des animaux -->
+      <!-- Animals List -->
       <div class="col-lg-8 col-md-7">
         <div class="row g-6">
           <div *ngFor="let animal of animals" class="col-lg-6 col-md-6 col-12 mb-4">
             <a [routerLink]="['/animal-profile', animal.idAnimal]" class="text-decoration-none">
               <div class="card animal-card text-center">
                 <div class="card-img">
-
                   <img [src]="'http://localhost:8089/api/animals/images/' + animal.imagePath" class="img-fluid rounded-top" alt="{{ animal.name }}">
                 </div>
                 <div class="card-body bg-white p-4 rounded-bottom shadow">
                   <h5 class="card-title mb-2">{{ animal.name }}</h5>
                   <p class="card-text text-muted mb-3">{{ animal.animalSpecies }} - {{ animal.race }}</p>
                   <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
-                    <span *ngIf="animal.isAdopted" class="badge status-badge adopted">Adopté</span>
-                    <span *ngIf="!animal.isAdopted" class="badge status-badge available">Disponible</span>
+                    <span *ngIf="animal.isAdopted" class="badge status-badge adopted">Adopted</span>
+                    <span *ngIf="!animal.isAdopted" class="badge status-badge available">Available</span>
                   </div>
-        <!--  <button class="btn delete-btn" (click)="deleteAnimal(animal.idAnimal); $event.stopPropagation()">Supprimer</button> -->  
+                  <!-- <button class="btn delete-btn" (click)="deleteAnimal(animal.idAnimal); $event.stopPropagation()">Delete</button> -->
                 </div>
               </div>
             </a>
           </div>
         </div>
 
-        <!-- Pagination -->
+        <!-- Pagination 
         <div class="row">
           <div class="col-12 mt-4 pt-2">
             <ul class="pagination justify-content-center mb-0">
@@ -79,6 +78,8 @@
             </ul>
           </div>
         </div>
+
+-->
       </div>
 
       <!-- Sidebar -->

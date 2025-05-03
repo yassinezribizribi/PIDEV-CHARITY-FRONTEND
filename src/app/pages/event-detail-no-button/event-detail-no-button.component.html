@@ -15,7 +15,7 @@
             <nav aria-label="breadcrumb" class="d-block">
                 <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
                     <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
-                    <li class="breadcrumb-item"><a [routerLink]="'/events'">Events</a></li>
+                    <li class="breadcrumb-item"><a [routerLink]="'/interested'">Interested</a></li>
                     <li class="breadcrumb-item active" aria-current="page">{{ event?.title || 'Details' }}</li>
                 </ul>
             </nav>
@@ -48,23 +48,12 @@
 
                 <!-- Event Details -->
                 <div *ngIf="!isLoading && !errorMessage && event" class="card border-0 shadow rounded overflow-hidden">
-                    <!-- Image (optional) -->
-                    <!--<img [src]="" class="img-fluid" alt="Event image">-->
-
                     <div class="card-body">
                         <h4 class="text-dark">{{ event.title }}</h4>
                         <p class="text-muted">{{ event.description }}</p>
                         <p class="text-muted"><strong>Date and Time:</strong> {{ event.dateTime | date:'medium' }}</p>
                         <p class="text-muted"><strong>Location:</strong> {{ event.location }}</p>
                         <p class="text-muted"><strong>Event Type:</strong> {{ event.typeEvent }}</p>
-
-                        <!-- Interested Button with redirection -->
-                        <button 
-                            class="btn btn-primary mt-3" 
-                            (click)="markInterested(event.idEvent)"
-                        >
-                        Interested
-                        </button>
 
                         <!-- Decorative Quote -->
                         <blockquote class="text-center mx-auto blockquote">
@@ -93,42 +82,6 @@
     </div>
 </section>
 <!-- End -->
-
-<!-- Success Modal -->
-<div class="modal fade" id="eventInterestModal" tabindex="-1" aria-labelledby="eventInterestModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content rounded-3 shadow-lg border-0">
-        <div class="modal-header border-0" style="background: #f8f9fa;">
-          <h5 class="modal-title fw-semibold" id="eventInterestModalLabel">Success</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-4">
-          <p class="text-success">User marked as interested.</p>
-        </div>
-        <div class="modal-footer border-0">
-          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-</div>
-
-<!-- Error Modal -->
-<div class="modal fade" id="eventErrorModal" tabindex="-1" aria-labelledby="eventErrorModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content rounded-3 shadow-lg border-0">
-        <div class="modal-header border-0" style="background: #f8f9fa;">
-          <h5 class="modal-title fw-semibold" id="eventErrorModalLabel">Error</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-4">
-          <p class="text-danger">An error occurred while registering for the event.</p>
-        </div>
-        <div class="modal-footer border-0">
-          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-</div>
 
 <app-footer></app-footer>
 <app-scroll-to-top></app-scroll-to-top>

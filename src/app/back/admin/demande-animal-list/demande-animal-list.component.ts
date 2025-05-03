@@ -34,12 +34,12 @@ export class DemandeAnimalListComponent implements OnInit {
   chargerDemandes() {
     this.demandeService.getAll().subscribe({
       next: (data) => {
-        this.demandes = data;
-        console.log(data);
+        this.demandes = data.reverse(); // This puts the last item first
+        console.log(this.demandes);
       },
       error: (err) => alert('Erreur lors du chargement : ' + err.message),
     });
-  }
+  }  
 
   accepterDemande(demandeId: number): void {
     this.demandeService.accepter(demandeId).subscribe({

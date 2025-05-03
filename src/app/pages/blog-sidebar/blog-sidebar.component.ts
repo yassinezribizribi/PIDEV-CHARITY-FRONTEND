@@ -12,6 +12,8 @@ import { ScrollToTopComponent } from '../../components/scroll-to-top/scroll-to-t
 import { Event, EventService } from 'src/app/services/event.service';
 import { FullCalendarModule } from '@fullcalendar/angular'; 
 import { CalendarOptions } from '@fullcalendar/core';
+import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
+
 @Component({
     selector: 'app-blog-sidebar',
     imports: [
@@ -27,43 +29,87 @@ import { CalendarOptions } from '@fullcalendar/core';
     styleUrl: './blog-sidebar.component.scss'
 })
 export class BlogSidebarComponent implements OnInit {
-
-  events: Event[] = [];
-  calendarEvents: any[] = [];  
+  events: any[] = [];
+  recommendedEvents: any[] = [];
+  calendarEvents: any[] = [];
   errorMessage = '';
   isLoading = true;
-  selectedEvent: any = null; 
+  selectedEvent: any = null;
+  userId: number | null = null;
+  showInterestedOnly: boolean = false; // Toggle state
+
   constructor(private eventService: EventService, private router: Router) {}
 
   calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
     editable: true,
     selectable: true,
-    events: this.calendarEvents,  
+    events: this.calendarEvents,
     plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin],
-    eventClick: (info) => this.onEventClick(info), 
+    eventClick: (info) => this.onEventClick(info),
+    eventContent: (arg) => {
+      const titleElement = document.createElement('div');
+      titleElement.innerHTML = arg.event.title;
+      return { domNodes: [titleElement] };
+    }
   };
 
   ngOnInit(): void {
-    this.getAllEvents();
+    this.userId = this.getUserIdFromToken();
+    console.log('userId:', this.userId);
+    this.loadEventsData();
   }
-  onEventClick(info: any): void {
-    const eventId = info.event.id;
-    console.log('Événement cliqué : ', eventId);
-    this.router.navigate(['/blog-detail', eventId]); 
+
+  toggleEventView(): void {
+    this.showInterestedOnly = !this.showInterestedOnly;
+    this.isLoading = true;
+    this.events = [];
+    this.calendarEvents = [];
+    this.loadEventsData();
   }
-  loadEvents() {
-    this.calendarEvents = this.events.map((event: any) => ({
-      id:event.idEvent,
-      date: event.dateTime, 
-      title: event.title 
-      
-    }));
+
+  loadEventsData(): void {
+    if (this.showInterestedOnly) {
+      this.getInterestedEvents();
+    } else {
+      this.getAllEvents();
+      if (this.userId) {
+        this.getRecommendedEvents();
+      } else {
+        this.errorMessage = 'Utilisateur non authentifié.';
+        this.isLoading = false;
+      }
+    }
   }
-  goToEventDetails(event: any): void {
-    console.log(event);
-    
-    this.router.navigate(['/blog-detail/', event.idEvent]);  
+
+  getUserIdFromToken(): number | null {
+    const token = localStorage.getItem('auth_token');
+    console.log('token:', token);
+    if (!token) return null;
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.idUser;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
+
+  getRecommendedEvents(): void {
+    if (this.userId) {
+      this.eventService.getRecommendedEvents(this.userId).subscribe({
+        next: (data) => {
+          console.log('Processed recommended events:', data);
+          this.recommendedEvents = data;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error fetching recommended events:', error);
+          this.errorMessage = 'Erreur lors de la récupération des événements recommandés';
+          this.isLoading = false;
+        },
+      });
+    }
   }
 
   getAllEvents(): void {
@@ -71,10 +117,9 @@ export class BlogSidebarComponent implements OnInit {
     this.eventService.getAllEvents().subscribe({
       next: (data) => {
         console.log(data);
-        
         this.events = data;
         this.isLoading = false;
-        this.loadEvents();  
+        this.loadEvents();
       },
       error: (error) => {
         this.isLoading = false;
@@ -84,11 +129,45 @@ export class BlogSidebarComponent implements OnInit {
     });
   }
 
+  getInterestedEvents(): void {
+    this.isLoading = true;
+    this.eventService.getEvent(this.userId!).subscribe({
+      next: (data) => {
+        console.log(data);
+        this.events = data;
+        this.isLoading = false;
+        this.loadEvents();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Error fetching interested events:', error);
+        this.errorMessage = 'Erreur lors de la récupération des événements';
+      }
+    });
+  }
+
+  loadEvents() {
+    this.calendarEvents = this.events.map((event: any) => ({
+      id: event.idEvent,
+      date: event.dateTime,
+      title: event.title
+    }));
+  }
+
+  onEventClick(info: any): void {
+    const eventId = info.event.id;
+    console.log('Événement cliqué : ', eventId);
+    this.router.navigate(this.showInterestedOnly ? ['/interested/event', eventId] : ['/blog-detail', eventId]);
+  }
+
+  goToEventDetails(event: any): void {
+    console.log(event);
+    this.router.navigate(['/blog-detail/', event.idEvent]);
+  }
+
   selectEvent(event: any): void {
     this.selectedEvent = this.events.find(e => e.idEvent === event.id);
-    console.log(this.selectEvent);
-    
-    this.router.navigate(['/blog-detail/',this.selectedEvent]);  
-
+    console.log(this.selectedEvent);
+    this.router.navigate(['/blog-detail/', this.selectedEvent]);
   }
 }

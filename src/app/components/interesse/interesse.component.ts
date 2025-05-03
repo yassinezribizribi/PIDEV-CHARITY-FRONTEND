@@ -47,10 +47,17 @@ export class InteresseComponent implements OnInit {
     initialView: 'dayGridMonth',
     editable: true,
     selectable: true,
-    events: this.calendarEvents,  
+    events: this.calendarEvents,
     plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin],
-    eventClick: (info) => this.onEventClick(info), 
+    eventClick: (info) => this.onEventClick(info),
+    eventContent: (arg) => {
+      const titleElement = document.createElement('div');
+      titleElement.innerHTML = arg.event.title;
+      return { domNodes: [titleElement] };
+    }
   };
+
+
   userId: any;
   ngOnInit(): void {
     this.userId = this.getUserIdFromToken();
@@ -60,7 +67,7 @@ export class InteresseComponent implements OnInit {
   onEventClick(info: any): void {
     const eventId = info.event.id;
     console.log('Événement cliqué : ', eventId);
-    this.router.navigate(['/blog-detail', eventId]); 
+    this.router.navigate(['/interested/event', eventId]); 
   }
   loadEvents() {
     this.calendarEvents = this.events.map((event: any) => ({
@@ -70,10 +77,11 @@ export class InteresseComponent implements OnInit {
       
     }));
   }
+
   goToEventDetails(event: any): void {
     console.log(event);
     
-    this.router.navigate(['/blog-detail/', event.idEvent]);  
+    this.router.navigate(['/interested/event', event.idEvent]);  
   }
 
   getUserIdFromToken(): number | null {

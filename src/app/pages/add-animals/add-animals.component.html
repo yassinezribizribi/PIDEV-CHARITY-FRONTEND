@@ -6,14 +6,14 @@
   <div class="container">
     <div class="row mt-5 justify-content-center">
       <div class="col-12 text-center">
-        <h5 class="heading fw-semibold text-white title-dark">Ajouter un Animal</h5>
+        <h5 class="heading fw-semibold text-white title-dark">Add an Animal</h5>
       </div>
     </div>
     <div class="position-middle-bottom">
       <nav aria-label="breadcrumb" class="d-block">
         <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
           <li class="breadcrumb-item"><a [routerLink]="'/animals'">Animals</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Ajouter un Animal</li>
+          <li class="breadcrumb-item active" aria-current="page">Add an Animal</li>
         </ul>
       </nav>
     </div>
@@ -34,35 +34,35 @@
     <div class="row justify-content-center">
       <div class="col-lg-6 col-md-8 col-12">
         <div class="add-form-card">
-        <form [formGroup]="animalForm">
-          <div class="form-group">
-            <input type="text" placeholder="Nom" formControlName="name" class="form-control form-input mb-1">
-            <div *ngIf="animalForm.get('name')?.invalid && animalForm.get('name')?.touched" class="text-danger">
-              Le nom est requis.
-            </div>
-            
-            <input type="text" placeholder="Espèce" formControlName="animalSpecies" class="form-control form-input mb-1">
-            <div *ngIf="animalForm.get('animalSpecies')?.invalid && animalForm.get('animalSpecies')?.touched" class="text-danger">
-              L'espèce est requise.
-            </div>
-            
-            <input type="text" placeholder="Race" formControlName="race" class="form-control form-input mb-1">
-            <div *ngIf="animalForm.get('race')?.invalid && animalForm.get('race')?.touched" class="text-danger">
-              La race est requise.
-            </div>
-            
-            <input type="text" placeholder="Historique Médical" formControlName="medicalHistory" class="form-control form-input mb-1">
-            <div *ngIf="animalForm.get('medicalHistory')?.invalid && animalForm.get('medicalHistory')?.touched" class="text-danger">
-              L'historique médical est requis.
-            </div>
-             
-            <input type="file" (change)="onFileSelected($event)" class="form-control form-input mb-1" />
+          <form [formGroup]="animalForm">
+            <div class="form-group">
+              <input type="text" placeholder="Name" formControlName="name" class="form-control form-input mb-1">
+              <div *ngIf="animalForm.get('name')?.invalid && animalForm.get('name')?.touched" class="text-danger">
+                Name is required.
+              </div>
+              
+              <input type="text" placeholder="Species" formControlName="animalSpecies" class="form-control form-input mb-1">
+              <div *ngIf="animalForm.get('animalSpecies')?.invalid && animalForm.get('animalSpecies')?.touched" class="text-danger">
+                Species is required.
+              </div>
+              
+              <input type="text" placeholder="Breed" formControlName="race" class="form-control form-input mb-1">
+              <div *ngIf="animalForm.get('race')?.invalid && animalForm.get('race')?.touched" class="text-danger">
+                Breed is required.
+              </div>
+              
+              <input type="text" placeholder="Medical History" formControlName="medicalHistory" class="form-control form-input mb-1">
+              <div *ngIf="animalForm.get('medicalHistory')?.invalid && animalForm.get('medicalHistory')?.touched" class="text-danger">
+                Medical history is required.
+              </div>
+              
+              <input type="file" (change)="onFileSelected($event)" class="form-control form-input mb-1" />
 
-            <button class="btn btn-primary add-btn" [disabled]="animalForm.invalid" (click)="addAnimal()">Ajouter un Animal</button>
-            <p *ngIf="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
-            <p *ngIf="successMessage" class="text-success mt-3">{{ successMessage }}</p>
-          </div>
-        </form>
+              <button class="btn btn-primary add-btn" [disabled]="animalForm.invalid" (click)="addAnimal()">Add an Animal</button>
+              <p *ngIf="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
+              <p *ngIf="successMessage" class="text-success mt-3">{{ successMessage }}</p>
+            </div>
+          </form>
         </div>
       </div>
     </div>

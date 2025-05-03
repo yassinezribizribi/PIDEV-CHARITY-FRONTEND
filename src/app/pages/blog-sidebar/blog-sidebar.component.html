@@ -7,11 +7,10 @@
         <div class="row mt-5 justify-content-center">
             <div class="col-12">
                 <div class="title-heading text-center">
-                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Our Events</h5>
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">{{ showInterestedOnly ? 'Your Events' : 'Our Events' }}</h5>
                 </div>
-            </div><!--end col-->
-        </div><!--end row-->
-
+            </div>
+        </div>
         <div class="position-middle-bottom">
             <nav aria-label="breadcrumb" class="d-block">
                 <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
@@ -20,8 +19,8 @@
                 </ul>
             </nav>
         </div>
-    </div><!--end container-->
-</section><!--end section-->
+    </div>
+</section>
 <div class="position-relative">
     <div class="shape overflow-hidden text-white">
         <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -34,33 +33,60 @@
 <!-- Start -->
 <section class="section">
     <div class="container">
-      <div class="row">
-        <!-- Colonne principale pour afficher le calendrier FullCalendar -->
-        <div class="col-12">
-          <div class="row g-4">
+        <!-- Toggle Button -->
+        <div class="row mb-4">
             <div class="col-12">
-              <div class="calendar-container shadow rounded p-4">
-                <!-- Affichage du calendrier -->
-                <full-calendar [events]="calendarEvents" [options]="calendarOptions"></full-calendar>
-              </div>
+                <button class="btn btn-primary" (click)="toggleEventView()">
+                    {{ showInterestedOnly ? 'Show All Events' : 'Show Interested Events Only' }}
+                </button>
             </div>
-          </div>
-        </div><!--end col-->
-      </div><!--end row-->
-  
-      <!-- Détails de l'événement sélectionné -->
-      <div *ngIf="selectedEvent" class="event-details mt-4 p-4 border shadow rounded">
-        <h3>{{ selectedEvent.title }}</h3>
-        <p><strong>Date:</strong> {{ selectedEvent.dateTime | date: 'dd/MM/yyyy HH:mm' }}</p>
-        <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
-        <p><strong>Location:</strong> {{ selectedEvent.location }}</p>
-        <p><strong>Type of Event:</strong> {{ selectedEvent.typeEvent }}</p>
-      </div>
-  
-    </div><!--end container-->
-  </section><!--end section-->
-  
+        </div>
 
+        <!-- Recommended Events (only shown when not in interested mode) -->
+        <div class="row mb-4" *ngIf="!showInterestedOnly">
+            <div class="col-12">
+                <h4 class="mb-3">Recommended for you</h4>
+                <div *ngIf="isLoading" class="alert alert-info">
+                    Loading please wait a second...
+                </div>
+                <div *ngIf="!isLoading && errorMessage" class="alert alert-danger">
+                    {{ errorMessage }}
+                </div>
+                <div *ngIf="!isLoading && recommendedEvents.length > 0">
+                    <div *ngFor="let event of recommendedEvents" class="card shadow-sm border-0 mb-2" style="cursor: pointer;" (click)="goToEventDetails(event)">
+                        <div class="card-body">
+                            <h5 class="card-title mb-1">{{ event.title }}</h5>
+                            <p class="card-text mb-1"><strong>Date:</strong> {{ event.dateTime | date: 'dd/MM/yyyy HH:mm' }}</p>
+                            <small class="text-muted">{{ event.location }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="calendar-container shadow rounded p-4">
+                            <full-calendar [events]="calendarEvents" [options]="calendarOptions"></full-calendar>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Détails de l'événement sélectionné -->
+        <div *ngIf="selectedEvent" class="event-details mt-4 p-4 border shadow rounded">
+            <h3>{{ selectedEvent.title }}</h3>
+            <p><strong>Date:</strong> {{ selectedEvent.dateTime | date: 'dd/MM/yyyy HH:mm' }}</p>
+            <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
+            <p><strong>Lieu:</strong> {{ selectedEvent.location }}</p>
+            <p><strong>Type d'événement:</strong> {{ selectedEvent.typeEvent }}</p>
+        </div>
+    </div>
+</section>
 <!-- End -->
 
 <app-footer></app-footer>

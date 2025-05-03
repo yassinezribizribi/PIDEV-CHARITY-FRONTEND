@@ -9,6 +9,7 @@ import { ScrollToTopComponent } from '@component/scroll-to-top/scroll-to-top.com
 import { FooterComponent } from '@component/footer/footer.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { jwtDecode } from 'jwt-decode';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-formations',
@@ -131,12 +132,51 @@ this.trainingService.downloadCertificate(idformation,iduser)
   }
 
   deleteTraining(id: number): void {
-    this.trainingService.deleteTraining(id).subscribe(() => {
-      console.log('Formation supprimée');
-      this.getAllTrainings();
+    this.showModal('confirm', id);
+  }
+  
+  private confirmDeleteTraining(id: number): void {
+    this.trainingService.deleteTraining(id).subscribe({
+      next: () => {
+        console.log(`Formation ${id} supprimée avec succès`);
+        this.getAllTrainings(); // Refresh the trainings list
+        this.showModal('success');
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Erreur lors de la suppression:', error);
+        this.showModal('error');
+      }
     });
   }
-
+  
+  private showModal(type: 'success' | 'error' | 'confirm', id?: number): void {
+    const modalId =
+      type === 'success'
+        ? 'trainingDeleteModal'
+        : type === 'error'
+          ? 'trainingDeleteErrorModal'
+          : 'trainingDeleteConfirmModal';
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
+      if (type === 'confirm' && id !== undefined) {
+        // Attach confirm action to the modal's confirm button
+        const confirmButton = modalElement.querySelector('.confirm-delete-btn');
+        if (confirmButton) {
+          // Remove existing listeners to prevent multiple bindings
+          const newConfirmButton = confirmButton.cloneNode(true);
+          confirmButton.parentNode?.replaceChild(newConfirmButton, confirmButton);
+          newConfirmButton.addEventListener('click', () => {
+            this.confirmDeleteTraining(id);
+            bootstrapModal.hide();
+          });
+        }
+      }
+      bootstrapModal.show();
+    } else {
+      console.error(`Modal with ID ${modalId} not found`);
+    }
+  }
   resetForm(): void {
     this.isEditMode = false;
     this.currentTrainingId = null;

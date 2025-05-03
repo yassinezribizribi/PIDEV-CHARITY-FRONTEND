@@ -1,7 +1,7 @@
 // event.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { catchError, map, Observable, throwError } from 'rxjs';
 import { TypeEvent } from '../models/enums/typeEvent.model';
 import { Subscriber } from '../models/subscriber.model';
 
@@ -22,8 +22,47 @@ export interface Event {
 })
 export class EventService {
   private apiUrl = 'http://localhost:8089/api/events'; // Port 8089 comme dans ton erreur
+  private recommendationApiUrl = 'http://localhost:8089/api/recommendations'; // Recommendation API base URL
 
   constructor(private http: HttpClient) {}
+
+  getRecommendedEvents(userId: number): Observable<Event[]> {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      return throwError(() => new Error('User is not authenticated.'));
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.get(`${this.recommendationApiUrl}/events/${userId}`, { headers }).pipe(
+      map((response: any) => {
+        console.log('Raw API response:', response);
+        const recommendations = response?.recommendations || [];
+        return recommendations.map((event: any) => {
+          if (!event.id || !event.title || !event.date_time) {
+            console.warn('Invalid event data:', event);
+            return null;
+          }
+          return {
+            idEvent: event.id,
+            title: event.title,
+            description: event.description || '',
+            dateTime: event.date_time,
+            location: event.location || 'Unknown',
+            typeEvent: event.typeEvent || 'UNKNOWN',
+            reservationDate: event.reservationDate || '',
+            associationId: event.associationId || null,
+          } as Event;
+        }).filter((event: Event | null) => event !== null) as Event[];
+      }),
+      catchError((error) => {
+        console.error('Error fetching recommended events:', error);
+        return throwError(() => new Error('Failed to fetch recommended events'));
+      })
+    );
+  }
 
   getAllEvents(): Observable<Event[]> {
     const token = localStorage.getItem('auth_token');

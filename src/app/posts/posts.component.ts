@@ -36,37 +36,54 @@ import { AuthService } from '../services/auth.service';
 export class PostsComponent implements OnInit {
   commentForm!: FormGroup;
   posts: any[] = [];
+  recommendedPosts: any[] = [];
   errorMessage = '';
   userId: number | null = null;
 
-
-  constructor(private postService: PostService,private authservice: AuthService,private commentService:CommentService,private fb:FormBuilder) {}
+  constructor(
+    private postService: PostService,
+    private authservice: AuthService,
+    private commentService: CommentService,
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit(): void {
     this.getAllPosts();
     this.userId = this.getUserIdFromToken();
-    console.log("hennn"+this.userId);
+    console.log("hennn" + this.userId);
+    if (this.userId) {
+      this.getRecommendedPosts();
+    }
     
-    this.commentForm= this.fb.group({
+    this.commentForm = this.fb.group({
       descriptionComment: ['', Validators.required],
     });
   }
 
   getAllPosts(): void {
     const token = localStorage.getItem('auth_token');
-    console.log('Token:', token);
     if (!token) {
       this.errorMessage = 'Aucun token d’authentification trouvé. Veuillez vous connecter.';
       return;
     }
     this.postService.getAllPosts().subscribe({
       next: (data) => {
-        console.log('Données reçues:', data);
-        this.posts = data.map(post => ({
-          ...post,
-          isLiked: false
-        }));
-        console.log('Posts transformés:', this.posts);
+        this.posts = data.reverse();
+        if (this.userId) {
+          // Fetch like status for each post
+          this.posts.forEach(post => {
+            this.postService.checkIfLiked(post.idPosts, this.userId!).subscribe({
+              next: (liked) => {
+                post.likedByUser = liked;
+                post.creationDate = new Date(post.creationDate);
+              },
+              error: (err) => {
+                console.error(`Error checking like status for post ${post.idPosts}:`, err);
+                post.likedByUser = false; // Default to false on error
+              }
+            });
+          });
+        }
       },
       error: (error) => {
         console.error('Détails de l’erreur:', error);
@@ -75,85 +92,67 @@ export class PostsComponent implements OnInit {
     });
   }
 
-    getUserIdFromToken(): number | null {
-      const token = localStorage.getItem('auth_token');
-      console.log("token:", token);
-      
-      if (!token) return null;
-    
-      try {
-        const decodedToken: any = jwtDecode(token);
-        
-        return decodedToken.idUser;
-      } catch (error) {
-        console.error("Error decoding token:", error);
-        return null;
-      }
+  getRecommendedPosts(): void {
+    if (!this.userId) {
+      this.errorMessage = 'Utilisateur non connecté. Impossible de récupérer les posts recommandés.';
+      return;
     }
+    this.postService.getRecommendedPosts(this.userId).subscribe({
+      next: (data: any) => {
+        this.recommendedPosts = data.recommended_posts;
+        this.recommendedPosts.forEach(post => {
+          this.postService.checkIfLiked(post.id, this.userId!).subscribe({
+            next: (liked) => {
+              post.likedByUser = liked;
+              post.idPosts = post.id;
+              post.creationDate = new Date(post.creation_date);
+            },
+            error: (err) => {
+              console.error(`Error checking like status for post ${post.id}:`, err);
+              post.likedByUser = false;
+            }
+          });
+        });
+      },
+      error: (error) => {
+        console.error('Erreur lors de la récupération des posts recommandés:', error);
+        this.errorMessage = 'Erreur lors de la récupération des posts recommandés : ' + (error.message || 'Vérifiez la console');
+      }
+    });
+  }
+
+  
+  getUserIdFromToken(): number | null {
+    const token = localStorage.getItem('auth_token');
+    console.log("token:", token);
+    
+    if (!token) return null;
+    
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.idUser;
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null;
+    }
+  }
 
   toggleLike(post: any): void {
-  this.userId = this.getUserIdFromToken();
-
-  if (this.userId === null) {
-    console.error("User ID is null. Cannot toggle like.");
-    return;
-  }
-  this.postService.toggleLike(post.idPosts, this.userId).subscribe({
-    next: (updatedPost) => {
-      post.likesCount = updatedPost.likesCount;
-      post.likedByUser = !post.likedByUser;
-    },
-    error: (err) => {
-      console.error('Error toggling like:', err);
-    }
-  });
-}
-
+    this.userId = this.getUserIdFromToken();
   
-
-  toggleLikeOld(postId: number | undefined): void {
-    console.log('Clic sur J’aime, postId:', postId);
-    if (postId === undefined) {
-      console.log('postId undefined, arrêt');
-      this.errorMessage = 'ID du post manquant';
+    if (this.userId === null) {
+      console.error("User ID is null. Cannot toggle like.");
       return;
     }
-  
-    const post = this.posts.find(p => p.idPosts === postId);
-    if (!post) {
-      console.log('Post non trouvé pour id:', postId);
-      this.errorMessage = 'Post non trouvé';
-      return;
-    }
-  
-    if (post.isLiked && post.actionId) {
-      // Supprimer le like dans la base de données
-      this.postService.unlikePost(post.actionId).subscribe({
-        next: (response) => {
-          console.log('Réponse unlike:', response);
-          // Garder le like visuellement "toggled" côté client
-          post.isLiked = true; // On garde le like visuellement "toggled"
-          post.actionId = undefined;
-          console.log(`Post ${postId} unliked avec succès`);
-          this.errorMessage = '';
-        },
-      });
-    } else {
-      // Ajouter un like dans la base de données
-      this.postService.likePost(postId).subscribe({
-        next: (response) => {
-          post.isLiked = true;
-          post.actionId = response.idAction;
-          console.log(`Post ${postId} liked avec succès`, response);
-          this.errorMessage = '';
-        },
-        error: (error) => {
-          console.error('Erreur like:', error.status, error.error);
-          // Afficher un message d'erreur si l'ajout du like échoue
-          this.errorMessage = 'Erreur lors de l’ajout du like : ' + (error.message || 'Voir console');
-        }
-      });
-    }
+    this.postService.toggleLike(post.idPosts, this.userId).subscribe({
+      next: (updatedPost) => {
+        post.likesCount = updatedPost.likesCount;
+        post.likedByUser = !post.likedByUser;
+      },
+      error: (err) => {
+        console.error('Error toggling like:', err);
+      }
+    });
   }
 
 
@@ -189,7 +188,6 @@ export class PostsComponent implements OnInit {
       console.error(`Modal with ID ${modalId} not found`);
     }
   }
-  
 
   deleteComment(commentId: number): void {
     this.commentService.deleteComment(commentId).subscribe(() => {
@@ -197,17 +195,16 @@ export class PostsComponent implements OnInit {
     });
   }
 
-
-  btnedit:boolean=false;
-  selectid:any
+  btnedit: boolean = false;
+  selectid: any;
+  
   editComment(comment: any): void {
-    this.btnedit=true;
-    this.selectid=comment.idComment;
+    this.btnedit = true;
+    this.selectid = comment.idComment;
     this.commentForm.patchValue({
       descriptionComment: comment.descriptionComment,
     });
   }
-
 
   updateComment(): void {
     if (this.commentForm.invalid) {
@@ -217,11 +214,9 @@ export class PostsComponent implements OnInit {
   
     this.commentService.updateComment(this.selectid, this.commentForm.value).subscribe(response => {
       console.log(response);
-      this.btnedit=false;
+      this.btnedit = false;
       this.commentForm.reset(); 
       this.getAllPosts(); 
     });
   }
-
-
 }

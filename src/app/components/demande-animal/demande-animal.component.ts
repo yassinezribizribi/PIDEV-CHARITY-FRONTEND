@@ -61,6 +61,7 @@ console.log(this.userId);
       error: (err) => alert("Erreur lors du chargement : " + err.message)
     });
   }
+
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
       case 'adopté':
@@ -71,6 +72,7 @@ console.log(this.userId);
         return 'secondary';
     }
   }
+  
   accepterDemande(demandeId: number) {
     this.demandeService.accepter(demandeId).subscribe({
       next: () => {

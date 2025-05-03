@@ -8,7 +8,7 @@
             <div class="col-12">
                 <div class="title-heading text-center">
                     <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">
-                        {{ training?.trainingName || 'Détails de la formation' }}
+                        {{ training?.trainingName || 'Training Details' }}
                     </h5>
                 </div>
             </div>
@@ -17,9 +17,9 @@
             <nav aria-label="breadcrumb" class="d-block">
                 <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
                     <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
-                    <li class="breadcrumb-item"><a [routerLink]="'/trainings'">Formations</a></li>
+                    <li class="breadcrumb-item"><a [routerLink]="'/trainings'">Trainings</a></li>
                     <li class="breadcrumb-item active" aria-current="page">
-                        {{ training?.trainingName || 'Détails' }}
+                        {{ training?.trainingName || 'Details' }}
                     </li>
                 </ul>
             </nav>
@@ -40,26 +40,26 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-md-7">
-                <!-- Chargement -->
+                <!-- Loading -->
                 <div *ngIf="isLoading" class="text-center">
-                    <p>Chargement des détails de la formation...</p>
+                    <p>Loading training details...</p>
                 </div>
 
-                <!-- Erreur -->
+                <!-- Error -->
                 <div *ngIf="!isLoading && errorMessage" class="text-center text-danger">
                     <p>{{ errorMessage }}</p>
                 </div>
 
-                <!-- Détails de la formation -->
+                <!-- Training Details -->
                 <div *ngIf="!isLoading && !errorMessage && training" class="card border-0 shadow rounded overflow-hidden">
                     <div class="card-body">
                         <h4 class="text-dark">{{ training.trainingName }}</h4>
                         <p class="text-muted">{{ training.description }}</p>
-                        <p class="text-muted"><strong>Durée :</strong> {{ training.duration }} heures</p>
-                        <p class="text-muted"><strong>Capacité :</strong> {{ training.capacity }} participants</p>
-                        <p class="text-muted"><strong>Niveau :</strong> {{ training.level }}</p>
-                        <p class="text-muted"><strong>Type :</strong> {{ training.type }}</p>
-                        <p class="text-muted"><strong>Date de la session :</strong> {{ training.sessionDate | date:'medium' }}</p>
+                        <p class="text-muted"><strong>Duration:</strong> {{ training.duration }} hours</p>
+                        <p class="text-muted"><strong>Capacity:</strong> {{ training.capacity }} participants</p>
+                        <p class="text-muted"><strong>Level:</strong> {{ training.level }}</p>
+                        <p class="text-muted"><strong>Type:</strong> {{ training.type }}</p>
+                        <p class="text-muted"><strong>Session Date:</strong> {{ training.sessionDate | date:'medium' }}</p>
 
                         <button class="btn btn-primary mt-3" (click)="addsub(training.idTraining)">
                             Register
@@ -67,9 +67,9 @@
                     </div>
                 </div>
 
-                <!-- Si pas de données -->
+                <!-- No Data -->
                 <div *ngIf="!isLoading && !errorMessage && !training" class="text-center">
-                    <p>Aucun détail disponible pour cette formation.</p>
+                    <p>No details available for this training.</p>
                 </div>
             </div>
 
@@ -82,42 +82,41 @@
 </section>
 <!-- End -->
 
-
 <!-- Success Modal -->
 <div class="modal fade" id="trainingSubscribeModal" tabindex="-1" aria-labelledby="trainingSubscribeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content rounded-3 shadow-lg border-0">
         <div class="modal-header border-0" style="background: #f8f9fa;">
-          <h5 class="modal-title fw-semibold" id="trainingSubscribeModalLabel">Succès</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          <h5 class="modal-title fw-semibold" id="trainingSubscribeModalLabel">Success</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-4">
-          <p class="text-success">Inscription réussie.</p>
+          <p class="text-success">Registration successful.</p>
         </div>
         <div class="modal-footer border-0">
-          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Fermer</button>
+          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
-  </div>
-  
-  <!-- Error Modal -->
-  <div class="modal fade" id="trainingSubscribeErrorModal" tabindex="-1" aria-labelledby="trainingSubscribeErrorModalLabel" aria-hidden="true">
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="trainingSubscribeErrorModal" tabindex="-1" aria-labelledby="trainingSubscribeErrorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content rounded-3 shadow-lg border-0">
         <div class="modal-header border-0" style="background: #f8f9fa;">
-          <h5 class="modal-title fw-semibold" id="trainingSubscribeErrorModalLabel">Erreur</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          <h5 class="modal-title fw-semibold" id="trainingSubscribeErrorModalLabel">Error</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-4">
-          <p class="text-danger">L'abonné est déjà inscrit à cette formation.</p>
+          <p class="text-danger">The subscriber is already registered for this training.</p>
         </div>
         <div class="modal-footer border-0">
-          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Fermer</button>
+          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
-  </div>
+</div>
 
 <app-footer></app-footer>
 <app-scroll-to-top></app-scroll-to-top>
