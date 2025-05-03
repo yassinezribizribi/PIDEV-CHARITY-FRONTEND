@@ -70,7 +70,7 @@ export class BlogDetailComponent implements OnInit {
     
       this.eventService.markUserAsInterested(eventId, idUser).subscribe({
         next: () => {
-          console.log("User marked as interested.");
+        alert("User marked as interested.");
         //  this.loadEvents(); // Reload events to reflect changes
         },
         error: (err) => console.error("Error subscribing to event:", err)

@@ -1,12 +1,17 @@
 <app-navbar></app-navbar>
 
 <!-- Hero Section -->
-<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+<section
+  class="bg-half-170 d-table w-100"
+  style="background: url('assets/images/hero/pages.jpg') center"
+>
   <div class="bg-overlay bg-gradient-overlay"></div>
   <div class="container">
     <div class="row mt-5 justify-content-center">
       <div class="col-12 text-center">
-        <h5 class="heading fw-semibold text-white title-dark">Publications des Associations</h5>
+        <h5 class="heading fw-semibold text-white title-dark">
+          Publications des Associations
+        </h5>
         <p *ngIf="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
       </div>
     </div>
@@ -14,7 +19,9 @@
   <div class="position-middle-bottom">
     <nav aria-label="breadcrumb" class="d-block">
       <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-        <li class="breadcrumb-item"><a [routerLink]="'/index'">Smilecare</a></li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="'/index'">Smilecare</a>
+        </li>
         <li class="breadcrumb-item active" aria-current="page">Posts</li>
       </ul>
     </nav>
@@ -24,7 +31,10 @@
 <div class="position-relative">
   <div class="shape overflow-hidden text-white">
     <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+      <path
+        d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z"
+        fill="currentColor"
+      ></path>
     </svg>
   </div>
 </div>
@@ -37,31 +47,108 @@
         <div *ngFor="let post of posts" class="card shadow rounded mb-4">
           <div class="card-body">
             <div class="d-flex align-items-center mb-3">
-              <img src="assets/images/association/ss.jpeg" class="rounded-circle me-3" style="width: 50px; height: 50px;" alt="Association">
+              <img
+                src="assets/images/association/ss.jpeg"
+                class="rounded-circle me-3"
+                style="width: 50px; height: 50px"
+                alt="Association"
+              />
               <div>
                 <h6 class="mb-0">Association</h6>
-                <small class="text-muted">{{ post.creationDate | date:'medium' }}</small>
+                <small class="text-muted">{{
+                  post.creationDate | date : "medium"
+                }}</small>
               </div>
             </div>
             <p class="text-muted">{{ post.content }}</p>
-            <button class="btn btn-sm"
-                    [ngClass]="{'btn-danger': post.likedByUser, 'btn-outline-primary': !post.likedByUser}"
-                    (click)="toggleLike(post)">
-                <i class="mdi" [ngClass]="post.likedByUser ? 'mdi-heart' : 'mdi-heart-outline'"></i>
-                {{ post.likedByUser ? 'Unlike' : 'Like' }}
+            <td *ngIf="post.imagePath">
+              <img
+                [src]="
+                  'http://localhost:8089/api/animals/images/' + post.imagePath
+                "
+                alt="image"
+                style="height: 200px; width: 100%"
+                class="img-fluid"
+              />
+            </td>
+
+            <button
+              class="btn btn-sm"
+              [ngClass]="{
+                'btn-danger': post.likedByUser,
+                'btn-outline-primary': !post.likedByUser
+              }"
+              (click)="toggleLike(post)"
+            >
+              <i
+                class="mdi"
+                [ngClass]="post.likedByUser ? 'mdi-heart' : 'mdi-heart-outline'"
+              ></i>
+              {{ post.likedByUser ? "Unlike" : "Like" }}
             </button>
 
-
-       
-          
             <button class="btn btn-sm">
-                <i class="mdi mdi-like"></i> {{ post.shareCount }} share
-              </button>
-              <button class="btn btn-sm" >
-                <i class="mdi mdi-heart"></i>  Donnate
-              </button>
-            <p *ngIf="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
+              <i class="mdi mdi-like"></i> {{ post.shareCount }} share
+            </button>
+            <button class="btn btn-sm">
+              <i class="mdi mdi-heart"></i> Donnate
+            </button>
+            <p *ngIf="errorMessage" class="text-danger mt-2">
+              {{ errorMessage }}
+            </p>
           </div>
+          <!-- Comment Section -->
+          <div *ngFor="let comment of post.comments" class="mt-3">
+            <div class="comment-card p-2 mb-2">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <strong>{{ comment.user.email }}</strong>
+                  <p class="text-muted">{{ comment.date | date : "medium" }}</p>
+                  <p>{{ comment.descriptionComment }}</p>
+                </div>
+                <div class="comment-actions d-flex align-items-center">
+                  <button
+                    class="btn btn-outline-warning btn-sm mx-1"
+                    (click)="editComment(comment)"
+                    title="Edit Comment"
+                  >
+                    <i class="mdi mdi-pencil"></i> 
+                  </button>
+                  <button
+                    class="btn btn-outline-danger btn-sm mx-1"
+                    (click)="deleteComment(comment.idComment)"
+                    title="Delete Comment"
+                  >
+                    <i class="mdi mdi-delete"></i> 
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Comment Form -->
+          <form [formGroup]="commentForm" class="mb-3">
+            <div class="mt-3">
+              <textarea
+                formControlName="descriptionComment"
+                class="form-control"
+                placeholder="Add a comment..."
+              ></textarea>
+              <button *ngIf="!btnedit"
+                class="btn btn-sm btn-primary mt-2"
+                (click)="addComment(post.idPosts)"
+              >
+                Add Comment
+              </button>
+              <button *ngIf="btnedit"
+              class="btn btn-sm btn-primary mt-2"
+              (click)="updateComment()"
+            >
+              update Comment
+            </button>
+            </div>
+          </form>
+       
         </div>
       </div>
 

@@ -55,7 +55,7 @@ export class AnimalService {
     return this.http.get<User>(`${this.apiUrlUser}/getUserById/${id}`);
   }
 
-  addAnimal(animal: Animal,iduser:number): Observable<Animal> {
+  addAnimal(formData: FormData): Observable<Animal> {
     const token = localStorage.getItem('auth_token');
     if (!token) {
       return throwError(() => new Error('User is not authenticated.'));
@@ -64,7 +64,7 @@ export class AnimalService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-    return this.http.post<Animal>(`${this.apiUrl}/add/${iduser}`, animal , { headers });
+    return this.http.post<Animal>(`${this.apiUrl}/add`, formData , { headers });
   }
 
   updateAnimal(id: number, animal: Animal): Observable<Animal> {

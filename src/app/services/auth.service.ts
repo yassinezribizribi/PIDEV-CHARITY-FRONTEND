@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -53,13 +52,21 @@ export class AuthService {
 
     try {
       const decodedToken: any = JSON.parse(atob(token.split('.')[1])); // Decode JWT
-      return decodedToken.roles[0] ?? null; // Extract role from token
+      return decodedToken.roles[0] ?? null; 
     } catch (error) {
       console.error('Error decoding token:', error);
       return null;
     }
   }
-
+  getSubjectFromToken(token: string): string | null {
+    try {
+      const decodedToken: any = JSON.parse(atob(token.split('.')[1])); // Decode JWT
+      return decodedToken.sub;  // Retourne le champ 'sub'
+    } catch (error) {
+      console.error('Erreur lors du décodage du token:', error);
+      return null; // Si le token est invalide
+    }
+  }
   getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
     return new HttpHeaders({

@@ -84,7 +84,9 @@ export class PostService {
   getUserById(id: number): Observable<User> {
     return this.http.get<User>(`${this.apiUrlUser}/getUserById/${id}`);
   }
-
+  getUserlist(id: number): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/${id}/like-users`);
+  }
   deletePost(id: number): Observable<string> {
     console.log('Delete post avec id:', id);
     return this.http.delete(`${this.apiUrl}/deletePost/${id}`, {
@@ -96,4 +98,5 @@ export class PostService {
     console.log('Requête vers:', `${this.apiUrl}/likes-count`);
     return this.http.get<Map<number, number>>(`${this.apiUrl}/likes-count`);
   }
+  
 }

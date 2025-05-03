@@ -149,4 +149,15 @@ export class EventService {
     return this.http.get<Subscriber[]>(`${this.apiUrl}/${eventId}/subscribers`, {headers});
   }
 
+  getEvent(userid: number): Observable<Subscriber[]> {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      return throwError(() => new Error('User is not authenticated.'));
+    }
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<Subscriber[]>(`${this.apiUrl}/${userid}/getevents`, {headers});
+  }
 }

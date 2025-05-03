@@ -56,6 +56,7 @@
           <table class="table table-hover">
             <thead>
               <tr>
+                <th>Image</th>
                 <th>Nom</th>
                 <th>Espèce</th>
                 <th>Race</th>
@@ -66,6 +67,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let animal of animals" (click)="viewAnimal(animal)" style="cursor: pointer;">
+                <td><img  [src]="'http://localhost:8089/api/animals/images/' + animal.imagePath"alt="{{animal.name}}" style="height: 50px;width: 50px;" class="img-fluid"></td>
                 <td>{{animal.name}}</td>
                 <td>{{animal.animalSpecies}}</td>
                 <td>{{animal.race}}</td>
@@ -74,7 +76,7 @@
                     {{animal.isAdopted ? 'Adopté' : 'Disponible'}}
                   </span>
                 </td>
-                <td>{{animal.subscriber.firstName}}</td>
+                <td>{{animal.subscriber.email}}</td>
                 <td (click)="$event.stopPropagation()"> <!-- Empêche le clic sur la ligne de propager aux boutons -->
                   <button class="btn btn-sm btn-danger me-1" (click)="deleteAnimal(animal.idAnimal)">
                     Supprimer

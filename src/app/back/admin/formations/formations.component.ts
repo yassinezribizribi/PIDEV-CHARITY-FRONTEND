@@ -45,7 +45,15 @@ export class FormationsComponent  implements OnInit {
     this.getAllTrainings();
     this.initForm();
   }
-
+  downloadCertificate(idformation:any,iduser:any){
+this.trainingService.downloadCertificate(idformation,iduser)
+  .subscribe(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `certificat_${iduser}.pdf`;
+        link.click();
+      });
+  }
   
 
   initForm(training?: Training): void {
@@ -55,8 +63,8 @@ export class FormationsComponent  implements OnInit {
     this.trainingForm = this.fb.group({
     
 
-      trainingName: [training?.trainingName || '', Validators.required],
-      description: [training?.description || '', Validators.required],
+      trainingName: [training?.trainingName || '',[ Validators.required,Validators.minLength(3)]],
+      description: [training?.description || '',[ Validators.required,Validators.minLength(10)]],
       duration: [training?.duration || '', [Validators.required, Validators.min(1)]],
       capacity: [training?.capacity || '', [Validators.required, Validators.min(1)]],
       level: [training?.level || '', Validators.required],

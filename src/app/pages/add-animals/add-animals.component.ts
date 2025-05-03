@@ -43,7 +43,7 @@ export class AddAnimalsComponent {
       name: ['', [Validators.required, Validators.minLength(3)]],
       animalSpecies: ['', Validators.required],
       race: ['', Validators.required],
-      medicalHistory: [''],
+      medicalHistory: ['',Validators.required],
       isAdopted: [false]
     });
   }
@@ -61,28 +61,52 @@ export class AddAnimalsComponent {
       return null;
     }
   }
+  selectedImageFile: File | null = null;
 
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedImageFile = file;
+    }
+  }
+  
   addAnimal(): void {
     if (this.animalForm.invalid) {
       this.errorMessage = "Veuillez remplir correctement tous les champs requis.";
       return;
     }
-
+  
     const userId = this.getUserIdFromToken();
     if (!userId) {
       this.errorMessage = "Utilisateur non identifié.";
       return;
     }
-
-   
-   console.log(this.animalForm.value);
-   
-    this.animalService.addAnimal(this.animalForm.value,userId).subscribe({
+  
+    const formData = new FormData();
+  
+    const animalData = {
+      name: this.animalForm.value.name,
+      animalSpecies: this.animalForm.value.animalSpecies,
+      race: this.animalForm.value.race,
+      medicalHistory: this.animalForm.value.medicalHistory,
+      isAdopted: this.animalForm.value.isAdopted,
+      healthcare: this.animalForm.value.healthcare
+    };
+  
+    formData.append('animal', new Blob([JSON.stringify(animalData)], { type: 'application/json' }));
+  
+    if (this.selectedImageFile) {
+      formData.append('image', this.selectedImageFile);
+    }
+  
+    formData.append('iduser', userId.toString());
+  
+    this.animalService.addAnimal(formData).subscribe({
       next: (response) => {
         console.log('Réponse API:', response);
         this.successMessage = 'Animal ajouté avec succès !';
         this.errorMessage = '';
-        this.animalForm.reset(); // Réinitialisation du formulaire
+        this.animalForm.reset();
         this.router.navigate(['/animals']);
       },
       error: (error) => {
@@ -95,4 +119,5 @@ export class AddAnimalsComponent {
       }
     });
   }
+  
 }

@@ -43,9 +43,39 @@
                 <div *ngIf="errorMessage" class="alert alert-danger my-4">
                     {{ errorMessage }}
                 </div>
-
-                <div class="row g-4" *ngIf="!isLoading && !errorMessage">
+                <div class="training-buttons mb-3">
+                    <button class="btn btn-danger" *ngIf="!isLoading && !errorMessage  && open" (click)="toggle()">Afficher toutes les formations</button>
+                   <!-- <button class="btn btn-info" *ngIf="!isLoading && !errorMessage  && !open" (click)="toggle()">Afficher ma liste</button>-->
+                  </div>
+                <div class="row g-4" *ngIf="!isLoading && !errorMessage  && !open" >
                     <div *ngFor="let training of trainings" class="col-lg-6 col-12">
+                        <div class="blog position-relative overflow-hidden shadow rounded p-4">
+                            <div class="position-relative">
+                                <div class="blog-image position-relative overflow-hidden rounded shadow">
+                                    <!-- Add training-specific image if available, or use a default -->
+                                   <!-- <img src="assets/images/training/default.jpg" alt="{{ training.trainingName }}" class="img-fluid">-->
+                                </div>
+                                <div class="position-absolute top-100 start-0 translate-middle-y ms-2">
+                                    <a routerLink="#" (click)="$event.preventDefault()" class="badge bg-primary">Formation</a>
+                                </div>
+                            </div>
+
+                            <div class="pt-4">
+                                <a [routerLink]="['/trainings', training.idTraining]" class="text-dark title h5">
+                                    {{ training.trainingName }}
+                                </a>
+                                <p class="text-muted my-2">{{ training.description }}</p>
+                                <p class="text-muted">Date: {{ training.sessionDate | date }}</p>
+                                <p class="text-muted">Durée: {{ training.duration }} jours</p>
+                                <a [routerLink]="['/training-details', training.idTraining]" class="text-dark read-more">
+                                    Voir les détails <i class="mdi mdi-chevron-right align-middle"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div><!--end col-->
+                </div><!--end row-->
+                <div class="row g-4" *ngIf="!isLoading && !errorMessage  && open" >
+                    <div *ngFor="let training of mytrainings" class="col-lg-6 col-12">
                         <div class="blog position-relative overflow-hidden shadow rounded p-4">
                             <div class="position-relative">
                                 <div class="blog-image position-relative overflow-hidden rounded shadow">
@@ -67,9 +97,11 @@
                                 <p class="text-muted">Capacité: {{ training.capacity }} participants</p>
                                 <p class="text-muted">Niveau: {{ training.level }}</p>
                                 <p class="text-muted">Type: {{ training.type }}</p>
-                                <a [routerLink]="['/training-details', training.idTraining]" class="text-dark read-more">
-                                    Voir les détails <i class="mdi mdi-chevron-right align-middle"></i>
-                                </a>
+                                <button class="btn btn-success btn-sm"
+                                (click)="downloadCertificate(training.idTraining!)">
+                                  <i class="mdi mdi-download"></i> 
+                          Télécharger certificat
+                        </button>
                             </div>
                         </div>
                     </div><!--end col-->

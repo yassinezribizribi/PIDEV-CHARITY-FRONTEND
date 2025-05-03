@@ -10,6 +10,7 @@ import { TrainingService } from '../../services/training.service';
 import { TokenInterceptor } from '../../interceptors/token.interceptor';
 import { ActivatedRoute } from '@angular/router';
 import { Training } from 'src/app/models/Training';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-training-details', // Changé de training-detail à training-details
@@ -40,14 +41,28 @@ export class TrainingDetailsComponent implements OnInit {
     private trainingService: TrainingService,
     private route: ActivatedRoute
   ) {}
-idUser:any
+  userId:any
   ngOnInit(): void {
-    this.idUser=localStorage.getItem("idUser");
-    console.log(this.idUser);
+    this.userId = this.getUserIdFromToken();
+
     
     this.getTrainingDetails();
   }
-
+  getUserIdFromToken(): number | null {
+    const token = localStorage.getItem('auth_token');
+    console.log("token:", token);
+    
+    if (!token) return null;
+  
+    try {
+      const decodedToken: any = jwtDecode(token);
+      
+      return decodedToken.idUser;
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null;
+    }
+  }
   getTrainingDetails(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
@@ -70,7 +85,7 @@ idUser:any
     }
   }
   addsub(idTraining:number) {
-this.trainingService.addSubscriberToTraining(idTraining,this.idUser).subscribe((data:any)=>{
+this.trainingService.addSubscriberToTraining(idTraining,this.userId).subscribe((data:any)=>{
   console.log(data);
   alert("register successfully ")
   

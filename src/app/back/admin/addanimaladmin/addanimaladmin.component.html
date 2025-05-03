@@ -33,24 +33,35 @@
     <div class="row justify-content-center">
       <div class="col-lg-6 col-md-8 col-12">
         <div class="add-form-card">
-        <form [formGroup]="animalForm">
-          <div class="form-group">
-            <input type="text" placeholder="Nom" formControlName="name"  class="form-control form-input mb-3">
-            <input type="text" placeholder="Espèce" formControlName="animalSpecies" class="form-control form-input mb-3">
-            <input type="text" placeholder="Race" formControlName="race"  class="form-control form-input mb-3">
-            <input type="text" placeholder="Historique Médical" formControlName="medicalHistory"   class="form-control form-input mb-3">
-<!--          <div class="form-check mb-3">
-              <input type="checkbox" class="form-check-input" [(ngModel)]="newAnimal.isAdopted" id="isAdopted">
-              <label class="form-check-label" for="isAdopted">Adopté</label>
+          <form [formGroup]="animalForm">
+            <div class="form-group">
+              <input type="text" placeholder="Nom" formControlName="name" class="form-control form-input mb-1">
+              <div *ngIf="animalForm.get('name')?.invalid && animalForm.get('name')?.touched" class="text-danger">
+                Le nom est requis.
+              </div>
+              
+              <input type="text" placeholder="Espèce" formControlName="animalSpecies" class="form-control form-input mb-1">
+              <div *ngIf="animalForm.get('animalSpecies')?.invalid && animalForm.get('animalSpecies')?.touched" class="text-danger">
+                L'espèce est requise.
+              </div>
+              
+              <input type="text" placeholder="Race" formControlName="race" class="form-control form-input mb-1">
+              <div *ngIf="animalForm.get('race')?.invalid && animalForm.get('race')?.touched" class="text-danger">
+                La race est requise.
+              </div>
+              
+              <input type="text" placeholder="Historique Médical" formControlName="medicalHistory" class="form-control form-input mb-1">
+              <div *ngIf="animalForm.get('medicalHistory')?.invalid && animalForm.get('medicalHistory')?.touched" class="text-danger">
+                L'historique médical est requis.
+              </div>
+               
+              <input type="file" (change)="onFileSelected($event)" class="form-control form-input mb-1" />
+  
+              <button class="btn btn-primary add-btn" [disabled]="animalForm.invalid" (click)="addAnimal()">Ajouter un Animal</button>
+              <p *ngIf="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
+              <p *ngIf="successMessage" class="text-success mt-3">{{ successMessage }}</p>
             </div>
--->         
-            <button class="btn btn-primary add-btn" (click)="addAnimal()">Ajouter un Animal</button>
-            <button type="button" class="btn btn-secondary me-2" (click)="cancel()">Annuler</button>
-
-            <p *ngIf="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
-            <p *ngIf="successMessage" class="text-success mt-3">{{ successMessage }}</p>
-          </div>
-        </form>
+          </form>
         </div>
       </div>
     </div>

@@ -65,7 +65,6 @@ export class EditEventAdminComponent implements OnInit {
       dateTime: [this.formatDateTimeForInput(event.dateTime), Validators.required],
       location: [event.location, Validators.required],
       typeEvent: [event.typeEvent, Validators.required],
-      reservationDate: [this.formatDateForInput(event.reservationDate), Validators.required]
     });
   }
 

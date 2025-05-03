@@ -9,6 +9,9 @@ import { PostService, Post } from 'src/app/services/post.service';
 import { TokenInterceptor } from 'src/app/interceptors/token.interceptor';
 import { BlogSidebarsComponent } from '@component/blog-sidebars/blog-sidebars.component';
 import { jwtDecode } from 'jwt-decode';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommentService } from '../services/comment.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-posts',
@@ -16,6 +19,7 @@ import { jwtDecode } from 'jwt-decode';
   imports: [
     CommonModule,
     RouterLink,
+    ReactiveFormsModule ,
     NavbarComponent,
     FooterComponent,
     ScrollToTopComponent,
@@ -30,15 +34,22 @@ import { jwtDecode } from 'jwt-decode';
   styleUrls: ['./posts.component.scss']
 })
 export class PostsComponent implements OnInit {
-  posts: Post[] = [];
+  commentForm!: FormGroup;
+  posts: any[] = [];
   errorMessage = '';
   userId: number | null = null;
 
 
-  constructor(private postService: PostService) {}
+  constructor(private postService: PostService,private authservice: AuthService,private commentService:CommentService,private fb:FormBuilder) {}
 
   ngOnInit(): void {
     this.getAllPosts();
+    this.userId = this.getUserIdFromToken();
+    console.log("hennn"+this.userId);
+    
+    this.commentForm= this.fb.group({
+      descriptionComment: ['', Validators.required],
+    });
   }
 
   getAllPosts(): void {
@@ -145,5 +156,47 @@ export class PostsComponent implements OnInit {
         }
       });
     }
+  }
+  addComment(postId: number) {
+    if (this.commentForm.invalid) {
+      alert('Aucun commentaire à ajouter');
+      return;
+    }
+  
+ 
+    this.commentService.addComment(postId, this.commentForm.value,this.userId!).subscribe(response => {
+      console.log(response);
+      this.commentForm.reset(); 
+      this.getAllPosts(); 
+    });
+  }
+
+  deleteComment(commentId: number): void {
+    this.commentService.deleteComment(commentId).subscribe(() => {
+      this.getAllPosts(); // Recharger les posts après suppression
+    });
+  }
+  btnedit:boolean=false;
+  selectid:any
+  editComment(comment: any): void {
+    this.btnedit=true;
+    this.selectid=comment.idComment;
+    this.commentForm.patchValue({
+      descriptionComment: comment.descriptionComment,
+    });
+   
+  }
+  updateComment(): void {
+    if (this.commentForm.invalid) {
+      alert('Aucun commentaire à mettre à jour');
+      return;
+    }
+  
+    this.commentService.updateComment(this.selectid, this.commentForm.value).subscribe(response => {
+      console.log(response);
+      this.btnedit=false;
+      this.commentForm.reset(); 
+      this.getAllPosts(); 
+    });
   }
 }

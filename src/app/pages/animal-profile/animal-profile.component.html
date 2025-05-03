@@ -49,7 +49,7 @@
                 <!-- Détails de l’animal -->
                 <div *ngIf="!isLoading && !errorMessage && animal" class="card border-0 shadow rounded overflow-hidden">
                     <!-- Pas d'image dans le modèle, ajoutez-la si nécessaire -->
-                    <img src="assets/images/animals/Golden-Retriever.webp" class="img-fluid" alt="{{ animal.name }}">
+                    <img [src]="'http://localhost:8089/api/animals/images/' + animal.imagePath" class="img-fluid rounded-top" alt="{{ animal.name }}">
 
                     <div class="card-body">
                         <h4 class="text-dark">{{ animal.name }}</h4>
@@ -59,8 +59,7 @@
                         <p class="text-muted"><strong>Adopté :</strong> {{ animal.isAdopted ? 'Oui' : 'Non' }}</p>
                         <p class="text-muted"><strong>Email Propriétaire :</strong> {{ userEmail }}</p>
                         <p class="text-muted"><strong>Télephone :</strong> {{ telephone }}</p>
-
-                        <!-- Citation décorative -->
+                        <button (click)="enregistrerDemande(animal.idAnimal)" class="btn btn-danger">Demande</button>
                         <blockquote class="text-center mx-auto blockquote">
                             <i class="mdi mdi-format-quote-open mdi-48px text-muted opacity-2 d-block"></i>
                             Chaque animal a une histoire unique à raconter.

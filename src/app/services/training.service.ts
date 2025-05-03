@@ -45,7 +45,20 @@ export class TrainingService {
     });
     return this.http.get<Training>(`${this.apiUrl}/${id}`,{headers});
   }
-
+  downloadCertificate(trainingId: number, userId: number):Observable<Blob> {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      return throwError(() => new Error('User is not authenticated.'));
+    }
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  return  this.http.get(`http://localhost:8089/api/trainings/generate/${trainingId}/${userId}`, {
+      responseType: 'blob',headers
+    })
+  }
+  
   addTraining(training: Training): Observable<Training> {
     const token = localStorage.getItem('auth_token');
     if (!token) {

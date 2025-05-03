@@ -36,12 +36,17 @@
       <div class="col-lg-8 col-md-7">
         <!-- Champ pour ajouter un post -->
         <div class="card shadow rounded mb-4">
-          <div class="card-body">
-            <div class="mb-3">
-              <textarea class="form-control" [(ngModel)]="newPostContent" placeholder="Écrivez un nouveau post..." rows="4"></textarea>
+          <form [formGroup]="postForm">
+            <div class="form-group">
+              <textarea formControlName="content" class="form-control  mb-2" placeholder="Contenu du post"></textarea>
+              <div *ngIf="postForm.controls['content'].invalid && postForm.controls['content'].touched" class="text-danger">
+                Le contenu est requis.
+              </div>
+              <input type="file" (change)="onFileSelected($event)" class="form-control mb-2">
+              <button class="btn btn-primary" [disabled]="postForm.invalid" (click)="addPost()">Créer le post</button>
             </div>
-            <button class="btn btn-primary" (click)="sharePost()">Partager le Post</button>
-          </div>
+          </form>
+          
         </div>
 
         <!-- Liste des posts -->
@@ -56,18 +61,45 @@
             </div>
             <p *ngIf="editPostId !== post.idPosts" class="text-muted">{{ post.content }}</p>
 
+            <td *ngIf="post.imagePath"><img  [src]="'http://localhost:8089/api/animals/images/' + post.imagePath"alt="image" style="height: 200px;width: 100%;" class="img-fluid"></td>
+
+
             <!-- Show textarea when editing -->
             <textarea *ngIf="editPostId === post.idPosts" class="text-muted" [(ngModel)]="post.content" rows="4" cols="80"></textarea>
         
-            <p class="text-muted">Likes: {{ post.likesCount || 0 }}</p>
-            
-        
+            <p class="text-muted">
+              <button (click)="showuserlike(post.idPosts)" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#likesModal">
+                Likes: {{ post.likesCount || 0 }}
+              </button>
+            </p>
+                        
+        <!-- Modal -->
+<div class="modal fade" id="likesModal" tabindex="-1" aria-labelledby="likesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="likesModalLabel">Utilisateurs ayant liké</h5>
+        <button type="button" class="btn-close text-danger" data-bs-dismiss="modal" aria-label="Fermer">X</button>
+      </div>
+      <div class="modal-body">
+        <ul *ngIf="likedUsers.length > 0; else noLikes">
+          <li *ngFor="let user of likedUsers">
+            ({{ user.email }})
+          </li>
+        </ul>
+        <ng-template #noLikes>
+          <p>Aucun utilisateur n’a liké ce post pour le moment.</p>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+
             <!-- Edit Button -->
             <button class="btn btn-sm btn-outline-warning me-2" (click)="editPost(post.idPosts)">
               <i class="mdi mdi-pencil"></i> Modifier
             </button>
         
-            <!-- Save Button (Visible only when editing) -->
             <button *ngIf="editPostId === post.idPosts" class="btn btn-sm btn-outline-success me-2" (click)="savePost(post)">
               <i class="mdi mdi-check"></i> Enregistrer
             </button>
@@ -75,6 +107,33 @@
             <button class="btn btn-sm btn-outline-danger" (click)="deletePost(post.idPosts)">
               <i class="mdi mdi-delete"></i> Supprimer
             </button>
+<button class="btn btn-sm btn-outline-info me-2" (click)="toggleComments(post)">
+  <i class="mdi mdi-comment-text-outline"></i>
+  {{ post.showComments ? 'Masquer les commentaires' : 'Afficher les commentaires' }}
+</button>
+
+<!-- Zone des commentaires -->
+<div *ngIf="post.showComments">
+  <!-- Aucun commentaire -->
+  <div *ngIf="post.comments.length === 0" class="mt-2">
+    <p class="text-muted fst-italic">Aucun commentaire pour ce post.</p>
+  </div>
+
+  <!-- Liste des commentaires -->
+  <div *ngFor="let comment of post.comments" class="mt-3">
+    <div class="comment-card p-2 mb-2 border rounded shadow-sm">
+      <div class="d-flex justify-content-between">
+        <div>
+          <strong>{{ comment.user.email }}</strong>
+          <p class="text-muted mb-1">{{ comment.date | date : "medium" }}</p>
+          <p>{{ comment.descriptionComment }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
           </div>
         </div>
       </div>

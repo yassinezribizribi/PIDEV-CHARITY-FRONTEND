@@ -42,7 +42,8 @@
             <a [routerLink]="['/animal-profile', animal.idAnimal]" class="text-decoration-none">
               <div class="card animal-card text-center">
                 <div class="card-img">
-                  <img src="assets/images/animals/Golden-Retriever.webp" class="img-fluid rounded-top" alt="{{ animal.name }}">
+
+                  <img [src]="'http://localhost:8089/api/animals/images/' + animal.imagePath" class="img-fluid rounded-top" alt="{{ animal.name }}">
                 </div>
                 <div class="card-body bg-white p-4 rounded-bottom shadow">
                   <h5 class="card-title mb-2">{{ animal.name }}</h5>

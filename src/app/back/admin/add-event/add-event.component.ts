@@ -27,14 +27,13 @@ import { jwtDecode } from 'jwt-decode';
   styleUrls: ['./add-event.component.scss'],
 })
 export class AddEventComponent {
-  newEvent: Event = {
+  newEvent: any = {
     idEvent: 0, // Will be set by backend
     title: '',
     description: '',
     dateTime: '',
     location: '',
     typeEvent: TypeEvent.ANIMAL_WELFARE,
-    reservationDate: '',
     associationId: null,
   };
   errorMessage = '';
@@ -69,7 +68,7 @@ export class AddEventComponent {
   
     // Ensure form fields are correctly assigned
     if (!this.newEvent.title || !this.newEvent.description || !this.newEvent.dateTime || 
-        !this.newEvent.location || !this.newEvent.typeEvent || !this.newEvent.reservationDate) {
+        !this.newEvent.location || !this.newEvent.typeEvent ) {
       this.errorMessage = 'All fields are required!';
       return;
     }
