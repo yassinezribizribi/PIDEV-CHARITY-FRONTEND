@@ -45,6 +45,7 @@ export class FormationsComponent  implements OnInit {
     this.getAllTrainings();
     this.initForm();
   }
+  
   downloadCertificate(idformation:any,iduser:any){
 this.trainingService.downloadCertificate(idformation,iduser)
   .subscribe(blob => {

@@ -68,25 +68,55 @@ export class AnimalsAdminComponent implements OnInit {
 
   deleteAnimal(id: number | undefined): void {
     if (id === undefined) {
-      this.error = 'ID de l’animal manquant';
+      this.showModal('error');
       return;
     }
-    if (confirm('Voulez-vous vraiment supprimer cet animal ?')) {
-      this.animalService.deleteAnimal(id).subscribe({
-        next: () => {
-          this.animals = this.animals.filter(
-            (animal) => animal.idAnimal !== id
-          );
-          console.log(`Animal ${id} supprimé avec succès`);
-          this.error = null;
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
-          this.error =
-            'Erreur lors de la suppression de l’animal : ' +
-            (error.message || 'Vérifiez la console');
-        },
-      });
+    this.showModal('confirm', id);
+  }
+
+  private confirmDelete(id: number): void {
+    this.animalService.deleteAnimal(id).subscribe({
+      next: () => {
+        this.animals = this.animals.filter(
+          (animal) => animal.idAnimal !== id
+        );
+        console.log(`Animal ${id} supprimé avec succès`);
+        this.error = null;
+        this.showModal('success');
+      },
+      error: (error) => {
+        console.error('Erreur lors de la suppression:', error);
+        this.showModal('error');
+      }
+    });
+  }
+
+  private showModal(type: 'success' | 'error' | 'confirm', id?: number): void {
+    const modalId =
+      type === 'success'
+        ? 'animalDeleteModal'
+        : type === 'error'
+        ? 'animalDeleteErrorModal'
+        : 'animalDeleteConfirmModal';
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
+      if (type === 'confirm' && id !== undefined) {
+        // Attach confirm action to the modal's confirm button
+        const confirmButton = modalElement.querySelector('.confirm-delete-btn');
+        if (confirmButton) {
+          // Remove existing listeners to prevent multiple bindings
+          const newConfirmButton = confirmButton.cloneNode(true);
+          confirmButton.parentNode?.replaceChild(newConfirmButton, confirmButton);
+          newConfirmButton.addEventListener('click', () => {
+            this.confirmDelete(id);
+            bootstrapModal.hide();
+          });
+        }
+      }
+      bootstrapModal.show();
+    } else {
+      console.error(`Modal with ID ${modalId} not found`);
     }
   }
 

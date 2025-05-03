@@ -98,7 +98,6 @@ export class PostsComponent implements OnInit {
     console.error("User ID is null. Cannot toggle like.");
     return;
   }
-
   this.postService.toggleLike(post.idPosts, this.userId).subscribe({
     next: (updatedPost) => {
       post.likesCount = updatedPost.likesCount;
@@ -138,7 +137,6 @@ export class PostsComponent implements OnInit {
           console.log(`Post ${postId} unliked avec succès`);
           this.errorMessage = '';
         },
-
       });
     } else {
       // Ajouter un like dans la base de données
@@ -157,25 +155,49 @@ export class PostsComponent implements OnInit {
       });
     }
   }
+
+
   addComment(postId: number) {
     if (this.commentForm.invalid) {
-      alert('Aucun commentaire à ajouter');
+      this.showModal('error');
       return;
     }
-  
- 
-    this.commentService.addComment(postId, this.commentForm.value,this.userId!).subscribe(response => {
-      console.log(response);
-      this.commentForm.reset(); 
-      this.getAllPosts(); 
+    this.commentService.addComment(postId, this.commentForm.value, this.userId!).subscribe({
+      next: (response) => {
+        console.log(response);
+        this.showModal('success');
+        this.commentForm.reset();
+        this.getAllPosts();
+      },
+      error: (error) => {
+        if (error.status === 400 && error.error?.message?.includes("inappropriés")) {
+          this.showModal('error');
+        } else {
+          this.showModal('error');
+        }
+      }
     });
   }
+
+  private showModal(type: 'success' | 'error'): void {
+    const modalId = type === 'success' ? 'commentAddModal' : 'commentAddErrorModal';
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
+      bootstrapModal.show();
+    } else {
+      console.error(`Modal with ID ${modalId} not found`);
+    }
+  }
+  
 
   deleteComment(commentId: number): void {
     this.commentService.deleteComment(commentId).subscribe(() => {
       this.getAllPosts(); // Recharger les posts après suppression
     });
   }
+
+
   btnedit:boolean=false;
   selectid:any
   editComment(comment: any): void {
@@ -184,8 +206,9 @@ export class PostsComponent implements OnInit {
     this.commentForm.patchValue({
       descriptionComment: comment.descriptionComment,
     });
-   
   }
+
+
   updateComment(): void {
     if (this.commentForm.invalid) {
       alert('Aucun commentaire à mettre à jour');
@@ -199,4 +222,6 @@ export class PostsComponent implements OnInit {
       this.getAllPosts(); 
     });
   }
+
+
 }

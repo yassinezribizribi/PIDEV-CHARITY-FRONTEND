@@ -60,23 +60,36 @@ export class BlogDetailComponent implements OnInit {
     }
   }
 
-   markInterested(eventId: number) {
-      const idUser = this.getUserIdFromToken(); // Extract userId from token
-    
-      if (!idUser) {
-        console.error("User ID not found in token.");
-        return;
-      }
-    
-      this.eventService.markUserAsInterested(eventId, idUser).subscribe({
-        next: () => {
-        alert("User marked as interested.");
-        //  this.loadEvents(); // Reload events to reflect changes
-        },
-        error: (err) => console.error("Error subscribing to event:", err)
-      });
+  markInterested(eventId: number) {
+    const idUser = this.getUserIdFromToken(); // Extract userId from token
+  
+    if (!idUser) {
+      this.showModal('error'); // Changed from console.error
+      return;
     }
-    
+  
+    this.eventService.markUserAsInterested(eventId, idUser).subscribe({
+      next: () => {
+        this.showModal('success');
+        // this.loadEvents(); // Reload events to reflect changes
+      },
+      error: (err) => {
+        this.showModal('error'); // Changed from console.error
+      }
+    });
+  }
+  
+    private showModal(type: 'success' | 'error'): void {
+      const modalId = type === 'success' ? 'eventInterestModal' : 'eventErrorModal';
+      const modalElement = document.getElementById(modalId);
+      if (modalElement) {
+        const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
+        bootstrapModal.show();
+      } else {
+        console.error(`Modal with ID ${modalId} not found`);
+      }
+    }  
+
     getUserIdFromToken(): number | null {
       const token = localStorage.getItem('auth_token');
       console.log("token:", token);

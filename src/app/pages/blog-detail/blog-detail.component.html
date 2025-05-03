@@ -15,7 +15,7 @@
             <nav aria-label="breadcrumb" class="d-block">
                 <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
                     <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
-                    <li class="breadcrumb-item"><a [routerLink]="'/events'">Événements</a></li>
+                    <li class="breadcrumb-item"><a [routerLink]="'/events'">Events</a></li>
                     <li class="breadcrumb-item active" aria-current="page">{{ event?.title || 'Détails' }}</li>
                 </ul>
             </nav>
@@ -38,7 +38,7 @@
             <div class="col-lg-8 col-md-7">
                 <!-- Chargement -->
                 <div *ngIf="isLoading" class="text-center">
-                    <p>Chargement des détails de l’événement...</p>
+                    <p>Event details loading</p>
                 </div>
 
                 <!-- Erreur -->
@@ -54,9 +54,9 @@
                     <div class="card-body">
                         <h4 class="text-dark">{{ event.title }}</h4>
                         <p class="text-muted">{{ event.description }}</p>
-                        <p class="text-muted"><strong>Date et heure :</strong> {{ event.dateTime | date:'medium' }}</p>
-                        <p class="text-muted"><strong>Lieu :</strong> {{ event.location }}</p>
-                        <p class="text-muted"><strong>Type d’événement :</strong> {{ event.typeEvent }}</p>
+                        <p class="text-muted"><strong>Date and Time:</strong> {{ event.dateTime | date:'medium' }}</p>
+                        <p class="text-muted"><strong>Location :</strong> {{ event.location }}</p>
+                        <p class="text-muted"><strong>Type of Event :</strong> {{ event.typeEvent }}</p>
 
                         <!-- Bouton Interested avec redirection -->
                         <button 
@@ -69,7 +69,7 @@
                         <!-- Citation décorative -->
                         <blockquote class="text-center mx-auto blockquote">
                             <i class="mdi mdi-format-quote-open mdi-48px text-muted opacity-2 d-block"></i>
-                            Cet événement est une opportunité unique de participer à une expérience mémorable.
+                            This event is a unique opportunity to take part in a memorable experience.
                             <small class="d-block text-muted mt-2">- Smilecare</small>
                         </blockquote>
 
@@ -81,7 +81,7 @@
 
                 <!-- Si pas de données -->
                 <div *ngIf="!isLoading && !errorMessage && !event" class="text-center">
-                    <p>Aucun détail disponible pour cet événement.</p>
+                    <p>No details available for this event.</p>
                 </div>
             </div>
 
@@ -93,6 +93,46 @@
     </div>
 </section>
 <!-- End -->
+
+
+
+<!-- Success Modal -->
+<div class="modal fade" id="eventInterestModal" tabindex="-1" aria-labelledby="eventInterestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 shadow-lg border-0">
+        <div class="modal-header border-0" style="background: #f8f9fa;">
+          <h5 class="modal-title fw-semibold" id="eventInterestModalLabel">Succès</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-success">User marked as interested.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Error Modal -->
+  <div class="modal fade" id="eventErrorModal" tabindex="-1" aria-labelledby="eventErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 shadow-lg border-0">
+        <div class="modal-header border-0" style="background: #f8f9fa;">
+          <h5 class="modal-title fw-semibold" id="eventErrorModalLabel">Erreur</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-danger">An error occurred while registering for the event.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 
 <app-footer></app-footer>
 <app-scroll-to-top></app-scroll-to-top>

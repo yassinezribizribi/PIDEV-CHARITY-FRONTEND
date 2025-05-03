@@ -7,7 +7,7 @@
         <div class="row mt-5 justify-content-center">
             <div class="col-12">
                 <div class="title-heading text-center">
-                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Nos Événements</h5>
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Our Events</h5>
                 </div>
             </div><!--end col-->
         </div><!--end row-->
@@ -16,7 +16,7 @@
             <nav aria-label="breadcrumb" class="d-block">
                 <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
                     <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Événements</li>
+                    <li class="breadcrumb-item active" aria-current="page">Events</li>
                 </ul>
             </nav>
         </div>
@@ -53,8 +53,8 @@
         <h3>{{ selectedEvent.title }}</h3>
         <p><strong>Date:</strong> {{ selectedEvent.dateTime | date: 'dd/MM/yyyy HH:mm' }}</p>
         <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
-        <p><strong>Lieu:</strong> {{ selectedEvent.location }}</p>
-        <p><strong>Type d'événement:</strong> {{ selectedEvent.typeEvent }}</p>
+        <p><strong>Location:</strong> {{ selectedEvent.location }}</p>
+        <p><strong>Type of Event:</strong> {{ selectedEvent.typeEvent }}</p>
       </div>
   
     </div><!--end container-->

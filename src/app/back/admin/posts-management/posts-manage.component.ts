@@ -299,22 +299,56 @@ editPost(postId: number | undefined): void {
 
   deletePost(postId: number | undefined): void {
     if (postId === undefined) {
-      this.errorMessage = 'ID du post manquant';
+      this.showModal('error');
       return;
     }
+    this.showModal('confirm', postId);
+  }
 
-    if (confirm('Voulez-vous vraiment supprimer ce post ?')) {
-      this.postService.deletePost(postId).subscribe({
-        next: () => {
-          this.posts = this.posts.filter(p => p.idPosts !== postId);
-          console.log(`✅ Post ${postId} supprimé avec succès`);
-          this.errorMessage = '';
-        },
-        error: (error) => {
-          console.error('❌ Erreur lors de la suppression:', error);
-          this.errorMessage = 'Erreur lors de la suppression du post : ' + (error.message || 'Voir console');
+  private confirmDelete(postId: number): void {
+    this.postService.deletePost(postId).subscribe({
+      next: () => {
+        this.posts = this.posts.filter(p => p.idPosts !== postId);
+        console.log(`✅ Post ${postId} supprimé avec succès`);
+        this.errorMessage = '';
+        this.showModal('success');
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la suppression:', error);
+        this.showModal('error');
+      }
+    });
+  }
+
+  private showModal(type: 'success' | 'error' | 'confirm', postId?: number): void {
+    const modalId =
+      type === 'success'
+        ? 'postDeleteModal'
+        : type === 'error'
+        ? 'postDeleteErrorModal'
+        : 'postDeleteConfirmModal';
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
+      if (type === 'confirm' && postId !== undefined) {
+        // Attach confirm action to the modal's confirm button
+        const confirmButton = modalElement.querySelector('.confirm-delete-btn');
+        if (confirmButton) {
+          // Remove existing listeners to prevent multiple bindings
+          const newConfirmButton = confirmButton.cloneNode(true);
+          confirmButton.parentNode?.replaceChild(newConfirmButton, confirmButton);
+          newConfirmButton.addEventListener('click', () => {
+            this.confirmDelete(postId);
+            bootstrapModal.hide();
+          });
         }
-      });
+      }
+      bootstrapModal.show();
+    } else {
+      console.error(`Modal with ID ${modalId} not found`);
     }
   }
+
+
+
 }

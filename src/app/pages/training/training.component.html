@@ -43,10 +43,12 @@
                 <div *ngIf="errorMessage" class="alert alert-danger my-4">
                     {{ errorMessage }}
                 </div>
+<!--
                 <div class="training-buttons mb-3">
                     <button class="btn btn-danger" *ngIf="!isLoading && !errorMessage  && open" (click)="toggle()">Afficher toutes les formations</button>
-                   <!-- <button class="btn btn-info" *ngIf="!isLoading && !errorMessage  && !open" (click)="toggle()">Afficher ma liste</button>-->
+                    <button class="btn btn-info" *ngIf="!isLoading && !errorMessage  && !open" (click)="toggle()">Liste formations terminées</button>
                   </div>
+-->
                 <div class="row g-4" *ngIf="!isLoading && !errorMessage  && !open" >
                     <div *ngFor="let training of trainings" class="col-lg-6 col-12">
                         <div class="blog position-relative overflow-hidden shadow rounded p-4">
@@ -66,7 +68,10 @@
                                 </a>
                                 <p class="text-muted my-2">{{ training.description }}</p>
                                 <p class="text-muted">Date: {{ training.sessionDate | date }}</p>
-                                <p class="text-muted">Durée: {{ training.duration }} jours</p>
+                           <!--     <p class="text-muted">Durée: {{ training.duration }} jours</p>
+                                <p class="text-muted">Capacité: {{ training.capacity }} participants</p>
+                                <p class="text-muted">Niveau: {{ training.level }}</p>
+                                <p class="text-muted">Type: {{ training.type }}</p>v-->
                                 <a [routerLink]="['/training-details', training.idTraining]" class="text-dark read-more">
                                     Voir les détails <i class="mdi mdi-chevron-right align-middle"></i>
                                 </a>

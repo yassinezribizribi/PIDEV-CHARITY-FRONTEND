@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export interface ModalConfig {
+export interface CustomModalConfig {
   component: string;
   data?: any;
 }
@@ -9,8 +9,8 @@ export interface ModalConfig {
 @Injectable({
   providedIn: 'root'
 })
-export class ModalService {
-  private modalSubject = new BehaviorSubject<ModalConfig | null>(null);
+export class CustomModalHandlerService {
+  private modalSubject = new BehaviorSubject<CustomModalConfig | null>(null);
   modal$ = this.modalSubject.asObservable();
 
   open(component: string, data?: any) {

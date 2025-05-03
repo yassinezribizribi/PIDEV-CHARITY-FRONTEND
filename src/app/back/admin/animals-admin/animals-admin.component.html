@@ -98,5 +98,61 @@
   </div>
 </section>
 
+<!-- Success Modal -->
+<div class="modal fade" id="animalDeleteModal" tabindex="-1" aria-labelledby="animalDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-3 shadow-lg border-0">
+      <div class="modal-header border-0" style="background: #f8f9fa;">
+        <h5 class="modal-title fw-semibold" id="animalDeleteModalLabel">Succès</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-success">Animal supprimé avec succès.</p>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="animalDeleteErrorModal" tabindex="-1" aria-labelledby="animalDeleteErrorModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-3 shadow-lg border-0">
+      <div class="modal-header border-0" style="background: #f8f9fa;">
+        <h5 class="modal-title fw-semibold" id="animalDeleteErrorModalLabel">Erreur</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-danger">Une erreur s'est produite lors de la suppression de l'animal.</p>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="animalDeleteConfirmModal" tabindex="-1" aria-labelledby="animalDeleteConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-3 shadow-lg border-0">
+      <div class="modal-header border-0" style="background: #f8f9fa;">
+        <h5 class="modal-title fw-semibold" id="animalDeleteConfirmModalLabel">Confirmer la suppression</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p>Voulez-vous vraiment supprimer cet animal ?</p>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-danger rounded-pill confirm-delete-btn">Confirmer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <app-footer></app-footer>
 <app-scroll-to-top></app-scroll-to-top>
