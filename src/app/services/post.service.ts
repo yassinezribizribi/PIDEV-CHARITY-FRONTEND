@@ -37,11 +37,11 @@ export class PostService {
   private apiUrl = 'http://localhost:8089/api/posts';
   private postActionUrl = 'http://localhost:8089/api/postActions';
   private apiUrlUser = 'http://localhost:8089/api/users';
+  private apiRecommendationUrl = 'http://localhost:8089/api/recommendations';
   private authService = inject(AuthService);
   
-
-
   constructor(private http: HttpClient) {}
+  
   getAllPosts(): Observable<Post[]> {
     const headers = this.authService.getAuthHeaders();
     
@@ -50,10 +50,11 @@ export class PostService {
       map(response => JSON.parse(response)) // Manually parse JSON
     );
   }
+
+  
   
   toggleLike(postId: number, userId: number): Observable<Post> {
     const headers = this.authService.getAuthHeaders();
-
     return this.http.put<any>(`http://localhost:8089/api/posts/likePost/${postId}/user/${userId}`, {headers});
   }
 
@@ -84,7 +85,11 @@ export class PostService {
   getUserById(id: number): Observable<User> {
     return this.http.get<User>(`${this.apiUrlUser}/getUserById/${id}`);
   }
-
+  
+  getUserlist(id: number): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/${id}/like-users`);
+  }
+  
   deletePost(id: number): Observable<string> {
     console.log('Delete post avec id:', id);
     return this.http.delete(`${this.apiUrl}/deletePost/${id}`, {
@@ -96,4 +101,14 @@ export class PostService {
     console.log('Requête vers:', `${this.apiUrl}/likes-count`);
     return this.http.get<Map<number, number>>(`${this.apiUrl}/likes-count`);
   }
+  
+  getRecommendedPosts(userId: number): Observable<any> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get(`${this.apiRecommendationUrl}/posts/${userId}`, { headers });
+  }
+
+  checkIfLiked(postId: number, userId: number): Observable<boolean> {
+    return this.http.get<boolean>(`http://localhost:8089/api/posts/${postId}/liked/${userId}`);
+  }
+  
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FooterComponent } from '@component/footer/footer.component';
@@ -63,19 +63,54 @@ export class EventsAdminComponent implements OnInit {
 
   deleteEvent(id: number | undefined): void {
     if (id === undefined) {
-      this.error = 'Event ID missing';
+      this.showModal('error');
       return;
     }
-    if (confirm('Are you sure you want to delete this event?')) {
-      this.eventService.deleteEvent(id).subscribe({
-        next: () => {
-          this.events = this.events.filter((event) => event.idEvent !== id);
-          this.error = null;
-        },
-        error: (error) => {
-          this.error = 'Error deleting event: ' + (error.message || 'Check the console');
-        },
-      });
+    this.showModal('confirm', id);
+  }
+  
+  private confirmDeleteEvent(id: number): void {
+    this.eventService.deleteEvent(id).subscribe({
+      next: () => {
+        this.events = this.events.filter((event) => event.idEvent !== id);
+        console.log(`Événement ${id} supprimé avec succès`);
+        this.error = null;
+        this.showModal('success');
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Erreur lors de la suppression:', error);
+        this.error = 'Error deleting event: ' + (error.message || 'Check the console');
+        this.showModal('error');
+      }
+    });
+  }
+  
+  private showModal(type: 'success' | 'error' | 'confirm', id?: number): void {
+    const modalId =
+      type === 'success'
+        ? 'eventDeleteModal'
+        : type === 'error'
+          ? 'eventDeleteErrorModal'
+          : 'eventDeleteConfirmModal';
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
+      if (type === 'confirm' && id !== undefined) {
+        // Attach confirm action to the modal's confirm button
+        const confirmButton = modalElement.querySelector('.confirm-delete-btn');
+        if (confirmButton) {
+          // Remove existing listeners to prevent multiple bindings
+          const newConfirmButton = confirmButton.cloneNode(true);
+          confirmButton.parentNode?.replaceChild(newConfirmButton, confirmButton);
+          newConfirmButton.addEventListener('click', () => {
+            this.confirmDeleteEvent(id);
+            bootstrapModal.hide();
+          });
+        }
+      }
+      bootstrapModal.show();
+    } else {
+      console.error(`Modal with ID ${modalId} not found`);
     }
   }
 

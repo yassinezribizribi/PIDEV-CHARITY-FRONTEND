@@ -7,21 +7,20 @@
         <div class="row mt-5 justify-content-center">
             <div class="col-12">
                 <div class="title-heading text-center">
-                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Nos Événements</h5>
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">{{ showInterestedOnly ? 'Your Events' : 'Our Events' }}</h5>
                 </div>
-            </div><!--end col-->
-        </div><!--end row-->
-
+            </div>
+        </div>
         <div class="position-middle-bottom">
             <nav aria-label="breadcrumb" class="d-block">
                 <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
                     <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Événements</li>
+                    <li class="breadcrumb-item active" aria-current="page">Events</li>
                 </ul>
             </nav>
         </div>
-    </div><!--end container-->
-</section><!--end section-->
+    </div>
+</section>
 <div class="position-relative">
     <div class="shape overflow-hidden text-white">
         <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -34,60 +33,60 @@
 <!-- Start -->
 <section class="section">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-md-7">
-                <div class="row g-4">
-                    <div *ngFor="let event of events" class="col-lg-6 col-12">
-                        <div class="blog position-relative overflow-hidden shadow rounded p-4">
-                            <div class="position-relative">
-                                <div class="blog-image position-relative overflow-hidden rounded shadow">
-                                    <!-- Suppose que chaque événement a une image, sinon remplace par une image par défaut -->
-                                </div>
-                                <div class="position-absolute top-100 start-0 translate-middle-y ms-2">
-                                    <a routerLink="#" (click)="$event.preventDefault()" class="badge bg-primary">Événement</a>
-                                </div>
-                            </div>
+        <!-- Toggle Button -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <button class="btn btn-primary" (click)="toggleEventView()">
+                    {{ showInterestedOnly ? 'Show All Events' : 'Show Interested Events Only' }}
+                </button>
+            </div>
+        </div>
 
-                            <div class="pt-4">
-                                <a [routerLink]="['/events', event.title]" class="text-dark title h5">{{ event.title }}</a>
-                                <p class="text-muted my-2">{{ event.description }}</p>
-                                <p class="text-muted">Date : {{ event.dateTime }}</p>
-                                <a [routerLink]="['/blog-detail', event.idEvent]" class="text-dark read-more">Voir les détails <i class="mdi mdi-chevron-right align-middle"></i></a>
-                            </div>
+        <!-- Recommended Events (only shown when not in interested mode) -->
+        <div class="row mb-4" *ngIf="!showInterestedOnly">
+            <div class="col-12">
+                <h4 class="mb-3">Recommended for you</h4>
+                <div *ngIf="isLoading" class="alert alert-info">
+                    Loading please wait a second...
+                </div>
+                <div *ngIf="!isLoading && errorMessage" class="alert alert-danger">
+                    {{ errorMessage }}
+                </div>
+                <div *ngIf="!isLoading && recommendedEvents.length > 0">
+                    <div *ngFor="let event of recommendedEvents" class="card shadow-sm border-0 mb-2" style="cursor: pointer;" (click)="goToEventDetails(event)">
+                        <div class="card-body">
+                            <h5 class="card-title mb-1">{{ event.title }}</h5>
+                            <p class="card-text mb-1"><strong>Date:</strong> {{ event.dateTime | date: 'dd/MM/yyyy HH:mm' }}</p>
+                            <small class="text-muted">{{ event.location }}</small>
                         </div>
-                    </div><!--end col-->
-                </div><!--end row-->
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <!-- Pagination (optionnelle, à activer si tu veux paginer côté backend) -->
-                <div class="row">
-                    <div class="col-12 mt-4 pt-2">
-                        <ul class="pagination justify-content-center mb-0">
-                            <li class="page-item">
-                                <a class="page-link" routerLink="#" (click)="$event.preventDefault()" aria-label="Previous">
-                                    <span aria-hidden="true"><i class="mdi mdi-chevron-left align-middle fs-6"></i></span>
-                                </a>
-                            </li>
-                            <li class="page-item"><a class="page-link" routerLink="#" (click)="$event.preventDefault()">1</a></li>
-                            <li class="page-item active"><a class="page-link" routerLink="#" (click)="$event.preventDefault()">2</a></li>
-                            <li class="page-item"><a class="page-link" routerLink="#" (click)="$event.preventDefault()">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" routerLink="#" (click)="$event.preventDefault()" aria-label="Next">
-                                    <span aria-hidden="true"><i class="mdi mdi-chevron-right align-middle fs-6"></i></span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div><!--end col-->
-                </div><!--end row-->
-            </div><!--end col-->
+        <!-- Calendar Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="calendar-container shadow rounded p-4">
+                            <full-calendar [events]="calendarEvents" [options]="calendarOptions"></full-calendar>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <!-- START SIDEBAR -->
-            <div class="col-lg-4 col-md-5 col-12 mt-4 pt-2 mt-md-0 pt-md-0">
-                <app-blog-sidebars></app-blog-sidebars>
-            </div><!--end col-->
-            <!-- END SIDEBAR -->
-        </div><!--end row-->
-    </div><!--end container-->
-</section><!--end section-->
+        <!-- Détails de l'événement sélectionné -->
+        <div *ngIf="selectedEvent" class="event-details mt-4 p-4 border shadow rounded">
+            <h3>{{ selectedEvent.title }}</h3>
+            <p><strong>Date:</strong> {{ selectedEvent.dateTime | date: 'dd/MM/yyyy HH:mm' }}</p>
+            <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
+            <p><strong>Lieu:</strong> {{ selectedEvent.location }}</p>
+            <p><strong>Type d'événement:</strong> {{ selectedEvent.typeEvent }}</p>
+        </div>
+    </div>
+</section>
 <!-- End -->
 
 <app-footer></app-footer>

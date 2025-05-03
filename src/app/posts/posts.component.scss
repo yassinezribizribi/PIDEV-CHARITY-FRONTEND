@@ -1,0 +1,170 @@
+/* Hero Section */
+.hero-section {
+    position: relative;
+    padding: 100px 0;
+  }
+  .bg-overlay.bg-gradient-overlay {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
+    opacity: 0.8;
+  }
+  .title-dark {
+    font-size: 2.5rem;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  .breadcrumb {
+    background: transparent;
+    padding: 10px 0;
+  }
+  .breadcrumb-item a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .breadcrumb-item a:hover {
+    color: #007bff;
+  }
+  .breadcrumb-item.active {
+    color: #ccc;
+  }
+  
+  /* Post Card */
+  .post-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+  }
+  .card-body {
+    background: #fff;
+    border-radius: 10px;
+  }
+  .card-body img {
+    transition: transform 0.3s;
+  }
+  .card-body img:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Buttons */
+  .btn-like,
+  .btn-whatsapp,
+  .btn-facebook,
+  .btn-linkedin,
+  .btn-donate,
+  .btn-primary {
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+  .btn-like {
+    background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+    border: none;
+    color: #fff;
+  }
+  .btn-like.btn-outline-primary {
+    background: transparent;
+    color: #007bff;
+    border-color: #007bff;
+  }
+  .btn-like:hover {
+    background: linear-gradient(45deg, #ff8e53, #ff6b6b);
+    color: #fff;
+  }
+  .btn-whatsapp {
+    background: linear-gradient(45deg, #25d366, #20b058);
+    color: #fff;
+    border: none;
+  }
+  .btn-whatsapp:hover {
+    background: linear-gradient(45deg, #20b058, #25d366);
+  }
+  .btn-facebook {
+    background: linear-gradient(45deg, #3b5998, #4c70ba);
+    color: #fff;
+    border: none;
+  }
+  .btn-facebook:hover {
+    background: linear-gradient(45deg, #4c70ba, #3b5998);
+  }
+  .btn-linkedin {
+    background: linear-gradient(45deg, #5fd2ff, #8de2ff);
+    color: #fff;
+    border: 1px solid #ffffff; /* White border for a clean, distinct edge */
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+  .btn-linkedin:hover {
+    background: linear-gradient(45deg, #add8e6, #87ceeb);
+    border-color: #e0e0e0; /* Light gray border on hover for subtle change */
+    transform: scale(1.05); /* Slight scale for interactivity */
+  }
+  .btn-donate {
+    background: linear-gradient(45deg, #ff2e63, #ff6b6b);
+    color: #fff;
+    border: none;
+  }
+  .btn-donate:hover {
+    background: linear-gradient(45deg, #ff6b6b, #ff2e63);
+  }
+  .btn-primary {
+    background: linear-gradient(45deg, #ffb22e, #ffab1b);
+    border: none;
+  }
+  .btn-primary:hover {
+    background: linear-gradient(45deg, #00c4ff, #007bff);
+  }
+  
+  /* Comment Section */
+  .comment-card {
+    background: #f8f9fa;
+    transition: background 0.3s;
+  }
+  .comment-card:hover {
+    background: #e9ecef;
+  }
+  .comment-actions .btn {
+    padding: 5px 10px;
+    border-radius: 50%;
+  }
+  .form-control {
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s;
+  }
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  }
+  
+  /* Animations */
+  .animate__fadeInUp {
+    animation: fadeInUp 0.5s ease-in-out;
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .title-dark {
+      font-size: 1.8rem;
+    }
+    .post-card img {
+      max-height: 200px;
+    }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+  }

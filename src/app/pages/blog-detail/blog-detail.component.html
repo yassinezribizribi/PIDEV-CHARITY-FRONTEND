@@ -7,7 +7,7 @@
         <div class="row mt-5 justify-content-center">
             <div class="col-12">
                 <div class="title-heading text-center">
-                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">{{ event?.title || 'Détails de l’événement' }}</h5>
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">{{ event?.title || 'Event Details' }}</h5>
                 </div>
             </div>
         </div>
@@ -15,8 +15,8 @@
             <nav aria-label="breadcrumb" class="d-block">
                 <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
                     <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
-                    <li class="breadcrumb-item"><a [routerLink]="'/events'">Événements</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ event?.title || 'Détails' }}</li>
+                    <li class="breadcrumb-item"><a [routerLink]="'/events'">Events</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ event?.title || 'Details' }}</li>
                 </ul>
             </nav>
         </div>
@@ -36,29 +36,29 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-md-7">
-                <!-- Chargement -->
+                <!-- Loading -->
                 <div *ngIf="isLoading" class="text-center">
-                    <p>Chargement des détails de l’événement...</p>
+                    <p>Loading event details...</p>
                 </div>
 
-                <!-- Erreur -->
+                <!-- Error -->
                 <div *ngIf="!isLoading && errorMessage" class="text-center text-danger">
                     <p>{{ errorMessage }}</p>
                 </div>
 
-                <!-- Détails de l’événement -->
+                <!-- Event Details -->
                 <div *ngIf="!isLoading && !errorMessage && event" class="card border-0 shadow rounded overflow-hidden">
-                    <!-- Image (optionnelle) -->
-                    <!--<img [src]="" class="img-fluid" alt="Image de l'événement">-->
+                    <!-- Image (optional) -->
+                    <!--<img [src]="" class="img-fluid" alt="Event image">-->
 
                     <div class="card-body">
                         <h4 class="text-dark">{{ event.title }}</h4>
                         <p class="text-muted">{{ event.description }}</p>
-                        <p class="text-muted"><strong>Date et heure :</strong> {{ event.dateTime | date:'medium' }}</p>
-                        <p class="text-muted"><strong>Lieu :</strong> {{ event.location }}</p>
-                        <p class="text-muted"><strong>Type d’événement :</strong> {{ event.typeEvent }}</p>
+                        <p class="text-muted"><strong>Date and Time:</strong> {{ event.dateTime | date:'medium' }}</p>
+                        <p class="text-muted"><strong>Location:</strong> {{ event.location }}</p>
+                        <p class="text-muted"><strong>Event Type:</strong> {{ event.typeEvent }}</p>
 
-                        <!-- Bouton Interested avec redirection -->
+                        <!-- Interested Button with redirection -->
                         <button 
                             class="btn btn-primary mt-3" 
                             (click)="markInterested(event.idEvent)"
@@ -66,22 +66,22 @@
                         Interested
                         </button>
 
-                        <!-- Citation décorative -->
+                        <!-- Decorative Quote -->
                         <blockquote class="text-center mx-auto blockquote">
                             <i class="mdi mdi-format-quote-open mdi-48px text-muted opacity-2 d-block"></i>
-                            Cet événement est une opportunité unique de participer à une expérience mémorable.
+                            This event is a unique opportunity to participate in a memorable experience.
                             <small class="d-block text-muted mt-2">- Smilecare</small>
                         </blockquote>
 
                         <!-- Tags -->
                         <a routerLink="#" (click)="$event.preventDefault()" class="badge badge-link bg-primary me-1">{{ event.typeEvent }}</a>
-                        <a routerLink="#" (click)="$event.preventDefault()" class="badge badge-link bg-primary me-1">Événement</a>
+                        <a routerLink="#" (click)="$event.preventDefault()" class="badge badge-link bg-primary me-1">Event</a>
                     </div>
                 </div>
 
-                <!-- Si pas de données -->
+                <!-- No Data -->
                 <div *ngIf="!isLoading && !errorMessage && !event" class="text-center">
-                    <p>Aucun détail disponible pour cet événement.</p>
+                    <p>No details available for this event.</p>
                 </div>
             </div>
 
@@ -93,6 +93,42 @@
     </div>
 </section>
 <!-- End -->
+
+<!-- Success Modal -->
+<div class="modal fade" id="eventInterestModal" tabindex="-1" aria-labelledby="eventInterestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 shadow-lg border-0">
+        <div class="modal-header border-0" style="background: #f8f9fa;">
+          <h5 class="modal-title fw-semibold" id="eventInterestModalLabel">Success</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-success">User marked as interested.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="eventErrorModal" tabindex="-1" aria-labelledby="eventErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 shadow-lg border-0">
+        <div class="modal-header border-0" style="background: #f8f9fa;">
+          <h5 class="modal-title fw-semibold" id="eventErrorModalLabel">Error</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-danger">An error occurred while registering for the event.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
 
 <app-footer></app-footer>
 <app-scroll-to-top></app-scroll-to-top>

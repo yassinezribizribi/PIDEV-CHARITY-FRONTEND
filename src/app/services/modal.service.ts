@@ -20,4 +20,4 @@ export class ModalService {
   close() {
     this.modalSubject.next(null);
   }
-} 
+}

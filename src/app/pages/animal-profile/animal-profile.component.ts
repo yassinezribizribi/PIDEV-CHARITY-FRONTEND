@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
@@ -9,6 +9,8 @@ import { ScrollToTopComponent } from '../../components/scroll-to-top/scroll-to-t
 import { AnimalService, Animal } from '../../services/Animal.service';
 import { TokenInterceptor } from '../../interceptors/token.interceptor';
 import { ActivatedRoute } from '@angular/router';
+import { DemandeAnimalService } from 'src/app/services/demande-animal.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-animal-profile',
@@ -30,24 +32,56 @@ import { ActivatedRoute } from '@angular/router';
   styleUrl: './animal-profile.component.scss'
 })
 export class AnimalProfileComponent implements OnInit {
-  animal: Animal | null = null;
+  animal: any | null = null;
   userEmail: string | undefined;
   telephone: string | undefined;
   isLoading = true;
   errorMessage = '';
+  userId: number | null = null;
+  animalId!: number;
+  demandeIdToAccept!: number;
+
+
 
   constructor(
     private animalService: AnimalService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private demandeService: DemandeAnimalService
   ) { }
 
   ngOnInit(): void {
+    this.userId=this.getUserIdFromToken()
+    console.log("userId:", this.userId);
+    
     this.getAnimalDetails();
-    if (this.animal?.subscriberId) {  // Check if subscriberId is defined and not undefined
-      this.getUserById(this.animal.subscriberId); // Use animal's subscriberId
+   
+  }
+  
+  enregistrerDemande(id: number) {
+    this.demandeService.enregistrer(this.userId!, id).subscribe({
+      next: (res) => {
+        this.showModal('success');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.showModal('error');
+      }
+    });
+  }
+  
+  showModal(type: string) {
+    let modalId: string;
+    if (type === 'success') {
+      modalId = 'demandeSuccessModal';
+    } else {
+      modalId = 'demandeErrorModal';
+    }
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      // Utilise l'API Bootstrap native pour afficher le modal
+      // Assumes Bootstrap JS is included in the project
+      (window as any).bootstrap.Modal.getOrCreateInstance(modalElement).show();
     }
   }
-
   getAnimalDetails(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
@@ -58,10 +92,7 @@ export class AnimalProfileComponent implements OnInit {
           this.isLoading = false;
           console.log('Animal details fetched:', data);
 
-          // After animal details are fetched, call getUserById
-          if (this.animal?.subscriberId) {
-            this.getUserById(this.animal.subscriberId); // Call with the actual subscriberId
-          }
+         
         },
         error: (error) => {
           this.isLoading = false;
@@ -75,19 +106,23 @@ export class AnimalProfileComponent implements OnInit {
     }
   }
 
-
-  getUserById(id: number): void {
-    this.animalService.getUserById(id).subscribe({
-      next: (data) => {
-        console.log('User details fetched:', data); // Check the response
-        this.userEmail = data.email; // Assign fetched user's email
-        this.telephone = data.telephone; // Assign fetched user
-
-      },
-      error: (error) => {
-        console.error('Error fetching user details:', error);
+  
+    getUserIdFromToken(): number | null {
+      const token = localStorage.getItem('auth_token');
+      console.log("token:", token);
+      
+      if (!token) return null;
+    
+      try {
+        const decodedToken: any = jwtDecode(token);
+        return decodedToken.idUser;
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        return null;
       }
-    });
-  }
+    }
+    
+
+ 
 
 }

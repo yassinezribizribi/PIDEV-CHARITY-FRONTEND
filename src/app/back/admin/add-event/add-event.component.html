@@ -34,59 +34,117 @@
     <div class="row justify-content-center">
       <div class="col-12">
         <div class="d-flex justify-content-between mb-4">
-          <form class="mt-4">
+          <form #eventForm="ngForm" class="mt-4">
             <div class="row">
               <div class="col-12">
                 <div class="mb-3">
                   <label class="form-label fw-semibold" for="title">Title</label>
-                  <input name="title" id="title" type="text" class="form-control" [(ngModel)]="newEvent.title" required>
+                  <input 
+                    name="title" 
+                    id="title" 
+                    type="text" 
+                    class="form-control" 
+                    [(ngModel)]="newEvent.title" 
+                    #title="ngModel" 
+                    required
+                  />
+                  <div *ngIf="title.invalid && title.touched" class="text-danger">
+                    Title is required.
+                  </div>
                 </div>
               </div>
           
               <div class="col-md-6 col-12">
                 <div class="mb-3">
                   <label class="form-label fw-semibold" for="description">Description</label>
-                  <input name="description" type="text" class="form-control" id="description" [(ngModel)]="newEvent.description" required>
+                  <input 
+                    name="description" 
+                    type="text" 
+                    class="form-control" 
+                    id="description" 
+                    [(ngModel)]="newEvent.description" 
+                    #description="ngModel" 
+                    minlength="10"
+                    required
+                  />
+                  <div *ngIf="description.invalid && description.touched" class="text-danger">
+                    <div *ngIf="description.errors?.['required']">La description est obligatoire.</div>
+                    <div *ngIf="description.errors?.['minlength']">La description doit contenir au moins 10 caractères.</div>
+                  </div>
                 </div>
               </div>
+              
           
               <div class="col-md-6 col-12">
                 <div class="mb-3">
                   <label class="form-label fw-semibold" for="dateTime">Date Time</label>
-                  <input name="dateTime" type="datetime-local" class="form-control" id="dateTime" [(ngModel)]="newEvent.dateTime" required>
+                  <input 
+                    name="dateTime" 
+                    type="datetime-local" 
+                    class="form-control" 
+                    id="dateTime" 
+                    [(ngModel)]="newEvent.dateTime" 
+                    #dateTime="ngModel" 
+                    required
+                  />
+                  <div *ngIf="dateTime.invalid && dateTime.touched" class="text-danger">
+                    Date Time is required.
+                  </div>
                 </div>
               </div>
           
               <div class="col-md-6 col-12">
                 <div class="mb-3">
                   <label class="form-label fw-semibold" for="location">Location</label>
-                  <input name="location" type="text" class="form-control" id="location" [(ngModel)]="newEvent.location" required>
+                  <input 
+                    name="location" 
+                    type="text" 
+                    class="form-control" 
+                    id="location" 
+                    [(ngModel)]="newEvent.location" 
+                    #location="ngModel" 
+                    required
+                  />
+                  <div *ngIf="location.invalid && location.touched" class="text-danger">
+                    Location is required.
+                  </div>
                 </div>
               </div>
           
               <div class="col-md-6 col-12">
                 <div class="mb-3">
                   <label class="form-label fw-semibold" for="typeEvent">Type Event</label>
-                  <select id="typeEvent" name="typeEvent" class="form-control" [(ngModel)]="newEvent.typeEvent" required>
+                  <select 
+                    id="typeEvent" 
+                    name="typeEvent" 
+                    class="form-control" 
+                    [(ngModel)]="newEvent.typeEvent" 
+                    #typeEvent="ngModel" 
+                    required
+                  >
                     <option *ngFor="let eventType of eventTypes" [value]="eventType">
                       {{ eventType }}
                     </option>
                   </select>
-                </div>
-              </div>
-          
-              <div class="col-md-6 col-12">
-                <div class="mb-3">
-                  <label class="form-label fw-semibold" for="reservationDate">Reservation Date</label>
-                  <input name="reservationDate" type="date" class="form-control" id="reservationDate" [(ngModel)]="newEvent.reservationDate" required>
+                  <div *ngIf="typeEvent.invalid && typeEvent.touched" class="text-danger">
+                    Type Event is required.
+                  </div>
                 </div>
               </div>
           
               <div class="col-12 mt-3">
-                <button type="button" class="btn btn-primary" (click)="addEvent()">Add Event</button>
+                <button 
+                  type="button" 
+                  class="btn btn-primary" 
+                  [disabled]="eventForm.invalid" 
+                  (click)="addEvent()"
+                >
+                  Add Event
+                </button>
               </div>
             </div>
           </form>
+          
           
         </div>
 

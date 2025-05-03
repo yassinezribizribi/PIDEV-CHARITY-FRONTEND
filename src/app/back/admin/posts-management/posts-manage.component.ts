@@ -1,7 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, contentChild, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FooterComponent } from '@component/footer/footer.component';
 import { AdminNavbarComponent } from '../admin-navbar/admin-navbar.component';
 import { ScrollToTopComponent } from '@component/scroll-to-top/scroll-to-top.component';
@@ -37,8 +37,8 @@ import { jwtDecode } from 'jwt-decode';
 export class PostsManageComponent implements OnInit {
   postService = inject(PostsService);
   authService = inject(AuthService);
-
-  posts: Post[] = [];
+  postForm!: FormGroup;
+  posts: any[] = [];
   newPostContent: string = '';
   subscriptionId: number | null = null;
   userId: number | null = null;
@@ -47,10 +47,17 @@ export class PostsManageComponent implements OnInit {
   hasToken = false;
   username: string | undefined;
   editPostId: number | null = null;
-  constructor(private router: Router) {}
-
+  constructor(private router: Router,private fb:FormBuilder) {}
+  toggleComments(post: any) {
+    post.showComments = !post.showComments;
+  }
+  
   ngOnInit(): void {
     this.checkUserAuth();
+    this.postForm = this.fb.group({
+      content: ['', Validators.required],
+      creationDate: [new Date()],
+    });
     if (this.hasToken) {
       this.getAllPosts();
     }
@@ -94,7 +101,7 @@ export class PostsManageComponent implements OnInit {
     console.log("🔍 Vérification du token avant requête :", this.authService.getToken());
     this.postService.getAllPosts().subscribe({
       next: (data) => {
-        this.posts = data;
+        this.posts = data.map(post => ({ ...post, showComments: false }));
         //this.loadLikesCount();
         console.log('✅ Données reçues:', this.posts);
       },
@@ -124,7 +131,7 @@ export class PostsManageComponent implements OnInit {
     // Fetch posts from API (assuming you have a method for that)
     this.postService.getAllPosts().subscribe({
       next: (data) => {
-        this.posts = data;
+        this.posts = data.reverse();
         this.posts.forEach(post => this.loadLikesCount(post));
       },
       error: (err) => {
@@ -143,44 +150,62 @@ export class PostsManageComponent implements OnInit {
       }
     });
   }
+  selectedImage: File | null = null;
 
-  sharePost(): void {
-    if (!this.hasToken) {
-      this.errorMessage = 'Aucun token d’authentification trouvé. Veuillez vous connecter.';
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedImage = file;
+    }
+  }
+  likedUsers: any[] = [];
+  
+  showuserlike(id:any){
+this.postService.getUserlist(id).subscribe({
+  next: (data:any[]) => {
+    console.log('User details fetched:', data); // Check the response
+    this.likedUsers = data;
+
+  },error: (error:any) => {
+    console.error('Error fetching user details:', error);
+
+  }
+})
+}
+  addPost(): void {
+    if (this.postForm.invalid) {
+      this.errorMessage = "Veuillez remplir correctement tous les champs.";
       return;
     }
-
-    if (!this.newPostContent.trim()) {
-      this.errorMessage = 'Le contenu du post ne peut pas être vide.';
-      return;
-    }
-
-    // if (!this.subscriptionId) {
-    //   this.errorMessage = 'L’ID de la subscription est requis.';
-    //   return;
-    // }
-
-    const newPost: Post = {
-      content: this.newPostContent,
-      creationDate: new Date(),
-      //subscription: { idSubscription: this.subscriptionId }
+  
+    const formData = new FormData();
+    const postData = {
+      content: this.postForm.value.content,
+      creationDate: new Date()
     };
-    this.postService.addPost(newPost).subscribe({
-      
-      next: (createdPost) => {
-        const postWithUser: Post = { ...createdPost, userId: this.userId }; // ✅ userId reconnu
-        this.posts.unshift(postWithUser);
-        this.newPostContent = '';
-        this.subscriptionId = null;
+  
+    formData.append('postData', new Blob([JSON.stringify(postData)], { type: 'application/json' }));
+  
+    if (this.selectedImage) {
+      formData.append('file', this.selectedImage, this.selectedImage.name);
+    }
+  
+    this.postService.addPost(formData).subscribe({
+      next: (response) => {
+        console.log('Post créé avec succès:', response);
         this.errorMessage = '';
-        console.log('✅ Post créé avec succès:', postWithUser);
+        this.loadPosts()  
+        this.postForm.reset();
+        //this.router.navigate(['/posts']);
       },
       error: (error) => {
-        console.error('❌ Erreur lors de la création du post:', error);
-        this.errorMessage = 'Erreur lors de la création du post : ' + (error.message || 'Voir console');
+        console.error('Erreur API:', error);
+        this.errorMessage = `Erreur: ${error.status || ''} - ${error.statusText || 'Inconnue'}`;
       }
     });
   }
+  
+  
 
   getUserIdFromToken(): number | null {
     const token = localStorage.getItem('auth_token');
@@ -274,22 +299,56 @@ editPost(postId: number | undefined): void {
 
   deletePost(postId: number | undefined): void {
     if (postId === undefined) {
-      this.errorMessage = 'ID du post manquant';
+      this.showModal('error');
       return;
     }
+    this.showModal('confirm', postId);
+  }
 
-    if (confirm('Voulez-vous vraiment supprimer ce post ?')) {
-      this.postService.deletePost(postId).subscribe({
-        next: () => {
-          this.posts = this.posts.filter(p => p.idPosts !== postId);
-          console.log(`✅ Post ${postId} supprimé avec succès`);
-          this.errorMessage = '';
-        },
-        error: (error) => {
-          console.error('❌ Erreur lors de la suppression:', error);
-          this.errorMessage = 'Erreur lors de la suppression du post : ' + (error.message || 'Voir console');
+  private confirmDelete(postId: number): void {
+    this.postService.deletePost(postId).subscribe({
+      next: () => {
+        this.posts = this.posts.filter(p => p.idPosts !== postId);
+        console.log(`✅ Post ${postId} supprimé avec succès`);
+        this.errorMessage = '';
+        this.showModal('success');
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la suppression:', error);
+        this.showModal('error');
+      }
+    });
+  }
+
+  private showModal(type: 'success' | 'error' | 'confirm', postId?: number): void {
+    const modalId =
+      type === 'success'
+        ? 'postDeleteModal'
+        : type === 'error'
+        ? 'postDeleteErrorModal'
+        : 'postDeleteConfirmModal';
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
+      if (type === 'confirm' && postId !== undefined) {
+        // Attach confirm action to the modal's confirm button
+        const confirmButton = modalElement.querySelector('.confirm-delete-btn');
+        if (confirmButton) {
+          // Remove existing listeners to prevent multiple bindings
+          const newConfirmButton = confirmButton.cloneNode(true);
+          confirmButton.parentNode?.replaceChild(newConfirmButton, confirmButton);
+          newConfirmButton.addEventListener('click', () => {
+            this.confirmDelete(postId);
+            bootstrapModal.hide();
+          });
         }
-      });
+      }
+      bootstrapModal.show();
+    } else {
+      console.error(`Modal with ID ${modalId} not found`);
     }
   }
+
+
+
 }

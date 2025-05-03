@@ -38,6 +38,9 @@ import { EditAnimalComponent } from './back/admin/edit-animal/edit-animal.compon
 import { PostsManageComponent } from './back/admin/posts-management/posts-manage.component';
 import { TrainingComponent } from './pages/training/training.component';
 import { TrainingDetailsComponent } from './pages/training-details/training-details.component';
+import { DemandeAnimalComponent } from '@component/demande-animal/demande-animal.component';
+import { InteresseComponent } from '@component/interesse/interesse.component';
+import { EventDetailNoButtonComponent } from './pages/event-detail-no-button/event-detail-no-button.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'onepage', pathMatch: 'full' },
@@ -55,9 +58,12 @@ export const routes: Routes = [
   { path: 'testimonial', component: TestimonialComponent },
   { path: 'faqs', component: FaqsComponent },
   { path: 'blogs', component: BlogsComponent },
+  { path: 'demandes', component: DemandeAnimalComponent },
+  { path: 'interesse', component: InteresseComponent },
   { path: 'blog-sidebar', component: BlogSidebarComponent },
   { path: 'blog-detail', component: BlogDetailComponent },
   { path: 'blog-detail/:id', component: BlogDetailComponent },
+  { path: 'interested/event/:id', component: EventDetailNoButtonComponent },
 
   { path: 'signup/:role', component: SignupComponent },
   {path:'trainig', component:TrainingComponent},

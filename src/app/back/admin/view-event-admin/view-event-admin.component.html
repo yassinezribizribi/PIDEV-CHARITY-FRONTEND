@@ -13,7 +13,6 @@
         </div>
         <div class="position-middle-bottom">
             <nav aria-label="breadcrumb" class="d-block">
-               
             </nav>
         </div>
     </div>
@@ -33,58 +32,71 @@
         <div class="row">
             <div class="col-lg-8 col-md-7">
                 <!-- Chargement -->
-              
-                <button (click)="getEventSubscribers()" class="btn btn-info">
-                    View Interested Users
-                  </button>
-
-                  <div class="table-responsive">
+                <div class="table-responsive">
                     <table class="table table-striped">
-                      <thead>
-                        <tr>
-              
-                          <th>name</th>
-                          <th>email</th>
-                      
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr *ngFor="let subscriber of eventSubscribers">
-                          <td>{{ subscriber.firstName }}</td>
-                
-                          <td>{{ subscriber.email}}</td>
-                        
-                          <td>
-                            <button  (click)="affect(subscriber.idUser!)"
-                           
-                            class="btn btn-sm me-2" 
-                            [class.btn-success]="isAffected" 
-                            [class.btn-info]="!isAffected">
-                      {{ isAffected ? 'Affected' : 'Affect' }}
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
+                        <thead>
+                            <tr>
+                                <th>name</th>
+                                <th>email</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let subscriber of eventSubscribers">
+                                <td>{{ subscriber.firstName }}</td>
+                                <td>{{ subscriber.email }}</td>
+                                <td>
+                                    <button (click)="affect(subscriber.idUser!)" class="btn btn-sm me-2" 
+                                            [class.btn-success]="isAffected" 
+                                            [class.btn-info]="!isAffected">
+                                        {{ isAffected ? 'Affected' : 'Affect' }}
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
-                  </div>
-                  
-
-                    
                 </div>
-
-
             </div>
-
         </div>
-    
+    </div>
 </section>
 
-
-
-
-
+<!-- Success Modal -->
+<div class="modal fade" id="eventAffectModal" tabindex="-1" aria-labelledby="eventAffectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 shadow-lg border-0">
+        <div class="modal-header border-0" style="background: #f8f9fa;">
+          <h5 class="modal-title fw-semibold" id="eventAffectModalLabel">Succès</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-success">Utilisateur affecté à l'événement avec succès.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
   
+  <!-- Error Modal -->
+  <div class="modal fade" id="eventAffectErrorModal" tabindex="-1" aria-labelledby="eventAffectErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 shadow-lg border-0">
+        <div class="modal-header border-0" style="background: #f8f9fa;">
+          <h5 class="modal-title fw-semibold" id="eventAffectErrorModalLabel">Erreur</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-danger">Une erreur s'est produite lors de l'affectation à l'événement.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 <app-footer></app-footer>
 <app-scroll-to-top></app-scroll-to-top>
-  

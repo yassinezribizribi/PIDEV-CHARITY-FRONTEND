@@ -1,0 +1,77 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12 text-center">
+        <h5 class="heading fw-semibold text-white title-dark">Adoption Requests</h5>
+      </div>
+    </div>
+  </div>
+  <div class="position-middle-bottom">
+    <nav aria-label="breadcrumb" class="d-block">
+      <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+        <li class="breadcrumb-item"><a [routerLink]="'/index'">Smilecare</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Adoption Requests</li>
+      </ul>
+    </nav>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<!-- Adoption Requests Section -->
+<section class="section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10 col-md-12">
+        <div class="card shadow rounded mb-4">
+          <div class="card-header">
+            <h5 class="mb-0">Your requests for Adoption</h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th scope="col" class="text-center">Photo</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Species</th>
+                    <th scope="col">Breed</th>
+                    <th scope="col" class="text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let animal of demandes" style="cursor: pointer;">
+                    <td class="text-center">
+                      <img [src]="'http://localhost:8089/api/animals/images/' + animal.imagePath" alt="{{animal.name}}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" class="img-fluid">
+                    </td>
+                    <td>{{animal.name}}</td>
+                    <td>{{animal.animalSpecies}}</td>
+                    <td>{{animal.race}}</td>
+                    <td class="text-center">
+                      <span [class]="'badge bg-' + getStatusClass(animal.isAdopted ? 'Adopté' : 'Disponible')" style="padding: 8px 12px; font-size: 0.9rem;">
+                        {{animal.isAdopted ? 'Adopted' : 'Available'}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

@@ -41,15 +41,10 @@ export class PostsService {
     );
   }
 
-  addPost(post: Post): Observable<Post> {
+  addPost(post: any): Observable<any> {
     const headers = this.authService.getAuthHeaders();
     console.log('Ajout du post:', post);
-    return this.http.post<Post>(`${this.apiUrl}/createPost`, post, { headers }).pipe(
-      catchError(error => {
-        console.error("❌ Erreur lors de l'ajout du post :", error);
-        return throwError(() => error);
-      })
-    );
+    return this.http.post<any>(`${this.apiUrl}/createPost`, post, { headers });
   }
 
   getUserById(id: number): Observable<User> {
@@ -91,5 +86,9 @@ export class PostsService {
         return throwError(() => error);
       })
     );
+  }
+  getUserlist(id: number): Observable<User[]> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<User[]>(`${this.apiUrl}/${id}/like-users`,{ headers });
   }
 }

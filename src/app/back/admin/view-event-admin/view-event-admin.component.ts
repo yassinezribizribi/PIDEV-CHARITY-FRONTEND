@@ -21,25 +21,13 @@ import { AdminNavbarComponent } from '../admin-navbar/admin-navbar.component';
   templateUrl: './view-event-admin.component.html',
   styleUrl: './view-event-admin.component.scss'
 })
-
 export class ViewEventAdminComponent {
-isAffected: boolean=false;
-affect(arg0: any) {
-  console.log(arg0,this.eventId);
-  
-this.eventService.affect(this.eventId,arg0).subscribe(data=>{
-  this.isAffected=!this.isAffected
-  alert(data)
-},(error)=>{
-  console.log(error);
-  
-  alert("error")
-})
-}
+  isAffected: boolean = false;
   eventSubscribers: any[] = [];
   eventId: number | null = null;
   event!: Event;
   eventDetails: any = null;
+
   constructor(private eventService: EventService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
@@ -53,6 +41,9 @@ this.eventService.affect(this.eventId,arg0).subscribe(data=>{
     }
 
     console.log("Event ID retrieved:", this.eventId);
+
+    // Load subscribers automatically
+    this.getEventSubscribers();
   }
 
   getEventSubscribers(): void {
@@ -70,6 +61,29 @@ this.eventService.affect(this.eventId,arg0).subscribe(data=>{
     });
   }
 
+  affect(userId: any) {
+    console.log(userId, this.eventId);
+    this.eventService.affect(this.eventId, userId).subscribe({
+      next: (data) => {
+        this.isAffected = !this.isAffected;
+        this.showModal('success');
+      },
+      error: (error) => {
+        console.log(error);
+        this.showModal('error');
+      }
+    });
+  }
 
+  private showModal(type: 'success' | 'error'): void {
+    const modalId = type === 'success' ? 'eventAffectModal' : 'eventAffectErrorModal';
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
+      bootstrapModal.show();
+    } else {
+      console.error(`Modal with ID ${modalId} not found`);
+    }
+  }
   
 }

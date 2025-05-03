@@ -6,7 +6,7 @@ import { FooterComponent } from '@component/footer/footer.component';
 import { NavbarComponent } from '@component/navbar/navbar.component';
 import { AdminNavbarComponent } from '../admin-navbar/admin-navbar.component';
 import { ScrollToTopComponent } from '@component/scroll-to-top/scroll-to-top.component';
-import { AnimalService, Animal } from 'src/app/services/Animal.service';
+import { AnimalService, Animal, Notification } from 'src/app/services/Animal.service';
 import { TokenInterceptor } from 'src/app/interceptors/token.interceptor';
 import { BlogSidebarsComponent } from '@component/blog-sidebars/blog-sidebars.component';
 
@@ -32,6 +32,7 @@ import { BlogSidebarsComponent } from '@component/blog-sidebars/blog-sidebars.co
 })
 export class AnimalsAdminComponent implements OnInit {
   animals: any[] = [];
+  unadoptedCount: number | null = null; // Added for count
   loading = true;
   error: string | null = null;
 
@@ -39,6 +40,9 @@ export class AnimalsAdminComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAnimals();
+    this.fetchUnadoptedAnimalsCount(); // Added to fetch count
+    // Refresh count every 60 seconds to sync with scheduler
+    setInterval(() => this.fetchUnadoptedAnimalsCount(), 60000);
   }
 
   loadAnimals(): void {
@@ -66,27 +70,74 @@ export class AnimalsAdminComponent implements OnInit {
     });
   }
 
+  fetchUnadoptedAnimalsCount(): void {
+    this.animalService.getUnadoptedAnimalsCount().subscribe({
+      next: (response: Notification) => {
+        console.log('Réponse API:', response);
+        // Extract number from message (e.g., "Il y a actuellement 42 animaux...")
+        const match = response.message.match(/\d+/);
+        this.unadoptedCount = match ? parseInt(match[0], 10) : null;
+        this.error = null;
+      },
+      error: (error) => {
+        console.error('Erreur HTTP:', error.status, error.message, error.error);
+        this.error = 'Erreur lors de la récupération du nombre d\'animaux non adoptés: ' + (error.message || 'Vérifiez la console');
+        this.unadoptedCount = null;
+      },
+    });
+  }
+
   deleteAnimal(id: number | undefined): void {
     if (id === undefined) {
-      this.error = 'ID de l’animal manquant';
+      this.showModal('error');
       return;
     }
-    if (confirm('Voulez-vous vraiment supprimer cet animal ?')) {
-      this.animalService.deleteAnimal(id).subscribe({
-        next: () => {
-          this.animals = this.animals.filter(
-            (animal) => animal.idAnimal !== id
-          );
-          console.log(`Animal ${id} supprimé avec succès`);
-          this.error = null;
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
-          this.error =
-            'Erreur lors de la suppression de l’animal : ' +
-            (error.message || 'Vérifiez la console');
-        },
-      });
+    this.showModal('confirm', id);
+  }
+
+  private confirmDelete(id: number): void {
+    this.animalService.deleteAnimal(id).subscribe({
+      next: () => {
+        this.animals = this.animals.filter(
+          (animal) => animal.idAnimal !== id
+        );
+        console.log(`Animal ${id} supprimé avec succès`);
+        this.error = null;
+        this.showModal('success');
+      },
+      error: (error) => {
+        console.error('Erreur lors de la suppression:', error);
+        this.showModal('error');
+      }
+    });
+  }
+
+  private showModal(type: 'success' | 'error' | 'confirm', id?: number): void {
+    const modalId =
+      type === 'success'
+        ? 'animalDeleteModal'
+        : type === 'error'
+        ? 'animalDeleteErrorModal'
+        : 'animalDeleteConfirmModal';
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
+      if (type === 'confirm' && id !== undefined) {
+        // Attach confirm action to the modal's confirm button
+        const confirmButton = modalElement.querySelector('.confirm-delete-btn');
+        if (confirmButton) {
+          // Remove existing listeners to prevent multiple bindings
+          const newConfirmButton = confirmButton.cloneNode(true);
+          confirmButton.parentNode?.replaceChild(newConfirmButton, confirmButton);
+          newConfirmButton.addEventListener('click', () => {
+            this.confirmDelete(id);
+            bootstrapModal.hide();
+          });
+        }
+      }
+      bootstrapModal.show();
+    } else {
+      console.error(`Modal with ID ${modalId} not found`);
     }
   }
 

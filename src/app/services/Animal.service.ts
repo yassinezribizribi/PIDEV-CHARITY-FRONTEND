@@ -13,17 +13,25 @@ export class Animal {
 }
 
 export interface User {
-  idUser: number;          // The ID of the user (mapped from 'idUser' in the backend)
-  firstName: string;       // The first name of the user
-  lastName: string;        // The last name of the user
-  email: string;           // The email of the user
-  password?: string;       // The password (optional, since it might not be needed in some cases)
-  telephone?: string;      // The telephone (optional)
-  isBanned?: boolean;      // Whether the user is banned (optional)
-  banreason?: string;      // The reason for banning (optional)
-  job?: string;            // The job of the user (optional)
+  idUser: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password?: string;
+  telephone?: string;
+  isBanned?: boolean;
+  banreason?: string;
+  job?: string;
 }
 
+export interface Notification {
+  idNotification: number;
+  message: string;
+  type: string;
+  updatedAt: string;
+  association: any;
+  event: any;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +39,7 @@ export interface User {
 export class AnimalService {
   private apiUrl = 'http://localhost:8089/api/animals';
   private apiUrlUser = 'http://localhost:8089/api/users';
-
+  private apiUrlNotifications = 'http://localhost:8089/api/notifications'; 
 
   constructor(private http: HttpClient) {}
 
@@ -55,7 +63,7 @@ export class AnimalService {
     return this.http.get<User>(`${this.apiUrlUser}/getUserById/${id}`);
   }
 
-  addAnimal(animal: Animal,iduser:number): Observable<Animal> {
+  addAnimal(formData: FormData): Observable<Animal> {
     const token = localStorage.getItem('auth_token');
     if (!token) {
       return throwError(() => new Error('User is not authenticated.'));
@@ -64,7 +72,7 @@ export class AnimalService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-    return this.http.post<Animal>(`${this.apiUrl}/add/${iduser}`, animal , { headers });
+    return this.http.post<Animal>(`${this.apiUrl}/add`, formData, { headers });
   }
 
   updateAnimal(id: number, animal: Animal): Observable<Animal> {
@@ -76,13 +84,16 @@ export class AnimalService {
   }
 
   getAnimalsByUserId(userId: number): Observable<Animal[]> {
-    return this.http.get<Animal[]>(
-      `${this.apiUrl}/getAnimalsByUserId/${userId}`
-    );
+    return this.http.get<Animal[]>(`${this.apiUrl}/getAnimalsByUserId/${userId}`);
   }
 
   getNonAdoptedAnimals(): Observable<Animal[]> {
     console.log('Requête vers:', `${this.apiUrl}/non-adopted`);
     return this.http.get<Animal[]>(`${this.apiUrl}/non-adopted`);
+  }
+
+  getUnadoptedAnimalsCount(): Observable<Notification> {
+    // No token required, as endpoint is public
+    return this.http.get<Notification>(`${this.apiUrlNotifications}/unadopted-animals`);
   }
 }

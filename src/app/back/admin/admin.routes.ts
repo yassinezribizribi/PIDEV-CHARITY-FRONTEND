@@ -10,6 +10,7 @@ import { AnimalsAdminComponent } from './animals-admin/animals-admin.component';
 import { AddanimaladminComponent } from './addanimaladmin/addanimaladmin.component';
 import { PostsManageComponent } from './posts-management/posts-manage.component';
 import { AuthGuard } from 'src/app/guards/auth.guard';
+import { DemandeAnimalListComponent } from './demande-animal-list/demande-animal-list.component';
 
 
 export const ADMIN_ROUTES: Routes = [
@@ -31,6 +32,7 @@ export const ADMIN_ROUTES: Routes = [
     { path: 'add-animals', component: AddanimaladminComponent },
     {path:'events-admin', component:EventsAdminComponent},
     {path:'add-event', component:AddEventComponent},
+    {path:'demande', component:DemandeAnimalListComponent},
     {path:'view-event-admin/:id', component:ViewEventAdminComponent},
     {path:'edit-event-admin/:id', component:EditEventAdminComponent},
       { path: 'animals-admin', component: AnimalsAdminComponent },

@@ -1,0 +1,132 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12 text-center">
+        <h5 class="heading fw-semibold text-white title-dark">Adoption Requests Management</h5>
+      </div>
+    </div>
+    <div class="position-middle-bottom">
+      <nav aria-label="breadcrumb" class="d-block">
+        <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+          <li class="breadcrumb-item"><a [routerLink]="'/admin'">Admin</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Adoption Requests</li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<!-- Adoption Requests List Section -->
+<section class="section">
+  <div class="container">
+    <!-- Requests List -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent">
+        <h5 class="mb-0">Adoption Requests List</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">User</th>
+                <th scope="col">Animal</th>
+                <th scope="col">Animal Status</th>
+                <th scope="col">Request Accepted</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let demande of demandes">
+                <td>{{ demande.user.email }} <br><small class="text-muted"></small></td>
+                <td>{{ demande.animal.name }} <br><small class="text-muted"></small></td>
+                <td>
+                  <span 
+                    class="badge"
+                    [ngClass]="{
+                      'bg-success': demande.animal.isAdopted,
+                      'bg-warning text-dark': !demande.animal.isAdopted
+                    }">
+                    {{ demande.animal.isAdopted ? 'Adopted' : 'Non Adopted' }}
+                  </span>
+                </td>
+                <td>
+                  <span 
+                    class="badge"
+                    [ngClass]="{
+                      'bg-success': demande.accepted,
+                      'bg-warning text-dark': !demande.accepted
+                    }">
+                    {{ demande.accepted ? 'Yes' : 'No' }}
+                  </span>
+                </td>
+                <td>
+                  <button 
+                    *ngIf="!demande.accepted && demande.animal.status !== 'adopted'" 
+                    class="btn btn-sm btn-primary"
+                    (click)="accepterDemande(demande.id!)">
+                    Accept
+                  </button>
+                  <span *ngIf="demande.accepted || demande.animal.status === 'adopted'" class="text-success fw-bold">
+                    Adopted
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Success Modal -->
+<div class="modal fade" id="demandeActionModal" tabindex="-1" aria-labelledby="demandeActionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-3 shadow-lg border-0">
+      <div class="modal-header border-0" style="background: #f8f9fa;">
+        <h5 class="modal-title fw-semibold" id="demandeActionModalLabel">Success</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-success">Accepted successfully!</p>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="demandeErrorModal" tabindex="-1" aria-labelledby="demandeErrorModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-3 shadow-lg border-0">
+      <div class="modal-header border-0" style="background: #f8f9fa;">
+        <h5 class="modal-title fw-semibold" id="demandeErrorModalLabel">Error</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-danger">An error occurred while accepting the request.</p>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

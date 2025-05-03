@@ -1,0 +1,287 @@
+/* General Section Styles (Middle of the Page) */
+.section {
+    padding: 60px 0;
+    background: #ffffff;
+    min-height: 400px;
+  }
+  
+  /* Container for Centered Content */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Alerts (Unadopted Count, Error) */
+  .alert {
+    border-radius: 10px;
+    padding: 20px 25px;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    &.alert-info {
+      background: linear-gradient(90deg, #bee5eb, #e6f3fa);
+      color: #0c5460;
+      border: none;
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px rgba(23, 162, 184, 0.25);
+      }
+      &::before {
+        content: "📊";
+        font-size: 1.3rem;
+        margin-right: 12px;
+      }
+    }
+    &.alert-danger {
+      background: linear-gradient(90deg, #f8d7da, #fce8e9);
+      color: #721c24;
+      border: none;
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px rgba(220, 53, 69, 0.25);
+      }
+      &::before {
+        content: "❗";
+        font-size: 1.3rem;
+        margin-right: 12px;
+      }
+    }
+  }
+  
+  /* Loading State */
+  .text-center.p-5 {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 40px !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    .spinner-border {
+      width: 3rem;
+      height: 3rem;
+      border-width: 0.35em;
+      color: #3182ce;
+      transition: transform 0.3s ease;
+      animation: spin 1s linear infinite;
+      &:hover {
+        transform: scale(1.15);
+      }
+    }
+  }
+  
+  /* Animal List Card */
+  .card {
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+    }
+    .card-header {
+      padding: 20px 30px;
+      background: linear-gradient(90deg, #f7fafc, #edf2f7);
+      border-bottom: none;
+      h5 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0;
+      }
+    }
+    .card-body {
+      padding: 25px 30px;
+    }
+  }
+  
+  /* Table Styles */
+  .table {
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    thead {
+      th {
+        background: #e2e8f0;
+        color: #2d3748;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 16px;
+        border: none;
+        &:first-child {
+          border-top-left-radius: 10px;
+        }
+        &:last-child {
+          border-top-right-radius: 10px;
+        }
+      }
+    }
+    tbody {
+      tr {
+        background: #ffffff;
+        transition: all 0.3s ease;
+        &:hover {
+          background: #f7fafc;
+          transform: translateY(-2px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        td {
+          padding: 14px;
+          vertical-align: middle;
+          border: none;
+          border-bottom: 1px solid #e2e8f0;
+          font-size: 0.95rem;
+          color: #4a5568;
+          img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            &:hover {
+              transform: scale(1.1);
+            }
+          }
+          .badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+            &.bg-success {
+              background-color: #38a169 !important;
+              &:hover {
+                transform: scale(1.05);
+              }
+            }
+            &.bg-warning {
+              background-color: #ed8936 !important;
+              &:hover {
+                transform: scale(1.05);
+              }
+            }
+          }
+          button {
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            &.btn-danger {
+              background: #e53e3e;
+              border: none;
+              box-shadow: 0 2px 6px rgba(229, 62, 62, 0.2);
+              &:hover {
+                background: #c53030;
+                box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+                transform: translateY(-1px);
+              }
+            }
+            &.btn-outline-primary {
+              border: 2px solid #3182ce;
+              color: #3182ce;
+              background: transparent;
+              box-shadow: 0 2px 6px rgba(49, 130, 206, 0.2);
+              &:hover {
+                background: #3182ce;
+                color: #ffffff;
+                box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+                transform: translateY(-1px);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  /* Add Button */
+  .text-end .btn-primary {
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    background: linear-gradient(90deg, #f8b961, #ffc107);
+    border: none;
+    box-shadow: 0 4px 12px rgba(244, 162, 39, 0.3);
+    transition: all 0.3s ease;
+    &:hover {
+      background: linear-gradient(90deg, #2b6cb0, #4299e1);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(49, 130, 206, 0.4);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .section {
+      padding: 40px 0;
+    }
+    .alert {
+      font-size: 0.95rem;
+      padding: 15px 20px;
+      &::before {
+        font-size: 1.1rem;
+        margin-right: 8px;
+      }
+    }
+    .text-center.p-5 {
+      padding: 30px !important;
+      .spinner-border {
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+    }
+    .card {
+      .card-header {
+        padding: 15px 20px;
+        h5 {
+          font-size: 1.3rem;
+        }
+      }
+      .card-body {
+        padding: 20px;
+      }
+    }
+    .table {
+      font-size: 0.85rem;
+      thead th {
+        padding: 12px;
+        font-size: 0.8rem;
+      }
+      tbody td {
+        padding: 10px;
+        img {
+          width: 45px;
+          height: 45px;
+        }
+        button {
+          padding: 6px 12px;
+          font-size: 0.8rem;
+        }
+        .badge {
+          padding: 6px 12px;
+          font-size: 0.8rem;
+        }
+      }
+    }
+    .text-end .btn-primary {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .table {
+      min-width: 600px;
+    }
+  }
