@@ -47,15 +47,6 @@ export class FormationsComponent  implements OnInit {
     this.initForm();
   }
   
-  downloadCertificate(idformation:any,iduser:any){
-this.trainingService.downloadCertificate(idformation,iduser)
-  .subscribe(blob => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `certificat_${iduser}.pdf`;
-        link.click();
-      });
-  }
   
 
   initForm(training?: Training): void {

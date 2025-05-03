@@ -50,51 +50,6 @@
         <h5 class="mb-0">Events List</h5>
       </div>
       <div class="card-body">
-        <!-- Add Button -->
-        <div class="text-end mb-3">
-          <button class="btn btn-primary" (click)="onAddEvent()">Add an Event</button>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Date</th>
-                <th>Location</th>
-                <th>Type</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let event of events">
-                <td>{{ event.title }}</td>
-                <td class="text-truncate" style="max-width: 250px;">{{ event.description }}</td>
-                <td>{{ event.dateTime | date:'yyyy-MM-dd HH:mm' }}</td>
-                <td>{{ event.location }}</td>
-                <td>
-                  <span class="badge bg-{{ getStatusClass(event.typeEvent) }}">
-                    {{ event.typeEvent }}
-                  </span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/admin/view-event-admin', event.idEvent]">
-                    View subscribers
-                  </button>
-                  <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/admin/edit-event-admin', event.idEvent]" (click)="editEvent(event)">
-                    Edit
-                  </button>
-                  <button class="btn btn-sm btn-danger" (click)="deleteEvent(event.idEvent)">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
 
     <!-- No Data State -->
     <div *ngIf="!loading && !error && events.length === 0" class="text-center p-5">
@@ -102,7 +57,6 @@
       <p class="mt-2 text-muted">No events found.</p>
     </div>
   </div>
-</section>
 
 <!-- Success Modal for Event Deletion -->
 <div class="modal fade" id="eventDeleteModal" tabindex="-1" aria-labelledby="eventDeleteModalLabel" aria-hidden="true">
