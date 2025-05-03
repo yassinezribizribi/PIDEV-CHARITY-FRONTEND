@@ -94,7 +94,41 @@
 </section>
 <!-- End -->
 
+<!-- Success Modal -->
+<div class="modal fade" id="eventInterestModal" tabindex="-1" aria-labelledby="eventInterestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 shadow-lg border-0">
+        <div class="modal-header border-0" style="background: #f8f9fa;">
+          <h5 class="modal-title fw-semibold" id="eventInterestModalLabel">Success</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-success">User marked as interested.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
 
+<!-- Error Modal -->
+<div class="modal fade" id="eventErrorModal" tabindex="-1" aria-labelledby="eventErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 shadow-lg border-0">
+        <div class="modal-header border-0" style="background: #f8f9fa;">
+          <h5 class="modal-title fw-semibold" id="eventErrorModalLabel">Error</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-danger">An error occurred while registering for the event.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
 
 <app-footer></app-footer>
 <app-scroll-to-top></app-scroll-to-top>

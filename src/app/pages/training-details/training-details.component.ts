@@ -1,9 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  HTTP_INTERCEPTORS,
-  HttpClientModule,
-  HttpErrorResponse,
-} from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
@@ -26,17 +22,17 @@ import { jwtDecode } from 'jwt-decode';
     BlogSidebarsComponent,
     FooterComponent,
     ScrollToTopComponent,
-    HttpClientModule,
+    HttpClientModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
-    TrainingService,
+    TrainingService
   ],
   templateUrl: './training-details.component.html', // Changé à training-details.component.html
-  styleUrl: './training-details.component.scss', // Changé à training-details.component.scss
+  styleUrl: './training-details.component.scss' // Changé à training-details.component.scss
 })
 export class TrainingDetailsComponent implements OnInit {
-  // Changé à TrainingDetailsComponent
+ // Changé à TrainingDetailsComponent
   training: any | null = null;
   isLoading = true;
   errorMessage = '';
@@ -45,33 +41,65 @@ export class TrainingDetailsComponent implements OnInit {
     private trainingService: TrainingService,
     private route: ActivatedRoute
   ) {}
-  userId: any;
+  userId:any
   ngOnInit(): void {
     this.userId = this.getUserIdFromToken();
 
+    
     this.getTrainingDetails();
+  }
+  getUserIdFromToken(): number | null {
+    const token = localStorage.getItem('auth_token');
+    console.log("token:", token);
+    
+    if (!token) return null;
+  
+    try {
+      const decodedToken: any = jwtDecode(token);
+      
+      return .idUser;
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null;
+    }
+  }
+  getTrainingDetails(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (id) {
+      this.isLoading = true;
+      this.trainingService.getTrainingById(id).subscribe({
+        next: (data) => {
+          this.training = data;
+          this.isLoading = false;
+          console.log('Training details fetched:', data);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Error fetching training details:', );
+          this.errorMessage = 'Erreur lors de la récupération des détails de la formation';
+        }
+      });
+    } else {
+      this.isLoading = false;
+      this.errorMessage = 'ID de la formation invalide';
+    }
   }
 
   addsub(idTraining: number) {
-    this.trainingService
-      .addSubscriberToTraining(idTraining, this.userId)
-      .subscribe({
-        next: (data: any) => {
-          console.log(data);
-          this.showModal('success');
-        },
-        error: (error: HttpErrorResponse) => {
-          this.showModal('error');
-        },
-      });
+    this.trainingService.addSubscriberToTraining(idTraining, this.userId).subscribe({
+      next: (data: any) => {
+        console.log(data);
+        this.showModal('success');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.showModal('error');
+      }
+    });
   }
 
   private showModal(type: 'success' | 'error'): void {
-    const modalId =
-      type === 'success'
-        ? 'trainingSubscribeModal'
-        : 'trainingSubscribeErrorModal';
-    const modalElement = document.getElementById(modalId);
+    const modalId = type === 'success' ? 'trainingSubscribeModal' : 'trainingSubscribeErrorModal';
+    const  = document.getElementById(modalId);
     if (modalElement) {
       const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
       bootstrapModal.show();
@@ -79,4 +107,6 @@ export class TrainingDetailsComponent implements OnInit {
       console.error(`Modal with ID ${modalId} not found`);
     }
   }
+
+
 }

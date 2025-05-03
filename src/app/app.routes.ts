@@ -47,7 +47,7 @@ export const routes: Routes = [
   { path: 'onepage', component: OnepageComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
-  {path:"",canActivate:[AuthGuard],children:[
+  {path:"",:[AuthGuard],children:[
     
   { path: 'index', component: IndexComponent, canActivate: [AuthGuard] },
   { path: 'aboutus', component: AboutusComponent },
@@ -55,13 +55,13 @@ export const routes: Routes = [
   { path: 'service-detail', component: ServiceDetailComponent },
   { path: 'forums', component: ForumsComponent },
   { path: 'team', component: TeamComponent },
-  { path: 'testimonial', component: TestimonialComponent },
+  { path: 'testimonial', cmponent: TestimonialComponent },
   { path: 'faqs', component: FaqsComponent },
   { path: 'blogs', component: BlogsComponent },
   { path: 'demandes', component: DemandeAnimalComponent },
-  { path: 'interesse', component: InteresseComponent },
+  { path: 'interesse', component:  },
   { path: 'blog-sidebar', component: BlogSidebarComponent },
-  { path: 'blog-detail', component: BlogDetailComponent },
+  { path: 'blog-detail', : BlogDetailComponent },
   { path: 'blog-detail/:id', component: BlogDetailComponent },
   { path: 'interested/event/:id', component: EventDetailNoButtonComponent },
 
@@ -111,7 +111,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     loadChildren: () =>
-      import('./back/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+      import('./back/admin/admin.routes').then((m) => m.),
   },
   {
     path: 'forums',

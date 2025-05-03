@@ -6,11 +6,11 @@ import { Observable, throwError } from 'rxjs';
   providedIn: 'root',
 })
 export class RecommendationService {
-  private apiUrlRecommendations = 'http://localhost:8089/api/recommendations';
+  private apiUrlRecommendations = 'http://:8089/api/recommendations';
 
   constructor(private http: HttpClient) {}
 
-  getRecommendedEvents(userId: number): Observable<any> {
+  (userId: number): Observable<any> {
     const token = localStorage.getItem('auth_token');
     if (!token) {
       return throwError(() => new Error('User is not authenticated.'));

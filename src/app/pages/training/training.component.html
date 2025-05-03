@@ -84,10 +84,10 @@
                             <div class="position-relative">
                                 <div class="blog-image position-relative overflow-hidden rounded shadow">
                                     <!-- Add training-specific image if available, or use a default -->
-                                    <!-- <img src="assets/images/training/default.jpg" alt="{{ training.trainingName }}" class="img-fluid">-->
+                                    <!-- <img src="/images/training/default.jpg" alt="{{ .trainingName }}" class="img-fluid">-->
                                 </div>
                                 <div class="position-absolute top-100 start-0 translate-middle-y ms-2">
-                                    <a routerLink="#" (click)="$event.preventDefault()" class="badge bg-primary">Training</a>
+                                    <a routerLink="#" (click)="$.preventDefault()" class="badge bg-primary"></a>
                                 </div>
                             </div>
 
@@ -110,6 +110,28 @@
                         </div>
                     </div><!--end col-->
                 </div><!--end row-->
+
+                <!-- Pagination (optional, enable if you implement backend pagination) 
+                <div class="row" *ngIf="!isLoading && !errorMessage && .length > 0">
+                    <div class="col-12 mt-4 pt-2">
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item">
+                                <a class="page-link" routerLink="#" ()="$event.preventDefault()" aria-label="Previous">
+                                    <span aria-="true"><i class="mdi mdi-chevron-left align-middle fs-6"></i></span>
+                                </a>
+                            </li>
+                            <li class="page-item"><a class="page-link" routerLink="#" (click)="$event.preventDefault()">1</a></li>
+                            <li class="page-item active"><a class="page-link" routerLink="#" (click)="$event.preventDefault()">2</a></li>
+                            <li class="page-item"><a class="page-link" routerLink="#" (click)="$.preventDefault()">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" routerLink="#" (click)="$event.preventDefault()" aria-label="Next">
+                                    <span aria-hidden="true"><i ="mdi mdi-chevron-right align-middle fs-6"></i></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                -->
             </div>
 
             <!-- START SIDEBAR -->

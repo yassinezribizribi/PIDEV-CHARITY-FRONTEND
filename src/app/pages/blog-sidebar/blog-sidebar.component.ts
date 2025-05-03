@@ -54,6 +54,19 @@ export class BlogSidebarComponent implements OnInit {
     }
   };
 
+  ngOnInit(): void {
+    this.userId = this.getUserIdFromToken();
+    console.log('userId:', this.userId);
+    this.loadEventsData();
+  }
+
+  toggleEventView(): void {
+    this.showInterestedOnly = !this.showInterestedOnly;
+    this.isLoading = true;
+    this.events = [];
+    this.calendarEvents = [];
+    this.loadEventsData();
+  }
 
   loadEventsData(): void {
     if (this.showInterestedOnly) {

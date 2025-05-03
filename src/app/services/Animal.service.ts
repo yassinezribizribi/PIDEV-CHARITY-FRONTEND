@@ -52,11 +52,11 @@ export class AnimalService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-    return this.http.get<Animal[]>(`${this.apiUrl}/getAllAnimals`, { headers });
+    return this.http.<Animal[]>(`${this.apiUrl}/getAllAnimals`, { headers });
   }
 
   getAnimalById(id: number): Observable<Animal> {
-    return this.http.get<Animal>(`${this.apiUrl}/getAnimalById/${id}`);
+    return this.http.get<Animal>(`${this.apiUrl}//${id}`);
   }
 
   getUserById(id: number): Observable<User> {
@@ -69,13 +69,13 @@ export class AnimalService {
       return throwError(() => new Error('User is not authenticated.'));
     }
   
-    const headers = new HttpHeaders({
+    const headers =  HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
     return this.http.post<Animal>(`${this.apiUrl}/add`, formData, { headers });
   }
 
-  updateAnimal(id: number, animal: Animal): Observable<Animal> {
+  (id: , animal: Animal): Observable<Animal> {
     return this.http.put<Animal>(`${this.apiUrl}/updateAnimal/${id}`, animal);
   }
 

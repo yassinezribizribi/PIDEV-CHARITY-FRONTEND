@@ -80,10 +80,10 @@
         <!-- Détails de l'événement sélectionné -->
         <div *ngIf="selectedEvent" class="event-details mt-4 p-4 border shadow rounded">
             <h3>{{ selectedEvent.title }}</h3>
-            <p><strong>Date:</strong> {{ selectedEvent.dateTime | date: 'dd/MM/yyyy HH:mm' }}</p>
+            <p><strong>Date and time:</strong> {{ selectedEvent.dateTime | date: 'dd/MM/yyyy HH:mm' }}</p>
             <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
-            <p><strong>Lieu:</strong> {{ selectedEvent.location }}</p>
-            <p><strong>Type d'événement:</strong> {{ selectedEvent.typeEvent }}</p>
+            <p><strong>Location:</strong> {{ selectedEvent.location }}</p>
+            <p><strong>Event Type:</strong> {{ selectedEvent.typeEvent }}</p>
         </div>
     </div>
 </section>
