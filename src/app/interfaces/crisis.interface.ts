@@ -1,3 +1,4 @@
+
 export interface Crisis {
   id?: number;                     // Optionnel car généré par le backend à la création
   description: string;

@@ -40,6 +40,8 @@
 
               "src/assets/scss/style.scss",
               "src/assets/css/materialdesignicons.min.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+
               "src/styles.scss",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "src/styles.scss",

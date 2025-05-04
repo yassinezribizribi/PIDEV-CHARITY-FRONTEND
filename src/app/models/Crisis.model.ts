@@ -1,4 +1,14 @@
 export interface Crisis {
+<<<<<<< HEAD
+  id?: number;
+  name: string;
+  description: string;
+  location: string;
+  date: string;
+  idUser?: number;  
+  category: string;
+  updates: string;
+=======
   idCrisis?: number;  // L'ID de la crise
   categorie: string;   // Catégorie de la crise (ex: NATURAL_DISASTER)
   location: string;   // Emplacement de la crise
@@ -13,10 +23,21 @@ export interface Crisis {
     missions?: any[];    // Liste des missions associées à la crise
     image?: string | File;     // URL de l'image ou objet File pour upload
     imageUrl?: string;             // Pour affichage rapide depuis une URL backend, ex: /images/nom.jpg
+>>>>>>> 6937ca0e091f9399525242e748d4110fdac2c8fe
 
 
 }
 
+<<<<<<< HEAD
+
+export interface Subscriber {
+  idUser: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  telephone?: string; 
+}
+=======
 export interface Subscriber {
   idUser: number;      // ID de l'utilisateur
   firstName: string;   // Prénom de l'utilisateur
@@ -29,3 +50,4 @@ export interface CrisisAssignmentResponse {
   associationName: string;
   associationAddress: string;
 }
+>>>>>>> 6937ca0e091f9399525242e748d4110fdac2c8fe

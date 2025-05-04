@@ -35,21 +35,33 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-6 mb-4">
-        <div class="forum-section text-center p-4 rounded-2xl shadow-sm bg-light">
+        <div class="forum-section text-center p-4 rounded-2xl shadow-sm bg-light position-relative overflow-hidden">
+          <div class="forum-image-container mb-4">
+            <img src="/assets/uploads/jobs.jpeg" alt="Job Opportunities" class="img-fluid rounded-circle shadow" style="width: 180px; height: 180px; object-fit: cover;">
+            <div class="forum-image-overlay"></div>
+          </div>
           <h4 class="mb-3">Job Opportunities</h4>
-          <p class="text-muted">
-            Explore various job listings and employment resources for refugees and those seeking support.
+          <p class="text-muted mb-4">
+            Explore various job listings, career advice, and employment resources tailored for refugees and those seeking to rebuild their professional lives.
           </p>
-          <button class="btn btn-primary" [routerLink]="'/forums/job-opportunities'">Join Discussions</button>
+          <button class="btn btn-primary mt-2" [routerLink]="'/forums/job-opportunities'">
+            <i class="uil uil-briefcase-alt me-1"></i> Join Discussions
+          </button>
         </div>
       </div>
       <div class="col-lg-6 mb-4">
-        <div class="forum-section text-center p-4 rounded-2xl shadow-sm bg-light">
+        <div class="forum-section text-center p-4 rounded-2xl shadow-sm bg-light position-relative overflow-hidden">
+          <div class="forum-image-container mb-4">
+            <img src="assets/images/forum/supp.jpeg" alt="Support Refugees" class="img-fluid rounded-circle shadow" style="width: 180px; height: 180px; object-fit: cover;">
+            <div class="forum-image-overlay"></div>
+          </div>
           <h4 class="mb-3">Support Refugees</h4>
-          <p class="text-muted">
-            Connect with the community to share resources, support, and advice for refugees.
+          <p class="text-muted mb-4">
+            Connect with a compassionate community to share resources, emotional support, and practical advice for refugees and their allies.
           </p>
-          <button class="btn btn-primary" [routerLink]="'/forums/support-refugees'">Join Discussions</button>
+          <button class="btn btn-primary mt-2" [routerLink]="'/forums/support-refugees'">
+            <i class="uil uil-users-alt me-1"></i> Join Discussions
+          </button>
         </div>
       </div>
     </div>
@@ -62,7 +74,7 @@
           <h4 class="mb-4 title">FAQs</h4>
           <p class="para-desc mx-auto text-muted">
             The solidarity is a non-profit organisation that strives to eliminate hunger by implementing the Mid Day
-            Meal Programme.
+            Meal Programme and supporting refugee communities worldwide.
           </p>
         </div>
       </div>

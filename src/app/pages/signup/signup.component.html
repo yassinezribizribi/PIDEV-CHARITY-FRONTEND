@@ -10,53 +10,81 @@
                       </a>
                       <h6 class="mb-3 text-uppercase fw-semibold">Register your account</h6>
                   
+                      <!-- Error Message -->
+                      <div *ngIf="errorMessage" class="alert alert-danger mb-3">
+                          {{ errorMessage }}
+                      </div>
+
                       <div class="mb-3">
                           <label class="form-label fw-semibold">Your First Name</label>
-                          <input name="firstname" formControlName="firstname" type="text" class="form-control" placeholder="Calvin Carlo" required>
+                          <input name="firstname" formControlName="firstname" type="text" class="form-control" [ngClass]="{'is-invalid': signupForm.get('firstname')?.invalid && signupForm.get('firstname')?.touched}">
+                          <div class="invalid-feedback" *ngIf="signupForm.get('firstname')?.invalid && signupForm.get('firstname')?.touched">
+                              {{ getErrorMessage('firstname') }}
+                          </div>
                       </div>
 
                       <div class="mb-3">
                           <label class="form-label fw-semibold">Your Last Name</label>
-                          <input name="lastname" formControlName="lastname" type="text" class="form-control" placeholder="Carlo" required>
+                          <input name="lastname" formControlName="lastname" type="text" class="form-control" [ngClass]="{'is-invalid': signupForm.get('lastname')?.invalid && signupForm.get('lastname')?.touched}">
+                          <div class="invalid-feedback" *ngIf="signupForm.get('lastname')?.invalid && signupForm.get('lastname')?.touched">
+                              {{ getErrorMessage('lastname') }}
+                          </div>
                       </div>
 
                       <div class="mb-3">
                           <label class="form-label fw-semibold">Your Email</label>
-                          <input name="email" formControlName="email" type="email" class="form-control" placeholder="example@website.com" required>
+                          <input name="email" formControlName="email" type="email" class="form-control" placeholder="example@website.com" [ngClass]="{'is-invalid': signupForm.get('email')?.invalid && signupForm.get('email')?.touched}">
+                          <div class="invalid-feedback" *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched">
+                              {{ getErrorMessage('email') }}
+                          </div>
                       </div>
 
                       <div class="mb-3">
                           <label class="form-label fw-semibold" for="password">Password</label>
-                          <input type="password" class="form-control" formControlName="password" placeholder="Password" required>
+                          <input type="password" class="form-control" formControlName="password" placeholder="Password" [ngClass]="{'is-invalid': signupForm.get('password')?.invalid && signupForm.get('password')?.touched}">
+                          <div class="invalid-feedback" *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched">
+                              {{ getErrorMessage('password') }}
+                          </div>
                       </div>
                       
                       <div class="mb-3">
                           <label class="form-label fw-semibold">Sign up as</label>
-                          <select class="form-control" formControlName="role" required>
+                          <select class="form-control" formControlName="role" [ngClass]="{'is-invalid': signupForm.get('role')?.invalid && signupForm.get('role')?.touched}">
                               <option value="REFUGEE">Refugee</option>
                               <option value="ASSOCIATION_MEMBER">Association Member</option>
                               <option value="VOLUNTEER">Volunteer</option>
+                              <option value="MENTOR">Mentor</option>
                           </select>
+                          <div class="invalid-feedback" *ngIf="signupForm.get('role')?.invalid && signupForm.get('role')?.touched">
+                              {{ getErrorMessage('role') }}
+                          </div>
                       </div>    
                       
                       <div class="mb-3">
                           <label class="form-label fw-semibold">Your Phone Number</label>
-                          <input name="telephone" formControlName="telephone" type="tel" class="form-control" placeholder="07700000000" required>
+                          <input name="telephone" formControlName="telephone" type="tel" class="form-control" [ngClass]="{'is-invalid': signupForm.get('telephone')?.invalid && signupForm.get('telephone')?.touched}">
+                          <div class="invalid-feedback" *ngIf="signupForm.get('telephone')?.invalid && signupForm.get('telephone')?.touched">
+                              {{ getErrorMessage('telephone') }}
+                          </div>
                       </div>
+
                       <div class="mb-3">
-                        <label class="form-label fw-semibold">Your Location</label>
-                        <input name="location" formControlName="location" type="text" class="form-control" placeholder="Enter your location" required>
-                    </div>
-                    
+                          <label class="form-label fw-semibold">Your Location</label>
+                          <input name="location" formControlName="location" type="text" class="form-control" placeholder="Enter your location" [ngClass]="{'is-invalid': signupForm.get('location')?.invalid && signupForm.get('location')?.touched}">
+                          <div class="invalid-feedback" *ngIf="signupForm.get('location')?.invalid && signupForm.get('location')?.touched">
+                              {{ getErrorMessage('location') }}
+                          </div>
+                      </div>
 
                       <div class="mb-3">
                           <label class="form-label fw-semibold">Job</label>
                           <input name="job" formControlName="job" type="text" class="form-control" placeholder="Job">
                       </div>
                       
-            
-      
-                      <button class="btn btn-primary w-100" type="submit">Register</button>
+                      <button class="btn btn-primary w-100" type="submit" [disabled]="isSubmitting">
+                          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          {{ isSubmitting ? 'Registering...' : 'Register' }}
+                      </button>
 
                       <div class="col-12 text-center mt-3">
                           <span><span class="text-muted small me-2">Already have an account?</span> 

@@ -1,127 +1,185 @@
 <app-admin-navbar></app-admin-navbar>
-<!-- Hero Start -->
-<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
-  <div class="bg-overlay bg-gradient-overlay"></div>
-  <div class="container">
-      <div class="row mt-5 justify-content-center">
-          <div class="col-12">
-              <div class="title-heading text-center">
-                  <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Association Account</h5>
-              </div>
-          </div><!--end col-->
-      </div><!--end row-->
 
-      <div class="position-middle-bottom">
-          <nav aria-label="breadcrumb" class="d-block">
-              <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                  <li class="breadcrumb-item"><a [routerLink]="'/'">Solidarity&Refugee</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">Association Account</li>
-              </ul>
-          </nav>
+<!-- Main Layout -->
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <div class="dashboard-sidebar">
+    <!-- Association Info -->
+    <div class="sidebar-section">
+      <div class="association-profile text-center">
+        <div class="position-relative d-inline-block">
+          <img [src]="imageUrl || defaultLogo" 
+               alt="Association Logo" 
+               class="association-avatar">
+          <input type="file" 
+                 #fileInput 
+                 style="display: none" 
+                 (change)="onEditLogo($event)" 
+                 accept="image/*">
+          <button class="btn btn-sm btn-light edit-avatar-btn" 
+                  (click)="fileInput.click()">
+            <i class="uil uil-camera"></i>
+          </button>
+        </div>
+        <h5 class="mt-3 mb-1">{{association?.associationName}}</h5>
+        <span class="badge" [ngClass]="{'bg-success': association?.status === AssociationStatus.APPROVED, 'bg-warning': association?.status !== AssociationStatus.APPROVED}">
+          {{association?.status}}
+        </span>
+        <button class="btn btn-sm btn-outline-primary mt-2" (click)="openEditModal()">
+          <i class="uil uil-edit"></i> Edit Profile
+        </button>
       </div>
-  </div><!--end container-->
-</section><!--end section-->
+    </div>
 
-<div class="position-relative">
-  <div class="shape overflow-hidden text-white">
-      <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
-      </svg>
+    <!-- Pending State -->
+    <div *ngIf="association?.status !== AssociationStatus.APPROVED" class="sidebar-section">
+      <div class="pending-state-alert">
+        <div class="alert alert-warning">
+          <i class="uil uil-clock me-2"></i>
+          <strong>Account Pending Approval</strong>
+          <p class="mb-0 mt-2">Your association account is currently under review. You'll have access to all features once approved.</p>
+        </div>
+        <div class="pending-features mt-3">
+          <h6 class="text-muted mb-2">Available Features:</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2">
+              <i class="uil uil-check-circle text-success me-2"></i>
+              Edit Profile
+            </li>
+            <li class="mb-2">
+              <i class="uil uil-check-circle text-success me-2"></i>
+              View Status
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="sidebar-section">
+      <h6 class="sidebar-title">Quick Actions</h6>
+      <div class="list-group list-group-flush">
+        <button class="list-group-item list-group-item-action d-flex align-items-center"
+                (click)="onCreateAidAnnouncement()">
+          <i class="uil uil-plus-circle text-primary me-2"></i>
+          Create Aid Case
+        </button>
+        <button class="list-group-item list-group-item-action d-flex align-items-center"
+                (click)="onCreateDonation()">
+          <i class="uil uil-plus-circle text-primary me-2"></i>
+          Create Donation
+        </button>
+        <button class="list-group-item list-group-item-action d-flex align-items-center"
+                (click)="onCreateMission()">
+          <i class="uil uil-plus-circle text-primary me-2"></i>
+          Create Mission
+        </button>
+        <button class="list-group-item list-group-item-action d-flex align-items-center"
+                (click)="onCreateEvent()">
+          <i class="uil uil-calendar-alt text-success me-2"></i>
+          Schedule Event
+        </button>
+      </div>
+    </div>
+
+    <!-- Tier Status -->
+    <div class="sidebar-section">
+      <div class="tier-status">
+        <div class="d-flex align-items-center mb-3">
+          <div class="tier-icon me-3">
+            <i [class]="currentTierIcon"></i>
+          </div>
+          <div>
+            <h4 class="mb-0">{{ currentTierDisplay }} Tier</h4>
+            <small class="text-muted">{{ partners?.length || 0 }}/{{ maxPartnerships }} Partners</small>
+          </div>
+        </div>
+        <div class="tier-benefits mt-4">
+          <ul class="list-unstyled">
+            <li *ngFor="let benefit of currentTierBenefits" class="mb-2">
+              <i class="uil uil-check-circle text-success me-2"></i>
+              {{ benefit }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="sidebar-section">
+      <h6 class="sidebar-title text-danger">Danger Zone</h6>
+      <button class="btn btn-danger w-100" (click)="deleteAssociation()">
+        <i class="uil uil-trash-alt me-2"></i>
+        Delete Association
+      </button>
+    </div>
   </div>
-</div>
-<!-- Hero End -->
 
-
-<section class="section">
-  <div class="container">
+  <!-- Main Content -->
+  <div class="dashboard-main">
     <!-- Loading State -->
-    <div *ngIf="loading" class="text-center p-5">
+    <div *ngIf="loading" class="text-center p-5 fade-in">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
+      <p class="mt-2">Loading your dashboard...</p>
     </div>
 
     <!-- Error State -->
-    <div *ngIf="error" class="alert alert-danger">
+    <div *ngIf="error" class="alert alert-danger fade-in">
+      <i class="uil uil-exclamation-triangle me-2"></i>
       {{error}}
+      <button class="btn btn-sm btn-outline-danger ms-3" (click)="refreshData()">
+        <i class="uil uil-redo"></i> Retry
+      </button>
     </div>
 
-    <!-- Dashboard Content -->
-    <div *ngIf="association && !loading" class="dashboard">
-      <!-- Welcome Banner -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="card bg-primary text-white">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <h4 class="text-white mb-1">Welcome back, {{association.name}}!</h4>
-                <p class="mb-0">Here's what's happening with your association today.</p>
-              </div>
-              <div class="text-end">
-                <span class="badge bg-light text-primary">{{association.verificationStatus | titlecase}}</span>
+    <!-- Pending State Content -->
+    <div *ngIf="!loading && !error && association?.status !== AssociationStatus.APPROVED" class="pending-dashboard">
+      <div class="card">
+        <div class="card-body text-center p-5">
+          <div class="pending-icon mb-4">
+            <i class="uil uil-clock-three text-warning" style="font-size: 4rem;"></i>
+          </div>
+          <h3 class="mb-3">Account Under Review</h3>
+          <p class="text-muted mb-4">
+            Your association account is currently being reviewed by our team. 
+            This process typically takes 1-2 business days.
+          </p>
+          <div class="pending-status-card">
+            <div class="status-header">
+              <h5 class="mb-3">Current Status</h5>
+            </div>
+            <div class="status-details">
+              <div class="status-item">
+                <span class="status-label">Status:</span>
+                <span class="badge bg-warning">{{association?.status}}</span>
               </div>
             </div>
           </div>
+          <div class="mt-4">
+            <p class="text-muted">
+              You'll receive an email notification once your account is approved.
+              In the meantime, you can update your profile information.
+            </p>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Statistics Cards -->
+    <div *ngIf="!loading && !error && association?.status === AssociationStatus.APPROVED" class="dashboard-content">
+      <!-- Statistics Row -->
       <div class="row g-4 mb-4">
-        <div class="col-md-3">
-          <div class="card border-0 shadow-sm">
+        <div class="col-md-3" *ngFor="let stat of statistics">
+          <div class="card stat-card h-100">
             <div class="card-body">
               <div class="d-flex align-items-center">
-                <div class="rounded-circle bg-primary bg-opacity-10 p-3">
-                  <i class="uil uil-money-bill text-primary fs-4"></i>
+                <div class="stat-icon me-3" [ngClass]="stat.bgClass">
+                  <i [class]="stat.iconClass"></i>
                 </div>
-                <div class="ms-3">
-                  <h6 class="mb-1">Total Donations</h6>
-                  <h4 class="mb-0">{{association?.statistics?.totalDonations | tnd}}</h4>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="rounded-circle bg-success bg-opacity-10 p-3">
-                  <i class="uil uil-users-alt text-success fs-4"></i>
-                </div>
-                <div class="ms-3">
-                  <h6 class="mb-1">Beneficiaries</h6>
-                  <h4 class="mb-0">{{association.statistics.totalBeneficiaries}}</h4>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="rounded-circle bg-warning bg-opacity-10 p-3">
-                  <i class="uil uil-heartbeat text-warning fs-4"></i>
-                </div>
-                <div class="ms-3">
-                  <h6 class="mb-1">Active Cases</h6>
-                  <h4 class="mb-0">{{association.statistics.activeAidCases}}</h4>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="rounded-circle bg-info bg-opacity-10 p-3">
-                  <i class="uil uil-check-circle text-info fs-4"></i>
-                </div>
-                <div class="ms-3">
-                  <h6 class="mb-1">Completed</h6>
-                  <h4 class="mb-0">{{association.statistics.completedAidCases}}</h4>
+                <div>
+                  <h6 class="stat-label mb-1">{{stat.label}}</h6>
+                  <h4 class="stat-value mb-0">{{stat.value}}</h4>
                 </div>
               </div>
             </div>
@@ -129,59 +187,33 @@
         </div>
       </div>
 
-      <!-- Quick Actions & Recent Activity -->
-      <div class="row">
-        <!-- Quick Actions -->
-        <div class="col-lg-4">
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-transparent">
-              <h5 class="mb-0">Quick Actions</h5>
-            </div>
-            <div class="card-body">
-              <div class="list-group">
-                <button class="list-group-item list-group-item-action d-flex align-items-center" 
-                        (click)="onCreateAidAnnouncement()">
-                  <i class="uil uil-plus-circle text-primary me-2"></i>
-                  Create Aid Case
-                </button>
-                <button class="list-group-item list-group-item-action d-flex align-items-center"
-                        (click)="onCreateEvent()">
-                  <i class="uil uil-calendar-alt text-success me-2"></i>
-                  Schedule Event
-                </button>
-                <button class="list-group-item list-group-item-action d-flex align-items-center"
-                        (click)="onUploadMedia()">
-                  <i class="uil uil-image-upload text-info me-2"></i>
-                  Upload Media
-                </button>
-                <button class="list-group-item list-group-item-action d-flex align-items-center"
-                        (click)="onManageMembers()">
-                  <i class="uil uil-users-alt text-warning me-2"></i>
-                  Manage Members
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="col-lg-8">
-          <div class="card border-0 shadow-sm">
+      <!-- Two Column Layout for Activities and Impact -->
+      <div class="row g-4">
+        <!-- Recent Activities -->
+        <div class="col-lg-7">
+          <div class="card h-100">
             <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
               <h5 class="mb-0">Recent Activity</h5>
-              <div class="btn-group">
-                <button class="btn btn-sm btn-outline-primary" [class.active]="activityFilter === 'all'"
-                        (click)="setActivityFilter('all')">All</button>
-                <button class="btn btn-sm btn-outline-primary" [class.active]="activityFilter === 'donations'"
-                        (click)="setActivityFilter('donations')">Donations</button>
-                <button class="btn btn-sm btn-outline-primary" [class.active]="activityFilter === 'cases'"
-                        (click)="setActivityFilter('cases')">Cases</button>
+              <div class="d-flex">
+                <div class="input-group input-group-sm me-2" style="width: 200px;">
+                  <span class="input-group-text"><i class="uil uil-search"></i></span>
+                  <input type="text" class="form-control" placeholder="Search activities..." 
+                         [(ngModel)]="activitySearchTerm">
+                </div>
+                <div class="btn-group">
+                  <button *ngFor="let filter of activityFilters"
+                          class="btn btn-sm btn-outline-primary"
+                          [class.active]="filterKey === filter"
+                          (click)="setActivityFilter(filter)">
+                    {{ filter | titlecase }}
+                  </button>
+                </div>
               </div>
             </div>
             <div class="card-body p-0">
               <div class="list-group list-group-flush">
                 <div *ngFor="let activity of filteredActivities" 
-                     class="list-group-item d-flex align-items-center p-3">
+                     class="list-group-item activity-item d-flex align-items-center p-3">
                   <div [class]="'activity-icon ' + activity.type">
                     <i [class]="'uil ' + getActivityIcon(activity.type)"></i>
                   </div>
@@ -190,6 +222,13 @@
                     <p class="mb-0 text-muted small">{{activity.description}}</p>
                   </div>
                   <small class="text-muted">{{activity.date | timeAgo}}</small>
+                  <div class="ms-3">
+                    <button class="btn btn-sm btn-outline-danger me-2" (click)="onDeleteActivity(activity)">
+                      <i class="uil uil-trash-alt"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" (click)="onEditActivity(activity)">
+                      <i class="uil uil-edit"></i>
+                    </button>
                 </div>
               </div>
             </div>
@@ -197,89 +236,805 @@
         </div>
       </div>
 
-      <!-- Recent Aid Cases -->
-      <div class="row mt-4">
-        <div class="col-12">
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-transparent">
-              <h5 class="mb-0">Recent Aid Cases</h5>
-            </div>
+        <!-- Impact Report -->
+        <div class="col-lg-5">
+          <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0 d-flex align-items-center">
+                <i class="uil uil-analytics me-2"></i>
+                Impact Overview
+          </h5>
+        </div>
             <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>Urgency</th>
-                      <th>Target</th>
-                      <th>Raised</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let case of association.aidCases.slice(0, 5)">
-                      <td>{{case.title}}</td>
-                      <td>
-                        <span [class]="'badge bg-' + getUrgencyClass(case.urgencyLevel)">
-                          {{case.urgencyLevel}}
-                        </span>
-                      </td>
-                      <td>{{case.targetAmount | currency}}</td>
-                      <td>
-                        <div class="progress" style="height: 5px;">
-                          <div class="progress-bar" 
-                               [style.width]="(case.raisedAmount! / case.targetAmount! * 100) + '%'">
-                          </div>
+              <div class="row g-3">
+                <div class="col-6" *ngFor="let metric of metrics">
+                  <div class="metric-card p-3 rounded">
+                <div class="d-flex align-items-center">
+                      <div class="metric-icon bg-soft-{{metric.color}} text-{{metric.color}} rounded-circle p-2 me-3">
+                        <i class="uil {{metric.icon}}"></i>
+                  </div>
+                  <div>
+                        <div class="metric-value fw-bold">
+                          {{ (impactReport?.[metric.key] ?? 0) | number:'1.0-0' }}{{metric.suffix}}
                         </div>
-                        <small class="text-muted">{{case.raisedAmount | currency}}</small>
-                      </td>
-                      <td>
-                        <span [class]="'badge bg-' + getStatusClass(case.status)">
-                          {{case.status}}
-                        </span>
-                      </td>
-                      <td>
-                        <button class="btn btn-sm btn-primary me-1" (click)="viewCase(case)">
-                          View
-                        </button>
-                        <button class="btn btn-sm btn-outline-primary" (click)="editCase(case)">
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                        <div class="metric-label text-muted small">{{metric.label}}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Example of updated content -->
-      <div class="team-members">
-        <h3>Membres de l'équipe</h3>
-        <ul>
-          <li *ngFor="let member of association?.teamMembers">
-            <img [src]="member.avatar || 'assets/images/avatar-placeholder.png'" alt="Photo de profil">
-            <div class="member-info">
-              <h4>{{ member.name }}</h4>
-              <p>{{ member.role === 'admin' ? 'Administrateur' : 
-                   member.role === 'manager' ? 'Gestionnaire' : 'Membre' }}</p>
+      <!-- Partnership Management -->
+      <div class="card partnership-card mt-4">
+        <div class="card-header partnership-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <div class="partnership-icon">
+                <i class="uil uil-users-alt"></i>
             </div>
-          </li>
-        </ul>
-      </div>
+                    <div class="ms-3">
+                <h5 class="mb-0">Partnerships</h5>
+                <div class="d-flex align-items-center mt-1">
+                  <div class="progress flex-grow-1" style="height: 6px; width: 100px;">
+                    <div class="progress-bar" 
+                         [ngClass]="progressBarClass"
+                         [style.width.%]="progressBarPercentage">
+                    </div>
+                  </div>
+                  <span class="ms-2 small">{{ partners.length }}/{{ maxPartnerships }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="partnership-actions">
+              <div class="tier-indicator" [ngClass]="getTierClass()">
+                {{ currentTierDisplay }}
+              </div>
+              <button *ngIf="canShowUpgradeButton" 
+                      class="btn btn-upgrade btn-sm ms-2" 
+                      (click)="showTierUpgradeModal()">
+                Upgrade
+              </button>
+            </div>
+          </div>
+                  </div>
 
-      <div class="statistics">
-        <h3>Statistiques</h3>
-        <div class="stat-item">
-          <span class="label">Dons totaux:</span>
-          <span class="value">{{ association?.statistics?.totalDonations | tnd }}</span>
+        <div class="card-body p-0">
+          <!-- Tabs for Partners and Recommendations -->
+          <ul class="nav nav-tabs nav-tabs-custom">
+            <li class="nav-item">
+              <a class="nav-link active" data-bs-toggle="tab" href="#current-partners">
+                <i class="uil uil-users-alt me-1"></i> Current ({{ partners.length }})
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#recommended">
+                <i class="uil uil-analyze me-1"></i> Recommended
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content p-3">
+            <!-- Current Partners Tab -->
+            <div class="tab-pane fade show active" id="current-partners">
+              <div class="row g-3">
+                <div class="col-md-4" *ngFor="let partner of partners">
+                  <div class="partner-card">
+                    <div class="d-flex align-items-center">
+                      <img [src]="getPartnerLogo(partner)" 
+                           [alt]="partner.associationName"
+                           class="partner-logo-sm">
+                      <div class="ms-2 flex-grow-1">
+                        <h6 class="mb-0 partner-name">{{ partner.associationName }}</h6>
+                        <small class="text-muted">Score: {{ partner.partnershipScore || 0 }}</small>
+                      </div>
+                      <button class="btn btn-sm btn-outline-danger" 
+                              (click)="removePartnership(partner.idAssociation)">
+                        <i class="uil uil-trash-alt"></i>
+                      </button>
+                    </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+            <!-- Recommended Partners Tab -->
+            <div class="tab-pane fade" id="recommended">
+              <div class="row g-3">
+                <div class="col-md-6" *ngFor="let partner of recommendedPartners">
+                  <div class="recommended-partner-card">
+                    <div class="similarity-score" [ngClass]="getSimilarityBadgeClass(partner.similarityScore)">
+                      {{ partner.similarityScore }}% Match
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <div class="partner-logo-container position-relative">
+                        <img [src]="getRecommendedPartnerLogo(partner)" 
+                             [alt]="partner.associationName"
+                             class="partner-logo-sm"
+                             (error)="partner.associationLogoPath = defaultLogo">
+                        <div *ngIf="logoLoadingStates[partner.idAssociation]" 
+                             class="logo-loading-spinner">
+                          <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="ms-2 flex-grow-1">
+                        <h6 class="mb-0">{{ partner.associationName }}</h6>
+                        <p class="mb-2 small text-muted">{{ partner.description | truncate:60 }}</p>
+                        <button class="btn btn-sm btn-primary" 
+                              [disabled]="isPartnershipDisabled(partner)"
+                              (click)="createPartnership(partner.idAssociation)">
+                          {{ getPartnershipButtonText(partner) }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+              </div>
+          </div>
         </div>
-        <!-- ... other stats ... -->
       </div>
     </div>
   </div>
-</section>
 
+
+<!-- Edit Association Modal -->
+<div class="modal fade" id="editAssociationModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Association Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form #editForm="ngForm" (ngSubmit)="updateAssociation(editForm)">
+          <!-- Logo Upload -->
+          <div class="mb-4 text-center">
+            <div class="position-relative d-inline-block">
+              <img [src]="imageUrl || defaultLogo" 
+                   alt="Association Logo" 
+                   class="association-avatar mb-2">
+              <input type="file" 
+                     #fileInput 
+                     style="display: none" 
+                     (change)="onEditLogo($event)" 
+                     accept="image/*">
+              <button type="button" 
+                      class="btn btn-sm btn-light edit-avatar-btn" 
+                      (click)="fileInput.click()">
+                <i class="bi bi-camera"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Association Name</label>
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="editAssociationData.associationName" 
+                   name="associationName" 
+                   required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" 
+                      rows="3"
+                      [(ngModel)]="editAssociationData.description" 
+                      name="description" 
+                      required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Address</label>
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="editAssociationData.associationAddress" 
+                   name="associationAddress" 
+                   required>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" 
+                    class="btn btn-light" 
+                    data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" 
+                    class="btn btn-primary"
+                    [disabled]="!editForm.form.valid">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.dashboard-layout {
+  display: flex;
+  min-height: calc(100vh - 60px); /* Adjust based on navbar height */
+}
+
+.dashboard-sidebar {
+  width: 300px;
+  background: white;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  position: fixed;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.dashboard-main {
+  flex: 1;
+  margin-left: 300px;
+  padding: 1.5rem;
+  background: #f8f9fa;
+}
+
+.sidebar-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-section:last-child {
+  border-bottom: none;
+}
+
+.sidebar-title {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+  color: #6c757d;
+}
+
+.association-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.association-profile {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 12px;
+}
+
+.recommended-partner-card {
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.partner-card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.similarity-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.similarity-badge.excellent {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.similarity-badge.good {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.similarity-badge.fair {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.partnership-status-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  z-index: 1;
+}
+
+.partner-avatar {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.verification-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background-color: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+
+.partner-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.metric-item {
+  background-color: rgba(0, 0, 0, 0.03);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.description-preview {
+  font-size: 0.9rem;
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+.partnership-potential {
+  margin: 15px 0;
+}
+
+.progress {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  transition: width 0.6s ease;
+}
+
+.tiny-three-item {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tiny-three-item::-webkit-scrollbar {
+  display: none;
+}
+
+.mdi-star {
+  color: #ffc107;
+  font-size: 18px;
+}
+
+/* Partnership Management Styles */
+.partnership-card {
+  border: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border-radius: 16px;
+}
+
+.partnership-header {
+  padding: 1.5rem;
+  background: white;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.partnership-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(45deg, #4e73df, #224abe);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.partnership-actions {
+  display: flex;
+  align-items: center;
+}
+
+.tier-indicator {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.tier-indicator.bronze {
+  background: linear-gradient(45deg, #cd7f32, #b87333);
+  color: white;
+}
+
+.tier-indicator.silver {
+  background: linear-gradient(45deg, #c0c0c0, #a8a8a8);
+  color: white;
+}
+
+.tier-indicator.gold {
+  background: linear-gradient(45deg, #ffd700, #daa520);
+  color: white;
+}
+
+.btn-upgrade {
+  background: linear-gradient(45deg, #2dcb75, #1a8b4f);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-upgrade:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 203, 117, 0.2);
+}
+
+.partnership-progress {
+  background: rgba(0,0,0,0.02);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.progress {
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(0,0,0,0.05);
+}
+
+.progress-bar {
+  border-radius: 5px;
+  background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+  background-size: 1rem 1rem;
+  animation: progress-bar-stripes 1s linear infinite;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+}
+
+.partner-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.partner-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.partner-card-header {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.partner-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.partner-status {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  border: 2px solid white;
+}
+
+.partner-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.partner-metrics {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.partner-actions {
+  margin-top: auto;
+}
+
+.recommended-partner-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.recommended-partner-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.similarity-score {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.similarity-score.excellent {
+  background: rgba(45, 203, 117, 0.1);
+  color: #2dcb75;
+}
+
+.similarity-score.good {
+  background: rgba(247, 144, 9, 0.1);
+  color: #f79009;
+}
+
+.similarity-score.fair {
+  background: rgba(244, 63, 94, 0.1);
+  color: #f43f5e;
+}
+
+.partner-description {
+  font-size: 0.875rem;
+  color: #718096;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.recommendation-badge {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.verification-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  border: 2px solid white;
+}
+
+@keyframes progress-bar-stripes {
+  from { background-position: 1rem 0; }
+  to { background-position: 0 0; }
+}
+
+/* Updated styles */
+.edit-avatar-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 2px solid #eee;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-tabs-custom {
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.nav-tabs-custom .nav-link {
+  border: none;
+  padding: 1rem 1.5rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+.nav-tabs-custom .nav-link.active {
+  color: #4e73df;
+  border-bottom: 2px solid #4e73df;
+  background: transparent;
+}
+
+.partner-logo-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.partner-card {
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.partner-card:hover {
+  transform: translateY(-2px);
+}
+
+.recommended-partner-card {
+  padding: 1rem;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.similarity-score {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+}
+
+.partner-logo-container {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.logo-loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.8);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.partner-logo-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Pending State Styles */
+.pending-state-alert {
+  background: #fff3cd;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.pending-features {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.pending-dashboard {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.pending-icon {
+  color: #ffc107;
+}
+
+.pending-status-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 2rem auto;
+  max-width: 500px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.status-header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.status-details {
+  padding-top: 1rem;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.badge {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+}
+
+.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000;
+}
+</style>

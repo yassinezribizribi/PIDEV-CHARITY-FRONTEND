@@ -1,0 +1,45 @@
+<app-navbar></app-navbar>
+<app-home-banner></app-home-banner>
+
+<div class="cagnotte-container">
+  <div *ngIf="loading" class="loading">
+    <p>Loading cagnotte details...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="cagnotte && !loading" class="cagnotte-details">
+    <h2>{{ cagnotte.title }}</h2>
+    <p class="description">{{ cagnotte.description }}</p>
+    
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress" [style.width.%]="calculateProgress()"></div>
+      </div>
+      <div class="amounts">
+        <span class="current">€{{ cagnotte.currentAmount }}</span>
+        <span class="goal">Goal: €{{ cagnotte.goalAmount }}</span>
+      </div>
+    </div>
+
+    <div class="progress-percentage">
+      {{ calculateProgress() | number:'1.0-0' }}% funded
+    </div>
+    <div class="donation-form">
+      <h3>Support this Cagnotte</h3>
+      <label for="amount">Amount to donate (€):</label>
+      <input type="number" [(ngModel)]="amountToDonate" min="1" />
+    
+      <div id="card-element" style="margin-top: 1rem;"></div>
+    
+      <button (click)="pay()" [disabled]="amountToDonate < 1">Pay</button>
+    </div>
+    
+  </div>
+</div>
+<div class="col-lg-8 col-md-6 order-2 order-md-1">
+    <app-about-one-copy></app-about-one-copy>
+</div><!--end col-->
+<app-footer></app-footer>

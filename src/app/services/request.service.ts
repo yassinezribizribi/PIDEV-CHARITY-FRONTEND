@@ -65,7 +65,9 @@ export class RequestService {
   }
 
   getAllRequestsWithResponses(): Observable<Request[]> {
-    return this.http.get<Request[]>(`${this.apiUrl}/requests-with-responses`);
+    return this.http.get<Request[]>(`${this.apiUrl}/requests-with-responses`, {
+      headers: this.getAuthHeaders(),
+    });
   }
   
 }

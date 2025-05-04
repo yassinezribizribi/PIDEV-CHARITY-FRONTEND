@@ -1,0 +1,80 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12">
+        <div class="title-heading text-center">
+          <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Manage Dons</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center p-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="alert alert-danger">
+      {{error}}
+    </div>
+
+    <!-- Dons List -->
+    <div *ngIf="!loading && !error" class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent">
+        <h5 class="mb-0">Dons List</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Donor Name</th>
+                <th>Quantity</th>
+                <th>Delivery Method</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let don of dons">
+                <td>{{don.nomDoneur}} {{don.prenomDoneur}}</td>
+                <td>{{don.quantite}}</td>
+                <td>{{don.deliveryMethod}}</td>
+                <td>
+                  <span [class]="don.associationValidated ? 'badge bg-success' : 'badge bg-warning'">
+                    {{don.associationValidated ? 'Validated' : 'Pending'}}
+                  </span>
+                </td>
+                <td>
+                  <button *ngIf="!don.associationValidated" 
+                          class="btn btn-sm btn-success" 
+                          (click)="validateDon(don.idDons!)">
+                    <i class="uil uil-check-circle"></i> Validate
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

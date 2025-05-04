@@ -1,0 +1,207 @@
+<app-admin-navbar></app-admin-navbar>
+
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12">
+        <div class="title-heading text-center">
+          <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Créer une donation</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow rounded border-0">
+          <div class="card-body">
+            <form (ngSubmit)="onSubmit()" #donationForm="ngForm">
+              <div *ngIf="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+              </div>
+
+              <div class="row">
+                <div class="col-12">
+                  <div class="mb-3">
+                    <label class="form-label">Titre de la donation</label>
+                    <input type="text" 
+                           class="form-control" 
+                           [(ngModel)]="donation.titre" 
+                           name="titre" 
+                           required 
+                           minlength="3" 
+                           #titre="ngModel">
+                    <div *ngIf="titre.invalid && (titre.dirty || titre.touched)" class="text-danger">
+                      <small *ngIf="titre.errors?.['required']">Le titre est requis.</small>
+                      <small *ngIf="titre.errors?.['minlength']">Le titre doit contenir au moins 3 caractères.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" 
+                             [(ngModel)]="donation.description" 
+                             name="description" 
+                             rows="4" 
+                             required
+                             #description="ngModel"></textarea>
+                    <div *ngIf="description.invalid && (description.dirty || description.touched)" class="text-danger">
+                      <small *ngIf="description.errors?.['required']">La description est requise.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Type de donation</label>
+                    <select class="form-select" 
+                            [(ngModel)]="donation.donationType" 
+                            name="donationType" 
+                            required
+                            #donationType="ngModel">
+                      <option value="FOOD">Nourriture</option>
+                      <option value="CLOTHES">Vêtements</option>
+                      <option value="MEDICAMENTS">Matériel médical</option>
+                      <option value="OTHER">Autre</option>
+                    </select>
+                    <div *ngIf="donationType.invalid && (donationType.dirty || donationType.touched)" class="text-danger">
+                      <small *ngIf="donationType.errors?.['required']">Le type de donation est requis.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Quantité demandée</label>
+                    <div class="input-group">
+                      <button type="button" 
+                              class="btn btn-outline-primary"
+                              (click)="decrementQuantity()">
+                        <i class="uil uil-minus"></i>
+                      </button>
+                      <input type="number" 
+                             class="form-control text-center" 
+                             [(ngModel)]="donation.quantiteDemandee" 
+                             name="quantiteDemandee" 
+                             min="1" 
+                             required
+                             #quantite="ngModel">
+                      <button type="button" 
+                              class="btn btn-outline-primary"
+                              (click)="incrementQuantity()">
+                        <i class="uil uil-plus"></i>
+                      </button>
+                    </div>
+                    <div *ngIf="quantite.invalid && (quantite.dirty || quantite.touched)" class="text-danger">
+                      <small *ngIf="quantite.errors?.['required']">La quantité demandée est requise.</small>
+                      <small *ngIf="quantite.errors?.['min']">La quantité demandée doit être au moins 1.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="mb-3">
+                    <div class="form-check">
+                      <input type="checkbox" 
+                             class="form-check-input" 
+                             [(ngModel)]="donation.availability" 
+                             name="availability" 
+                             id="availability">
+                      <label class="form-check-label" for="availability">
+                        Disponible immédiatement
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="mb-3">
+                    <div class="form-check">
+                      <input type="checkbox" 
+                             class="form-check-input" 
+                             [(ngModel)]="enableCagnotte"
+                             (change)="onEnableCagnotteChange()"
+                             name="enableCagnotte"
+                             id="enableCagnotte">
+                      <label class="form-check-label" for="enableCagnotte">
+                        Ajouter une cagnotte en ligne
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Cagnotte en ligne fields -->
+                <div class="col-12 mb-3" *ngIf="enableCagnotte">
+                  <h5 class="form-label">Cagnotte en ligne</h5>
+                
+                  <div class="mb-3">
+                    <label class="form-label">Titre de la cagnotte</label>
+                    <input type="text" 
+                           class="form-control" 
+                           [(ngModel)]="cagnotte.title" 
+                           name="cagnotteTitle" 
+                           required
+                           #cagnotteTitle="ngModel">
+                    <div *ngIf="cagnotteTitle.invalid && (cagnotteTitle.dirty || cagnotteTitle.touched)" class="text-danger">
+                      <small *ngIf="cagnotteTitle.errors?.['required']">Le titre de la cagnotte est requis.</small>
+                    </div>
+                  </div>
+                
+                  <div class="mb-3">
+                    <label class="form-label">Description de la cagnotte</label>
+                    <textarea class="form-control" 
+                              [(ngModel)]="cagnotte.description" 
+                              name="cagnotteDescription" 
+                              rows="2" 
+                              required
+                              #cagnotteDescription="ngModel"></textarea>
+                    <div *ngIf="cagnotteDescription.invalid && (cagnotteDescription.dirty || cagnotteDescription.touched)" class="text-danger">
+                      <small *ngIf="cagnotteDescription.errors?.['required']">La description de la cagnotte est requise.</small>
+                    </div>
+                  </div>
+                
+                  <div class="mb-3">
+                    <label class="form-label">Montant objectif</label>
+                    <input type="number" 
+                           class="form-control" 
+                           [(ngModel)]="cagnotte.goalAmount" 
+                           name="goalAmount" 
+                           min="0" 
+                           required
+                           #goalAmount="ngModel">
+                    <div *ngIf="goalAmount.invalid && (goalAmount.dirty || goalAmount.touched)" class="text-danger">
+                      <small *ngIf="goalAmount.errors?.['required']">Le montant est requis.</small>
+                      <small *ngIf="goalAmount.errors?.['min']">Le montant doit être positif.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <button type="submit" 
+                          class="btn btn-primary" 
+                          [disabled]="!donationForm.form.valid || submitted">
+                    Créer la donation
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

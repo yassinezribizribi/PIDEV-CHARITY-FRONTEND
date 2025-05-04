@@ -21,7 +21,12 @@ import { CrisisService } from 'src/app/services/crisis.service';
 })
 export class AlertComponent {
 
-  constructor(    private crisisService: CrisisService,     @Inject(MAT_DIALOG_DATA) public data: { id: number } // ✅ Receive ID
+  constructor(    private crisisService: CrisisService,     @Inject(MAT_DIALOG_DATA) public data: { 
+    id: number;
+    title: string;
+    message: string;
+    type: string;
+  } // ✅ Receive ID
 
   ){}
 

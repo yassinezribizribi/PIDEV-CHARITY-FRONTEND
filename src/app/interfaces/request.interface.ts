@@ -1,3 +1,4 @@
+
 export interface Request {
   idRequest?: number;  // Optionnel car généré par le backend
   dateRequest: Date;
@@ -7,5 +8,3 @@ export interface Request {
   responses?: Response[];  // Liste des réponses associées
     
 }
-
-

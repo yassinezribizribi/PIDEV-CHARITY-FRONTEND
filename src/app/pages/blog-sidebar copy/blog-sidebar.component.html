@@ -1,0 +1,90 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Latest Missions</h5>
+                </div>
+            </div><!--end col-->
+        </div><!--end row-->
+
+        <div class="position-middle-bottom">
+            <nav aria-label="breadcrumb" class="d-block">
+                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+                    <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Missions</li>
+                </ul>
+            </nav>
+        </div>
+    </div><!--end container-->
+</section><!--end section-->
+<div class="position-relative">
+    <div class="shape overflow-hidden text-white">
+        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+        </svg>
+    </div>
+</div>
+<!-- Hero End -->
+<!-- blog-sidebar.component.html -->
+<section class="section">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <!-- Add location filter input -->
+          <input type="text" [(ngModel)]="location" (input)="onLocationChange(location)" placeholder="Search by location" class="form-control mb-4" />
+        </div>
+      </div>
+  
+      <div class="row">
+        <div class="col-lg-8 col-md-7">
+          <div class="row g-4">
+            <!-- Loop through filtered missions -->
+            <div *ngFor="let mission of missions" class="col-lg-6 col-12">
+              <div class="mission position-relative overflow-hidden shadow rounded p-4">
+                <div class="position-relative">
+                  <!-- Mission Image -->
+                  <div class="mission-image position-relative overflow-hidden rounded shadow">
+                    <img [src]="mission.location" class="img-fluid" alt="Mission Image">
+                  </div>
+  
+                  <div class="position-absolute top-100 start-0 translate-middle-y ms-2">
+                    <!-- Mission Status -->
+                    <a routerLink="#" (click)="$event.preventDefault()" class="badge bg-primary">{{ mission.status }}</a>
+                  </div>
+                </div>
+  
+                <div class="pt-4">
+                  <a [routerLink]="['/mission-detail', mission.idMission]" class="text-dark title h5">{{ mission.description }}</a>
+  
+                  <!-- Mission Dates -->
+                  <p class="text-muted my-2">Start Date: {{ mission.startDate | date }}</p>
+                  <p class="text-muted my-2">End Date: {{ mission.endDate | date }}</p>
+  
+                  <p class="text-muted my-2">Location: {{ mission.location }}</p>
+  
+                  <p class="text-muted my-2">Volunteers: {{ mission.volunteerCount }}</p>
+  
+                  <a [routerLink]="['/blog-detail-copy', mission.idMission]" class="text-dark read-more">Read More <i class="mdi mdi-chevron-right align-middle"></i></a>
+                </div>
+              </div>
+            </div><!--end col-->
+          </div><!--end row-->
+        </div><!--end col-->
+  
+        <!-- START SIDEBAR -->
+        <div class="col-lg-4 col-md-5 col-12 mt-4 pt-2 mt-md-0 pt-md-0">
+          <app-blog-sidebars></app-blog-sidebars>
+        </div><!--end col-->
+        <!-- END SIDEBAR -->
+      </div><!--end row-->
+    </div><!--end container-->
+  </section><!--end section-->
+  
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

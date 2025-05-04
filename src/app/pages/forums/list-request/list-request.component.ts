@@ -73,7 +73,7 @@ export class ListRequestComponent implements OnInit {
       object: this.newRequest.object,
       content: this.newRequest.content,
       isUrgent: this.newRequest.isUrgent,
-      forumId: 0
+      forumId: 1
     };
 
     this.requestService.addRequest(this.newRequest).subscribe({

@@ -1,0 +1,117 @@
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+      <div class="row mt-5 justify-content-center">
+        <div class="col-12">
+          <div class="title-heading text-center">
+            <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Edit Donation</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <div class="position-relative">
+    <div class="shape overflow-hidden text-white">
+      <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+      </svg>
+    </div>
+  </div>
+  
+  <section class="section">
+    <div class="container">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+  
+      <!-- Error State -->
+      <div *ngIf="error" class="alert alert-danger">
+        {{error}}
+      </div>
+  
+      <!-- Edit Donation Form -->
+      <div *ngIf="donation && !loading" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <form [formGroup]="donationForm" (ngSubmit)="onSubmit()">
+            <!-- Titre -->
+            <div class="mb-3">
+              <label for="titre" class="form-label">Titre</label>
+              <input type="text" class="form-control" id="titre" formControlName="titre">
+              <div *ngIf="donationForm.get('titre')?.invalid && donationForm.get('titre')?.touched" class="text-danger">
+                Titre is required.
+              </div>
+            </div>
+  
+            <!-- Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" formControlName="description" rows="3"></textarea>
+              <div *ngIf="donationForm.get('description')?.invalid && donationForm.get('description')?.touched" class="text-danger">
+                Description is required.
+              </div>
+            </div>
+  
+            <!-- Quantité Demandée -->
+            <div class="mb-3">
+              <label for="quantiteDemandee" class="form-label">Quantité Demandée</label>
+              <input type="number" class="form-control" id="quantiteDemandee" formControlName="quantiteDemandee">
+              <div *ngIf="donationForm.get('quantiteDemandee')?.invalid && donationForm.get('quantiteDemandee')?.touched" class="text-danger">
+                Quantité demandée is required and must be at least 1.
+              </div>
+            </div>
+  
+            <!-- Quantité Donnée -->
+            <div class="mb-3">
+              <label for="quantiteDonnee" class="form-label">Quantité Donnée</label>
+              <input type="number" class="form-control" id="quantiteDonnee" formControlName="quantiteDonnee">
+              <div *ngIf="donationForm.get('quantiteDonnee')?.invalid && donationForm.get('quantiteDonnee')?.touched" class="text-danger">
+                Quantité donnée is required and must be at least 0.
+              </div>
+            </div>
+  
+            <!-- Availability -->
+            <div class="mb-3">
+              <label for="availability" class="form-label">Availability</label>
+              <select class="form-control" id="availability" formControlName="availability">
+                <option [value]="true">Available</option>
+                <option [value]="false">Not Available</option>
+              </select>
+              <div *ngIf="donationForm.get('availability')?.invalid && donationForm.get('availability')?.touched" class="text-danger">
+                Availability is required.
+              </div>
+            </div>
+  
+            <!-- Last Updated -->
+            <div class="mb-3">
+              <label for="lastUpdated" class="form-label">Last Updated</label>
+              <input type="date" class="form-control" id="lastUpdated" formControlName="lastUpdated">
+              <div *ngIf="donationForm.get('lastUpdated')?.invalid && donationForm.get('lastUpdated')?.touched" class="text-danger">
+                Last updated date is required.
+              </div>
+            </div>
+  
+            <!-- Donation Type -->
+            <div class="mb-3">
+              <label for="donationType" class="form-label">Donation Type</label>
+              <select class="form-control" id="donationType" formControlName="donationType">
+                <option *ngFor="let type of donationTypeOptions" [value]="type">{{ type }}</option>
+              </select>
+              <div *ngIf="donationForm.get('donationType')?.invalid && donationForm.get('donationType')?.touched" class="text-danger">
+                Donation type is required.
+              </div>
+            </div>
+  
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="donationForm.invalid">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>

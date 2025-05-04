@@ -1,0 +1,91 @@
+/* job-applications.component.scss */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  h3 {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+  
+  /* Stats Cards */
+  .card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  
+  .display-4 {
+    font-size: 2.5rem;
+    font-weight: 600;
+  }
+  
+  /* Table Styling */
+  .table-responsive {
+    overflow-x: auto;
+  }
+  
+  .table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .table-light th {
+    background-color: #f8f9fa;
+    color: #495057;
+  }
+  
+  /* Badges */
+  .badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+  }
+  
+  .bg-success {
+    background-color: #28a745 !important;
+  }
+  
+  .bg-warning {
+    background-color: #ffc107 !important;
+  }
+  
+  .bg-danger {
+    background-color: #dc3545 !important;
+  }
+  
+  /* Buttons */
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+  
+    &:hover {
+      background-color: #2980b9;
+      border-color: #2980b9;
+    }
+  }
+  
+  .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+  
+    &:hover {
+      background-color: #c82333;
+      border-color: #c82333;
+    }
+  }

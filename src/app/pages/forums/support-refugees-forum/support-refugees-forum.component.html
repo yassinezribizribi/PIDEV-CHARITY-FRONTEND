@@ -1,73 +1,245 @@
 <app-navbar></app-navbar>
 
-<section class="section">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <div class="card shadow rounded border-0">
-          <div class="card-body p-4">
-            <h3 class="mb-4">Support Refugees Forum</h3>
-
-            <!-- Liste des demandes -->
-            <div *ngFor="let request of listRequests" class="forum-thread mb-4">
-              <h4 class="mb-3">{{ request.object }}</h4>
-              <div class="thread-content p-3 bg-light rounded">
-                <p class="mb-0">{{ request.content }}</p>
-                <small class="text-muted">Date: {{ request.dateRequest | date:'short' }}</small>
-              </div>
-
-              <!-- Liste des réponses sous la demande -->
-              <div *ngIf="listResponses.length > 0" class="bg-light p-3 rounded mt-3">
-                <h5 class="mb-3 text-secondary">Responses:</h5>
-                <div *ngFor="let response of listResponses" class="forum-thread mb-2">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="avatar avatar-lg bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
-                      {{ response.content.charAt(0) }} <!-- Utilise la première lettre du contenu de la réponse comme avatar -->
-                    </div>
-                    <div class="flex-grow-1">
-                      <p class="mb-2">{{ response.content }}</p>
-                      <small class="text-muted">Date: {{ response.dateResponse | date:'short' }}</small>
-                    </div>
-                  </div>
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h1 class="display-5 fw-bold mb-3 text-white">Support Refugees Forum</h1>
+                    <p class="lead text-white-50 mb-0">Share your support and help refugees in need</p>
                 </div>
-              </div>
             </div>
-
-            <!-- Bouton pour ouvrir/fermer le formulaire -->
-            <button class="btn btn-success mb-4" (click)="toggleForm()">
-              {{ showForm ? 'Cancel' : 'Add New Response' }}
-            </button>
-
-            <!-- Formulaire d'ajout de réponse -->
-            <div *ngIf="showForm" class="mt-4">
-              <h4>Add a New Response</h4>
-              <form (ngSubmit)="addResponse()">
-                <div class="form-group">
-                  <label for="content">Content</label>
-                  <textarea
-                    id="content"
-                    class="form-control"
-                    [(ngModel)]="newResponse.content"
-                    name="content"
-                    placeholder="Enter content"
-                    required
-                  ></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary mt-3">Submit</button>
-              </form>
-            </div>
-
-            <div class="button-center mt-4">
-              <a class="return-button" (click)="back()">
-                <i class="fas fa-arrow-left"></i> Back
-              </a>
-            </div>
-            
-          </div>
         </div>
-      </div>
+
+        <div class="position-middle-bottom">
+            <nav aria-label="breadcrumb" class="d-block">
+                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+                    <li class="breadcrumb-item"><a [routerLink]="'/'">Solidarity&Refugee</a></li>
+                    <li class="breadcrumb-item"><a [routerLink]="'/forums'">Forums</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Support Refugees</li>
+                </ul>
+            </nav>
+        </div>
     </div>
-  </div>
+</section>
+
+<div class="position-relative">
+    <div class="shape overflow-hidden text-white">
+        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+        </svg>
+    </div>
+</div>
+
+<!-- Support Requests Section -->
+<section class="section">
+    <div class="container-fluid px-4">
+        <div class="row g-4">
+            <!-- Main Content Column -->
+            <div class="col-lg-7">
+                <!-- Filters and Search -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0" 
+                                           placeholder="Search requests..." 
+                                           [(ngModel)]="searchTerm"
+                                           (input)="applyFilters()">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+                                    <option value="all">All Statuses</option>
+                                    <option value="urgent">Urgent Only</option>
+                                    <option value="normal">Normal</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <span class="badge bg-primary rounded-pill fs-6">
+                                    {{ filteredRequests.length }} Results
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div *ngIf="loading" class="loading-state">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted fs-5">Loading requests...</p>
+                </div>
+
+                <!-- Error State -->
+                <div *ngIf="error" class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span class="fs-5">{{ error }}</span>
+                </div>
+
+                <!-- No Results -->
+                <div *ngIf="!loading && !error && filteredRequests.length === 0" class="empty-state">
+                    <i class="fas fa-hands-helping fa-3x mb-3"></i>
+                    <h4 class="mb-2">No support requests found</h4>
+                    <p class="fs-5 text-muted">Try adjusting your search filters</p>
+                </div>
+
+                <!-- Request Cards -->
+                <div class="row g-4">
+                    <div *ngFor="let request of filteredRequests" class="col-12">
+                        <div class="card request-card">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-start gap-4">
+                                    <!-- Poster Avatar -->
+                                    <div class="avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                         [style.backgroundColor]="getAvatarColor(request)"
+                                         style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                        {{ getInitials(getCreatorName(request)) }}
+                                    </div>
+                                    
+                                    <div class="flex-grow-1">
+                                        <!-- Request Title and Status -->
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h3 class="request-title mb-0 fs-4">{{ request.object }}</h3>
+                                            <span class="badge fs-6" 
+                                                  [ngClass]="{'bg-danger': request.isUrgent, 'bg-primary': !request.isUrgent}">
+                                                {{ request.isUrgent ? 'Urgent' : 'Normal' }}
+                                            </span>
+                                        </div>
+                                        
+                                        <!-- Posted By -->
+                                        <p class="text-muted mb-3 fs-5">
+                                            <i class="fas fa-user-circle me-1"></i>
+                                            Posted by {{ getCreatorName(request) }}
+                                        </p>
+                                        
+                                        <!-- Request Content -->
+                                        <p class="request-content mb-4 fs-5">{{ request.content }}</p>
+                                        
+                                        <!-- Date -->
+                                        <div class="mb-4">
+                                            <p class="text-muted mb-0">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                Posted on {{ request.createdAt || request.dateRequest | date:'medium' }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Buttons -->
+                                <div class="d-flex flex-wrap gap-3 mt-4">
+                                    <!-- Respond Button -->
+                                    <button *ngIf="!request.response" 
+                                            (click)="openResponseModal(request)"
+                                            class="btn btn-primary fs-6">
+                                        <i class="fas fa-reply me-1"></i> Respond
+                                    </button>
+                                    
+                                    <!-- View Responses Button -->
+                                    <button *ngIf="request.responses && request.responses.length > 0"
+                                            (click)="viewResponses(request)"
+                                            class="btn btn-outline-primary fs-6">
+                                        <i class="fas fa-comments me-1"></i> View Responses
+                                        <span class="badge bg-primary ms-1">{{ request.responses.length }}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Column -->
+            <div class="col-lg-5">
+                <!-- Create New Request Card -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">
+                            <i class="fas fa-plus-circle me-2"></i>
+                            Create New Request
+                        </h4>
+                        <form (ngSubmit)="createRequest()" #requestForm="ngForm">
+                            <div class="mb-3">
+                                <label for="object" class="form-label">Title</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="object"
+                                       [(ngModel)]="newRequest.object"
+                                       name="object"
+                                       required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="content" class="form-label">Content</label>
+                                <textarea class="form-control" 
+                                          id="content"
+                                          [(ngModel)]="newRequest.content"
+                                          name="content"
+                                          rows="4"
+                                          required></textarea>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       id="isUrgent"
+                                       [(ngModel)]="newRequest.isUrgent"
+                                       name="isUrgent">
+                                <label class="form-check-label" for="isUrgent">Mark as Urgent</label>
+                            </div>
+                            
+                            <button type="submit" 
+                                    class="btn btn-primary w-100"
+                                    [disabled]="!requestForm.form.valid">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Submit Request
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <app-footer></app-footer>
+
+<!-- Response Modal -->
+<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseModalLabel">Add Response</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form (ngSubmit)="addResponse()" #responseForm="ngForm">
+                    <div class="mb-3">
+                        <label for="responseContent" class="form-label">Your Response</label>
+                        <textarea class="form-control" 
+                                id="responseContent"
+                                [(ngModel)]="newResponse.content"
+                                name="content"
+                                rows="4"
+                                required></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" 
+                                class="btn btn-primary"
+                                [disabled]="!responseForm.form.valid">
+                            Submit Response
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

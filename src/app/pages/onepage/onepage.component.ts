@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener  } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SingleNavbarComponent } from '../../components/single-navbar/single-navbar.component';
-import { ServicesComponent } from '../../components/healthcare/services.component';
+import { HealthcareComponent } from '../../pages/Healthcare/healthcare.component';
 import { AboutOneComponent } from '../../components/about-one/about-one.component';
 import { AboutTwoComponent } from '../../components/about-two/about-two.component';
 import { ForumComponent } from '../../components/forum/forum.component';
@@ -17,6 +17,7 @@ import { CausesComponent } from "../../components/causes/causes.component";
 import { CtaComponent } from "../../components/cta/cta.component";
 import { TeamComponent } from "../../components/team/team.component";
 import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { TopAssociationsSliderComponent } from '../../components/top-associations-slider/top-associations-slider.component';
 @Component({
     selector: 'onepage',
     standalone: true,
@@ -24,6 +25,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
         CommonModule,
         RouterLink,
         SingleNavbarComponent,
+        HealthcareComponent,
         AboutOneComponent,
         AboutTwoComponent,
         ForumComponent,
@@ -37,7 +39,8 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
         CausesComponent,
         CtaComponent,
         TeamComponent,
-        NavbarComponent
+        NavbarComponent,
+        TopAssociationsSliderComponent
     ],
     templateUrl: './onepage.component.html',
     styleUrl: './onepage.component.scss'

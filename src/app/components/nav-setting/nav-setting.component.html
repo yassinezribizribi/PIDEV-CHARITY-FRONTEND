@@ -18,22 +18,11 @@
             </div>
         </div>
     </li>
-<!--
-    <li class="list-inline-item ps-1 mb-0">
-        <a href="javascript:void(0)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-            <div class="btn btn-sm btn-icon btn-pills btn-primary"><i data-feather="settings" class="fea icon-sm"></i></div>
-        </a>
-    </li> -->
 
-    <li class="list-inline-item ps-1 mb-0">
+    <!-- Donate Us Button - Only show when not logged in -->
+    <li class="list-inline-item ps-1 mb-0" *ngIf="!(isLoggedIn$ | async)">
         <a href="" class="btn btn-sm btn-primary">Donate Us</a>
-
     </li>
-    <li class="list-inline-item ps-1 mb-0">
-        <button href="" class="btn btn-sm btn-primary" (click)="logout()" *ngIf="isAuthenticated">logout</button>
-        
-    </li>
-    
 </ul>
 
 <div class="offcanvas offcanvas-end shadow border-0" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">

@@ -1,0 +1,156 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Créer une Mission</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Create New Mission</h3>
+                    </div>
+                    <div class="card-body">
+                        <form [formGroup]="missionForm" (ngSubmit)="onSubmit()">
+                            <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+                            <!-- Title Field -->
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Mission Title</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="title"
+                                       formControlName="title"
+                                       [ngClass]="{'is-invalid': missionForm.get('title')?.invalid && missionForm.get('title')?.touched}">
+                                <div class="invalid-feedback" *ngIf="missionForm.get('title')?.invalid && missionForm.get('title')?.touched">
+                                    Title is required
+                                </div>
+                            </div>
+
+                            <!-- Description Field -->
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control"
+                                        id="description"
+                                        rows="3"
+                                        formControlName="description"
+                                        [ngClass]="{'is-invalid': missionForm.get('description')?.invalid && missionForm.get('description')?.touched}">
+                                </textarea>
+                                <div class="invalid-feedback" *ngIf="missionForm.get('description')?.invalid && missionForm.get('description')?.touched">
+                                    Description is required
+                                </div>
+                            </div>
+
+                            <!-- Location Field -->
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="location"
+                                       formControlName="location"
+                                       [ngClass]="{'is-invalid': missionForm.get('location')?.invalid && missionForm.get('location')?.touched}">
+                                <div class="invalid-feedback" *ngIf="missionForm.get('location')?.invalid && missionForm.get('location')?.touched">
+                                    Location is required
+                                </div>
+                            </div>
+
+                            <!-- Start Date Field -->
+                            <div class="mb-3">
+                                <label for="startDate" class="form-label">Start Date</label>
+                                <input type="date"
+                                       class="form-control"
+                                       id="startDate"
+                                       formControlName="startDate"
+                                       [ngClass]="{'is-invalid': missionForm.get('startDate')?.invalid && missionForm.get('startDate')?.touched}">
+                                <div class="invalid-feedback" *ngIf="missionForm.get('startDate')?.invalid && missionForm.get('startDate')?.touched">
+                                    Start date is required
+                                </div>
+                            </div>
+
+                            <!-- End Date Field -->
+                            <div class="mb-3">
+                                <label for="endDate" class="form-label">End Date</label>
+                                <input type="date"
+                                       class="form-control"
+                                       id="endDate"
+                                       formControlName="endDate"
+                                       [ngClass]="{'is-invalid': missionForm.get('endDate')?.invalid && missionForm.get('endDate')?.touched}">
+                                <div class="invalid-feedback" *ngIf="missionForm.get('endDate')?.invalid && missionForm.get('endDate')?.touched">
+                                    End date is required
+                                </div>
+                                <div class="text-danger" *ngIf="missionForm.get('endDate')?.value && missionForm.get('startDate')?.value && missionForm.get('endDate')?.value < missionForm.get('startDate')?.value">
+                                    End date must be after start date
+                                </div>
+                            </div>
+
+                            <!-- Volunteer Count Field -->
+                            <div class="mb-3">
+                                <label for="volunteerCount" class="form-label">Number of Volunteers Needed</label>
+                                <input type="number"
+                                       class="form-control"
+                                       id="volunteerCount"
+                                       formControlName="volunteerCount"
+                                       min="1"
+                                       [ngClass]="{'is-invalid': missionForm.get('volunteerCount')?.invalid && missionForm.get('volunteerCount')?.touched}">
+                                <div class="invalid-feedback" *ngIf="missionForm.get('volunteerCount')?.invalid && missionForm.get('volunteerCount')?.touched">
+                                    At least one volunteer is required
+                                </div>
+                            </div>
+
+                            <!-- Status Field -->
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Mission Status</label>
+                                <select class="form-select"
+                                        id="status"
+                                        formControlName="status"
+                                        [ngClass]="{'is-invalid': missionForm.get('status')?.invalid && missionForm.get('status')?.touched}">
+                                    <option value="">Select Status</option>
+                                    <option *ngFor="let status of missionStatuses" [value]="status">
+                                        {{status}}
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" *ngIf="missionForm.get('status')?.invalid && missionForm.get('status')?.touched">
+                                    Status is required
+                                </div>
+                            </div>
+
+                            <!-- Partner Selection -->
+                            <div class="mb-3" *ngIf="partners.length > 0">
+                                <label class="form-label">Select Partner Association</label>
+                                <div class="list-group">
+                                    <button type="button"
+                                            *ngFor="let partner of partners"
+                                            class="list-group-item list-group-item-action"
+                                            [class.active]="isPartnerSelected(partner.idAssociation)"
+                                            (click)="onPartnerSelect(partner.idAssociation)">
+                                        {{ partner.associationName }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+                                <button type="submit" class="btn btn-primary" [disabled]="!missionForm.valid">
+                                    Create Mission
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
