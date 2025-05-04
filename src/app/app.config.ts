@@ -1,15 +1,13 @@
 import { ApplicationConfig } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { routes } from './app.routes';
-import { JobSearchService } from './services/job-search.service';
-import { JobOfferService } from './services/jof-offer.service';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { NotificationComponent } from './pages/notification/notification.component';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
-    JobSearchService,
-    JobOfferService,
-    provideAnimations()
+    provideRouter([
+      { path: '/service-detail', redirectTo: 'notifications', pathMatch: 'full' }, // ✅ Redirection initiale
+      { path: 'notifications', component: NotificationComponent }, // ✅ Page des notifications // ✅ Page Service Detail
+      { path: '**', redirectTo: 'notifications' } // ✅ Redirection si route inconnue
+    ], withComponentInputBinding())
   ]
 };

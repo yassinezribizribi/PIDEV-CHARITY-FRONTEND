@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '@component/navbar/navbar.component';
 import { FooterComponent } from '@component/footer/footer.component';
@@ -10,62 +10,85 @@ import { FooterComponent } from '@component/footer/footer.component';
   selector: 'app-reset-password',
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.scss'],
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, FooterComponent],
+  standalone: true,
+  imports: [CommonModule, NavbarComponent, ReactiveFormsModule, FooterComponent],
 })
 export class ResetPasswordComponent implements OnInit {
-  resetPasswordForm!: FormGroup;  // ✅ Ajout de `!` pour éviter les erreurs TypeScript
-
-  token: string | null = null;
-  successMessage: string = '';
+  resetPasswordForm: FormGroup;
   errorMessage: string = '';
+  successMessage: string = '';
+  isLoading: boolean = false;
+  resetToken: string | null = null; // ✅ Stocke le resetToken récupéré
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private http: HttpClient,
-    private route: ActivatedRoute
-  ) {}
+    private http: HttpClient
+  ) {
+    this.resetPasswordForm = this.fb.group({
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required],
+    });
+  }
 
   ngOnInit(): void {
-    // 🔍 Récupérer le token depuis les paramètres de l’URL
-    this.route.queryParams.subscribe(params => {
-      this.token = params['token'];
-      console.log('🔍 Token récupéré depuis l’URL:', this.token);
+    // ✅ Récupérer le `resetToken` depuis le stockage local
+    this.resetToken = localStorage.getItem('reset_token');
 
-      if (!this.token) {
-        this.errorMessage = '❌ Token de réinitialisation manquant !';
-      }
-    });
-
-    // ✅ Initialiser le formulaire ici après que `fb` soit bien défini
-    this.resetPasswordForm = this.fb.group({
-      newPassword: ['', [Validators.required, Validators.minLength(6)]]
-    });
+    if (!this.resetToken) {
+      this.errorMessage = "⚠ Erreur : Aucun token de réinitialisation trouvé.";
+      console.error("❌ Aucun resetToken trouvé !");
+    } else {
+      console.log("🔑 Reset Token récupéré :", this.resetToken);
+    }
   }
 
   onSubmit(): void {
-    if (this.resetPasswordForm.valid && this.token) {
-      const newPassword = this.resetPasswordForm.get('newPassword')?.value;
-      const resetData = { token: this.token, newPassword: newPassword };
-
-      console.log('📤 Envoi de la requête reset-password:', resetData);
-
-      this.http.post('http://localhost:8089/examen/user/reset-password', resetData, {
-        headers: { 'Content-Type': 'application/json' }
-      }).subscribe(
-        (response) => {
-          console.log('✅ Password successfully reset');
-          this.successMessage = 'Mot de passe réinitialisé avec succès!';
-          setTimeout(() => this.router.navigate(['/login']), 3000);
-        },
-        (error) => {
-          console.error('❌ Erreur lors de la réinitialisation', error);
-          this.errorMessage = 'Impossible de réinitialiser le mot de passe.';
-        }
-      );
+    if (this.resetPasswordForm.valid && this.resetToken) {
+      this.isLoading = true;
+      this.errorMessage = '';
+      this.successMessage = '';
+  
+      const { password, confirmPassword } = this.resetPasswordForm.value;
+  
+      if (password !== confirmPassword) {
+        this.errorMessage = "⚠ Les mots de passe ne correspondent pas.";
+        this.isLoading = false;
+        return;
+      }
+  
+      const resetRequest = {
+        resetToken: this.resetToken, // ✅ Envoie bien le resetToken
+        password: password
+      };
+  
+      console.log("📤 Envoi de la requête avec :", resetRequest);
+  
+      this.http
+        .post('http://localhost:8089/api/users/reset-password', resetRequest, { responseType: 'text' })
+        .subscribe({
+          next: () => {
+            this.successMessage = '✅ Mot de passe réinitialisé avec succès !';
+            this.errorMessage = '';
+            this.isLoading = false;
+  
+            // ✅ Supprime le resetToken après usage
+            localStorage.removeItem('reset_token');
+  
+            setTimeout(() => {
+              this.router.navigate(['/login']);
+            }, 3000);
+          },
+          error: (error: HttpErrorResponse) => {
+            this.isLoading = false;
+            this.errorMessage = error.status === 400
+              ? '⚠ Token invalide ou expiré.'
+              : '❌ Une erreur est survenue. Réessayez plus tard.';
+          },
+        });
     } else {
-      console.error("❌ Token manquant ou formulaire invalide !");
-      this.errorMessage = 'Token invalide ou champ vide.';
+      this.errorMessage = "⚠ Impossible de réinitialiser le mot de passe sans token.";
     }
   }
+  
 }

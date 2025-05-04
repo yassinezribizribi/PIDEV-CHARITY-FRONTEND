@@ -1,159 +1,247 @@
+/* healthcare.component.ts */
 import { Component, OnInit, inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HealthcareService } from '../../services/healthcare.service';
 import { AuthService } from '../../services/auth.service';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { NavbarComponent } from '@component/navbar/navbar.component';
+import { FooterComponent } from '@component/footer/footer.component';
 import { CommonModule } from '@angular/common';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
-import { FooterComponent } from '../../components/footer/footer.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-healthcare',
-  templateUrl: './healthcare.component.html',
-  styleUrls: ['./healthcare.component.scss'],
   standalone: true,
-  imports: [NavbarComponent, FooterComponent, RouterModule, CommonModule, FormsModule, ReactiveFormsModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NavbarComponent,
+    FooterComponent,
+    HttpClientModule
+  ],
+  templateUrl: './healthcare.component.html',
+  styleUrls: ['./healthcare.component.scss']
 })
 export class HealthcareComponent implements OnInit {
-  healthcareService = inject(HealthcareService);
-  authService = inject(AuthService);
+  private healthcareService = inject(HealthcareService);
+  private authService = inject(AuthService);
+  private sanitizer = inject(DomSanitizer);
 
-  healthcareList: any[] = []; // ✅ Liste des soins
-  selectedPatient: any = null; // ✅ Patient sélectionné
+  isRequester = false;
+  isVolunteer = false;
+  healthcareList: any[] = [];
+  ongoingHealthcareList: any[] = [];
+  completedHealthcareList: any[] = [];
 
-  isRequester = false; // ✅ Association Member et Refugee peuvent envoyer une demande
-  isVolunteer = false; // ✅ Volunteer peut voir et traiter les demandes
-  hasToken = false; // ✅ Vérification de connexion utilisateur
+  pageSize = 5;
+  currentPage = 1;
 
-  healthcareForm = new FormGroup({
-    history: new FormControl('', [Validators.required, Validators.minLength(5)]),
-    bookingDate: new FormControl('', [Validators.required])
-  });
+  doctorForm!: FormGroup;
+  healthcareForm!: FormGroup;
 
-  doctorForm = new FormGroup({
-    idHealthcare: new FormControl(null, [Validators.required]),
-    treatmentPlan: new FormControl('', [Validators.required]),
-    terminalDisease: new FormControl('', [Validators.required]),
-    bookingDate: new FormControl('', [Validators.required]),
-    status: new FormControl('IN_PROGRESS', [Validators.required])
-  });
+  showDetailModal = false;
+  selectedPatient: any = null;
+  showVideo = false;
 
-  constructor() {}
+  notificationMessage: string | null = null;
+  notificationLink: string | null = null;
+
+  powerBIReportUrl!: SafeResourceUrl;
+  showReport = false;
+
+  latestPatientCareId: number | null = null;
+
+  constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
-    this.checkUserRole();
-    if (this.isVolunteer && this.hasToken) {
-      this.loadHealthcareList(); // Charger la liste des soins
+    this.setupUserRoles();
+    this.initForms();
+    if (this.isVolunteer) {
+      this.loadHealthcareList();
+      this.initPowerBIReport();
+    } else if (this.isRequester) {
+      this.loadMyCareList();
     }
   }
 
-  // ✅ Vérifier le rôle de l'utilisateur et la connexion
-  checkUserRole(): void {
-    const token = this.authService.getToken(); // Vérifier si un token est présent
-    this.hasToken = !!token;
-
-    if (!this.hasToken) {
-      console.warn("⚠️ L'utilisateur n'est pas connecté !");
-      return;
-    }
-
-    const userRole = this.authService.getUserRole();
-
-    // ✅ Refugee et Association Member peuvent envoyer une demande
-    this.isRequester = userRole === 'ROLE_REFUGEE' || userRole === 'ROLE_ASSOCIATION_MEMBER';
-
-    // ✅ Volunteer peut voir et traiter les demandes
-    this.isVolunteer = userRole === 'ROLE_VOLUNTEER';
-
-    console.log("👤 Rôle détecté :", userRole, "| Requester:", this.isRequester, "| Volunteer:", this.isVolunteer);
+  private setupUserRoles(): void {
+    const role = this.authService.getUserRole();
+    this.isRequester = ['ROLE_REFUGEE', 'ROLE_ASSOCIATION_MEMBER'].includes(role);
+    this.isVolunteer = role === 'ROLE_VOLUNTEER';
   }
 
-  // ✅ Charger la liste des soins des patients
-  loadHealthcareList(): void {
-    console.log("🔍 Chargement des patients...");
-    this.healthcareService.getAllHealthcare().subscribe({
-        next: (data) => {
-            console.log("✅ Données API :", data); // 🔥 DEBUG
-
-            // Si vide, afficher un message
-            if (!data || data.length === 0) {
-                console.warn("⚠️ Aucun patient trouvé !");
-            }
-
-            // Formatage correct
-            this.healthcareList = data.map(item => ({
-                idHealthcare: item.idHealthcare,
-                subscriberName: item.subscriber
-                    ? `${item.subscriber.firstName} ${item.subscriber.lastName}`
-                    : 'Non spécifié',
-                symptoms: item.history || 'Aucun symptôme indiqué',
-                bookingDate: item.bookingDate || 'Non précisé',
-                status: item.status || 'PENDING'
-            }));
-
-            console.log("✅ Liste finale :", this.healthcareList); // 🔥 DEBUG
-        },
-        error: (error) => {
-            console.error("❌ Erreur API :", error);
-        }
+  private initForms(): void {
+    this.doctorForm = this.fb.group({
+      idHealthcare: ['', Validators.required],
+      disease: ['', Validators.required],
+      treatmentPlan: ['', Validators.required],
+      bookingDate: ['', Validators.required],
+      status: ['IN_PROGRESS', Validators.required],
+      meetingUrl: ['', Validators.required]
     });
-}
 
+    this.healthcareForm = this.fb.group({
+      history: ['', Validators.required],
+      bookingDate: ['', Validators.required]
+    });
+  }
 
-  // ✅ Sélectionner un patient et charger ses données
-  selectPatient(patient: any): void {
+  private initPowerBIReport(): void {
+    const raw = 'https://app.powerbi.com/reportEmbed?reportId=2edf502c-ec72-4db2-85b3-0dc13284dcae&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730';
+    this.powerBIReportUrl = this.sanitizer.bypassSecurityTrustResourceUrl(raw);
+  }
+
+  loadHealthcareList(): void {
+    this.healthcareService.getAllHealthcare().subscribe(data => {
+      this.healthcareList = data.map(item => ({
+        idHealthcare: item.id,
+        subscriberId: item.subscriber?.idUser,
+        subscriberName: item.subscriber?.firstName && item.subscriber?.lastName
+          ? `${item.subscriber.firstName} ${item.subscriber.lastName}`
+          : this.authService.getUserFullName(),
+        symptoms: item.history,
+        bookingDate: item.bookingDate,
+        status: item.status,
+        disease: item.terminalDisease,
+        treatmentPlan: item.treatmentPlan,
+        meetingUrl: item.meetingUrl
+      }));
+      this.ongoingHealthcareList = this.healthcareList.filter(p => p.status !== 'COMPLETED');
+      this.completedHealthcareList = this.healthcareList.filter(p => p.status === 'COMPLETED');
+    });
+  }
+
+  loadMyCareList(): void {
+    this.healthcareService.getMyHealthcare().subscribe((list: any[]) => {
+      if (list.length > 0) {
+        this.latestPatientCareId = list[list.length - 1].id;
+      }
+    });
+  }
+
+  openDetails(patient: any): void {
     this.selectedPatient = patient;
-    console.log("👤 Patient sélectionné :", this.selectedPatient);
-
-    // ✅ Pré-remplir le formulaire pour traitement
     this.doctorForm.patchValue({
       idHealthcare: patient.idHealthcare,
-      treatmentPlan: patient.treatmentPlan || '',
-      terminalDisease: patient.terminalDisease || '',
-      bookingDate: patient.bookingDate
+      disease: patient.disease,
+      treatmentPlan: patient.treatmentPlan,
+      bookingDate: this.formatForInput(patient.bookingDate),
+      status: patient.status,
+      meetingUrl: patient.meetingUrl
+    });
+    this.showDetailModal = true;
+  }
+
+  closeDetails(): void {
+    this.showDetailModal = false;
+  }
+
+  downloadPdf(id: number): void {
+    this.healthcareService.downloadReportPdf(id).subscribe({
+      next: (pdfBlob: Blob) => {
+        const file = new Blob([pdfBlob], { type: 'application/pdf' });
+        const fileURL = URL.createObjectURL(file);
+        window.open(fileURL, '_blank');
+        saveAs(file, `rapport_soin_${id}.pdf`);
+      },
+      error: (err) => {
+        console.error("❌ Erreur lors du téléchargement du PDF :", err);
+        alert("Erreur lors du téléchargement du rapport PDF.");
+      }
     });
   }
 
-  // ✅ Soumettre une demande de soin (Refugee ou Association Member)
-  submitHealthcareRequest(): void {
-    if (!this.hasToken) {
-      alert("⚠️ Vous devez être connecté pour envoyer une demande !");
-      return;
-    }
-
-    if (this.healthcareForm.valid) {
-      const healthcareData = { 
-        history: this.healthcareForm.value.history,
-        bookingDate: this.healthcareForm.value.bookingDate,
-        subscriberId: this.authService.getUserId()
-      };
-
-      this.healthcareService.addHealthcare(healthcareData).subscribe({
-        next: () => { 
-          alert("✅ Demande envoyée avec succès !");
-          this.healthcareForm.reset();
-          this.loadHealthcareList();
-        },
-        error: (error) => { console.error("❌ Erreur lors de l'ajout:", error); }
-      });
-    }
+  updateHealthcare(): void {
+    if (this.doctorForm.invalid || !this.selectedPatient) return;
+    const f = this.doctorForm.value;
+    const payload = {
+      id: this.selectedPatient.idHealthcare,
+      subscriberId: this.selectedPatient.subscriberId,
+      doctorId: this.authService.getUserId(),
+      terminalDisease: f.disease,
+      treatmentPlan: f.treatmentPlan,
+      bookingDate: f.bookingDate,
+      status: f.status,
+      meetingUrl: f.meetingUrl
+    };
+    this.healthcareService.updateHealthcare(payload.id, payload).subscribe({
+      next: () => {
+        this.showNotification('✅ Healthcare updated successfully!', payload.meetingUrl);
+        this.loadHealthcareList();
+        this.closeDetails();
+      },
+      error: () => {
+        this.showNotification('❌ Error updating healthcare.');
+      }
+    });
   }
 
-  // ✅ Mettre à jour le traitement du patient
-  updateHealthcare(): void {
-    if (!this.hasToken) {
-      alert("⚠️ Vous devez être connecté pour modifier un soin !");
-      return;
-    }
+  private formatForInput(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toISOString().split('T')[0];
+  }
 
-    if (this.doctorForm.valid) {
-      this.healthcareService.updateHealthcare(this.doctorForm.value.idHealthcare!, this.doctorForm.value).subscribe({
-        next: () => {
-          alert("✅ Traitement mis à jour !");
-          this.loadHealthcareList();
-        },
-        error: (error) => console.error("❌ Erreur lors de la mise à jour:", error)
+  submitHealthcareRequest(): void {
+    if (this.healthcareForm.invalid) return;
+    const f = this.healthcareForm.value;
+    const payload = {
+      history: f.history,
+      bookingDate: f.bookingDate,
+      subscriberId: this.authService.getUserId(),
+      doctorId: 2
+    };
+    this.healthcareService.addHealthcare(payload).subscribe(() => {
+      alert('✅ Request submitted!');
+      this.healthcareForm.reset();
+      this.loadHealthcareList();
+    });
+  }
+
+  useIAForDiagnosis(): void {
+    const symptoms = this.doctorForm.value.disease || this.selectedPatient?.symptoms;
+    if (!symptoms) return;
+    this.healthcareService.predictDiagnosis(symptoms).subscribe(res => {
+      this.doctorForm.patchValue({
+        disease: res.diagnostic,
+        treatmentPlan: res.treatment
       });
-    }
+    });
+  }
+
+  toggleReport(): void {
+    this.showReport = !this.showReport;
+  }
+
+  toggleVideo(): void {
+    this.showVideo = !this.showVideo;
+  }
+
+  private showNotification(message: string, link?: string): void {
+    this.notificationMessage = message;
+    this.notificationLink = link || null;
+    setTimeout(() => {
+      this.notificationMessage = null;
+      this.notificationLink = null;
+    }, 4000);
+  }
+
+  getSafeUrl(url: string | null): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url || '');
+  }
+
+  get totalCompletedPages(): number {
+    return Math.ceil(this.completedHealthcareList.length / this.pageSize);
+  }
+
+  get pagesArray(): number[] {
+    return Array.from({ length: this.totalCompletedPages }, (_, i) => i + 1);
+  }
+
+  get pagedCompletedList(): any[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.completedHealthcareList.slice(start, start + this.pageSize);
   }
 }

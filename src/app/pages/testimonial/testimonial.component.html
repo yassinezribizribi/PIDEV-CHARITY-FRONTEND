@@ -1,72 +1,142 @@
-<!-- Hero Start -->
+<app-navbar></app-navbar>
+
+<!-- Hero Section -->
 <section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
-    <div class="bg-overlay bg-gradient-overlay"></div>
-    <div class="container text-center">
-        <h5 class="heading fw-semibold sub-heading text-white title-dark">Témoignages</h5>
-    </div>
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container text-center text-white py-5">
+    <h2 class="fw-bold">✨ Testimonials ✨</h2>
+  </div>
 </section>
 
-<!-- Testimonial Section -->
-<section class="section py-5">
-    <div class="container">
-        <!-- ✅ Affichage du chargement -->
-        <div *ngIf="testimonials.length === 0" class="text-center text-muted">
-            <p>Aucun témoignage disponible.</p>
-        </div>
+<div class="shape overflow-hidden text-white">
+  <svg viewBox="0 0 2880 48" fill="none">
+    <path d="M0 48H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+  </svg>
+</div>
 
-        <div class="row">
-            <div *ngFor="let testimonial of testimonials; let i = index" class="col-lg-4 col-md-6 col-12">
-                <div class="testimonial-card p-4 shadow rounded">
-                    <h6 class="mb-2">Témoignage #{{ i + 1 }}</h6>
-                    <p class="text-muted fst-italic">" {{ testimonial.content }} "</p>
-                    <div class="d-flex align-items-center">
-                        <img *ngIf="testimonial.beforePhoto" [src]="testimonial.beforePhoto" class="avatar rounded-circle shadow" alt="Before">
-                        <div class="ms-2">
-                            <h6 class="text-dark small">{{ testimonial.description }}</h6>
-                        </div>
-                    </div>
-                </div>
+<div class="text-end mb-3">
+  <label class="form-label me-2">🌍 Langue :</label>
+  <select [(ngModel)]="selectedLang" class="form-select d-inline-block w-auto" (change)="translateAll()">
+    <option *ngFor="let lang of supportedLangs" [value]="lang.code">{{ lang.name }}</option>
+  </select>
+</div>
+
+<!-- Testimonials Section -->
+<section class="container my-5">
+  <div class="mb-4 text-center">
+    <button class="btn btn-outline-primary me-2" (click)="filterType='all'">🔮 All</button>
+    <button class="btn btn-outline-success me-2" (click)="filterType='photo'">📸 Photos</button>
+    <button class="btn btn-outline-danger" (click)="filterType='media'">🎮 Videos/Audio</button>
+  </div>
+
+  <div class="row g-4">
+    <div *ngFor="let testimonial of filteredTestimonials" class="col-lg-4 col-md-6">
+      <div class="card h-100 shadow-sm border-0 rounded-4 animate__animated animate__fadeInUp">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div>
+            <div class="mb-2">
+              <span class="badge rounded-pill bg-primary" *ngIf="testimonial.mediaPath">🎥 Media</span>
+              <span class="badge rounded-pill bg-success" *ngIf="testimonial.beforePhotoPath || testimonial.afterPhotoPath">📷 Photos</span>
             </div>
-        </div>
 
-        <!-- ✅ Bouton "Recharger" pour rafraîchir les témoignages -->
-        <div class="row justify-content-center mt-4">
-            <button class="btn btn-primary btn-lg" (click)="refreshTestimonials()">🔄 Recharger</button>
+            <blockquote class="blockquote fst-italic small">
+              "{{ showFull[testimonial.id] ? testimonial.content : testimonial.summary || testimonial.content }}"
+            </blockquote>
+            <p class="text-muted small">{{ testimonial.description }}</p>
+
+            <div *ngIf="testimonial.summary" class="text-end">
+              <button class="btn btn-sm btn-link p-0" (click)="toggleSummary(testimonial.id)">
+                {{ showFull[testimonial.id] ? '▲ Collapse' : '▼ Read more' }}
+              </button>
+            </div>
+
+            <div class="row g-2 mt-2" *ngIf="testimonial.beforePhotoPath || testimonial.afterPhotoPath">
+              <div class="col-6" *ngIf="testimonial.beforePhotoPath">
+                <img [src]="testimonial.beforePhotoPath" class="img-fluid rounded shadow-sm" alt="Before">
+              </div>
+              <div class="col-6" *ngIf="testimonial.afterPhotoPath">
+                <img [src]="testimonial.afterPhotoPath" class="img-fluid rounded shadow-sm" alt="After">
+              </div>
+            </div>
+
+            <div class="mt-3" *ngIf="testimonial.mediaPath">
+              <video width="100%" controls class="rounded shadow-sm">
+                <source [src]="getSafeVideoUrl(testimonial.mediaPath)" type="video/mp4">
+                Your browser does not support HTML5 video.
+              </video>
+              <audio *ngIf="testimonial.mediaType === 'audio'" controls class="w-100 mt-2 rounded">
+                <source [src]="testimonial.mediaPath" [type]="testimonial.mediaPath.endsWith('.mp3') ? 'audio/mpeg' : 'audio/wav'">
+                Your browser does not support HTML5 audio.
+              </audio>
+            </div>
+
+            <div *ngIf="testimonial.transcriptionText" class="mt-3 small border-start border-3 border-info bg-light p-2 rounded">
+              <strong>🧠 AI:</strong> {{ testimonial.transcriptionText }}
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <button class="btn btn-outline-danger btn-sm" (click)="likeTestimonial(testimonial)">❤️ Like</button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="unlikeTestimonial(testimonial)">💔 Unlike</button>
+              <span class="badge bg-success rounded-pill">👍 {{ testimonial.likeCount || 0 }}</span>
+              <span class="badge bg-dark rounded-pill">👎 {{ testimonial.unlikeCount || 0 }}</span>
+            </div>
+
+            <div class="btn-group mt-2 mt-md-0">
+              <button class="btn btn-sm btn-warning" (click)="editTestimonial(testimonial)">✏️ Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteTestimonial(testimonial.id, testimonial.userId)">🗑️ Delete</button>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- Formulaire d'Ajout -->
-<section class="section py-5">
-    <div class="container">
-        <h2 class="text-center">Ajouter un Témoignage</h2>
-        <form [formGroup]="testimonialForm" (ngSubmit)="saveTestimonial()" class="testimonial-form">
-            <div class="mb-3">
-                <label for="content" class="form-label">Contenu</label>
-                <input id="content" formControlName="content" class="form-control" required>
-                <small class="text-danger" *ngIf="testimonialForm.controls['content'].invalid && testimonialForm.controls['content'].touched">
-                    Le contenu est obligatoire et doit contenir au moins 10 caractères.
-                </small>
-            </div>
-            <div class="mb-3">
-                <label for="beforePhoto" class="form-label">Photo Avant</label>
-                <input id="beforePhoto" formControlName="beforePhoto" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label for="afterPhoto" class="form-label">Photo Après</label>
-                <input id="afterPhoto" formControlName="afterPhoto" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea id="description" formControlName="description" class="form-control"></textarea>
-                <small class="text-danger" *ngIf="testimonialForm.controls['description'].invalid && testimonialForm.controls['description'].touched">
-                    La description est obligatoire.
-                </small>
-            </div>
-            <div class="text-center">
-                <button type="submit" class="btn btn-success btn-lg">➕ Ajouter</button>
-            </div>
-        </form>
-    </div>
+<!-- Testimonial Form -->
+<section class="bg-light py-5 mt-5">
+  <div class="container">
+    <h3>{{ isEditing ? '✏️ Edit' : '➕ Add' }} a Testimonial</h3>
+
+    <select class="form-select mb-3" [(ngModel)]="testimonialType">
+      <option value="photo">📷 Photos</option>
+      <option value="media">🎮 Video/Audio</option>
+    </select>
+
+    <form [formGroup]="testimonialForm" (ngSubmit)="saveTestimonial()">
+      <textarea formControlName="content" class="form-control mb-3" placeholder="Content..." *ngIf="testimonialType==='photo'"></textarea>
+      <textarea formControlName="description" class="form-control mb-3" placeholder="Description..."></textarea>
+
+      <div class="row mb-3" *ngIf="testimonialType==='photo'">
+        <div class="col-md-6">
+          <label>📷 Before</label>
+          <input type="file" class="form-control" (change)="onFileSelected($event, 'before')">
+        </div>
+        <div class="col-md-6">
+          <label>📸 After</label>
+          <input type="file" class="form-control" (change)="onFileSelected($event, 'after')">
+        </div>
+      </div>
+
+      <div class="mb-3" *ngIf="testimonialType === 'photo'">
+        <button class="btn btn-info w-100" type="button" (click)="analyzeImagesWithAI()">🧠 Analyze With AI</button>
+      </div>
+
+      <div class="mb-3" *ngIf="testimonialType==='media'">
+        <label>🎮 Media</label>
+        <input type="file" class="form-control" (change)="uploadMedia($event,'media')">
+      </div>
+
+      <div class="text-end">
+        <button class="btn btn-success" [disabled]="!testimonialForm.valid">
+          {{ isEditing ? '🔏 Update' : '➕ Add' }}
+        </button>
+        <button class="btn btn-secondary ms-2" type="button" (click)="resetForm()">Cancel</button>
+      </div>
+    </form>
+  </div>
 </section>
+
 <app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>

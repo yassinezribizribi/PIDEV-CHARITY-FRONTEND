@@ -1,58 +1,99 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from './auth.service';
-import { jwtDecode } from 'jwt-decode';
- // ✅ Import du décodeur JWT
+import { timeout } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class TestimonialService {
-  private apiUrl = 'http://localhost:8089/api/testimonials'; // 🔗 Lien vers l'API
-  http = inject(HttpClient);
-  authService = inject(AuthService);
+  private apiUrl = 'http://localhost:8089/api/testimonials';
+  private emotionApiUrl = 'http://localhost:8089/api/emotion';
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
-  // ✅ Générer les headers avec Token JWT
-  private getHeaders(): HttpHeaders {
-    return this.authService.getAuthHeaders();
+  private getToken(): string | null {
+    const token = localStorage.getItem('auth_token')?.trim();
+    if (!token) {
+      console.warn("⚠️ Token JWT non trouvé, utilisation de requête sans authentification.");
+      return null;
+    }
+    return token;
   }
 
-  // ✅ Récupérer tous les témoignages
+  private getHeaders(requireAuth: boolean = true): HttpHeaders {
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const token = this.getToken();
+    if (requireAuth && token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  }
+
+  likeTestimonial(id: number) {
+    return this.http.post(`${this.apiUrl}/${id}/like`, {}, {
+      headers: this.getHeaders(true)
+    });
+    
+  }
+  
+  unlikeTestimonial(id: number) {
+    return this.http.post(`${this.apiUrl}/${id}/unlike`, {}, {
+      headers: this.getHeaders(true)
+    });
+    
+  }
+  
   getTestimonials(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.apiUrl}/all`, { 
+      headers: this.getHeaders(false) // ✅ accessible publiquement
+    });
   }
 
-  // ✅ Extraire l'ID utilisateur du Token JWT
-  getUserId(): number | null {
-    const token = localStorage.getItem('auth_token'); // ✅ Utiliser la bonne clé
-    if (token) {
-      try {
-        const decodedToken: any = jwtDecode(token);
-        console.log("Decoded Token:", decodedToken); // ✅ Vérification en console
-        return decodedToken.iduser || null; // Vérifier que le claim est bien `iduser`
-      } catch (error) {
-        console.error("❌ Erreur lors du décodage du token:", error);
-      }
-    }
-    return null;
+  addTestimonial(data: any): Observable<any> {
+    return this.http.post(this.apiUrl, data, { headers: this.getHeaders(true) });
   }
 
-  // ✅ Ajouter un témoignage avec ID utilisateur
-  addTestimonial(testimonial: any): Observable<any> {
-    const userId = this.getUserId();
-    if (!userId) {
-      console.error("❌ Impossible d'ajouter un témoignage : ID utilisateur introuvable !");
-      return new Observable(); // Retourne un Observable vide si l'ID est manquant
-    }
+  updateTestimonial(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, data, { headers: this.getHeaders(true) });
+  }
 
-    const testimonialWithUser = {
-      ...testimonial,
-      userId: userId // ✅ Ajout de l'ID utilisateur dans la requête
-    };
+  deleteTestimonial(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders(true) });
+  }
 
-    return this.http.post<any>(`${this.apiUrl}/add`, testimonialWithUser, { headers: this.getHeaders() });
+  uploadMedia(formData: FormData): Observable<any> {
+    const headers = this.getToken()
+      ? new HttpHeaders({ 'Authorization': `Bearer ${this.getToken()}` })
+      : new HttpHeaders();
+
+    return this.http.post(`${this.apiUrl}/media`, formData, { headers });
+  }
+
+  searchTestimonials(keyword: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/search?keyword=${encodeURIComponent(keyword)}`, {
+      headers: this.getHeaders(false) // ✅ accessible publiquement
+    });
+  }
+
+  getTestimonialById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`, {
+      headers: this.getHeaders(false) // ✅ accessible publiquement (si c'est le cas)
+    });
+  }
+
+  analyzeEmotion(transcription: string): Observable<any> {
+    return this.http.post(`${this.emotionApiUrl}/analyze`, { text: transcription }, {
+      headers: this.getHeaders(true)
+    });
+  }
+  analyzeImages(formData: FormData) {
+    return this.http.post<any>('http://localhost:5000/analyze-images', formData)
+      .pipe(timeout(120000));  // timeout en millisecondes (120 sec = 120000 ms)
+  }
+  
+
+  generateSummary(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/generate-summary`, {}, {
+      headers: this.getHeaders(true)
+    });
   }
 }

@@ -34,9 +34,10 @@
               }
             ],
             "styles": [
-              "./node_modules/bootstrap/scss/bootstrap.scss",
+              "node_modules/bootstrap/scss/bootstrap.scss",
               "src/assets/scss/style.scss",
               "src/assets/css/materialdesignicons.min.css",
+              "node_modules/animate.css/animate.min.css",
               "src/styles.scss"
               
 
