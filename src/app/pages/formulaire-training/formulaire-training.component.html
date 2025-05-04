@@ -1,0 +1,90 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12 text-center">
+        <h5 class="heading fw-semibold text-white title-dark">Inscription à une Formation</h5>
+      </div>
+    </div>
+    <div class="position-middle-bottom">
+      <nav aria-label="breadcrumb" class="d-block">
+        <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+          <li class="breadcrumb-item"><a [routerLink]="'/trainings'">Formations</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Inscription</li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<!-- Training Registration Form Section -->
+<section class="section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8 col-12">
+        <div class="add-form-card">
+          <div class="form-group">
+            <input 
+              type="text" 
+              placeholder="Nom" 
+              [(ngModel)]="trainingRegistration.nom" 
+              class="form-control form-input mb-3"
+              required>
+            
+            <input 
+              type="text" 
+              placeholder="Prénom" 
+              [(ngModel)]="trainingRegistration.prenom" 
+              class="form-control form-input mb-3"
+              required>
+            
+            <input 
+              type="text" 
+              placeholder="Adresse" 
+              [(ngModel)]="trainingRegistration.adresse" 
+              class="form-control form-input mb-3"
+              required>
+            
+            <input 
+              type="email" 
+              placeholder="Email (facultatif)" 
+              [(ngModel)]="trainingRegistration.email" 
+              class="form-control form-input mb-3">
+            
+            <input 
+              type="tel" 
+              placeholder="Téléphone (facultatif)" 
+              [(ngModel)]="trainingRegistration.telephone" 
+              class="form-control form-input mb-3">
+            
+           <!--- <input 
+              type="number" 
+              placeholder="ID de la formation (facultatif)" 
+              [(ngModel)]="trainingRegistration.trainingId" 
+              class="form-control form-input mb-3">
+          -->
+            <button class="btn btn-primary add-btn" (click)="submitTrainingRegistration()">Register for training
+            </button>
+            
+            <p *ngIf="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
+            <p *ngIf="successMessage" class="text-success mt-3">{{ successMessage }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>
+<app-scroll-to-top></app-scroll-to-top>
