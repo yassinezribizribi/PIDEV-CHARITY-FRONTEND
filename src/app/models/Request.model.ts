@@ -6,4 +6,11 @@ export interface Request {
   isUrgent: boolean;
   responses?: Response[]; // Liste des réponses associées
   forum?: any; // Forum lié à la demande (ajuster selon besoin)
+  user?: {
+    firstName: string;
+    lastName: string;
+  };
+  response?: boolean; // Indique si la demande a reçu une réponse
+  createdAt?: Date; // Date de création de la demande
 }
+

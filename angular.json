@@ -35,11 +35,21 @@
             ],
             "styles": [
               "./node_modules/bootstrap/scss/bootstrap.scss",
+              "node_modules/@fortawesome/fontawesome-free/css/all.css",
+              "node_modules/ngx-toastr/toastr.css",
+
               "src/assets/scss/style.scss",
               "src/assets/css/materialdesignicons.min.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
 
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+              "src/styles.scss",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+
+              
+  "node_modules/ngx-toastr/toastr.css",
+"node_modules/leaflet/dist/leaflet.css"
               
 
             ],
@@ -48,20 +58,22 @@
                 "node_modules"
               ]
             },
-            "scripts": []
+            "scripts": [
+              "node_modules/leaflet/dist/leaflet.js"
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2MB",
+                  "maximumWarning": "4MB",
                   "maximumError": "5MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kB",
-                  "maximumError": "4kB"
+                  "maximumWarning": "150kB",
+                  "maximumError": "15kB"
                 }
               ],
               "outputHashing": "all"
@@ -126,4 +138,5 @@
   "cli": {
     "analytics": "b5f03ef5-7daf-4a6c-91e3-41cab44d26b8"
   }
+  
 }

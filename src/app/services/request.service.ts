@@ -1,8 +1,10 @@
+// src/app/services/request.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map, Observable, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { Request } from '../models/Request.model';
 import { AuthService } from './auth.service';
-import { Request } from '../models/Request.model'; // Assurez-vous d'importer le modèle Request
 
 @Injectable({
   providedIn: 'root',
@@ -12,82 +14,60 @@ export class RequestService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // Récupérer toutes les demandes de support
+  // Récupérer toutes les demandes
   getAllRequests(): Observable<Request[]> {
-    const token = localStorage.getItem('auth_token'); // Récupère le token
-    if (!token) {
-      console.error('Token not found! User might not be logged in.');
-      return throwError(() => new Error('Unauthorized: Token is missing'));
-    }
-
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`); // Ajouter le token
-
-    return this.http.get<any[]>(`${this.apiUrl}/all`, { headers }).pipe(
-      map((requests) =>
-        requests.map((request) => ({
-          idRequest: request.idRequest, // Mapping idRequest -> id
-          idSender: request.idSender,
-          idReceiver: request.idReceiver,
-          dateRequest: request.dateRequest, // Mapping requestDate -> date
-          object: request.object,
-          content: request.content,
-          isUrgent: request.isUrgent,
-          responses: request.responses, // Liste des réponses
-          forum: request.forum, // Forum lié à la demande
-        }))
-      )
-    );
-  }
-  // Ajouter une nouvelle demande de support
-  addRequest(request: Request): Observable<Request> {
-    const userId = this.authService.getUserId(); // Récupérer l'ID de l'utilisateur connecté
-    if (!userId) {
-      console.error('User ID not found!');
-      return throwError(() => new Error('User ID not found'));
-    }
-
-
-    return this.http.post<Request>(`${this.apiUrl}/add`, request, {
-      headers: this.authService.getAuthHeaders(), // Utiliser les headers d'authentification
+    return this.http.get<Request[]>(`${this.apiUrl}/all`, {
+      headers: this.getAuthHeaders(),
     });
   }
-/*
-  // Supprimer une demande par ID
-  deleteRequest(id: number): Observable<void> {
-    const token = localStorage.getItem('auth_token'); // Récupérer le token
+  addRequest(request: Request): Observable<Request> {
+    // Récupérer l'ID de l'utilisateur connecté
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      throw new Error('User ID not found');
+    }
+
+    // Associer l'ID de l'utilisateur à la demande
+
+    // Envoyer la demande au backend
+    return this.http.post<Request>(`${this.apiUrl}/add`, request, {
+      headers: this.getAuthHeaders(), // Ajouter les headers d'authentification
+    });
+  }
+
+  // Méthode pour générer les headers d'authentification
+ 
+
+
+  // Récupérer une demande par ID
+  getRequestById(id: number): Observable<Request> {
+    return this.http.get<Request>(`${this.apiUrl}/${id}`, {
+      headers: this.getAuthHeaders(),
+    });
+  }
+
+  // Ajouter une réponse à une demande
+  addResponseToRequest(requestId: number, response: Response): Observable<Response> {
+    return this.http.post<Response>(
+      `${this.apiUrl}/${requestId}/responses`,
+      response,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  // Méthode pour générer les headers d'authentification
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('auth_token'); // Récupère le token
     if (!token) {
-      console.error('Token not found! User might not be logged in.');
-      return throwError(() => new Error('Unauthorized: Token is missing'));
+      throw new Error('Unauthorized: Token is missing');
     }
-
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`, { headers });
+    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
 
-  // Mettre à jour une demande
-  updateRequest(idRequest: number, requestData: Request): Observable<Request> {
-    const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return this.http.put<Request>(`${this.apiUrl}/update/${idRequest}`, requestData, { headers });
-  }*/
-
-    getRequestById(id: number): Observable<Request> {
-      const headers = this.authService.getAuthHeaders();
-      return this.http.get<Request>(`${this.apiUrl}/${id}`, { headers });
-    }
-    
-
-addResponseToRequest(requestId: number, responseData : any): Observable<any> {
-  const token = localStorage.getItem('auth_token'); // Récupère le token
-  if (!token) {
-    console.error('Token not found! User might not be logged in.');
-    return throwError(() => new Error('Unauthorized: Token is missing'));
+  getAllRequestsWithResponses(): Observable<Request[]> {
+    return this.http.get<Request[]>(`${this.apiUrl}/requests-with-responses`, {
+      headers: this.getAuthHeaders(),
+    });
   }
-
-  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-  return this.http.post<any>(`${this.apiUrl}/${requestId}/responses`, responseData, { headers });
-}
+  
 }

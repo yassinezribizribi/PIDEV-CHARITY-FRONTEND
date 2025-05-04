@@ -1,140 +1,141 @@
-$primary-color: #004085;
-$success-color: #1e7e34;
-$info-color: #117a8b;
-$background-color: #f4f6f9;
-$dark-gray: #343a40;
-$border-radius: 12px;
-$shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-
-.section {
-  padding: 60px 0;
-  background-color: $background-color;
+/* Modal Backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1040;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  opacity: 0.5;
 }
 
-.card {
-  border-radius: $border-radius;
-  box-shadow: $shadow;
-  border: none;
-  background: white;
+/* Modal Container */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: 0;
 }
 
-.card-body {
-  padding: 40px;
+/* Horizontal Timeline */
+.timeline-horizontal {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+  position: relative;
+  min-height: 100px;
 }
 
-h3, h4 {
-  color: $primary-color;
-  font-weight: 700;
-  text-transform: uppercase;
+.timeline-step-horizontal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  max-width: 150px;
 }
 
-button {
-  border-radius: 10px;
-  font-weight: 700;
-  padding: 12px 24px;
-  transition: all 0.3s ease-in-out;
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.step-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+  background-color: #e9ecef;
+  color: #6c757d;
+  transition: all 0.3s ease;
 }
 
-.btn-success {
-  background-color: $success-color;
-  border: none;
-  &:hover {
-    background-color: darken($success-color, 15%);
-    transform: scale(1.05);
-  }
+.step-indicator.completed .step-icon {
+  background-color: #28a745;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2);
 }
 
-.button-center {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+.step-indicator.current .step-icon {
+  background-color: #007bff;
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2);
 }
 
-.btn-info {
-  background-color: $info-color;
-  border: none;
-  font-size: 14px;
-  padding: 12px 24px;
-  border-radius: 50px;
-  text-transform: uppercase;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.step-label {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #6c757d;
+  padding: 0 5px;
+}
+
+.step-indicator.completed .step-label,
+.step-indicator.current .step-label {
+  color: #343a40;
   font-weight: 600;
-  &:hover {
-    background-color: darken($info-color, 15%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-  }
 }
 
-
-.form-group {
-  margin-bottom: 25px;
-  label {
-    font-weight: 700;
-    color: $dark-gray;
-    display: block;
-    margin-bottom: 8px;
-  }
+.step-connector {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  right: -50%;
+  height: 3px;
+  background-color: #e9ecef;
+  z-index: 1;
 }
 
-input, textarea {
-  border-radius: 8px;
-  border: 2px solid #ccc;
-  padding: 14px;
+.connector-line {
+  height: 100%;
+  width: 0;
+  background-color: #28a745;
+  transition: width 0.5s ease;
+}
+
+.connector-line.completed {
   width: 100%;
-  font-size: 16px;
-  transition: all 0.3s ease-in-out;
-  background: white;
-  &:focus {
-    border-color: $primary-color;
-    outline: none;
-    box-shadow: 0 0 8px rgba(0, 64, 133, 0.3);
+}
+
+/* Current Status Indicator */
+.current-status-indicator {
+  border-left: 4px solid #007bff;
+  background-color: #f8f9fa;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .timeline-horizontal {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 10px;
   }
-}
-
-textarea {
-  min-height: 120px;
-  resize: vertical;
-}
-
-.form-group input[type="checkbox"] {
-  width: auto;
-  margin-right: 8px;
-}
-
-.btn-primary {
-  background-color: $primary-color;
-  border: none;
-  font-size: 16px;
-  padding: 14px 20px;
-  width: 100%;
-  text-transform: uppercase;
-  &:hover {
-    background-color: darken($primary-color, 15%);
+  
+  .timeline-step-horizontal {
+    min-width: 100px;
   }
-}
-
-.forum-thread {
-  padding: 30px;
-  background: white;
-  border-radius: $border-radius;
-  box-shadow: $shadow;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  
+  .step-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
   }
-  h4 {
-    color: $primary-color;
+  
+  .step-label {
+    font-size: 0.75rem;
   }
-}
-
-.thread-content {
-  border-left: 8px solid $primary-color;
-  padding: 20px;
-  background: rgba(0, 64, 133, 0.05);
-  border-radius: 8px;
 }

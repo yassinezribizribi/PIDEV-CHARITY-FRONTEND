@@ -31,9 +31,9 @@ import { NotificationBellComponent } from '../../../components/notification-bell
 
         <!-- Navigation Links -->
         <nav class="hidden md:flex space-x-6 items-center">
-          <a mat-button routerLink="/dashboard">Dashboard</a>
-          <a mat-button routerLink="/users">Manage Users</a>
-          <a mat-button routerLink="/settings">Settings</a>
+          <a mat-button routerLink="/admin/dashboard">Dashboard</a>
+          <a mat-button routerLink="/admin/users">Manage Users</a>
+          <a mat-button routerLink="/admin/settings">Settings</a>
           <app-notification-bell></app-notification-bell>
           <a mat-button (click)="logout()">Logout</a>
         </nav>
@@ -46,9 +46,9 @@ import { NotificationBellComponent } from '../../../components/notification-bell
 
       <!-- Mobile Menu -->
       <div *ngIf="menuOpen" class="mobile-menu">
-        <a mat-button routerLink="/dashboard" (click)="toggleMenu()">Dashboard</a>
-        <a mat-button routerLink="/users" (click)="toggleMenu()">Manage Users</a>
-        <a mat-button routerLink="/settings" (click)="toggleMenu()">Settings</a>
+        <a mat-button routerLink="/admin/dashboard" (click)="toggleMenu()">Dashboard</a>
+        <a mat-button routerLink="/admin/users" (click)="toggleMenu()">Manage Users</a>
+        <a mat-button routerLink="/admin/settings" (click)="toggleMenu()">Settings</a>
         <div class="mobile-notification">
           <app-notification-bell></app-notification-bell>
         </div>

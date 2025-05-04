@@ -365,17 +365,9 @@ metrics: {
         // Update statistics
         this.updateStatistics();
 
-        // Log tier state for debugging
-        console.log('Tier State:', {
-          backendTier,
-          highestAchievedTier: this.highestAchievedTier,
-          effectiveTier,
-          storedHighestTier,
-          partnerCount: this.partners?.length
-        });
+        
       }
     } catch (error) {
-      console.error('Failed to load partnership tier:', error);
       this.toastr.error('Failed to load partnership tier data');
     }
   }
@@ -519,7 +511,6 @@ metrics: {
       // Update statistics
       this.updateStatistics();
     } catch (error) {
-      console.error('Error refreshing data:', error);
       this.toastr.warning('Some data may not be up to date. Please refresh the page.');
     }
   }
@@ -745,7 +736,6 @@ loadImpactReport() {
     return intersection.size / union.size;
   }
 
-  // Add these methods to your AssociationAccountComponent class
 
   getTierClass(): string {
     const tier = this.currentTierDisplay;
@@ -788,7 +778,6 @@ calculateTierProgress(): number {
     });
   }
 
-  // Add these new methods after the existing loadMissions method
   private loadJointMissions() {
     if (!this.association?.idAssociation) return;
 
@@ -1050,7 +1039,6 @@ calculateTierProgress(): number {
 
     this.recentActivities = [...donationActivities, ...missionActivities];
 
-    // Add joint mission activities
     this.jointMissions.forEach(mission => {
       this.recentActivities.push({
         id: mission.id?.toString() || '',
@@ -1061,11 +1049,9 @@ calculateTierProgress(): number {
       });
     });
 
-    // Sort activities by date
     this.recentActivities.sort((a, b) => b.date.getTime() - a.date.getTime());
   }
 
-  // ============== UI ENHANCEMENTS ==============
   sortActivities(order: 'newest' | 'oldest') {
     this.recentActivities.sort((a, b) => 
       order === 'newest' 
@@ -1108,7 +1094,6 @@ calculateTierProgress(): number {
     this.initializeComponent();
   }
 
-  // ============== NAVIGATION METHODS ==============
   onCreateDonation() {
     this.router.navigate(['/association/account/creedoantion']);
   }
@@ -1125,7 +1110,6 @@ calculateTierProgress(): number {
     this.router.navigate(['/events/create']);
   }
 
-  // ============== ACTIVITY METHODS ==============
   getActivityIcon(type: string): string {
     const icons: { [key: string]: string } = {
       'donation': 'uil uil-heart-medical',
@@ -1142,23 +1126,46 @@ calculateTierProgress(): number {
     }
   }
 
-  // ============== ASSOCIATION METHODS ==============
   deleteAssociation() {
     if (this.association && this.association.idAssociation !== undefined) {
       if (confirm('Are you sure you want to delete this association? This action cannot be undone.')) {
+        // Check if user is authenticated first
+        if (!this.authService.isAuthenticated()) {
+          this.toastr.error('Please log in to perform this action');
+          this.router.navigate(['/login']);
+          return;
+        }
+
         this.associationService.deleteAssociation(this.association.idAssociation).subscribe({
-          next: () => {
+          next: (response) => {
+            // Handle both 200 and 204 responses
+            this.toastr.success('Association deleted successfully');
+            // Clear any stored data
+            localStorage.removeItem('highestAchievedTier');
+            localStorage.removeItem('partnershipTier');
+            // Logout and redirect
             this.authService.logout();
             this.router.navigate(['/associations']);
           },
-          error: (err) => {
-            console.error('Error deleting association:', err);
-            this.error = 'Failed to delete association. Please try again.';
+          error: (error) => {
+            console.error('Error deleting association:', error);
+            
+            // Handle specific error cases
+            if (error.status === 401) {
+              this.toastr.error('Your session has expired. Please log in again.');
+              this.authService.logout();
+              this.router.navigate(['/login']);
+            } else if (error.status === 403) {
+              this.toastr.error('You do not have permission to delete this association.');
+            } else {
+              this.toastr.error('Failed to delete association. Please try again.');
+            }
           }
         });
       }
     } else {
       console.error('Association ID is undefined');
+      this.toastr.error('Unable to delete association. Please try again.');
     }
   }
 
@@ -1187,8 +1194,8 @@ calculateTierProgress(): number {
       
         const nextTierInfo = this.getTierInfo(tierInfo.nextTier || '');
         
-        modalRef.componentInstance.title = `Upgrade to ${tierInfo.name} Tier`;
-        modalRef.componentInstance.message = `Unlock new partnership capabilities with ${tierInfo.name} tier!`;
+        modalRef.componentInstance.title = `Upgrade from ${tierInfo.name} Tier`;
+        modalRef.componentInstance.message = `You've unlocked partnership capabilities with ${tierInfo.name} tier!`;
         modalRef.componentInstance.benefits = nextTierInfo.benefits;
       modalRef.componentInstance.showUpgradeButton = true;
       modalRef.componentInstance.upgradeButtonText = 'Upgrade Now';
@@ -1448,15 +1455,12 @@ calculateTierProgress(): number {
     });
   }
 
-  // Add method to check if partnership is disabled
   isPartnershipDisabled(partner: Association): boolean {
     if (!this.partners || !this.partnershipTier) return true;
     
-    // Check if already partnered
     const isAlreadyPartnered = this.partners.some(p => p.idAssociation === partner.idAssociation);
     if (isAlreadyPartnered) return true;
 
-    // Check if at max capacity
     return this.partners.length >= this.maxPartnerships;
   }
 
@@ -1466,10 +1470,8 @@ calculateTierProgress(): number {
     this.clearMessages();
     this.associationService.removePartnership(this.association.idAssociation, partnerId).subscribe({
       next: async (response) => {
-        // Get current partner count after removal
         const remainingPartners = (this.partners?.length || 1) - 1;
         
-        // Determine new tier based on remaining partners
         let newTier = 'BRONZE';
         if (remainingPartners > 5) {
           newTier = 'GOLD';
@@ -1477,7 +1479,6 @@ calculateTierProgress(): number {
           newTier = 'SILVER';
         }
         
-        // If no partners left, reset to BRONZE
         if (remainingPartners === 0) {
           if (this.association) {
             this.association.partnershipTier = 'BRONZE';
@@ -1521,35 +1522,29 @@ calculateTierProgress(): number {
       this.loading = true;
       await this.forceRefreshAllData();
       
-      // Clean up any modal artifacts
       document.body.classList.remove('modal-open');
       const backdrop = document.querySelector('.modal-backdrop');
       if (backdrop) backdrop.remove();
     } catch (error) {
-      console.error('Failed to refresh data after upgrade:', error);
       this.toastr.error('Please refresh the page to see all updates.');
     } finally {
       this.loading = false;
     }
   }
 
-  // Update the template to use nextTierName instead of getNextTierName
   public getNextTierName(): string {
     return this.nextTierName;
   }
 
-  // Add these methods
   openEditModal() {
     if (!this.association) return;
     
-    // Initialize edit data with current values
     this.editAssociationData = {
       associationName: this.association.associationName || '',
       description: this.association.description || '',
       associationAddress: this.association.associationAddress || ''
     };
 
-    // Open modal using Bootstrap
     const modalElement = document.getElementById('editAssociationModal');
     if (modalElement) {
       this.editModal = new bootstrap.Modal(modalElement);
@@ -1566,16 +1561,13 @@ calculateTierProgress(): number {
     const file = event.target.files[0];
     if (file) {
       try {
-        // Convert file to base64
         const base64 = await this.convertToBase64(file);
         
-        // Create the update data with the base64 image
         const updateData: Association = {
           ...this.association,
           associationLogoPath: base64
         };
 
-        // Update the association with the new logo
         const updatedAssociation = await this.associationService.updateAssociation(
           this.association.idAssociation,
           updateData
@@ -1589,7 +1581,6 @@ calculateTierProgress(): number {
           this.toastr.success('Logo updated successfully');
         }
       } catch (error) {
-        console.error('Error updating logo:', error);
         this.toastr.error('Failed to update logo');
       }
     }
@@ -1601,7 +1592,6 @@ calculateTierProgress(): number {
       reader.readAsDataURL(file);
       reader.onload = () => {
         if (typeof reader.result === 'string') {
-          // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
           const base64 = reader.result.split(',')[1];
           resolve(base64);
         } else {
@@ -1633,18 +1623,15 @@ calculateTierProgress(): number {
         status: this.association.status,
         partnershipTier: this.association.partnershipTier || 'BRONZE',
         partnershipScore: this.association.partnershipScore || 0,
-        // Add required fields with empty strings
         associationPhone: this.association.associationPhone || '',
         associationEmail: this.association.associationEmail || '',
-        // Set file paths to null
         associationLogoPath: null,
         registrationDocumentPath: null,
         legalDocumentPath: null
       };
 
-      console.log('Sending update data:', updateData); // Debug log
+      console.log('Sending update data:', updateData); 
 
-      // Send the update request
       const updatedAssociation = await this.associationService.updateAssociation(
         this.association.idAssociation,
         updateData as Association
@@ -1661,7 +1648,7 @@ calculateTierProgress(): number {
           this.editModal.hide();
         }
         this.toastr.success('Association profile updated successfully');
-        this.loadAssociation(); // Refresh the data
+        this.loadAssociation();
       }
     } catch (error: any) {
       console.error('Error updating association:', error);

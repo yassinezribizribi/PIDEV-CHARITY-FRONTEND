@@ -303,10 +303,45 @@ export class AssociationService {
   }
 
   deleteAssociation(id: number): Observable<void> {
+    // Get the token and ensure it's properly formatted
+    const token = this.authService.getToken();
+    if (!token) {
+      return throwError(() => new Error('No authentication token found'));
+    }
+
+    // Create headers with properly formatted token
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`);
+
+    // Log the request details for debugging
+    console.log('Deleting association with ID:', id);
+    console.log('Request URL:', `${this.apiUrl}/${id}`);
+    console.log('Headers:', headers);
+
+    // Delete the association directly
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { 
-      headers: this.authService.getAuthHeaders() 
+      headers,
+      observe: 'response'
     }).pipe(
-      catchError(this.handleError)
+      tap(response => {
+        console.log('Delete response:', response);
+      }),
+      map(response => {
+        // Return void for both 200 and 204 responses
+        return;
+      }),
+      catchError(error => {
+        console.error('Error in deleteAssociation:', error);
+        
+        // Only handle 401 errors with logout
+        if (error.status === 401) {
+          this.authService.logout();
+          return throwError(() => new Error('Authentication failed'));
+        }
+        
+        // For other errors, just pass them through
+        return throwError(() => error);
+      })
     );
   }
 
