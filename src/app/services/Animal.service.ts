@@ -10,6 +10,7 @@ export class Animal {
   medicalHistory!: string;
   isAdopted!: boolean;
   subscriberId?: number;
+  imagePath?: string;
 }
 
 export interface User {
@@ -52,11 +53,11 @@ export class AnimalService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-    return this.http.<Animal[]>(`${this.apiUrl}/getAllAnimals`, { headers });
+    return this.http.get<Animal[]>(`${this.apiUrl}/getAllAnimals`, { headers });
   }
 
   getAnimalById(id: number): Observable<Animal> {
-    return this.http.get<Animal>(`${this.apiUrl}//${id}`);
+    return this.http.get<Animal>(`${this.apiUrl}/getAnimalById/${id}`);
   }
 
   getUserById(id: number): Observable<User> {
@@ -69,13 +70,13 @@ export class AnimalService {
       return throwError(() => new Error('User is not authenticated.'));
     }
   
-    const headers =  HttpHeaders({
+    const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
     return this.http.post<Animal>(`${this.apiUrl}/add`, formData, { headers });
   }
 
-  (id: , animal: Animal): Observable<Animal> {
+  updateAnimal(id: number, animal: Animal): Observable<Animal> {
     return this.http.put<Animal>(`${this.apiUrl}/updateAnimal/${id}`, animal);
   }
 
@@ -93,7 +94,19 @@ export class AnimalService {
   }
 
   getUnadoptedAnimalsCount(): Observable<Notification> {
-    // No token required, as endpoint is public
     return this.http.get<Notification>(`${this.apiUrlNotifications}/unadopted-animals`);
+  }
+
+  // New method for paginated animals
+  getPaginatedAnimals(page: number, size: number): Observable<any> {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      return throwError(() => new Error('User is not authenticated.'));
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<any>(`${this.apiUrl}/paginated?page=${page}&size=${size}`, { headers });
   }
 }

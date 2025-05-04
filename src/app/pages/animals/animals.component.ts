@@ -29,24 +29,26 @@ import { BlogSidebarsComponent } from '@component/blog-sidebars/blog-sidebars.co
   styleUrls: ['./animals.component.scss']
 })
 export class AnimalsComponent implements OnInit {
-  animals: any[] = [];
+  animals: any[] = []; // All non-adopted animals
+  displayedAnimals: any[] = []; // Current page's animals (up to 4)
   errorMessage = '';
   currentPage = 1; // Page courante
-  animalsPerPage = 6; // 6 animaux par page
-  totalPages = 1; // Nombre total de pages
+  animalsPerPage = 4; // 4 animaux par page
+  totalPages = 1; // Total pages of non-adopted animals
 
   constructor(private animalService: AnimalService) {}
 
   ngOnInit(): void {
-    this.getNonAdoptedAnimals();
+    this.fetchNonAdoptedAnimals();
   }
 
-  getNonAdoptedAnimals(): void {
+  fetchNonAdoptedAnimals(): void {
     this.animalService.getNonAdoptedAnimals().subscribe({
-      next: (data) => {
-        this.animals = data;
-        this.totalPages = Math.ceil(this.animals.length / this.animalsPerPage); // Calculer le nombre total de pages
-        console.log('Non-adopted animals fetched:', data);
+      next: (animals: any[]) => {
+        this.animals = animals;
+        this.totalPages = Math.ceil(this.animals.length / this.animalsPerPage);
+        this.updateDisplayedAnimals();
+        console.log('Non-adopted animals fetched:', this.animals);
       },
       error: (error) => {
         console.error('Error fetching non-adopted animals:', error);
@@ -55,11 +57,18 @@ export class AnimalsComponent implements OnInit {
     });
   }
 
+  updateDisplayedAnimals(): void {
+    const startIndex = (this.currentPage - 1) * this.animalsPerPage;
+    const endIndex = startIndex + this.animalsPerPage;
+    this.displayedAnimals = this.animals.slice(startIndex, endIndex);
+  }
+
   deleteAnimal(id: number): void {
     this.animalService.deleteAnimal(id).subscribe({
       next: () => {
         this.animals = this.animals.filter(animal => animal.idAnimal !== id);
-        this.totalPages = Math.ceil(this.animals.length / this.animalsPerPage); // Mettre à jour le nombre de pages
+        this.totalPages = Math.ceil(this.animals.length / this.animalsPerPage);
+        this.updateDisplayedAnimals();
         console.log(`Animal ${id} deleted`);
         this.errorMessage = '';
       },
@@ -70,16 +79,10 @@ export class AnimalsComponent implements OnInit {
     });
   }
 
-  // Obtenir les animaux de la page courante
-  get paginatedAnimals(): any[] {
-    const startIndex = (this.currentPage - 1) * this.animalsPerPage;
-    return this.animals.slice(startIndex, startIndex + this.animalsPerPage);
-  }
-
-  // Changer de page
   changePage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
+      this.updateDisplayedAnimals();
     }
   }
 }

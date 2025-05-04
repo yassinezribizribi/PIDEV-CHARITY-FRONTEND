@@ -57,7 +57,7 @@ export class TrainingDetailsComponent implements OnInit {
     try {
       const decodedToken: any = jwtDecode(token);
       
-      return .idUser;
+      return decodedToken.idUser;
     } catch (error) {
       console.error("Error decoding token:", error);
       return null;
@@ -75,7 +75,7 @@ export class TrainingDetailsComponent implements OnInit {
         },
         error: (error) => {
           this.isLoading = false;
-          console.error('Error fetching training details:', );
+          console.error('Error fetching training details:', error);
           this.errorMessage = 'Erreur lors de la récupération des détails de la formation';
         }
       });
@@ -99,7 +99,7 @@ export class TrainingDetailsComponent implements OnInit {
 
   private showModal(type: 'success' | 'error'): void {
     const modalId = type === 'success' ? 'trainingSubscribeModal' : 'trainingSubscribeErrorModal';
-    const  = document.getElementById(modalId);
+    const modalElement = document.getElementById(modalId);
     if (modalElement) {
       const bootstrapModal = new (window as any).bootstrap.Modal(modalElement);
       bootstrapModal.show();

@@ -38,7 +38,7 @@
       <!-- Animals List -->
       <div class="col-lg-8 col-md-7">
         <div class="row g-6">
-          <div *ngFor="let animal of paginatedAnimals" class="col-lg-6 col-md-6 col-12 mb-4">
+          <div *ngFor="let animal of displayedAnimals" class="col-lg-6 col-md-6 col-12 mb-4">
             <a [routerLink]="['/animal-profile', animal.idAnimal]" class="text-decoration-none">
               <div class="card animal-card text-center">
                 <div class="card-img">
