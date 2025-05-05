@@ -14,6 +14,7 @@ export interface CompilerPluginOptions {
     sourcemap: boolean | 'external';
     tsconfig: string;
     jit?: boolean;
+    includeTestMetadata?: boolean;
     advancedOptimizations?: boolean;
     thirdPartySourcemaps?: boolean;
     fileReplacements?: Record<string, string>;

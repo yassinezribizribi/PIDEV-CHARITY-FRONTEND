@@ -1,0 +1,126 @@
+<app-navbar></app-navbar>
+<app-home-banner></app-home-banner>
+
+<div class="cagnotte-container">
+  <div *ngIf="loading" class="loading">
+    <p>Loading cagnotte details...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="cagnotte && !loading" class="cagnotte-details">
+    <h2>{{ cagnotte.title }}</h2>
+    <p class="description">{{ cagnotte.description }}</p>
+    
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress" [style.width.%]="calculateProgress()"></div>
+      </div>
+      <div class="amounts">
+        <span class="current">€{{ cagnotte.currentAmount }}</span>
+        <span class="goal">Goal: €{{ cagnotte.goalAmount * 100 }}</span>
+      </div>
+    </div>
+
+    <div class="progress-percentage">
+      {{ calculateProgress() | number:'1.0-0' }}% funded
+    </div>
+
+    <div class="donation-form">
+      <h3>Support this Cagnotte</h3>
+
+      <!-- Initial Suggestion (shown when no amount entered) -->
+      <div *ngIf="suggestions && !amountToDonate" class="initial-suggestion">
+        <div class="suggestion-content">
+          <p class="suggestion-message">{{ suggestions.message }}</p>
+          <div *ngIf="suggestions.suggestion" class="suggestion-amount">
+            <p>Suggested amount: €{{ suggestions.suggestion }}</p>
+            <button (click)="useInitialSuggestion()" class="use-suggestion-button">
+              Use This Amount
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <label for="amount" class="donation-label">
+        💰 How much would you like to give?
+      </label>
+      <input
+        id="amount"
+        type="number"
+        [(ngModel)]="amountToDonate"
+        (ngModelChange)="onAmountChange($event)"
+        min="1"
+        class="donation-input"
+      />
+
+      <!-- Dynamic Suggestion (shown when amount is entered) -->
+      <div *ngIf="suggestions && amountToDonate" class="dynamic-suggestion">
+        <div *ngIf="suggestions.message" class="suggestion-message">
+          {{ suggestions.message }}
+        </div>
+        <div *ngIf="suggestions.suggestion" class="suggestion-amount">
+          <p>Consider donating €{{ suggestions.suggestion }}</p>
+          <div *ngIf="suggestions.average || suggestions.todayAverage" class="comparison">
+            <p *ngIf="suggestions.average">📊 Campaign average: €{{ suggestions.average }}</p>
+            <p *ngIf="suggestions.todayAverage">📅 Today's average: €{{ suggestions.todayAverage }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎡 Gamified Spin -->
+      <div class="spin-section" style="margin-top: 2rem;">
+        <h4>🎡 Feeling lucky?</h4>
+        <div *ngIf="!isAuthenticated" class="locked-spin">
+          <button class="spin-button locked" disabled>
+            <i class="uil uil-lock"></i> Spin the Wheel
+          </button>
+          <p class="auth-message">Have an account and try your luck!</p>
+          <button (click)="router.navigate(['/signup'])" class="signup-button">
+            Create Account
+          </button>
+        </div>
+        <button *ngIf="isAuthenticated" (click)="openSpinModal()" class="spin-button">Spin the Wheel</button>
+      </div>
+
+      <div id="card-element" style="margin-top: 1rem;"></div>
+      <button (click)="pay()" [disabled]="amountToDonate < 1" class="pay-button">
+        💳 Pay Now
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 🎡 Modal with Real Wheel -->
+<div class="modal-backdrop" *ngIf="showModal">
+  <div class="modal-content">
+    <h3>🎯 Spin to Get a Suggested Donation</h3>
+    
+    <div class="wheel-container">
+      <div class="wheel" [style.transform]="'rotate(' + spinDegrees + 'deg)'">
+        <div class="wheel-values">
+          <div *ngFor="let option of spinOptions; let i = index" 
+               class="wheel-value"
+               [style.transform]="'rotate(' + (i * 60) + 'deg)'">
+            <div class="value-container">
+              <span>{{ option }}€</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button (click)="spin()" [disabled]="spinning" class="spin-button">Spin Now</button>
+
+    <div *ngIf="selectedAmount !== null && !spinning" class="result">
+      🎉 You got: <strong>€{{ selectedAmount }}</strong>!
+      <button (click)="useSuggestedAmount()" class="use-button">Use This</button>
+    </div>
+
+    <button class="close-btn" (click)="closeModal()">✖</button>
+  </div>
+</div>
+
+<app-footer></app-footer>

@@ -1,30 +1,483 @@
 <app-navbar></app-navbar>
 
-<section class="container mt-5">
-  <h2>Job Opportunities</h2>
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h1 class="display-5 fw-bold mb-3 text-white">Job Opportunities</h1>
+                    <p class="lead text-white-50 mb-0">Find your next career opportunity or post a job listing</p>
+                </div>
+            </div>
+        </div>
 
-  <!-- Loading & Error Handling -->
-  <div *ngIf="loading" class="text-center"><p>Loading job offers...</p></div>
-  <div *ngIf="error" class="text-danger"><p>{{ error }}</p></div>
-
-  <!-- Add Job Offer -->
-  <div class="card p-3 mb-4">
-    <h5>Add a New Job Offer</h5>
-    <input [(ngModel)]="newJobOffer.title" class="form-control mb-2" placeholder="Title">
-    <textarea [(ngModel)]="newJobOffer.description" class="form-control mb-2" placeholder="Description"></textarea>
-    <input [(ngModel)]="newJobOffer.requirements" class="form-control mb-2" placeholder="Requirements">
-    <button class="btn btn-primary" (click)="addJobOffer()" [disabled]="!newJobOffer.title.trim()">Post Job</button>
-  </div>
-
-  <!-- Job Offers List -->
-  <div *ngFor="let job of jobOffers" class="card p-3 mb-4">
-    <h5>{{ job.title }}</h5>
-    <p>{{ job.description }}</p>
-    <p><strong>Requirements:</strong> {{ job.requirements }}</p>
-    <span class="badge" [ngClass]="{'bg-success': job.isActive, 'bg-danger': !job.isActive}">
-      {{ job.isActive ? 'Active' : 'Closed' }}
-    </span>
-  </div>
+        <div class="position-middle-bottom">
+            <nav aria-label="breadcrumb" class="d-block">
+                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+                    <li class="breadcrumb-item"><a [routerLink]="'/'">Solidarity&Refugee</a></li>
+                    <li class="breadcrumb-item"><a [routerLink]="'/forums'">Forums</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Job Opportunities</li>
+                </ul>
+            </nav>
+        </div>
+    </div>
 </section>
+
+<div class="position-relative">
+    <div class="shape overflow-hidden text-white">
+        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+        </svg>
+    </div>
+</div>
+
+<!-- Job Listings Section -->
+<section class="section">
+    <div class="container-fluid px-4">
+        <div class="row g-4">
+            <!-- Main Content Column -->
+            <div class="col-lg-7">
+                <!-- Filters and Search -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0" 
+                                           placeholder="Search jobs..." 
+                                           [(ngModel)]="searchTerm"
+                                           (input)="applyFilters()">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+                                    <option value="all">All Statuses</option>
+                                    <option value="active">Active Only</option>
+                                    <option value="inactive">Closed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <span class="badge bg-primary rounded-pill fs-6">
+                                    {{ filteredOffers.length }} Results
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div *ngIf="loading" class="loading-state">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted fs-5">Loading opportunities...</p>
+                </div>
+
+                <!-- Error State -->
+                <div *ngIf="error" class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span class="fs-5">{{ error }}</span>
+                </div>
+
+                <!-- No Results -->
+                <div *ngIf="!loading && !error && filteredOffers.length === 0" class="empty-state">
+                    <i class="fas fa-briefcase fa-3x mb-3"></i>
+                    <h4 class="mb-2">No job opportunities found</h4>
+                    <p class="fs-5 text-muted">Try adjusting your search filters</p>
+                </div>
+
+                <!-- Job Cards -->
+                <div class="row g-4">
+                    <div *ngFor="let job of filteredOffers" class="col-12">
+                        <div class="card job-card">
+                    <div class="card-body p-4">
+                                <div class="d-flex align-items-start gap-4">
+                            <!-- Poster Avatar -->
+                                    <div class="avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                         [style.backgroundColor]="getAvatarColor(job)"
+                                         style="width: 60px; height: 60px; font-size: 1.5rem;">
+<<<<<<< HEAD
+                                {{ getInitials(getCreatorName(job)) }}
+=======
+                                <img [src]="getUserProfileImage(job.createdBy?.idUser)" 
+                                     [class.loading]="isUserImageLoading(job.createdBy?.idUser)"
+                                     (error)="handleImageError(job.createdBy?.idUser)"
+                                     class="avatar-img"
+                                     alt="User avatar">
+>>>>>>> f9b0bacb64f099e2b8b25a89c28f0ae0b544b528
+                            </div>
+                            
+                            <div class="flex-grow-1">
+                                <!-- Job Title and Status -->
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h3 class="job-title mb-0 fs-4">{{ job.title }}</h3>
+                                            <span class="badge fs-6" 
+                                          [ngClass]="{'bg-success': job.active, 'bg-secondary': !job.active}">
+                                        {{ job.active ? 'Open' : 'Closed' }}
+                                    </span>
+                                </div>
+                                
+                                <!-- Posted By -->
+                                        <p class="text-muted mb-3 fs-5">
+                                    <i class="fas fa-user-circle me-1"></i>
+                                    Posted by {{ getCreatorName(job) }}
+                                </p>
+                                
+                                <!-- Job Description -->
+                                        <p class="job-description mb-4 fs-5">{{ job.description }}</p>
+                                
+                                <!-- Requirements -->
+                                        <div class="mb-4">
+                                            <h5 class="text-secondary mb-3 fs-5">
+                                        <i class="fas fa-tasks me-1"></i> Requirements:
+                                            </h5>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span *ngFor="let req of job.requirements.split(',')" 
+                                                      class="requirements-badge fs-6">
+                                            {{ req.trim() }}
+                                        </span>
+                                            </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                                <!-- Buttons -->
+                                <div class="d-flex flex-wrap gap-3 mt-4">
+                                    <!-- Status Toggle Button -->
+                                <button *ngIf="isOwnJob(job)" 
+                                        (click)="toggleJobStatus(job)"
+                                            class="btn fs-6"
+                                        [ngClass]="{'btn-success': job.active, 'btn-warning': !job.active}">
+                                    {{ job.active ? 'Close Position' : 'Reopen Position' }}
+                                </button>
+                                
+                                    <!-- View Application Button -->
+                                <button *ngIf="hasApplied(job.idJobOffer!)" 
+                                        (click)="openApplicationStatus(job.idJobOffer!)"
+                                            class="btn btn-outline-primary fs-6">
+                                    <i class="fas fa-tasks me-1"></i> View Application
+                                </button>
+                                
+                                    <!-- Apply Button -->
+                                <button *ngIf="!isOwnJob(job) && !hasApplied(job.idJobOffer!) && job.idJobOffer" 
+                                        (click)="applyForJob(job.idJobOffer!)"
+                                            class="btn btn-primary fs-6"
+                                        [disabled]="!job.active"
+                                        [matTooltip]="getTooltipText(job)">
+                                    {{ getButtonText(job) }}
+                                </button>
+
+                                    <!-- Report Button -->
+                                <button *ngIf="!isOwnJob(job)"
+                                        (click)="openReportModal(job)"
+                                            class="btn btn-outline-danger fs-6">
+                                    <i class="fas fa-flag me-1"></i> Report
+                                    <span *ngIf="getReportCount(job.idJobOffer!) > 0" 
+                                          class="badge bg-danger ms-1">
+                                        {{ getReportCount(job.idJobOffer!) }}
+                                    </span>
+                                </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Suggestions Section -->
+                <div class="suggested-jobs" *ngIf="showSuggestions">
+                    <div class="section-header mb-4">
+                        <h3 class="text-primary">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Recommended Jobs for You
+                        </h3>
+                        <p class="text-muted">Jobs that match your skills and interests</p>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <div class="col-12" *ngFor="let job of suggestedJobs">
+                            <div class="card job-card suggested-job">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-start gap-4">
+                                        <!-- Job Status Badge -->
+                                        <div class="job-status-badge">
+                                            <span class="badge" [ngClass]="{'bg-success': job.active, 'bg-secondary': !job.active}">
+                                                {{ job.active ? 'Open' : 'Closed' }}
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="flex-grow-1">
+                                            <!-- Job Title -->
+                                            <h4 class="job-title mb-3">{{ job.title }}</h4>
+                                            
+                                            <!-- Job Description -->
+                                            <p class="job-description mb-4">{{ job.description }}</p>
+                                            
+                                            <!-- Requirements -->
+                                            <div class="requirements-section mb-4">
+                                                <h5 class="text-secondary mb-3">
+                                                    <i class="fas fa-tasks me-2"></i>
+                                                    Requirements
+                                                </h5>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <span *ngFor="let req of job.requirements.split(',')" 
+                                                          class="requirements-badge">
+                                                        {{ req.trim() }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Suggestion Report -->
+                                            <div class="suggestion-report">
+                                                <h5 class="text-primary mb-3">
+                                                    <i class="fas fa-star me-2"></i>
+                                                    Why This Job Matches You
+                                                </h5>
+                                                <p>{{ getSuggestionReport(job) }}</p>
+                                            </div>
+                                            
+                                            <!-- Action Button -->
+                                            <div class="mt-4">
+                                                <button class="btn btn-primary" 
+                                                        [disabled]="!job.active || hasApplied(job.idJobOffer!)"
+                                                        (click)="applyForJob(job.idJobOffer!)"
+                                                        [matTooltip]="getTooltipText(job)">
+                                                    {{ getButtonText(job) }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Show Suggestions Button -->
+                <div class="text-center mt-4">
+                    <button class="btn btn-outline-primary fs-6" 
+                            (click)="showJobSuggestions()"
+                            [disabled]="applications.length === 0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Show Job Suggestions
+                    </button>
+                    <p *ngIf="applications.length === 0" class="text-muted mt-2 fs-5">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Apply to some jobs first to get personalized suggestions
+                    </p>
+                </div>
+            </div>
+
+            <!-- New Job Form Column -->
+            <div class="col-lg-5">
+                <div class="sticky-top" style="top: 100px;">
+                    <!-- Job Posting Form -->
+                    <div *ngIf="!currentUser?.isBanned" class="card job-form mb-4">
+                        <div class="card-header">
+                            <h4 class="mb-0 fs-4">Post a New Job</h4>
+                        </div>
+                        <div class="card-body">
+                            <form (ngSubmit)="addJobOffer()" #jobForm="ngForm">
+                                <div class="mb-3">
+                                    <label class="form-label fs-5">Job Title</label>
+                                    <input type="text" 
+                                           class="form-control fs-5" 
+                                           [(ngModel)]="newJobOffer.title" 
+                                           name="title"
+                                           required
+                                           (input)="validateTitle(newJobOffer.title)"
+                                           [class.is-invalid]="titleError">
+                                    <div *ngIf="titleError" class="text-danger small mt-1 fs-6">
+                                        {{ titleError }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fs-5">Description</label>
+                                    <textarea class="form-control fs-5" 
+                                              rows="4"
+                                              [(ngModel)]="newJobOffer.description" 
+                                              name="description"
+                                              required
+                                              (input)="validateDescription(newJobOffer.description)"
+                                              [class.is-invalid]="descriptionError"></textarea>
+                                    <div *ngIf="descriptionError" class="text-danger small mt-1 fs-6">
+                                        {{ descriptionError }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fs-5">Requirements (comma separated)</label>
+                                    <textarea class="form-control fs-5" 
+                                              rows="4"
+                                              [(ngModel)]="newJobOffer.requirements" 
+                                              name="requirements"
+                                              placeholder="e.g., English fluency, 2 years experience, valid work permit"
+                                              required
+                                              (input)="validateRequirements(newJobOffer.requirements)"
+                                              [class.is-invalid]="requirementsError"></textarea>
+                                    <div *ngIf="requirementsError" class="text-danger small mt-1 fs-6">
+                                        {{ requirementsError }}
+                                    </div>
+                                </div>
+
+                                <!-- Inappropriate Words Warning -->
+                                <div *ngIf="inappropriateWordsFound.length > 0" class="alert alert-danger mb-3">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <span class="fs-5">Inappropriate words detected: {{ inappropriateWordsFound.join(', ') }}</span>
+                                </div>
+
+                                <button type="submit" 
+                                        class="btn btn-primary w-100 fs-5"
+                                        [disabled]="!isFormValid()">
+                                    <i class="fas fa-paper-plane me-2"></i> Post Opportunity
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Banned User Message -->
+                    <div *ngIf="currentUser?.isBanned" class="alert alert-danger mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong class="fs-5">Account Banned</strong>
+                        <p class="mb-0 fs-5">Your account has been banned. You cannot post new job offers or apply for jobs.</p>
+                    </div>
+                    
+                    <!-- Help Card -->
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h4 class="mb-0 fs-4"><i class="fas fa-question-circle me-2"></i>Tips for Posting</h4>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled text-muted">
+                                <li class="mb-2 fs-5"><i class="fas fa-check-circle text-success me-2"></i> Be specific about requirements</li>
+                                <li class="mb-2 fs-5"><i class="fas fa-check-circle text-success me-2"></i> Include location if relevant</li>
+                                <li class="mb-2 fs-5"><i class="fas fa-check-circle text-success me-2"></i> Mention if remote work is possible</li>
+                                <li class="fs-5"><i class="fas fa-check-circle text-success me-2"></i> Specify any language requirements</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+ <!-- Application Status Modal -->
+<div *ngIf="showStatusModal" class="modal-backdrop fade show" (click)="closeStatusModal()"></div>
+<div *ngIf="showStatusModal" class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title">
+          <i class="fas fa-tasks me-2"></i>
+          Application Journey
+        </h5>
+        <button type="button" class="btn-close" (click)="closeStatusModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Horizontal Timeline -->
+        <div class="timeline-horizontal">
+          <div *ngFor="let step of getVisibleStatuses(); let last = last" class="timeline-step-horizontal">
+            <div class="step-indicator" 
+                 [class.completed]="isStatusReached(step.status)"
+                 [class.current]="step.status === selectedApplication?.jobApplicationStatus">
+              <div class="step-icon">
+                <i class="fas {{step.icon}}"></i>
+              </div>
+              <div class="step-label">{{step.label}}</div>
+              <div class="step-date" *ngIf="getStatusDate(step.status) as date">
+                {{date | date:'shortDate'}}
+              </div>
+            </div>
+            <div class="step-connector" *ngIf="!last">
+              <div class="connector-line" 
+                   [class.completed]="isStatusReached(getNextStatus(step.status))">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Status Indicator -->
+        <div class="current-status-indicator mt-4 p-3 bg-light rounded text-center">
+          <h6 class="mb-2">
+            <i class="fas fa-info-circle me-2"></i>
+            Current Status: 
+            <span class="badge" [ngClass]="'bg-' + getStatusColor()">
+              {{ (selectedApplication?.jobApplicationStatus | titlecase) || 'Unknown' }}
+            </span>
+          </h6>
+          <small class="text-muted" *ngIf="getStatusDate(selectedApplication?.jobApplicationStatus)">
+            Last updated: {{ getStatusDate(selectedApplication?.jobApplicationStatus) | date:'mediumDate' }}
+          </small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" 
+                class="btn btn-danger me-2" 
+                *ngIf="selectedApplication?.jobApplicationStatus !== 'REJECTED' && selectedApplication?.jobApplicationStatus !== 'ACCEPTED'"
+                (click)="withdrawApplication(selectedApplication?.idApplication!)">
+          <i class="fas fa-times-circle me-1"></i>
+          Withdraw Application
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="closeStatusModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div *ngIf="showReportModal" class="modal-backdrop fade show" (click)="closeReportModal()"></div>
+<div *ngIf="showReportModal" class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title">
+                    <i class="fas fa-flag me-2"></i>
+                    Report Job Offer
+                </h5>
+                <button type="button" class="btn-close" (click)="closeReportModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div *ngIf="reportSuccess" class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Report submitted successfully
+                </div>
+                
+                <div *ngIf="reportError" class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    {{ reportError }}
+                </div>
+
+                <div *ngIf="!reportSuccess" class="text-center">
+                    <p class="mb-4">
+                        Are you sure you want to report this job offer? 
+                        <br>
+                        <small class="text-muted">
+                            This job offer has been reported {{ getReportCount(selectedJobForReport?.idJobOffer!) }} times.
+                        </small>
+                    </p>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" 
+                                class="btn btn-secondary" 
+                                (click)="closeReportModal()">
+                            Cancel
+                        </button>
+                        <button type="button" 
+                                class="btn btn-danger"
+                                (click)="submitReport()">
+                            Submit Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <app-footer></app-footer>

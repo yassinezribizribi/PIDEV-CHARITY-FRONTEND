@@ -74,7 +74,7 @@ export declare class ExecutionResult {
      * @param implicitServer External dependencies for the server bundles due to the external packages option.
      * @param explicit External dependencies due to explicit project configuration.
      */
-    setExternalMetadata(implicitBrowser: string[], implicitServer: string[], explicit: string[] | undefined): void;
+    setExternalMetadata(implicitBrowser: string[], implicitServer: string[], explicit: string[]): void;
     get output(): {
         success: boolean;
     };

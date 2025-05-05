@@ -1,81 +1,378 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError, forkJoin, of, mergeMap } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
+import { Notification, NotificationType } from '../interfaces/notification.interface';
+import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
+import { Subject } from 'rxjs';
+import { Router } from '@angular/router';
 
-export interface Notification {
+// Interface for raw message data from API
+interface RawMessageData {
   id: number;
-  message: string;
-  createdAt: Date;
-  terminalDisease?: string;
-  treatmentPlan?: string;
-  bookingDate?: string;
-  meetingUrl?: string;
-  status?: 'PENDING' | 'PROPOSED' | 'CONFIRMED' | 'RESCHEDULED';
-  proposedBookingDate?: string;
+  senderId: number;
+  receiverId: number;
+  content: string;
+  timestamp: string;
+  senderAvatar?: string;
+  title: string;
+  read: boolean;
+  senderName?: string;
+  sender?: {
+    idUser: number;
+    username: string;
+    firstName?: string;
+    lastName?: string;
+    profileImage?: string;
+  };
+  conversationId?: number;
+}
+
+export interface MessageNotification extends Omit<Notification, 'type'> {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  content: string;
+  senderAvatar?: string;
+  senderName?: string;
+  type: NotificationType.MESSAGE;
+  conversationId?: number;
+  sender?: {
+    idUser: number;
+    username: string;
+    firstName?: string;
+    lastName?: string;
+    profileImage?: string;
+  };
+}
+
+interface SenderInfo {
+  id: number;
+  firstName: string;
+  lastName: string;
+}
+
+interface MessageSender {
+  idUser: number;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  profileImage?: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
-  private baseUrl = 'http://localhost:8089/api/notifications';
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
+  private apiUrl = `${environment.apiUrl}/notifications`;
+  private notifications = new BehaviorSubject<Notification[]>([]);
+  private unreadCount = new BehaviorSubject<number>(0);
+  private messages = new BehaviorSubject<MessageNotification[]>([]);
+  private notificationSubject = new Subject<Notification>();
+  notificationStream$ = this.notificationSubject.asObservable();
+  private previousUrl: string = '';
 
-  isHoliday(date: string | Date): boolean {
-    const frenchHolidays = [
-      '2025-01-01',
-      '2025-04-21',
-      '2025-05-01',
-      '2025-05-08',
-      '2025-05-29',
-      '2025-06-09',
-      '2025-07-14',
-      '2025-08-15',
-      '2025-11-01',
-      '2025-11-11',
-      '2025-12-25'
-    ];
-    const formatted = new Date(date).toISOString().split('T')[0];
-    return frenchHolidays.includes(formatted);
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.loadNotifications();
+    this.setupWebSocket();
   }
-  proposeDate(healthcareId: number, date: Date): Observable<any> {
-    return this.http.patch(
-      `http://localhost:8089/api/healthcare/${healthcareId}/propose`,
-      { proposedBookingDate: date },
-      { headers: this.authService.getAuthHeaders() }
-    );
+
+  private getHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
   }
-  
-  confirmDate(healthcareId: number): Observable<any> {
-    return this.http.patch(
-      `http://localhost:8089/api/healthcare/${healthcareId}/confirm`,
-      {},
-      { headers: this.authService.getAuthHeaders() }
-    );
+
+  private handleError(error: HttpErrorResponse) {
+    if (error.status === 401) {
+      // Token expired or invalid, try to refresh
+      this.handleTokenExpiration();
+    }
+    return throwError(() => error);
   }
-  
+
+  private handleTokenExpiration() {
+    const currentToken = this.authService.getToken();
+    if (!currentToken) {
+      this.authService.logout();
+      return;
+    }
+
+    this.http.post<{token: string}>(`${environment.apiUrl}/auth/refresh`, { token: currentToken })
+      .pipe(
+        tap((response: {token: string}) => {
+          this.authService.setToken(response.token);
+          this.loadNotifications();
+        }),
+        catchError((error: Error) => {
+          this.authService.logout();
+          return throwError(() => error);
+        })
+      ).subscribe();
+  }
+
+  loadNotifications(): void {
+    const headers = this.getHeaders();
+    console.log('Current token:', this.authService.getToken());
+    console.log('User roles:', this.authService.getUserRoles());
+    
+    this.http.get<Notification[]>(`${this.apiUrl}`, { headers }).pipe(
+      tap((notifications: Notification[]) => {
+        this.notifications.next(notifications);
+        this.updateUnreadCount(notifications);
+      }),
+      catchError(this.handleError.bind(this))
+    ).subscribe();
+  }
 
   getNotifications(): Observable<Notification[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/healthcare`, {
-      headers: this.authService.getAuthHeaders()
-    }).pipe(
-      map(data => data.map(n => ({
-        id: n.idNotification,
-        message: n.message,
-        createdAt: new Date(n.createdAt),
-        terminalDisease: n.terminalDisease,
-        treatmentPlan: n.treatmentPlan,
-        bookingDate: n.bookingDate,
-        meetingUrl: n.meetingUrl,
-        status: n.status,
-        proposedBookingDate: n.proposedBookingDate
-      }))),
-      catchError(error => {
-        console.error("❌ Erreur récupération notifications :", error);
-        return throwError(() => new Error("Impossible de charger les notifications."));
+    return this.notifications.pipe(
+      map((notifications: Notification[]) => notifications.map((notification: Notification) => ({
+        ...notification,
+        sender: notification.sender || { username: 'System', idUser: 0 },
+        timestamp: new Date(notification.timestamp)
+      })))
+    );
+  }
+
+  getUnreadCount(): Observable<number> {
+    return this.unreadCount.asObservable();
+  }
+
+  markAsRead(notificationId: number): Observable<void> {
+    const headers = this.getHeaders();
+    return this.http.post<void>(`${this.apiUrl}/${notificationId}/read`, {}, { headers }).pipe(
+      tap(() => {
+        const currentNotifications = this.notifications.value;
+        const updatedNotifications = currentNotifications.map((notification: Notification) => 
+          notification.idNotification === notificationId 
+            ? { ...notification, read: true }
+            : notification
+        );
+        this.notifications.next(updatedNotifications);
+        this.updateUnreadCount(updatedNotifications);
+      }),
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  markAllAsRead(): Observable<unknown> {
+    const headers = this.getHeaders();
+    const currentNotifications = this.notifications.value;
+    
+    if (currentNotifications.length === 0) {
+      return of(undefined);
+    }
+    
+    // Create an array of observables for marking each notification as read
+    const markReadObservables = currentNotifications
+      .filter((notification: Notification) => !notification.read)
+      .map((notification: Notification) => 
+        this.http.post<void>(
+          `${this.apiUrl}/${notification.idNotification}/read`,
+          {},
+          { headers }
+        )
+      );
+    
+    // Use forkJoin to execute all requests in parallel
+    return forkJoin(markReadObservables).pipe(
+      map(() => undefined),
+      tap(() => {
+        // Update all notifications as read in the local state
+        const updatedNotifications = currentNotifications.map((notification: Notification) => ({
+          ...notification,
+          read: true
+        }));
+        this.notifications.next(updatedNotifications);
+        this.unreadCount.next(0);
+      }),
+      catchError((error: Error) => {
+        console.error('Error marking notifications as read:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  deleteNotification(notificationId: number): Observable<void> {
+    const headers = this.getHeaders();
+    return this.http.delete<void>(`${this.apiUrl}/${notificationId}`, { headers }).pipe(
+      tap(() => {
+        const currentNotifications = this.notifications.value;
+        const updatedNotifications = currentNotifications.filter(
+          (notification: Notification) => notification.idNotification !== notificationId
+        );
+        this.notifications.next(updatedNotifications);
+        this.updateUnreadCount(updatedNotifications);
+      }),
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  private updateUnreadCount(notifications: Notification[]): void {
+    const unreadCount = notifications.filter((notification: Notification) => !notification.read).length;
+    this.unreadCount.next(unreadCount);
+  }
+
+  // Method to handle incoming real-time notifications
+  addNotification(notification: Notification): void {
+    const currentNotifications = this.notifications.value;
+    this.notifications.next([notification, ...currentNotifications]);
+    this.updateUnreadCount([notification, ...currentNotifications]);
+  }
+
+  // Method to get notifications by type
+  getNotificationsByType(type: string): Observable<Notification[]> {
+    return this.notifications.pipe(
+      map((notifications: Notification[]) => notifications.filter((notification: Notification) => notification.type === type))
+    );
+  }
+
+  // Healthcare notification methods
+  sendHealthcareNotification(patientId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/healthcare/${patientId}`, {}).pipe(
+      tap(() => {
+        // Update local notifications after sending
+        this.loadNotifications();
+      })
+    );
+  }
+
+  // Video call notification methods
+  sendVideoNotification(patientId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/video-call/${patientId}`, {}).pipe(
+      tap(() => {
+        // Update local notifications after sending
+        this.loadNotifications();
+      })
+    );
+  }
+
+  // Message notification methods
+  getUnreadMessages(): Observable<MessageNotification[]> {
+    const headers = this.getHeaders();
+    const userId = this.authService.getUserId();
+    
+    return this.http.get<RawMessageData[]>(`${this.apiUrl}/unread/${userId}`, { headers }).pipe(
+      map((messages: RawMessageData[]) => messages.map((message: RawMessageData) => {
+        // Create base notification object
+        const baseNotification: MessageNotification = {
+          id: message.id,
+          idNotification: message.id,
+          title: message.title || '',
+          message: message.content,
+          content: message.content,
+          timestamp: new Date(message.timestamp),
+          read: message.read,
+          senderId: message.senderId,
+          receiverId: message.receiverId,
+          type: NotificationType.MESSAGE,
+          conversationId: message.conversationId
+        };
+
+        // If we have a senderId, get the complete user information
+        if (message.senderId) {
+          return this.authService.getUserById(message.senderId).pipe(
+            map((user: any) => ({
+              ...baseNotification,
+              senderAvatar: message.senderAvatar || 'assets/images/default-logo.jpg',
+              senderName: `${user.firstName} ${user.lastName}`.trim() || user.email.split('@')[0],
+              sender: {
+                idUser: user.idUser,
+                username: user.email,
+                firstName: user.firstName || user.email.split('@')[0],
+                lastName: user.lastName || '',
+                profileImage: message.senderAvatar || 'assets/images/default-logo.jpg'
+              }
+            }))
+          );
+        }
+
+        return of(baseNotification);
+      })),
+      // Use forkJoin to wait for all user info requests to complete
+      mergeMap((observables: Observable<MessageNotification>[]) => forkJoin(observables)),
+      tap((messages: MessageNotification[]) => {
+        this.messages.next(messages);
+      }),
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  markMessageAsRead(messageId: number): Observable<void> {
+    const headers = this.getHeaders();
+    return this.http.put<void>(`${this.apiUrl}/${messageId}/read`, {}, { headers }).pipe(
+      tap(() => {
+        const currentMessages = this.messages.value;
+        const updatedMessages = currentMessages.map((message: MessageNotification) =>
+          message.id === messageId ? { ...message, read: true } : message
+        );
+        this.messages.next(updatedMessages);
+      }),
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  getMessages(): Observable<MessageNotification[]> {
+    return this.messages.asObservable();
+  }
+
+  private setupWebSocket() {
+    // Implement WebSocket connection for real-time notifications
+    // This is a placeholder for the actual WebSocket implementation
+    // When a new notification arrives via WebSocket, emit it through the subject:
+    // this.notificationSubject.next(newNotification);
+  }
+
+  // Method to manually emit a new notification (useful for testing or manual updates)
+  emitNotification(notification: Notification) {
+    this.notificationSubject.next(notification);
+  }
+
+  setPreviousUrl(url: string) {
+    this.previousUrl = url;
+  }
+
+  getPreviousUrl(): string {
+    return this.previousUrl || '/profile'; // Default to profile if no previous URL
+  }
+
+  // Add method to handle back navigation
+  navigateBack(router: Router) {
+    const previousUrl = this.getPreviousUrl();
+    router.navigate([previousUrl]);
+  }
+
+  markAllMessagesAsRead(): Observable<any> {
+    const headers = this.getHeaders();
+    // Get current unread messages
+    const currentMessages = this.messages.value;
+    
+    if (currentMessages.length === 0) {
+      return of(null);
+    }
+    
+    // Create an array of observables for marking each message as read
+    const markReadObservables = currentMessages.map((message: MessageNotification) => 
+      this.http.put(`${this.apiUrl}/${message.id}/read`, {}, { headers })
+    );
+    
+    // Use forkJoin to execute all requests in parallel
+    return forkJoin(markReadObservables).pipe(
+      tap(() => {
+        // Clear the messages array after all messages are marked as read
+        this.messages.next([]);
+      }),
+      catchError((error: Error) => {
+        console.error('Error marking messages as read:', error);
+        return throwError(() => error);
       })
     );
   }

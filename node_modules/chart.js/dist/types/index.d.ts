@@ -429,6 +429,15 @@ export declare const RadarController: ChartComponent & {
   prototype: RadarController;
   new (chart: Chart, datasetIndex: number): RadarController;
 };
+
+interface ChartMetaClip {
+  left: number | boolean;
+  top: number | boolean;
+  right: number | boolean;
+  bottom: number | boolean;
+  disabled: boolean;
+}
+
 interface ChartMetaCommon<TElement extends Element = Element, TDatasetElement extends Element = Element> {
   type: string;
   controller: DatasetController;
@@ -462,6 +471,7 @@ interface ChartMetaCommon<TElement extends Element = Element, TDatasetElement ex
   _sorted: boolean;
   _stacked: boolean | 'single';
   _parsed: unknown[];
+  _clip: ChartMetaClip;
 }
 
 export type ChartMeta<
@@ -3643,7 +3653,7 @@ export interface CartesianParsedData extends Point {
   }
 }
 
-interface BarParsedData extends CartesianParsedData {
+export interface BarParsedData extends CartesianParsedData {
   // Only specified if floating bars are show
   _custom?: {
     barStart: number;
@@ -3655,12 +3665,12 @@ interface BarParsedData extends CartesianParsedData {
   }
 }
 
-interface BubbleParsedData extends CartesianParsedData {
+export interface BubbleParsedData extends CartesianParsedData {
   // The bubble radius value
   _custom: number;
 }
 
-interface RadialParsedData {
+export interface RadialParsedData {
   r: number;
 }
 

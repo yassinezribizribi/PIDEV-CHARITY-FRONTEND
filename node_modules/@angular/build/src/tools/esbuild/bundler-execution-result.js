@@ -86,7 +86,7 @@ class ExecutionResult {
      * @param explicit External dependencies due to explicit project configuration.
      */
     setExternalMetadata(implicitBrowser, implicitServer, explicit) {
-        this.externalMetadata = { implicitBrowser, implicitServer, explicit: explicit ?? [] };
+        this.externalMetadata = { implicitBrowser, implicitServer, explicit };
     }
     get output() {
         return {

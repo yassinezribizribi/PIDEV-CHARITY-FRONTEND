@@ -1,0 +1,232 @@
+<app-admin-navbar></app-admin-navbar>
+
+<!-- Hero Start -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Create a Donation</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 rounded shadow">
+                    <div class="card-body">
+                        <form #donationForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
+                            <div class="row">
+                                <div class="col-12 mb-4">
+                                    <label class="form-label fw-bold">Donation Title <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control"
+                                           [class.is-invalid]="validationErrorService.isInvalid(titre)"
+                                           [(ngModel)]="donation.titre" 
+                                           name="titre"
+                                           placeholder="Enter donation title"
+                                           required 
+                                           minlength="3"
+                                           maxlength="100"
+                                           #titre="ngModel">
+                                    <div *ngIf="validationErrorService.isInvalid(titre)" class="invalid-feedback">
+                                        <small>{{ validationErrorService.getErrorMessage(titre) }}</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mb-4">
+                                    <label class="form-label fw-bold">Description <span class="text-danger">*</span></label>
+                                    <textarea class="form-control"
+                                              [class.is-invalid]="validationErrorService.isInvalid(description)"
+                                              [(ngModel)]="donation.description" 
+                                              name="description"
+                                              rows="4"
+                                              placeholder="Describe the donation in detail"
+                                              required 
+                                              minlength="10"
+                                              maxlength="1000"
+                                              #description="ngModel"></textarea>
+                                    <div *ngIf="validationErrorService.isInvalid(description)" class="invalid-feedback">
+                                        <small>{{ validationErrorService.getErrorMessage(description) }}</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold">Donation Type <span class="text-danger">*</span></label>
+                                    <select class="form-select"
+                                            [class.is-invalid]="validationErrorService.isInvalid(donationType)"
+                                            [(ngModel)]="donation.donationType" 
+                                            name="donationType"
+                                            required 
+                                            #donationType="ngModel">
+                                        <option value="">-- Select Type --</option>
+                                        <option value="FOOD">Food</option>
+                                        <option value="CLOTHES">Clothes</option>
+                                        <option value="MEDICAMENTS">MEDICAMENTS</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
+                                    <div *ngIf="validationErrorService.isInvalid(donationType)" class="invalid-feedback">
+                                        <small>{{ validationErrorService.getErrorMessage(donationType) }}</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold">Requested Quantity <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <button type="button" 
+                                                class="btn btn-outline-primary"
+                                                (click)="decrementQuantity()">
+                                            <i class="uil uil-minus"></i>
+                                        </button>
+                                        <input type="number" 
+                                               class="form-control text-center"
+                                               [class.is-invalid]="validationErrorService.isInvalid(quantiteDemandee)"
+                                               [(ngModel)]="donation.quantiteDemandee" 
+                                               name="quantiteDemandee"
+                                               min="1"
+                                               required
+                                               #quantiteDemandee="ngModel">
+                                        <button type="button" 
+                                                class="btn btn-outline-primary"
+                                                (click)="incrementQuantity()">
+                                            <i class="uil uil-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div *ngIf="validationErrorService.isInvalid(quantiteDemandee)" class="invalid-feedback">
+                                        <small>{{ validationErrorService.getErrorMessage(quantiteDemandee) }}</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold">End Date <span class="text-danger">*</span></label>
+                                    <input type="date" 
+                                           class="form-control"
+                                           [class.is-invalid]="validationErrorService.isInvalid(endDate)"
+                                           [(ngModel)]="donation.endDate" 
+                                           name="endDate"
+                                           required
+                                           #endDate="ngModel">
+                                    <div *ngIf="validationErrorService.isInvalid(endDate)" class="invalid-feedback">
+                                        <small>{{ validationErrorService.getErrorMessage(endDate) }}</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label fw-bold">Priority <span class="text-danger">*</span></label>
+                                    <select class="form-select"
+                                            [class.is-invalid]="validationErrorService.isInvalid(priority)"
+                                            [(ngModel)]="donation.priority" 
+                                            name="priority"
+                                            required
+                                            #priority="ngModel">
+                                        <option value="">-- Select Priority --</option>
+                                        <option *ngFor="let option of priorityOptions" [value]="option.value">
+                                            {{option.label}}
+                                        </option>
+                                    </select>
+                                    <div *ngIf="validationErrorService.isInvalid(priority)" class="invalid-feedback">
+                                        <small>{{ validationErrorService.getErrorMessage(priority) }}</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mb-4">
+                                    <div class="form-check">
+                                        <input type="checkbox" 
+                                               class="form-check-input" 
+                                               [(ngModel)]="enableCagnotte"
+                                               (change)="onEnableCagnotteChange()"
+                                               name="enableCagnotte"
+                                               id="enableCagnotte">
+                                        <label class="form-check-label" for="enableCagnotte">
+                                            Add online fundraising
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Online fundraising fields -->
+                                <div class="col-12 mb-4" *ngIf="enableCagnotte">
+                                    <h5 class="form-label fw-bold">Online Fundraising</h5>
+                                
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Fund Title <span class="text-danger">*</span></label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               [(ngModel)]="cagnotte.title" 
+                                               name="cagnotteTitle" 
+                                               placeholder="Enter fund title"
+                                               required
+                                               minlength="3"
+                                               maxlength="100"
+                                               #cagnotteTitle="ngModel">
+                                        <div *ngIf="validationErrorService.isInvalid(cagnotteTitle)" class="invalid-feedback">
+                                            <small>{{ validationErrorService.getErrorMessage(cagnotteTitle) }}</small>
+                                        </div>
+                                    </div>
+                                
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Fund Description <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" 
+                                                  [(ngModel)]="cagnotte.description" 
+                                                  name="cagnotteDescription" 
+                                                  rows="3"
+                                                  placeholder="Describe the fundraising campaign"
+                                                  required
+                                                  minlength="10"
+                                                  maxlength="500"
+                                                  #cagnotteDescription="ngModel"></textarea>
+                                        <div *ngIf="validationErrorService.isInvalid(cagnotteDescription)" class="invalid-feedback">
+                                            <small>{{ validationErrorService.getErrorMessage(cagnotteDescription) }}</small>
+                                        </div>
+                                    </div>
+                                
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Goal Amount <span class="text-danger">*</span></label>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               [(ngModel)]="cagnotte.goalAmount" 
+                                               name="goalAmount" 
+                                               placeholder="Enter goal amount"
+                                               min="0.01" 
+                                               required
+                                               #goalAmount="ngModel">
+                                        <div *ngIf="validationErrorService.isInvalid(goalAmount)" class="invalid-feedback">
+                                            <small>{{ validationErrorService.getErrorMessage(goalAmount) }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                        <button type="button" 
+                                                class="btn btn-light me-md-2" 
+                                                (click)="onCancel()">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" 
+                                                class="btn btn-primary" 
+                                                [disabled]="!donationForm.form.valid || submitted">
+                                            {{ submitted ? 'Creating...' : 'Create Donation' }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

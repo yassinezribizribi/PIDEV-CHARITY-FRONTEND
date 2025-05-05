@@ -17,6 +17,7 @@ import { CausesComponent } from "../../components/causes/causes.component";
 import { CtaComponent } from "../../components/cta/cta.component";
 import { TeamComponent } from "../../components/team/team.component";
 import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { TopAssociationsSliderComponent } from '../../components/top-associations-slider/top-associations-slider.component';
 @Component({
     selector: 'onepage',
     standalone: true,
@@ -38,7 +39,8 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
         CausesComponent,
         CtaComponent,
         TeamComponent,
-        NavbarComponent
+        NavbarComponent,
+        TopAssociationsSliderComponent
     ],
     templateUrl: './onepage.component.html',
     styleUrl: './onepage.component.scss'

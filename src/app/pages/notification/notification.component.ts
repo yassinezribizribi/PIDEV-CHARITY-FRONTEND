@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { NotificationService, Notification } from '../../services/notification.service';
+import { NotificationService } from '../../services/notificationB.service';
+import { Notification } from '../../services/notificationB.service';
 
 @Component({
   selector: 'app-notifications',
@@ -33,7 +34,7 @@ export class NotificationComponent implements OnInit {
   }
 
   isHoliday(date: string | Date): boolean {
-    return this.notificationService.isHoliday(date);
+    return this.notificationService.isHoliday(new Date(date));
   }
 
   onProposeDate(id: number): void {

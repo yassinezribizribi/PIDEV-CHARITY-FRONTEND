@@ -9,6 +9,7 @@ import { ScrollToTopComponent } from '@component/scroll-to-top/scroll-to-top.com
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-testimonial',
@@ -19,7 +20,7 @@ import { AuthService } from '../../services/auth.service';
     ReactiveFormsModule,
     NavbarComponent,
     FooterComponent,
-    ScrollToTopComponent
+    ScrollToTopComponent,RouterLink
   ],
   templateUrl: './testimonial.component.html',
   styleUrls: ['./testimonial.component.scss']

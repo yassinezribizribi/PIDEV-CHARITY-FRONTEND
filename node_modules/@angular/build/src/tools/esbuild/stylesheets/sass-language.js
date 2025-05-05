@@ -175,7 +175,7 @@ async function compileString(data, filePath, syntax, options, resolveUrl) {
         });
         return {
             loader: 'css',
-            contents: sourceMap ? `${css}\n${sourceMapToUrlComment(sourceMap, (0, node_path_1.dirname)(filePath))}` : css,
+            contents: sourceMap ? `${css}\n${sourceMapToUrlComment(sourceMap)}` : css,
             watchFiles: loadedUrls.map((url) => (0, node_url_1.fileURLToPath)(url)),
             warnings,
         };
@@ -201,10 +201,7 @@ async function compileString(data, filePath, syntax, options, resolveUrl) {
         throw error;
     }
 }
-function sourceMapToUrlComment(sourceMap, root) {
-    // Remove `file` protocol from all sourcemap sources and adjust to be relative to the input file.
-    // This allows esbuild to correctly process the paths.
-    sourceMap.sources = sourceMap.sources.map((source) => (0, node_path_1.relative)(root, (0, node_url_1.fileURLToPath)(source)));
+function sourceMapToUrlComment(sourceMap) {
     const urlSourceMap = Buffer.from(JSON.stringify(sourceMap), 'utf-8').toString('base64');
     return `/*# sourceMappingURL=data:application/json;charset=utf-8;base64,${urlSourceMap} */`;
 }

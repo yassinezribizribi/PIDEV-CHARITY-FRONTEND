@@ -9,7 +9,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createCompilerPluginOptions = createCompilerPluginOptions;
 function createCompilerPluginOptions(options, sourceFileCache, loadResultCache, templateUpdates) {
-    const { sourcemapOptions, tsconfig, fileReplacements, advancedOptimizations, jit, externalRuntimeStyles, instrumentForCoverage, } = options;
+    const { sourcemapOptions, tsconfig, fileReplacements, advancedOptimizations, jit, externalRuntimeStyles, instrumentForCoverage, optimizationOptions, } = options;
     const incremental = !!options.watch;
     return {
         sourcemap: !!sourcemapOptions.scripts && (sourcemapOptions.hidden ? 'external' : true),
@@ -24,5 +24,6 @@ function createCompilerPluginOptions(options, sourceFileCache, loadResultCache, 
         externalRuntimeStyles,
         instrumentForCoverage,
         templateUpdates,
+        includeTestMetadata: !optimizationOptions.scripts,
     };
 }

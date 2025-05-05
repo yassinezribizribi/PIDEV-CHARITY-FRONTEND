@@ -18,7 +18,14 @@ const EXTERNAL_PACKAGE_RESOLUTION = Symbol('EXTERNAL_PACKAGE_RESOLUTION');
  * @returns An esbuild plugin.
  */
 function createExternalPackagesPlugin(options) {
-    const exclusions = options?.exclude?.length ? new Set(options.exclude) : undefined;
+    const exclusions = new Set(options?.exclude);
+    // Similar to esbuild, --external:@foo/bar automatically implies --external:@foo/bar/*,
+    // which matches import paths like @foo/bar/baz.
+    // This means all paths within the @foo/bar package are also marked as external.
+    const exclusionsPrefixes = options?.exclude?.map((exclusion) => exclusion + '/') ?? [];
+    const seenExclusions = new Set();
+    const seenExternals = new Set();
+    const seenNonExclusions = new Set();
     return {
         name: 'angular-external-packages',
         setup(build) {
@@ -29,7 +36,7 @@ function createExternalPackagesPlugin(options) {
                     .filter(([, value]) => value !== 'file')
                     .map(([key]) => key);
             // Safe to use native packages external option if no loader options or exclusions present
-            if (!exclusions && !loaderOptionKeys?.length) {
+            if (!exclusions.size && !loaderOptionKeys?.length) {
                 build.initialOptions.packages = 'external';
                 return;
             }
@@ -39,8 +46,20 @@ function createExternalPackagesPlugin(options) {
                 if (args.pluginData?.[EXTERNAL_PACKAGE_RESOLUTION]) {
                     return null;
                 }
-                if (exclusions?.has(args.path)) {
+                if (seenExternals.has(args.path)) {
+                    return { external: true };
+                }
+                if (exclusions.has(args.path) || seenExclusions.has(args.path)) {
                     return null;
+                }
+                if (!seenNonExclusions.has(args.path)) {
+                    for (const exclusion of exclusionsPrefixes) {
+                        if (args.path.startsWith(exclusion)) {
+                            seenExclusions.add(args.path);
+                            return null;
+                        }
+                    }
+                    seenNonExclusions.add(args.path);
                 }
                 const { importer, kind, resolveDir, namespace, pluginData = {} } = args;
                 pluginData[EXTERNAL_PACKAGE_RESOLUTION] = true;
@@ -51,9 +70,14 @@ function createExternalPackagesPlugin(options) {
                     pluginData,
                     resolveDir,
                 });
-                // Return result if unable to resolve or explicitly marked external (externalDependencies option)
-                if (!result.path || result.external) {
+                // Return result if unable to resolve
+                if (!result.path) {
                     return result;
+                }
+                // Return if explicitly marked external (externalDependencies option)
+                if (result.external) {
+                    seenExternals.add(args.path);
+                    return { external: true };
                 }
                 // Allow customized loaders to run against configured paths regardless of location
                 if (loaderFileExtensions.has((0, node_path_1.extname)(result.path))) {
@@ -61,10 +85,8 @@ function createExternalPackagesPlugin(options) {
                 }
                 // Mark paths from a node modules directory as external
                 if (/[\\/]node_modules[\\/]/.test(result.path)) {
-                    return {
-                        path: args.path,
-                        external: true,
-                    };
+                    seenExternals.add(args.path);
+                    return { external: true };
                 }
                 // Otherwise return original result
                 return result;

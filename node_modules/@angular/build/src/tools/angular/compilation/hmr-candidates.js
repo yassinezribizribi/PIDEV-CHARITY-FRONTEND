@@ -136,7 +136,8 @@ function analyzeFileUpdates(stale, updated, compiler) {
                     return null;
                 }
                 // Compare component meta decorator object literals
-                if (hasUnsupportedMetaUpdates(staleDecoratorExpression, stale, updatedDecoratorExpression, updated)) {
+                const analysis = analyzeMetaUpdates(staleDecoratorExpression, stale, updatedDecoratorExpression, updated);
+                if (analysis === MetaUpdateAnalysis.Unsupported) {
                     return null;
                 }
                 // Compare text of the member nodes to determine if any changes have occurred
@@ -145,7 +146,9 @@ function analyzeFileUpdates(stale, updated, compiler) {
                     return null;
                 }
                 // If all previous class checks passed, this class is supported for HMR updates
-                candidates.push(updatedNode);
+                if (analysis === MetaUpdateAnalysis.Supported) {
+                    candidates.push(updatedNode);
+                }
                 continue;
             }
         }
@@ -161,7 +164,19 @@ function analyzeFileUpdates(stale, updated, compiler) {
 /**
  * The set of Angular component metadata fields that are supported by HMR updates.
  */
-const SUPPORTED_FIELDS = new Set(['template', 'templateUrl', 'styles', 'styleUrl', 'stylesUrl']);
+const SUPPORTED_FIELD_NAMES = new Set([
+    'template',
+    'templateUrl',
+    'styles',
+    'styleUrl',
+    'stylesUrl',
+]);
+var MetaUpdateAnalysis;
+(function (MetaUpdateAnalysis) {
+    MetaUpdateAnalysis[MetaUpdateAnalysis["Supported"] = 0] = "Supported";
+    MetaUpdateAnalysis[MetaUpdateAnalysis["Unsupported"] = 1] = "Unsupported";
+    MetaUpdateAnalysis[MetaUpdateAnalysis["None"] = 2] = "None";
+})(MetaUpdateAnalysis || (MetaUpdateAnalysis = {}));
 /**
  * Analyzes the metadata fields of a decorator call expression for unsupported HMR updates.
  * Only updates to supported fields can be present for HMR to be viable.
@@ -169,22 +184,25 @@ const SUPPORTED_FIELDS = new Set(['template', 'templateUrl', 'styles', 'styleUrl
  * @param staleSource The source file instance containing the stale call instance.
  * @param updatedCall A call expression instance.
  * @param updatedSource The source file instance containing the updated call instance.
- * @returns true, if unsupported metadata updates are present; false, otherwise.
+ * @returns A MetaUpdateAnalysis enum value.
  */
-function hasUnsupportedMetaUpdates(staleCall, staleSource, updatedCall, updatedSource) {
+function analyzeMetaUpdates(staleCall, staleSource, updatedCall, updatedSource) {
     const staleObject = staleCall.arguments[0];
     const updatedObject = updatedCall.arguments[0];
+    let hasSupportedUpdate = false;
     if (!typescript_1.default.isObjectLiteralExpression(staleObject) || !typescript_1.default.isObjectLiteralExpression(updatedObject)) {
-        return true;
+        return MetaUpdateAnalysis.Unsupported;
     }
+    const supportedFields = new Map();
     const unsupportedFields = [];
     for (const property of staleObject.properties) {
         if (!typescript_1.default.isPropertyAssignment(property) || typescript_1.default.isComputedPropertyName(property.name)) {
             // Unsupported object literal property
-            return true;
+            return MetaUpdateAnalysis.Unsupported;
         }
         const name = property.name.text;
-        if (SUPPORTED_FIELDS.has(name)) {
+        if (SUPPORTED_FIELD_NAMES.has(name)) {
+            supportedFields.set(name, property.initializer);
             continue;
         }
         unsupportedFields.push(property.initializer);
@@ -193,18 +211,31 @@ function hasUnsupportedMetaUpdates(staleCall, staleSource, updatedCall, updatedS
     for (const property of updatedObject.properties) {
         if (!typescript_1.default.isPropertyAssignment(property) || typescript_1.default.isComputedPropertyName(property.name)) {
             // Unsupported object literal property
-            return true;
+            return MetaUpdateAnalysis.Unsupported;
         }
         const name = property.name.text;
-        if (SUPPORTED_FIELDS.has(name)) {
+        if (SUPPORTED_FIELD_NAMES.has(name)) {
+            const staleInitializer = supportedFields.get(name);
+            // If the supported field was added or has its content changed, there has been a supported update
+            if (!staleInitializer ||
+                !equalRangeText(property.initializer, updatedSource, staleInitializer, staleSource)) {
+                hasSupportedUpdate = true;
+            }
+            // Remove the field entry to allow tracking removed fields
+            supportedFields.delete(name);
             continue;
         }
         // Compare in order
         if (!equalRangeText(property.initializer, updatedSource, unsupportedFields[i++], staleSource)) {
-            return true;
+            return MetaUpdateAnalysis.Unsupported;
         }
     }
-    return i !== unsupportedFields.length;
+    if (i !== unsupportedFields.length) {
+        return MetaUpdateAnalysis.Unsupported;
+    }
+    // Any remaining supported field indicates a field removal. This is also considered a supported update.
+    hasSupportedUpdate ||= supportedFields.size > 0;
+    return hasSupportedUpdate ? MetaUpdateAnalysis.Supported : MetaUpdateAnalysis.None;
 }
 /**
  * Compares the text from a provided range in a source file to the text of a range in a second source file.

@@ -1,0 +1,400 @@
+// Partnership Analytics Component Styles
+
+// Variables
+$primary-color: #4361ee;
+$success-color: #2ec4b6;
+$warning-color: #ff9f1c;
+$danger-color: #e71d36;
+$info-color: #3a0ca3;
+$light-gray: #f8f9fa;
+$border-color: #e9ecef;
+$text-muted: #6c757d;
+$card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+$transition-speed: 0.3s;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin card-hover {
+  transition: transform $transition-speed, box-shadow $transition-speed;
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+}
+
+@mixin gradient-bg($start-color, $end-color) {
+  background: linear-gradient(135deg, $start-color, $end-color);
+}
+
+// Global Styles
+.container-fluid {
+  padding: 1.5rem;
+}
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+// Card Styles
+.card {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: $card-shadow;
+  transition: all $transition-speed;
+  @include card-hover;
+  
+  .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid $border-color;
+    padding: 1rem 1.25rem;
+  }
+  
+  .card-body {
+    padding: 1.25rem;
+  }
+}
+
+// Metrics Cards
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  @include flex-center;
+  
+  i {
+    font-size: 1.5rem;
+  }
+}
+
+// Charts
+.chart-container {
+  position: relative;
+  margin: 0 auto;
+  height: 400px;
+}
+
+// Network Chart
+#networkChart {
+  width: 100%;
+  height: 100%;
+  
+  .node {
+    cursor: pointer;
+    transition: all $transition-speed;
+    
+    &:hover {
+      filter: brightness(1.2);
+    }
+  }
+  
+  .link {
+    stroke-opacity: 0.6;
+  }
+}
+
+// Historical Chart
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+// Goals Table
+.table {
+  th {
+    font-weight: 600;
+    color: $text-muted;
+    border-top: none;
+  }
+  
+  td {
+    vertical-align: middle;
+  }
+}
+
+.progress {
+  height: 6px;
+  border-radius: 3px;
+  background-color: $light-gray;
+  
+  .progress-bar {
+    transition: width 1s ease-in-out;
+  }
+}
+
+// Feedback List
+.feedback-list {
+  max-height: 400px;
+  overflow-y: auto;
+  
+  .feedback-item {
+    transition: background-color $transition-speed;
+    
+    &:hover {
+      background-color: $light-gray;
+    }
+    
+    .rating {
+      i {
+        font-size: 1.25rem;
+        margin-left: 2px;
+      }
+    }
+  }
+}
+
+// Documents Table
+.documents-table {
+  th {
+    white-space: nowrap;
+  }
+  
+  .document-icon {
+    width: 40px;
+    height: 40px;
+    @include flex-center;
+    border-radius: 0.25rem;
+    background-color: $light-gray;
+    
+    i {
+      font-size: 1.5rem;
+      color: $primary-color;
+    }
+  }
+}
+
+// Buttons
+.btn {
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all $transition-speed;
+  
+  &.btn-primary {
+    @include gradient-bg($primary-color, darken($primary-color, 10%));
+    border: none;
+    
+    &:hover {
+      @include gradient-bg(darken($primary-color, 5%), darken($primary-color, 15%));
+    }
+  }
+  
+  &.btn-outline-primary {
+    border-color: $primary-color;
+    color: $primary-color;
+    
+    &:hover {
+      background-color: $primary-color;
+      color: white;
+    }
+  }
+}
+
+// Badges
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  
+  &.bg-success {
+    @include gradient-bg($success-color, darken($success-color, 10%));
+  }
+  
+  &.bg-warning {
+    @include gradient-bg($warning-color, darken($warning-color, 10%));
+  }
+  
+  &.bg-danger {
+    @include gradient-bg($danger-color, darken($danger-color, 10%));
+  }
+}
+
+// Feedback Cards
+.feedback-card {
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+// Document Icons
+.document-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-right: 1rem;
+  
+  &.pdf { background-color: rgba(231, 74, 59, 0.1); color: #e74a3b; }
+  &.doc { background-color: rgba(54, 185, 204, 0.1); color: #36b9cc; }
+  &.xls { background-color: rgba(28, 200, 138, 0.1); color: #1cc88a; }
+  &.ppt { background-color: rgba(246, 194, 62, 0.1); color: #f6c23e; }
+  &.img { background-color: rgba(78, 115, 223, 0.1); color: #4e73df; }
+}
+
+// Time Range Filter
+.btn-group {
+  .btn {
+    &:focus {
+      box-shadow: none;
+    }
+    
+    &.active {
+      background-color: #4e73df;
+      border-color: #4e73df;
+      color: white;
+    }
+  }
+}
+
+// Responsive Adjustments
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 1rem;
+  }
+  
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .chart-container {
+    height: 300px;
+  }
+  
+  .btn-group {
+    .btn {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+    }
+  }
+  
+  .table-responsive {
+    margin-bottom: 0;
+  }
+}
+
+// Loading Spinner
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.25em;
+}
+
+// Form Controls
+.form-select {
+  border-radius: 0.25rem;
+  border-color: $border-color;
+  padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+  
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+  }
+}
+
+// Utility Classes
+.text-truncate {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+// Custom Scrollbar
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: $light-gray;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $text-muted;
+  border-radius: 3px;
+  
+  &:hover {
+    background: darken($text-muted, 10%);
+  }
+}
+
+// Custom Variables
+$primary-gradient: linear-gradient(45deg, #4e73df 0%, #224abe 100%);
+$success-gradient: linear-gradient(45deg, #1cc88a 0%, #13855c 100%);
+$warning-gradient: linear-gradient(45deg, #f6c23e 0%, #dda20a 100%);
+$info-gradient: linear-gradient(45deg, #36b9cc 0%, #258391 100%);
+$danger-gradient: linear-gradient(45deg, #e74a3b 0%, #be2617 100%);
+
+// Goal Status Colors
+.bg-on-track {
+  background-color: rgba(28, 200, 138, 0.1) !important;
+  color: #1cc88a !important;
+}
+
+.bg-at-risk {
+  background-color: rgba(246, 194, 62, 0.1) !important;
+  color: #f6c23e !important;
+}
+
+.bg-behind {
+  background-color: rgba(231, 74, 59, 0.1) !important;
+  color: #e74a3b !important;
+}
+
+// Feedback Rating Colors
+.text-rating-high {
+  color: #1cc88a !important;
+}
+
+.text-rating-medium {
+  color: #f6c23e !important;
+}
+
+.text-rating-low {
+  color: #e74a3b !important;
+}
+
+// Chart Tooltips
+.chart-tooltip {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 3rem 0;
+  
+  i {
+    font-size: 3rem;
+    color: #eef2f7;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #6c757d;
+    font-size: 1rem;
+  }
+} 

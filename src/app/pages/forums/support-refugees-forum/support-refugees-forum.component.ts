@@ -1,124 +1,288 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+// src/app/components/support-refugees-forum/support-refugees-forum.component.ts
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { RequestService } from '../../../services/request.service';
+import { ResponseService } from '../../../services/response.service';
+import { Request } from '../../../models/Request.model';
+import { ForumResponse } from '../../../models/Response.model';
+import { FooterComponent } from "../../../components/footer/footer.component";
+import { NavbarComponent } from "../../../components/navbar/navbar.component";
 import { FormsModule } from '@angular/forms';
-import { NavbarComponent } from '../../../components/navbar/navbar.component';
-import { FooterComponent } from '../../../components/footer/footer.component';
-import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Modal } from 'bootstrap';
+
 @Component({
-  selector: 'app-support-refugees',
+  selector: 'app-support-refugees-forum',
+  templateUrl: './support-refugees-forum.component.html',
+  styleUrls: ['./support-refugees-forum.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent,RouterLink],
-  template: `
-    <app-navbar />
-     <!-- Hero Start -->
-<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
-    <div class="bg-overlay bg-gradient-overlay"></div>
-    <div class="container">
-        <div class="row mt-5 justify-content-center">
-            <div class="col-12">
-                <div class="title-heading text-center">
-                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Support Refugees Discussion</h5>
-                </div>
-            </div><!--end col-->
-        </div><!--end row-->
-
-        <div class="position-middle-bottom">
-            <nav aria-label="breadcrumb" class="d-block">
-                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                    <li class="breadcrumb-item"><a [routerLink]="'/'">solidarity</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Support Refugees Discussion</li>
-                </ul>
-            </nav>
-        </div>
-    </div><!--end container-->
-</section><!--end section-->
-
-<div class="position-relative">
-    <div class="shape overflow-hidden text-white">
-        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
-        </svg>
-    </div>
-</div>
-<!-- Hero End -->
-
-    
-    
-    <section class="section">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-8">
-            <div class="card shadow rounded border-0">
-              <div class="card-body p-4">
-                <h3 class="mb-4">Support Refugees Discussion</h3>
-                
-                <div class="forum-thread mb-4">
-                  <h4 class="mb-3">{{thread.title}}</h4>
-                  <div class="thread-content p-3 bg-light rounded">
-                    <p class="mb-2"><strong>{{thread.author}}</strong></p>
-                    <p class="mb-0">{{thread.content}}</p>
-                  </div>
-                
-                  <div class="replies mt-4">
-                    <h5 class="mb-3">Replies:</h5>
-                    <div class="reply-list">
-                      <div *ngFor="let reply of thread.replies" class="reply p-3 mb-3 bg-light rounded">
-                        <p class="mb-2"><strong>{{reply.author}}</strong></p>
-                        <p class="mb-0">{{reply.message}}</p>
-                      </div>
-                    </div>
-                  </div>
-                
-                  <div class="reply-form mt-4">
-                    <h5 class="mb-3">Add Reply</h5>
-                    <textarea 
-                      [(ngModel)]="newReply" 
-                      class="form-control mb-3" 
-                      rows="3"
-                      placeholder="Write your reply..."></textarea>
-                    <button 
-                      class="btn btn-primary" 
-                      (click)="addReply()"
-                      [disabled]="!newReply.trim()">
-                      Post Reply
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <app-footer />
-  `,
-  styles: [`
-    .reply {
-      border-left: 3px solid #2f55d4;
-    }
-  `]
+  imports: [FooterComponent, NavbarComponent, FormsModule, CommonModule, RouterModule],
 })
-export class SupportRefugeesComponent {
-  thread = {
-    title: 'How can we help refugee families settle?',
-    author: 'CommunityMember',
-    content: 'Looking for ideas to help newly arrived refugee families integrate into our community.',
-    replies: [
-      { author: 'Volunteer1', message: 'We can organize language classes and cultural orientation sessions.' },
-      { author: 'SupportGroup2', message: 'Our organization assists with job placements and housing.' }
-    ]
+export class SupportRefugeesForumComponent implements OnInit {
+  // Properties for filtering and search
+  searchTerm: string = '';
+  statusFilter: string = 'all';
+  filteredRequests: Request[] = [];
+  
+  // Loading and error states
+  loading: boolean = false;
+  error: string | null = null;
+  
+  // Request lists
+  listRequests: Request[] = [];
+  listResponses: ForumResponse[] = [];
+  
+  // New request form
+  newRequest: Request = {
+    object: '',
+    content: '',
+    isUrgent: false,
+    dateRequest: new Date(),
+    response: false,
+    responses: [] // Initialize empty responses array
   };
+  
+  // New response form
+  newResponse: ForumResponse = {
+    content: '',
+    requestId: 0,
+    idResponse: 0,
+    dateResponse: new Date(),
+    object: '',
+    senderId: 0
+  };
+  
+  showForm: boolean = false;
+  requestId: number | null = null;
 
-  newReply: string = '';
+  private responseModal: Modal | null = null;
 
-  addReply() {
-    if (this.newReply.trim()) {
-      this.thread.replies.push({ 
-        author: 'You', 
-        message: this.newReply.trim() 
+  constructor(
+    private requestService: RequestService,
+    private responseService: ResponseService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.loadRequests();
+    // Initialize the modal
+    const modalElement = document.getElementById('responseModal');
+    if (modalElement) {
+      this.responseModal = new Modal(modalElement);
+      // Add event listener for modal hidden event
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.newResponse = {
+          content: '',
+          requestId: 0,
+          idResponse: 0,
+          dateResponse: new Date(),
+          object: '',
+          senderId: 0
+        };
       });
-      this.newReply = '';
     }
+  }
+
+  // Load all requests
+  loadRequests(): void {
+    this.loading = true;
+    this.error = null;
+    
+    this.requestService.getAllRequestsWithResponses().subscribe({
+      next: (requests: Request[]) => {
+        // Ensure each request has a responses array
+        this.listRequests = requests.map(request => ({
+          ...request,
+          responses: request.responses || []
+        }));
+        this.applyFilters();
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.error = 'Error loading requests. Please try again later.';
+        this.loading = false;
+        console.error('Error loading requests:', err);
+      }
+    });
+  }
+
+  // Apply filters to requests
+  applyFilters(): void {
+    this.filteredRequests = this.listRequests.filter(request => {
+      const matchesSearch = request.object.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+                          request.content.toLowerCase().includes(this.searchTerm.toLowerCase());
+      
+      const matchesStatus = this.statusFilter === 'all' ||
+                          (this.statusFilter === 'urgent' && request.isUrgent) ||
+                          (this.statusFilter === 'normal' && !request.isUrgent);
+      
+      return matchesSearch && matchesStatus;
+    });
+  }
+
+  // Get creator name for a request
+  getCreatorName(request: Request): string {
+    if (request.user?.firstName && request.user?.lastName) {
+      return `${request.user.firstName} ${request.user.lastName}`;
+    }
+    return '';
+  }
+
+  // Get initials for avatar
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(part => part.charAt(0))
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  }
+
+  // Get avatar color based on request
+  getAvatarColor(request: Request): string {
+    const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8'];
+    const index = request.idRequest ? request.idRequest % colors.length : 0;
+    return colors[index];
+  }
+
+  // Check if request belongs to current user
+  isOwnRequest(request: Request): boolean {
+    // TODO: Implement user authentication check
+    return false;
+  }
+
+  // Create new request
+  createRequest(): void {
+    this.loading = true;
+    this.error = null;
+
+    // Create a new request object with forumId
+    const requestToCreate = {
+      ...this.newRequest,
+      forumId: 2 // Assuming 2 is the ID for the support refugees forum
+    };
+
+    this.requestService.addRequest(requestToCreate).subscribe({
+      next: (response: Request) => {
+        this.loadRequests();
+        this.newRequest = {
+          object: '',
+          content: '',
+          isUrgent: false,
+          dateRequest: new Date(),
+          response: false,
+          responses: []
+        };
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.error = 'Error creating request. Please try again later.';
+        this.loading = false;
+        console.error('Error creating request:', err);
+      }
+    });
+  }
+
+  // Open response modal
+  openResponseModal(request: Request): void {
+    if (!request.idRequest) {
+      this.error = 'Invalid request';
+      return;
+    }
+    this.requestId = request.idRequest;
+    this.newResponse = {
+      content: '',
+      requestId: request.idRequest,
+      idResponse: 0,
+      dateResponse: new Date(),
+      object: '',
+      senderId: 0
+    };
+    this.responseModal?.show();
+  }
+
+  // View responses for a request
+  viewResponses(request: Request): void {
+    if (request.idRequest) {
+      this.requestId = request.idRequest;
+      this.loadResponses(request.idRequest);
+    }
+  }
+
+  // Load responses for a request
+  loadResponses(requestId: number): void {
+    this.loading = true;
+    this.responseService.getResponsesByRequestId(requestId).subscribe({
+      next: (responses: ForumResponse[]) => {
+        this.listResponses = responses;
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.error = 'Error loading responses. Please try again later.';
+        this.loading = false;
+        console.error('Error loading responses:', err);
+      }
+    });
+  }
+
+  // Add a new response
+  addResponse(): void {
+    if (!this.newResponse.content.trim()) {
+      this.error = 'Content is required';
+      return;
+    }
+
+    if (!this.requestId) {
+      this.error = 'Request ID is required';
+      return;
+    }
+
+    this.loading = true;
+    this.error = null;
+
+    // Set the requestId in the response object
+    this.newResponse.requestId = this.requestId;
+    this.newResponse.dateResponse = new Date();
+
+    this.responseService.addResponse(this.newResponse, this.requestId).subscribe({
+      next: (response: ForumResponse) => {
+        // Find the request and add the new response to its responses array
+        const request = this.listRequests.find(r => r.idRequest === this.requestId);
+        if (request) {
+          if (!request.responses) {
+            request.responses = [];
+          }
+          request.responses.push(response);
+        }
+        // Hide the modal
+        this.responseModal?.hide();
+        // Reset the response form
+        this.newResponse = {
+          content: '',
+          requestId: 0,
+          idResponse: 0,
+          dateResponse: new Date(),
+          object: '',
+          senderId: 0
+        };
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.error = 'Error adding response. Please try again later.';
+        this.loading = false;
+        console.error('Error adding response:', err);
+      }
+    });
+  }
+
+  // Toggle form visibility
+  toggleForm(): void {
+    this.showForm = !this.showForm;
+  }
+
+  // Navigate back
+  back(): void {
+    this.router.navigateByUrl('forums/list-request');
   }
 }

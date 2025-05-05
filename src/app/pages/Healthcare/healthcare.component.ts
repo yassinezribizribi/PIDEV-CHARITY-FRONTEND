@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { saveAs } from 'file-saver';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-healthcare',
@@ -20,7 +21,7 @@ import { saveAs } from 'file-saver';
     ReactiveFormsModule,
     NavbarComponent,
     FooterComponent,
-    HttpClientModule
+    HttpClientModule,RouterLink
   ],
   templateUrl: './healthcare.component.html',
   styleUrls: ['./healthcare.component.scss']

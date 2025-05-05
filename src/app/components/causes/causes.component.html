@@ -1,31 +1,102 @@
+<div class="row mb-4">
+  <div class="col-md-4">
+    <select class="form-select" [(ngModel)]="selectedType">
+      <option value="">All Types</option>
+      <option value="FOOD">🍽️ Food</option>
+      <option value="CLOTHES">👕 Clothes</option>
+      <option value="MEDICAL">💊 Medical</option>
+      <option value="OTHER">📦 Other</option>
+    </select>
+  </div>
+</div>
+
 <div class="row">
-    <div *ngFor="let item of causesData" class="col-lg-4 col-md-6 mt-4 pt-2">
-        <div class="position-relative rounded bg-white shadow overflow-hidden">
-            <div class="position-relative overflow-hidden">
-                <img [src]="item.image" class="img-fluid" alt="">
-                <div class="bg-overlay bg-linear-gradient-2"></div>
-                <div class="position-absolute bottom-0 p-4">
-                    <a [routerLink]="" (click)="$event.preventDefault()" class="text-white title-dark fw-semibold link-title">Donate Now <i class="mdi mdi-arrow-right"></i></a>
-                </div>
-            </div>
+  <div *ngFor="let donation of filteredDonations" class="col-lg-4 col-md-6 mt-4 pt-2">
+    <div class="donation-card" [ngClass]="{
+        'urgent-border': donation.priority === 1,
+        'warning-border': donation.priority === 2 && getDaysLeft(donation) <= 3,
+        'caution-border': donation.priority === 2 && getDaysLeft(donation) <= 7 && getDaysLeft(donation) > 3,
+        'safe-border': donation.priority > 2 || (donation.priority === 2 && getDaysLeft(donation) > 7)
+      }">
 
-            <div class="content p-4">
-                <h5><a [routerLink]="" (click)="$event.preventDefault()" class="text-dark link-title">{{item.title}}</a></h5>
-                <p class="text-muted mb-0">{{item.desc}}</p>
-                <div class="progress-box mt-5">
-                    <div class="progress rounded" style="height: 8px;">
-                        <div class="progress-bar position-relative bg-primary rounded" style="width:60%;">
-                            <div class="progress-value d-block text-dark h6 mb-0">{{item.fund}}</div>
-                        </div>
-                    </div>
-                </div><!--end process box-->
+      <!-- Cagnotte Indicator -->
+      <div class="cagnotte-indicator" [class.has-cagnotte]="donation.cagnotteenligne">
+        {{ donation.cagnotteenligne ? 'Online Donation Available' : 'Physical Donation Only' }}
+      </div>
 
-                <div class="d-flex align-items-center justify-content-between mt-3">
-                    <h6 class="text-muted mb-0">{{item.value1}}</h6>
-                    <h6 class="text-muted mb-0">{{item.value2}}</h6>
-                </div>
-            </div>
+      <!-- Cagnotte Section -->
+      <div *ngIf="donation.cagnotteenligne" class="cagnotte-header">
+        <h6>{{donation.cagnotteenligne.title}}</h6>
+        
+        <div class="progress">
+          <div class="progress-bar" 
+               [style.width]="getCagnotteProgress(donation.cagnotteenligne) + '%'">
+          </div>
         </div>
-    </div><!--end col-->
-</div><!--end row-->
+        
+        <div class="amounts">
+          <span>Raised: {{donation.cagnotteenligne.currentAmount | currency:'EUR':'symbol':'1.0-0'}}</span>
+          <span>Goal: {{donation.cagnotteenligne.goalAmount | currency:'EUR':'symbol':'1.0-0'}}</span>
+        </div>
+      </div>
 
+      <!-- Donation Content -->
+      <div class="card-content">
+        <h5 class="donation-title d-flex justify-content-between align-items-center">
+          {{ donation.titre }}
+          <div class="d-flex align-items-center gap-2">
+            <span *ngIf="donation.priority === 1" class="urgent-label">urgent</span>
+            <span class="days-left-badge" [ngClass]="{
+              'urgent-bg': donation.priority === 1,
+              'warning-bg': donation.priority === 2 && getDaysLeft(donation) <= 3,
+              'caution-bg': donation.priority === 2 && getDaysLeft(donation) <= 7 && getDaysLeft(donation) > 3,
+              'safe-bg': donation.priority > 2 || (donation.priority === 2 && getDaysLeft(donation) > 7)
+            }">
+              {{ getDaysLeft(donation) }} days left
+            </span>
+          </div>
+        </h5>
+        
+        <p class="donation-description">{{ donation.description }}</p>
+
+        <div class="donation-stats">
+          <div class="stat-item">
+            <span class="stat-label">Requested:</span>
+            <span class="stat-value">{{ donation.quantiteDemandee }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Donated:</span>
+            <span class="stat-value">{{ donation.quantiteDonnee }}</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="donation-progress">
+          <div class="progress">
+            <div class="progress-bar" 
+                 [style.width]="getDonationProgress(donation) + '%'">
+              <span class="progress-value">{{ getDonationProgress(donation) | number:'1.0-0' }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="card-footer">
+        <span class="donation-type" [class]="getDonationTypeClass(donation.donationType)">
+          {{ donation.donationType }}
+        </span>
+        
+        <!-- Donation Buttons -->
+        <div class="donation-actions">
+          <button *ngIf="donation.cagnotteenligne && donation.idDonation" class="money-donation-btn" (click)="navigateToCagnotteDetails(donation.idDonation)">
+            <i class="mdi mdi-credit-card"></i> Donate Money
+          </button>
+          <button [routerLink]="['/make-donation', donation.idDonation]" class="item-donation-btn">
+            <i class="mdi mdi-gift"></i> Donate Items
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -48,6 +48,7 @@ const fast_glob_1 = __importDefault(require("fast-glob"));
 const node_assert_1 = __importDefault(require("node:assert"));
 const promises_1 = require("node:fs/promises");
 const node_path_1 = require("node:path");
+const error_1 = require("../../../utils/error");
 const load_result_cache_1 = require("../load-result-cache");
 /**
  * The lazy-loaded instance of the postcss stylesheet postprocessor.
@@ -313,6 +314,15 @@ async function compileString(data, filename, postcssProcessor, options) {
                 ],
             };
         }
-        throw error;
+        else {
+            (0, error_1.assertIsError)(error);
+            return {
+                errors: [
+                    {
+                        text: error.message,
+                    },
+                ],
+            };
+        }
     }
 }

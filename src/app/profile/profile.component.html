@@ -1,0 +1,444 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12">
+        <div class="title-heading text-center">
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">
+                        My Profile
+                    </h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<div class="dashboard-container">
+  <div class="container-fluid px-4 py-4">
+    <div class="row justify-content-center">
+      <div class="col-xl-10">
+    <!-- Loading State -->
+        <div *ngIf="!currentUser" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+          <p class="mt-3 text-muted">Loading profile...</p>
+    </div>
+
+    <!-- User Profile Content -->
+        <div *ngIf="currentUser">
+      <!-- Banned User Message -->
+          <div *ngIf="isBanned" class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-body bg-danger text-white p-4 text-center">
+              <div class="icon-circle bg-white bg-opacity-25 mx-auto mb-3">
+                <i class="bi bi-exclamation-triangle-fill text-white"></i>
+              </div>
+              <h4 class="mb-3">Account Banned</h4>
+              <p class="mb-0">{{ banReason || 'Your account has been banned for violating our terms of service.' }}</p>
+              <p class="mt-3 mb-0">Please contact support for more information.</p>
+        </div>
+      </div>
+
+      <!-- Normal Profile Content (only shown if not banned) -->
+      <div *ngIf="!isBanned">
+            <!-- Profile Header -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+              <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-lg me-4">
+                      <img [src]="getProfileImageUrl(currentUser?.profileImage)" 
+                        (error)="handleImageError($event)" 
+                           class="rounded-circle img-fluid"
+                           alt="Profile picture">
+                    </div>
+                    <div>
+                      <h4 class="mb-1 fw-bold">Welcome, {{ currentUser.firstName || 'User' }}!</h4>
+                      <p class="text-muted mb-0">
+                        <i class="bi bi-envelope me-2"></i>
+                        {{ currentUser.email }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-3">
+                  <!-- Notification Icon -->
+                    <div class="dropdown position-relative">
+                      <button class="btn btn-soft-primary position-relative" 
+                            (click)="toggleNotifications()"
+                            type="button">
+                      <i class="bi bi-bell"></i>
+                      <span *ngIf="unreadMessages.length > 0" 
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ unreadMessages.length }}
+                      </span>
+                    </button>
+                    <!-- Notification Dropdown -->
+                    <div class="notification-dropdown" [class.show]="showNotifications">
+                        <div class="dropdown-header p-3 border-bottom">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Notifications</span>
+                            <button *ngIf="unreadMessages.length > 0" 
+                                    class="btn btn-sm btn-soft-primary" 
+                                    (click)="markAllAsRead()">
+                              Mark all as read
+                            </button>
+                          </div>
+                        </div>
+                        <div *ngIf="unreadMessages.length === 0" class="p-3">
+                          <div class="text-center text-muted">
+                            <i class="bi bi-bell-slash display-6 mb-2"></i>
+                            <p class="mb-0">No new messages</p>
+                          </div>
+                        </div>
+                        <div *ngFor="let message of unreadMessages" class="p-3 border-bottom">
+                          <div class="notification-item" (click)="markMessageAsRead(message)">
+                            <div class="d-flex align-items-center">
+                              <div class="avatar-sm me-3">
+                                <img [src]="message.senderAvatar || 'assets/images/default-logo.jpg'" 
+                                     [alt]="getSenderName(message)"
+                                     class="rounded-circle img-fluid"
+                                     (error)="handleImageError($event)">
+                              </div>
+                              <div>
+                                <h6 class="mb-1">{{ getSenderName(message) }}</h6>
+                                <p class="text-muted small mb-1">{{ message.content }}</p>
+                                <small class="text-muted">{{ message.timestamp | date:'short' }}</small>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    </div>
+                    <!-- Logout Button -->
+                    <button class="btn btn-soft-danger" (click)="logout()">
+                      <i class="bi bi-box-arrow-right me-2"></i> Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="row g-4">
+              <!-- Left Sidebar - Navigation -->
+              <div class="col-lg-3">
+                <div class="card shadow-sm border-0 rounded-4">
+                  <div class="card-body p-0">
+                    <div class="nav flex-column nav-pills" role="tablist">
+                      <button class="nav-link active d-flex align-items-center gap-3 p-3" 
+                              (click)="activeTab = 'overview'">
+                        <i class="bi bi-house-door"></i>
+                        Overview
+                      </button>
+                      <button class="nav-link d-flex align-items-center gap-3 p-3" 
+                              (click)="activeTab = 'job-offers'">
+                        <i class="bi bi-briefcase"></i>
+                        Job Offers
+                      </button>
+                      <button class="nav-link d-flex align-items-center gap-3 p-3" 
+                              [routerLink]="['/my-participations']">
+                        <i class="bi bi-calendar-check"></i>
+                        My Participations
+                      </button>
+                      <button class="nav-link d-flex align-items-center gap-3 p-3" 
+                              (click)="activeTab = 'settings'">
+                        <i class="bi bi-gear"></i>
+                        Settings
+                      </button>
+                      <button class="nav-link d-flex align-items-center gap-3 p-3" 
+                              (click)="activeTab = 'security'">
+                        <i class="bi bi-shield-lock"></i>
+                        Security
+                      </button>
+                      <button class="nav-link d-flex align-items-center gap-3 p-3" 
+                              [routerLink]="['/conversation']">
+                        <i class="bi bi-chat-dots"></i>
+                        Messages
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Content Area -->
+              <div class="col-lg-9">
+                <!-- Overview Tab -->
+                <div *ngIf="activeTab === 'overview'" class="card shadow-sm border-0 rounded-4">
+                  <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4">
+                    <div class="d-flex align-items-center">
+                      <div class="icon-circle bg-primary-subtle me-3">
+                        <i class="bi bi-house-door text-primary"></i>
+                      </div>
+                      <div>
+                        <h4 class="mb-0 fw-bold">Overview</h4>
+                        <p class="text-muted mb-0">Your profile summary</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body p-4">
+                    <div class="row g-4">
+                      <div class="col-md-6">
+                        <div class="card bg-light border-0 rounded-4 p-4">
+                          <div class="d-flex align-items-center mb-3">
+                            <div class="icon-circle bg-primary-subtle me-3">
+                              <i class="bi bi-briefcase text-primary"></i>
+                            </div>
+                            <h5 class="mb-0">Job Offers</h5>
+                          </div>
+                          <h3 class="mb-0">{{ userJobOffers.length }}</h3>
+                          <p class="text-muted mb-0">Active job offers</p>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="card bg-light border-0 rounded-4 p-4">
+                          <div class="d-flex align-items-center mb-3">
+                            <div class="icon-circle bg-success-subtle me-3">
+                              <i class="bi bi-file-text text-success"></i>
+                            </div>
+                            <h5 class="mb-0">Applications</h5>
+                          </div>
+                          <h3 class="mb-0">{{ jobApplications.length }}</h3>
+                          <p class="text-muted mb-0">Total applications received</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+                <!-- Job Offers Tab -->
+                <div *ngIf="activeTab === 'job-offers'">
+        <div *ngIf="userJobOffers && userJobOffers.length > 0">
+                    <div class="card shadow-sm border-0 rounded-4">
+                      <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div class="d-flex align-items-center">
+                            <div class="icon-circle bg-primary-subtle me-3">
+                              <i class="bi bi-briefcase text-primary"></i>
+                            </div>
+                            <div>
+                              <h4 class="mb-0 fw-bold">Your Job Offers</h4>
+                              <p class="text-muted mb-0">Manage your posted job offers</p>
+                            </div>
+                          </div>
+                          <button class="btn btn-soft-primary">
+                            <i class="bi bi-plus-circle me-2"></i> New Job Offer
+                          </button>
+                        </div>
+                      </div>
+                      <div class="card-body p-4">
+                        <div class="list-group list-group-flush">
+                          <div *ngFor="let offer of userJobOffers" 
+                               class="list-group-item border-0 bg-light rounded-4 mb-3 p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                              <div>
+                                <h5 class="mb-2">{{ offer.title }}</h5>
+                                <p class="text-muted mb-0">{{ offer.description }}</p>
+                              </div>
+                              <div class="d-flex align-items-center gap-3">
+                                <span class="badge bg-primary-subtle text-primary">
+                                  <i class="bi bi-people me-1"></i>
+                                  {{ getApplicationsForJobOffer(offer.idJobOffer).length || 0 }} Applications
+                                </span>
+                                <button class="btn btn-soft-primary" 
+                                        (click)="viewApplications(offer.idJobOffer)">
+                                  <i class="bi bi-eye me-2"></i> View
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Empty State -->
+                  <div *ngIf="userJobOffers && userJobOffers.length === 0" class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body text-center p-5">
+                      <div class="icon-circle bg-primary-subtle mx-auto mb-4">
+                        <i class="bi bi-briefcase text-primary display-6"></i>
+                      </div>
+                      <h4 class="mb-3">No Job Offers Yet</h4>
+                      <p class="text-muted mb-4">You haven't posted any job offers yet</p>
+                      <button class="btn btn-soft-primary">
+                        <i class="bi bi-plus-circle me-2"></i> Create Job Offer
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div *ngIf="activeTab === 'settings'" class="card shadow-sm border-0 rounded-4">
+                  <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4">
+                    <div class="d-flex align-items-center">
+                      <div class="icon-circle bg-primary-subtle me-3">
+                        <i class="bi bi-gear text-primary"></i>
+                      </div>
+                      <div>
+                        <h4 class="mb-0 fw-bold">Settings</h4>
+                        <p class="text-muted mb-0">Manage your account settings</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body p-4">
+                    <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+                      <div class="mb-4">
+                        <label class="form-label">Profile Picture</label>
+                        <div class="d-flex align-items-center gap-3">
+                          <div class="avatar-lg position-relative">
+                            <img [src]="getProfileImageUrl(currentUser?.profileImage)" 
+                                 (error)="handleImageError($event)" 
+                                 class="rounded-circle img-fluid"
+                                 alt="Profile picture">
+                            <div class="avatar-overlay" *ngIf="!isUploading">
+                              <label class="avatar-upload-btn">
+                                <i class="bi bi-camera"></i>
+                                <input type="file" 
+                                       accept="image/*" 
+                                       (change)="onFileSelected($event)"
+                                       style="display: none;">
+                              </label>
+                            </div>
+                            <div class="avatar-overlay" *ngIf="isUploading">
+                              <div class="spinner-border text-light" role="status">
+                                <span class="visually-hidden">Uploading...</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="upload-info">
+                            <p class="text-muted mb-2">Upload a new profile picture</p>
+                            <small class="text-muted">JPG, PNG or GIF (max. 2MB)</small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <label class="form-label">First Name</label>
+                          <input type="text" class="form-control" formControlName="firstName">
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label">Last Name</label>
+                          <input type="text" class="form-control" formControlName="lastName">
+                        </div>
+                        <div class="col-12">
+                          <label class="form-label">Email</label>
+                          <input type="email" class="form-control" formControlName="email" readonly>
+                        </div>
+                      </div>
+                      <div class="mt-4">
+                        <button type="submit" class="btn btn-soft-primary" [disabled]="!profileForm.valid || isUploading">
+                          <i class="bi bi-save me-2"></i> Save Changes
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div *ngIf="activeTab === 'security'" class="card shadow-sm border-0 rounded-4">
+                  <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4">
+                    <div class="d-flex align-items-center">
+                      <div class="icon-circle bg-primary-subtle me-3">
+                        <i class="bi bi-shield-lock text-primary"></i>
+                      </div>
+                      <div>
+                        <h4 class="mb-0 fw-bold">Security</h4>
+                        <p class="text-muted mb-0">Manage your account security</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body p-4">
+                    <div class="mb-4">
+                      <h5 class="mb-3">Change Password</h5>
+                      <form>
+                        <div class="mb-3">
+                          <label class="form-label">Current Password</label>
+                          <input type="password" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">New Password</label>
+                          <input type="password" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">Confirm New Password</label>
+                          <input type="password" class="form-control">
+                        </div>
+                        <button class="btn btn-soft-primary">
+                          <i class="bi bi-key me-2"></i> Update Password
+                        </button>
+                      </form>
+                    </div>
+                    <div class="border-top pt-4">
+                      <h5 class="mb-3">Two-Factor Authentication</h5>
+                      <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                          <h6 class="mb-1">Two-Factor Authentication</h6>
+                          <p class="text-muted mb-0">Add an extra layer of security to your account</p>
+                        </div>
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" role="switch">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.avatar-lg {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.avatar-lg:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.avatar-upload-btn {
+  color: white;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.avatar-upload-btn:hover {
+  color: var(--bs-primary);
+}
+
+.upload-info {
+  flex: 1;
+}
+</style>

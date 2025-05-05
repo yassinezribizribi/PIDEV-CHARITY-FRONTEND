@@ -276,15 +276,13 @@ class BundlerContext {
         // Collect all external package names
         const externalImports = new Set();
         for (const { imports } of Object.values(result.metafile.outputs)) {
-            for (const importData of imports) {
-                if (!importData.external ||
-                    utils_1.SERVER_GENERATED_EXTERNALS.has(importData.path) ||
-                    (importData.kind !== 'import-statement' &&
-                        importData.kind !== 'dynamic-import' &&
-                        importData.kind !== 'require-call')) {
+            for (const { external, kind, path } of imports) {
+                if (!external ||
+                    utils_1.SERVER_GENERATED_EXTERNALS.has(path) ||
+                    (kind !== 'import-statement' && kind !== 'dynamic-import' && kind !== 'require-call')) {
                     continue;
                 }
-                externalImports.add(importData.path);
+                externalImports.add(path);
             }
         }
         (0, node_assert_1.default)(this.#esbuildOptions, 'esbuild options cannot be undefined.');

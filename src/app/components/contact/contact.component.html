@@ -1,99 +1,201 @@
-<div class="container">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <img [src]="'assets/images/contact.png'" class="img-fluid d-block mx-auto" alt="">
+<div class="crisis-container">
+  <div class="crisis-header">
+    <h2><i class="fas fa-exclamation-triangle me-2"></i>Emergency Crisis Report</h2>
+    <p class="text-muted">Report new crisis situations quickly and accurately</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column - Form -->
+    <div class="col-lg-6">
+      <div class="crisis-card">
+        <div class="crisis-card-header">
+          <h4><i class="fas fa-edit me-2"></i>Crisis Details</h4>
         </div>
-        <div class="col-md-6">
-            <div class="p-4 rounded shadow bg-white ms-lg-5">
-                <h4>Get in touch !</h4>
-                <form class="mt-4">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Your Name <span class="text-danger">*</span></label>
-                                <input name="name" id="name" type="text" class="form-control" placeholder="Name :">
-                            </div>
-                        </div>
+        <div class="crisis-card-body">
+          <form [formGroup]="crisisForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
 
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Your Email <span class="text-danger">*</span></label>
-                                <input name="email" id="email" type="email" class="form-control" placeholder="Email :">
-                            </div> 
-                        </div><!--end col-->
-
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Subject</label>
-                                <input name="subject" id="subject" class="form-control" placeholder="Subject :">
-                            </div>
-                        </div><!--end col-->
-
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Comments <span class="text-danger">*</span></label>
-                                <textarea name="comments" id="comments" rows="4" class="form-control" placeholder="Message :"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="d-grid">
-                                <button type="submit" id="submit" name="send" class="btn btn-primary">Send Message</button>
-                            </div>
-                        </div><!--end col-->
-                    </div><!--end row-->
-                </form>
+            <!-- Category & Severity -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-tag me-1"></i>Category <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" formControlName="categorie" [ngClass]="{'is-invalid': isSubmitted && crisisForm.get('categorie')?.errors}">
+                  <option value="" disabled selected>Select a category</option>
+                  <option *ngFor="let cat of categories" [value]="cat">{{ formatEnum(cat) | titlecase }}</option>
+                </select>
+                <div *ngIf="isSubmitted && crisisForm.get('categorie')?.errors" class="invalid-feedback">
+                  Please select a crisis category
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">
+                  <i class="fas fa-bolt me-1"></i>Severity <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" formControlName="severity" [ngClass]="{'is-invalid': isSubmitted && crisisForm.get('severity')?.errors}">
+                  <option value="" disabled selected>Select severity level</option>
+                  <option *ngFor="let severity of severities" [value]="severity">{{ severity }}</option>
+                </select>
+                <div *ngIf="isSubmitted && crisisForm.get('severity')?.errors" class="invalid-feedback">
+                  Please select a severity level
+                </div>
+              </div>
             </div>
-        </div><!--end col-->
-    </div><!--end row-->
-</div><!--end container-->
 
-<div class="container mt-100 mt-60">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="position-relative features text-center mx-lg-4 px-md-1">
-                <div class="position-relative d-flex justify-content-center">
-                    <i data-feather="phone" class="fea icon-md text-primary z-1"></i>
-                    <div class="feature-icon bg-soft-primary position-absolute top-0 translate-middle"></div>
-                </div>
-
-                <div class="mt-4">
-                    <h5 class="mb-3">Phone</h5>
-                    <p class="text-muted">Start working with Smilecare that can provide everything</p>
-                    <a href="tel:+152534-468-854"  class="text-primary">+152 534-468-854</a>
-                </div>
+            <!-- Location -->
+            <div class="mb-4 position-relative">
+              <label class="form-label">
+                <i class="fas fa-map-marker-alt me-1"></i>Location <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="location"
+                  placeholder="Enter location or address"
+                  (input)="onLocationInput()"
+                  (blur)="hideSuggestionsWithDelay()"
+                  (focus)="showSuggestions()"
+                  autocomplete="off"
+                  [ngClass]="{'is-invalid': isSubmitted && crisisForm.get('location')?.errors}"
+                />
+                <button type="button" (click)="getLocation()" class="btn btn-outline-secondary" title="Get current location">
+                  <i class="fas fa-location-arrow"></i>
+                </button>
+              </div>
+              <div *ngIf="isSubmitted && crisisForm.get('location')?.errors" class="invalid-feedback">
+                Please enter a valid location
+              </div>
+              <ul
+                class="list-group position-absolute w-100 autocomplete-dropdown"
+                *ngIf="showSuggestionList && suggestions.length > 0"
+              >
+                <li
+                  *ngFor="let suggestion of suggestions"
+                  class="list-group-item list-group-item-action"
+                  (mousedown)="selectSuggestion(suggestion)"
+                >
+                  <i class="fas fa-map-pin me-2 text-muted"></i>
+                  <small>{{ suggestion.display_name }}</small>
+                </li>
+              </ul>
             </div>
-        </div><!--end col-->
-        
-        <div class="col-md-4 mt-5 pt-2 mt-md-0 pt-md-0">
-            <div class="position-relative features text-center mx-lg-4 px-md-1">
-                <div class="position-relative d-flex justify-content-center">
-                    <i data-feather="mail" class="fea icon-md text-primary z-1"></i>
-                    <div class="feature-icon bg-soft-primary position-absolute top-0 translate-middle"></div>
-                </div>
 
-                <div class="mt-4">
-                    <h5 class="mb-3">Email</h5>
-                    <p class="text-muted">Start working with Smilecare that can provide everything</p>
-                    <a href="mailto:contact@example.com" class="text-primary">contact&#64;example.com</a>
-                </div>
+            <!-- Coordinates -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">Latitude</label>
+                <input type="text" class="form-control" formControlName="latitude" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Longitude</label>
+                <input type="text" class="form-control" formControlName="longitude" readonly>
+              </div>
             </div>
-        </div><!--end col-->
-        
-        <div class="col-md-4 mt-5 pt-2 mt-md-0 pt-md-0">
-            <div class="position-relative features text-center mx-lg-4 px-md-1">
-                <div class="position-relative d-flex justify-content-center">
-                    <i data-feather="map-pin" class="fea icon-md text-primary z-1"></i>
-                    <div class="feature-icon bg-soft-primary position-absolute top-0 translate-middle"></div>
-                </div>
 
-                <div class="mt-4">
-                    <h5 class="mb-3">Location</h5>
-                    <p class="text-muted">C/54 Northwest Freeway, Suite 558, <br>Houston, USA 485</p>
-                    <a routerLink="#" (click)="$event.preventDefault()" class="text-primary">View on Google map</a>
-                </div>
+            <!-- Date -->
+            <div class="mb-4">
+              <label class="form-label">
+                <i class="far fa-calendar-alt me-1"></i>Crisis Date <span class="text-danger">*</span>
+              </label>
+              <input 
+                type="date" 
+                class="form-control" 
+                formControlName="crisisDate"
+                [ngClass]="{'is-invalid': isSubmitted && crisisForm.get('crisisDate')?.errors}"
+              >
+              <div *ngIf="isSubmitted && crisisForm.get('crisisDate')?.errors" class="invalid-feedback">
+                Please select a valid date
+              </div>
             </div>
-        </div><!--end col-->
-    </div><!--end row-->
-</div><!--end container-->
+
+            <!-- Description -->
+            <div class="mb-4">
+              <label class="form-label">
+                <i class="fas fa-align-left me-1"></i>Description <span class="text-danger">*</span>
+              </label>
+              <textarea 
+                rows="4" 
+                class="form-control" 
+                formControlName="description" 
+                placeholder="Provide detailed information about the crisis"
+                [ngClass]="{'is-invalid': isSubmitted && crisisForm.get('description')?.errors}"
+              ></textarea>
+              <div *ngIf="isSubmitted && crisisForm.get('description')?.errors" class="invalid-feedback">
+                Please provide a description
+              </div>
+            </div>
+
+            <!-- Updates -->
+            <div class="mb-4">
+              <label class="form-label">
+                <i class="fas fa-sync-alt me-1"></i>Updates
+              </label>
+              <textarea 
+                rows="3" 
+                class="form-control" 
+                formControlName="updates" 
+                placeholder="Any updates or additional information"
+              ></textarea>
+            </div>
+
+            <!-- Image Capture -->
+            <div class="mb-4">
+              <label class="form-label">
+                <i class="fas fa-camera me-1"></i>Attach Photo Evidence
+              </label>
+              <div class="crisis-image-box mb-3">
+                <div id="cameraContainer" class="crisis-camera-preview" *ngIf="!capturedImage"></div>
+                <div *ngIf="capturedImage" class="crisis-image-preview">
+                  <img [src]="capturedImage" alt="Captured Image" class="img-fluid rounded">
+                  <button type="button" class="btn btn-sm btn-danger crisis-image-remove" (click)="capturedImage = null; imageFile = null">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-primary" (click)="startCamera()">
+                  <i class="fas fa-video me-1"></i>Start Camera
+                </button>
+                <button type="button" class="btn btn-outline-success" (click)="captureImage()" [disabled]="!videoElement?.srcObject">
+                  <i class="fas fa-camera me-1"></i>Capture
+                </button>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-danger crisis-submit-btn" [disabled]="isLoading">
+                <span *ngIf="!isLoading">
+                  <i class="fas fa-paper-plane me-2"></i>Submit Crisis Report
+                </span>
+                <span *ngIf="isLoading">
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Processing...
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Map -->
+    <div class="col-lg-6">
+      <div class="crisis-card">
+        <div class="crisis-card-header">
+          <h4><i class="fas fa-map me-2"></i>Crisis Location Map</h4>
+        </div>
+        <div class="crisis-card-body p-0">
+          <div id="map" class="crisis-map"></div>
+          <div class="crisis-map-overlay" *ngIf="!crisisForm.get('latitude')?.value">
+            <div class="alert alert-info m-3">
+              <i class="fas fa-info-circle me-2"></i>
+              Click on the map or search for a location to set the crisis coordinates
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

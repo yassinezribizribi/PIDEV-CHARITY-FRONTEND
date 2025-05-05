@@ -67,4 +67,15 @@ export class NavbarComponent {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
     this.activeSection = sectionId;
   }
+
+  logout() {
+    this.authService.logout();
+  }
+
+  handleLogoClick(event: Event) {
+    event.preventDefault();
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/index']);
+    }
+  }
 }

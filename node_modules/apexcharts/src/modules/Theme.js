@@ -46,7 +46,7 @@ export default class Theme {
     const utils = new Utils()
 
     w.globals.dom.elWrap.classList.add(
-      `apexcharts-theme-${w.config.theme.mode}`
+      `apexcharts-theme-${w.config.theme.mode || 'light'}`
     )
 
     // Create a copy of config.colors array to avoid mutating the original config.colors
@@ -155,7 +155,7 @@ export default class Theme {
     const w = this.w
     w.globals.radarPolygons.fill.colors =
       w.config.plotOptions.radar.polygons.fill.colors === undefined
-        ? [w.config.theme.mode === 'dark' ? '#424242' : 'none']
+        ? [w.config.theme.mode === 'dark' ? '#343A3F' : 'none']
         : w.config.plotOptions.radar.polygons.fill.colors.slice()
     this.pushExtraColors(w.globals.radarPolygons.fill.colors, 20)
   }

@@ -24,23 +24,18 @@ const load_result_cache_1 = require("../load-result-cache");
  * For inline entries the contents will always be provided.
  */
 async function loadEntry(entry, root, skipRead) {
-    if (entry.startsWith('file:')) {
-        const specifier = (0, node_path_1.join)(root, entry.slice(5));
-        return {
-            path: specifier,
-            contents: skipRead ? undefined : await (0, promises_1.readFile)(specifier, 'utf-8'),
-        };
-    }
-    else if (entry.startsWith('inline:')) {
+    if (entry.startsWith('inline:')) {
         const [importer, data] = entry.slice(7).split(';', 2);
         return {
             path: (0, node_path_1.join)(root, importer),
             contents: Buffer.from(data, 'base64').toString(),
         };
     }
-    else {
-        throw new Error('Invalid data for Angular JIT entry.');
-    }
+    const path = (0, node_path_1.join)(root, entry);
+    return {
+        path,
+        contents: skipRead ? undefined : await (0, promises_1.readFile)(path, 'utf-8'),
+    };
 }
 /**
  * Sets up esbuild resolve and load callbacks to support Angular JIT mode processing
@@ -66,7 +61,7 @@ function setupJitPluginCallbacks(build, stylesheetBundler, additionalResultFiles
             return {
                 // Use a relative path to prevent fully resolved paths in the metafile (JSON stats file).
                 // This is only necessary for custom namespaces. esbuild will handle the file namespace.
-                path: 'file:' + (0, node_path_1.relative)(root, (0, node_path_1.join)((0, node_path_1.dirname)(args.importer), specifier)),
+                path: (0, node_path_1.relative)(root, (0, node_path_1.join)((0, node_path_1.dirname)(args.importer), specifier)),
                 namespace,
             };
         }

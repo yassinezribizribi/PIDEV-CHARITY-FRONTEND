@@ -1,0 +1,109 @@
+.celebration-modal {
+  padding: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  
+  .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0;
+    
+    h4 {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #28a745;
+      margin: 0 auto;
+      animation: slideDown 0.5s ease-out;
+    }
+  }
+  
+  .modal-body {
+    padding: 2rem 1rem;
+    text-align: center;
+    
+    .celebration-icon {
+      font-size: 4rem;
+      color: #ffc107;
+      margin-bottom: 1.5rem;
+      animation: bounce 1s infinite;
+    }
+    
+    .message {
+      font-size: 1.2rem;
+      color: #495057;
+      margin-bottom: 2rem;
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    .benefits-list {
+      text-align: left;
+      max-width: 400px;
+      margin: 0 auto;
+      
+      li {
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        color: #6c757d;
+        animation: slideIn 0.5s ease-out;
+        transition: transform 0.2s ease;
+        
+        &:hover {
+          transform: translateX(5px);
+          background-color: #e9ecef;
+        }
+        
+        &::before {
+          content: '✓';
+          color: #28a745;
+          margin-right: 10px;
+        }
+      }
+    }
+  }
+  
+  .modal-footer {
+    background-color: #f8f9fa;
+    border-top: 2px solid #e9ecef;
+    justify-content: center;
+    padding-top: 1rem;
+    
+    .btn-primary {
+      background-color: #28a745;
+      border-color: #28a745;
+      padding: 0.75rem 2rem;
+      font-size: 1.1rem;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+} 

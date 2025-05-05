@@ -34,7 +34,7 @@ async function launchServer() {
             // handle request
             if ((0, utils_1.isSsrNodeRequestHandler)(reqHandler)) {
                 await reqHandler(req, res, (e) => {
-                    throw e;
+                    throw e ?? new Error(`Unable to handle request: '${req.url}'.`);
                 });
             }
             else {

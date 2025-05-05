@@ -1,0 +1,36 @@
+<div class="celebration-modal">
+  <div class="modal-header">
+    <h4 class="modal-title">{{ title }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
+  </div>
+  <div class="modal-body text-center">
+    <div class="celebration-icon">
+      🎉
+    </div>
+    <div class="message">
+      {{ message }}
+    </div>
+    
+    <div class="benefits-section" *ngIf="benefits && benefits.length > 0">
+      <h5>Benefits Include:</h5>
+      <ul class="benefits-list">
+        <li *ngFor="let benefit of benefits">{{ benefit }}</li>
+      </ul>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button 
+      *ngIf="showUpgradeButton"
+      type="button" 
+      class="btn btn-primary" 
+      (click)="onUpgradeClick()">
+      {{ upgradeButtonText }}
+    </button>
+    <button 
+      type="button" 
+      class="btn btn-secondary" 
+      (click)="activeModal.close()">
+      Close
+    </button>
+  </div>
+</div> 

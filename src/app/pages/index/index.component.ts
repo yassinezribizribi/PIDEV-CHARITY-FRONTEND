@@ -14,6 +14,7 @@ import { MakeDonationComponent } from "../../components/make-donation/make-donat
 import { CausesComponent } from "../../components/causes/causes.component";
 import { CtaComponent } from "../../components/cta/cta.component";
 import { TeamComponent } from "../../components/team/team.component";
+import { TopAssociationsSliderComponent } from '../../components/top-associations-slider/top-associations-slider.component';
 
 
 @Component({
@@ -33,7 +34,8 @@ import { TeamComponent } from "../../components/team/team.component";
         CausesComponent,
         CtaComponent,
         TeamComponent,
-        NavbarComponent
+        NavbarComponent,
+        TopAssociationsSliderComponent
     ],
     templateUrl: './index.component.html',
     styleUrl: './index.component.scss'

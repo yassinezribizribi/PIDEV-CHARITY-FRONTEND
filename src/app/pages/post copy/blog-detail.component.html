@@ -1,0 +1,201 @@
+<app-navbar/>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="text-center p-5">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error" class="alert alert-danger text-center">
+    {{error}}
+</div>
+
+<!-- Hero Start -->
+<section *ngIf="mission && !loading" class="bg-half-170 d-table w-100" [style.background]="missionImageUrl ? 'url(' + missionImageUrl + ')' : 'url(assets/images/hero/pages.jpg)'">
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-12">
+                <div class="title-heading text-center">
+                    <span class="badge" [ngClass]="getStatusBadgeClass(mission.status)">
+                        {{ mission.status || 'Upcoming Mission' }}
+                    </span>
+                    <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark mt-4">
+                        {{ mission.title || 'Mission Title' }}
+                    </h5>
+                    <ul class="list-inline text-center mb-0">
+                        <li class="list-inline-item mx-4 mt-4">
+                            <span class="text-white-50 d-block">Location</span>
+                            <span class="text-white title-dark">{{ mission.location || 'Mission Location' }}</span>
+                        </li>
+                        <li class="list-inline-item mx-4 mt-4">
+                            <span class="text-white-50 d-block">Start Date</span>
+                            <span class="text-white title-dark">{{ mission.startDate | date: 'mediumDate' }}</span>
+                        </li>
+                        <li class="list-inline-item mx-4 mt-4">
+                            <span class="text-white-50 d-block">End Date</span>
+                            <span class="text-white title-dark">{{ mission.endDate | date: 'mediumDate' }}</span>
+                        </li>
+                        <li class="list-inline-item mx-4 mt-4">
+                            <span class="text-white-50 d-block">Volunteers</span>
+                            <span class="text-white title-dark">{{ mission.volunteerCount }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div><!--end col-->
+        </div><!--end row-->
+
+        <div class="position-middle-bottom">
+            <nav aria-label="breadcrumb" class="d-block">
+                <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+                    <li class="breadcrumb-item"><a [routerLink]="'/'">Solidarity&Refugee</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Mission Details</li>
+                </ul>
+            </nav>
+        </div>
+    </div><!--end container-->
+</section><!--end section-->
+
+<!-- Mission Details Section -->
+<section *ngIf="mission && !loading" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-7">
+                <div class="card border-0 shadow rounded overflow-hidden">
+                    <div class="card-body">
+                        <h4 class="card-title">Mission Details</h4>
+                        <p class="text-muted">{{ mission.description || 'No description available' }}</p>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <h6>Mission Status</h6>
+                                    <span class="badge" [ngClass]="getStatusBadgeClass(mission.status)">
+                                        {{ mission.status }}
+                                    </span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6>Volunteers Needed</h6>
+                                    <p>{{ mission.volunteerCount }}</p>
+                                </div>
+
+                                <div class="mb-3" *ngIf="mission.associationMission">
+                                    <h6>Organized By</h6>
+                                    <p>{{ mission.associationMission.associationName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <h6>Location</h6>
+                                    <p>{{ mission.location }}</p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6>Dates</h6>
+                                    <p>
+                                        {{ mission.startDate | date: 'mediumDate' }} to 
+                                        {{ mission.endDate | date: 'mediumDate' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mission Roles Section -->
+                        <div class="mission-roles-section" *ngIf="mission?.missionRoles && mission.missionRoles!.length > 0">
+                            <h3 class="section-title">Mission Roles</h3>
+                            <div class="roles-container">
+                                <div class="role-card" *ngFor="let role of mission.missionRoles!" [ngClass]="getRoleStatusClass(role)">
+                                    <div class="role-header">
+                                        <h4 class="role-title">{{role.roleName}}</h4>
+                                        <span class="validation-badge" *ngIf="role.requiresValidation">
+                                            <i class="fas fa-check-circle"></i> Requires Validation
+                                        </span>
+                                    </div>
+                                    <div class="role-details">
+                                        <div class="progress-container">
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     [style.width.%]="getRoleProgress(role)"
+                                                     [attr.aria-valuenow]="getRoleProgress(role)"
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                    {{role.numberAccepted}}/{{role.numberNeeded}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="role-stats">
+                                            <span class="stat">
+                                                <i class="fas fa-users"></i> Needed: {{role.numberNeeded}}
+                                            </span>
+                                            <span class="stat">
+                                                <i class="fas fa-user-check"></i> Accepted: {{role.numberAccepted}}
+                                            </span>
+                                        </div>
+                                        <div class="role-actions">
+                                            <button class="btn btn-primary apply-btn" 
+                                                    (click)="applyToRole(role, cvUploadModal)"
+                                                    [disabled]="!canApplyToRole(role)"
+                                                    [attr.title]="getRoleDisabledReason(role)">
+                                                {{ hasAppliedToRole[role.idMissionRole] ? 'Applied' : 
+                                                   (role.numberAccepted >= role.numberNeeded ? 'Role Full' : 'Apply') }}
+                                            </button>
+                                            <div class="text-danger mt-1 small" *ngIf="getRoleDisabledReason(role)">
+                                                {{ getRoleDisabledReason(role) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!--end col-->
+
+            <!-- Sidebar -->
+            <div class="col-lg-4 col-md-5 col-12 mt-4 pt-2 mt-md-0 pt-md-0">
+                <app-blog-sidebars/>
+            </div><!--end col-->
+        </div><!--end row-->
+    </div><!--end container-->
+</section><!--end section-->
+
+<!-- CV Upload Modal -->
+<ng-template #cvUploadModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">Upload CV</h4>
+        <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="modal-body">
+        <p>This role requires validation. Please upload your CV to proceed with the application.</p>
+        <div class="mb-3">
+            <label for="cvFile" class="form-label">Select CV File</label>
+            <input type="file" 
+                   class="form-control" 
+                   id="cvFile" 
+                   (change)="onFileSelected($event)" 
+                   accept=".pdf,.doc,.docx"
+                   #fileInput>
+            <div *ngIf="cvFile" class="mt-2">
+                <small class="text-success">
+                    <i class="uil uil-check-circle me-1"></i>
+                    File selected: {{ cvFile.name }}
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+        <button type="button" 
+                class="btn btn-primary" 
+                [disabled]="!cvFile"
+                (click)="submitApplication(selectedRole?.idMissionRole || 0); modal.close()">
+            Submit Application
+        </button>
+    </div>
+</ng-template>
+
+<app-footer/>
+<app-scroll-to-top/>

@@ -102,7 +102,7 @@ async function execute(options, context, extensions) {
     };
     const diagnostics = checkDuplicateMessages(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    checkFileSystem, extractionResult.messages, 'warning', 
+    checkFileSystem, extractionResult.messages, normalizedOptions.i18nOptions.i18nDuplicateTranslation || 'warning', 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extractionResult.basePath);
     if (diagnostics.messages.length > 0) {

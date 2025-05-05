@@ -21,7 +21,7 @@ $_default: (
 );
 
 @function values($deps: $_default, $exclude-hardcoded-values: false) {
-  @return (
+  $values: (
     'container-color': map.get($deps, 'md-sys-color', 'surface-container-low'),
     'container-elevation': map.get($deps, 'md-sys-elevation', 'level1'),
     'container-shadow-color': map.get($deps, 'md-sys-color', 'shadow'),
@@ -50,4 +50,6 @@ $_default: (
     'pressed-state-layer-opacity':
       map.get($deps, 'md-sys-state', 'pressed-state-layer-opacity')
   );
+
+  @return $values;
 }
