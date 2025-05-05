@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RequestService } from '../../../services/request.service';
 import { ResponseService } from '../../../services/response.service';
 import { Request } from '../../../models/Request.model';
-import { Response } from '../../../models/Response.model';
+import { ForumResponse } from '../../../models/Response.model';
 import { FooterComponent } from "../../../components/footer/footer.component";
 import { NavbarComponent } from "../../../components/navbar/navbar.component";
 import { FormsModule } from '@angular/forms';
@@ -30,7 +30,7 @@ export class SupportRefugeesForumComponent implements OnInit {
   
   // Request lists
   listRequests: Request[] = [];
-  listResponses: Response[] = [];
+  listResponses: ForumResponse[] = [];
   
   // New request form
   newRequest: Request = {
@@ -43,11 +43,13 @@ export class SupportRefugeesForumComponent implements OnInit {
   };
   
   // New response form
-  newResponse: Response = {
+  newResponse: ForumResponse = {
     content: '',
     requestId: 0,
     idResponse: 0,
-    dateResponse: null
+    dateResponse: new Date(),
+    object: '',
+    senderId: 0
   };
   
   showForm: boolean = false;
@@ -68,6 +70,17 @@ export class SupportRefugeesForumComponent implements OnInit {
     const modalElement = document.getElementById('responseModal');
     if (modalElement) {
       this.responseModal = new Modal(modalElement);
+      // Add event listener for modal hidden event
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.newResponse = {
+          content: '',
+          requestId: 0,
+          idResponse: 0,
+          dateResponse: new Date(),
+          object: '',
+          senderId: 0
+        };
+      });
     }
   }
 
@@ -78,7 +91,11 @@ export class SupportRefugeesForumComponent implements OnInit {
     
     this.requestService.getAllRequestsWithResponses().subscribe({
       next: (requests: Request[]) => {
-        this.listRequests = requests;
+        // Ensure each request has a responses array
+        this.listRequests = requests.map(request => ({
+          ...request,
+          responses: request.responses || []
+        }));
         this.applyFilters();
         this.loading = false;
       },
@@ -169,12 +186,18 @@ export class SupportRefugeesForumComponent implements OnInit {
 
   // Open response modal
   openResponseModal(request: Request): void {
-    this.requestId = request.idRequest ?? null;
+    if (!request.idRequest) {
+      this.error = 'Invalid request';
+      return;
+    }
+    this.requestId = request.idRequest;
     this.newResponse = {
       content: '',
-      requestId: 0,
+      requestId: request.idRequest,
       idResponse: 0,
-      dateResponse: null
+      dateResponse: new Date(),
+      object: '',
+      senderId: 0
     };
     this.responseModal?.show();
   }
@@ -182,17 +205,22 @@ export class SupportRefugeesForumComponent implements OnInit {
   // View responses for a request
   viewResponses(request: Request): void {
     if (request.idRequest) {
+      this.requestId = request.idRequest;
       this.loadResponses(request.idRequest);
     }
   }
 
   // Load responses for a request
   loadResponses(requestId: number): void {
+    this.loading = true;
     this.responseService.getResponsesByRequestId(requestId).subscribe({
-      next: (responses: Response[]) => {
+      next: (responses: ForumResponse[]) => {
         this.listResponses = responses;
+        this.loading = false;
       },
       error: (err: any) => {
+        this.error = 'Error loading responses. Please try again later.';
+        this.loading = false;
         console.error('Error loading responses:', err);
       }
     });
@@ -201,28 +229,51 @@ export class SupportRefugeesForumComponent implements OnInit {
   // Add a new response
   addResponse(): void {
     if (!this.newResponse.content.trim()) {
-      console.error('Content is required');
+      this.error = 'Content is required';
       return;
     }
 
-    if (this.requestId) {
-      this.newResponse.requestId = this.requestId;
-      this.responseService.addResponse(this.newResponse, this.requestId).subscribe({
-        next: (response: Response) => {
-          this.loadRequests(); // Reload requests to update the response count
-          this.responseModal?.hide();
-          this.newResponse = {
-            content: '',
-            requestId: 0,
-            idResponse: 0,
-            dateResponse: null
-          };
-        },
-        error: (err: any) => {
-          console.error('Error adding response:', err);
-        }
-      });
+    if (!this.requestId) {
+      this.error = 'Request ID is required';
+      return;
     }
+
+    this.loading = true;
+    this.error = null;
+
+    // Set the requestId in the response object
+    this.newResponse.requestId = this.requestId;
+    this.newResponse.dateResponse = new Date();
+
+    this.responseService.addResponse(this.newResponse, this.requestId).subscribe({
+      next: (response: ForumResponse) => {
+        // Find the request and add the new response to its responses array
+        const request = this.listRequests.find(r => r.idRequest === this.requestId);
+        if (request) {
+          if (!request.responses) {
+            request.responses = [];
+          }
+          request.responses.push(response);
+        }
+        // Hide the modal
+        this.responseModal?.hide();
+        // Reset the response form
+        this.newResponse = {
+          content: '',
+          requestId: 0,
+          idResponse: 0,
+          dateResponse: new Date(),
+          object: '',
+          senderId: 0
+        };
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.error = 'Error adding response. Please try again later.';
+        this.loading = false;
+        console.error('Error adding response:', err);
+      }
+    });
   }
 
   // Toggle form visibility

@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ToastrService } from 'ngx-toastr';
+import { Directive, ElementRef, Input, OnInit } from '@angular/core';
 
 import { JobOfferService } from '../../../services/jof-offer.service';
 import { JobApplicationService } from '../../../services/job-application.service';
@@ -15,12 +16,56 @@ import { JobApplication, JobApplicationStatus, Applicant, StatusHistory } from '
 import { FooterComponent } from '@component/footer/footer.component';
 import { NavbarComponent } from '@component/navbar/navbar.component';
 
+@Directive({
+  selector: 'img[data-token]'
+})
+export class AuthImageDirective implements OnInit {
+  @Input('data-token') token!: string;
+
+  constructor(private el: ElementRef, private authService: AuthService) {}
+
+  ngOnInit() {
+    const img = this.el.nativeElement as HTMLImageElement;
+    const originalSrc = img.src;
+    
+    // Create a new image with authentication
+    const newImg = new Image();
+    newImg.onload = () => {
+      img.src = newImg.src;
+    };
+    newImg.onerror = () => {
+      img.src = 'assets/images/default-logo.jpg';
+    };
+
+    // Add authentication header
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', originalSrc, true);
+    xhr.setRequestHeader('Authorization', `Bearer ${this.token}`);
+    xhr.responseType = 'blob';
+    
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        const blob = xhr.response;
+        newImg.src = URL.createObjectURL(blob);
+      } else {
+        img.src = 'assets/images/default-logo.jpg';
+      }
+    };
+    
+    xhr.onerror = () => {
+      img.src = 'assets/images/default-logo.jpg';
+    };
+    
+    xhr.send();
+  }
+}
+
 @Component({
   selector: 'app-job-opportunities-forum',
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './job-opportunities-forum.component.html',
   styleUrls: ['./job-opportunities-forum.component.scss'],
-  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent, FooterComponent, MatTooltipModule],
+  imports: [CommonModule, FormsModule, RouterLink, NavbarComponent, FooterComponent, MatTooltipModule, AuthImageDirective],
   standalone: true,
   providers: [JobOfferService, JobApplicationService]
 })
@@ -124,10 +169,14 @@ public JobApplicationStatus = JobApplicationStatus;
   showSuggestions: boolean = false;
   currentUserJob: string | null = null;
 
+  userProfileImages: { [key: number]: string } = {};
+  userImageLoadingStates: { [key: number]: boolean } = {};
+  defaultUserImage = 'assets/images/default-logo.jpg';
+
   constructor(
     private jobService: JobOfferService,
     private jobApplicationService: JobApplicationService,
-    private authService: AuthService,
+    public authService: AuthService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -174,27 +223,38 @@ public JobApplicationStatus = JobApplicationStatus;
   fetchJobOffers() {
     this.loading = true;
     this.jobService.getJobOffers().subscribe({
-      next: (data: JobOffer[]) => {
-        this.jobOffers = Array.isArray(data) ? data : [];
-        this.filteredOffers = [...this.jobOffers];
-        this.applyFilters();
+      next: (offers: JobOffer[]) => {
+        console.log('Fetched job offers:', offers);
+        this.jobOffers = offers;
+        this.filteredOffers = [...offers];
         
-        // Fetch report counts for all job offers
+        // Load profile images for each job creator
         this.jobOffers.forEach(job => {
-          if (job.idJobOffer) {
-            this.jobService.getJobOfferReportCount(job.idJobOffer).subscribe({
-              next: (count) => {
-                this.reportCounts[job.idJobOffer!] = count;
+          if (job.createdBy?.idUser) {
+            // Get the profile image using the auth service
+            this.authService.getProfileImage(job.createdBy.idUser).subscribe({
+              next: (imageUrl: string | null) => {
+                if (imageUrl) {
+                  this.userProfileImages[job.createdBy!.idUser] = imageUrl;
+                  this.cdr.detectChanges();
+                } else {
+                  this.userProfileImages[job.createdBy!.idUser] = this.defaultUserImage;
+                  this.cdr.detectChanges();
+                }
+              },
+              error: (error: any) => {
+                console.error('Error loading profile image:', error);
+                this.userProfileImages[job.createdBy!.idUser] = this.defaultUserImage;
+                this.cdr.detectChanges();
               }
             });
           }
         });
-        
         this.loading = false;
       },
-      error: (err) => {
-        this.error = 'Error fetching job offers';
-        console.error('Error details:', err);
+      error: (err: Error) => {
+        console.error('Error fetching job offers:', err);
+        this.error = 'Failed to load job offers';
         this.loading = false;
       }
     });
@@ -1099,5 +1159,23 @@ public JobApplicationStatus = JobApplicationStatus;
           this.loading = false;
         }
       });
+  }
+
+  getUserProfileImage(userId: number | undefined): string {
+    if (!userId) {
+      return this.defaultUserImage;
+    }
+    return this.userProfileImages[userId] || this.defaultUserImage;
+  }
+
+  handleImageError(userId: number | undefined): void {
+    if (userId) {
+      this.userProfileImages[userId] = this.defaultUserImage;
+      this.cdr.detectChanges();
+    }
+  }
+
+  isUserImageLoading(userId: number | undefined): boolean {
+    return false;
   }
 }

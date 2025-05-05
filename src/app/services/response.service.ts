@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { Response } from '../models/Response.model';
+import { ForumResponse } from '../models/Response.model';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -16,16 +16,22 @@ export class ResponseService {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   // Récupérer toutes les réponses pour une demande spécifique
-  getResponsesByRequestId(requestId: number): Observable<Response[]> {
-    return this.http.get<Response[]>(`${this.apiUrl}/by-request/${requestId}`, {
+  getResponsesByRequestId(requestId: number): Observable<ForumResponse[]> {
+    return this.http.get<ForumResponse[]>(`${this.apiUrl}/by-request/${requestId}`, {
       headers: this.getAuthHeaders(),
     });
   }
 
   // Ajouter une nouvelle réponse
-  addResponse(response: Response,id:number): Observable<Response> {
-    console.log(response)
-    return this.http.post<Response>(`${this.apiUrlRespense}/`+id, response, {
+  addResponse(response: ForumResponse, id: number): Observable<ForumResponse> {
+    // Create a new response object with the current date
+    const responseToCreate = {
+      ...response,
+      dateResponse: new Date(),
+      requestId: id
+    };
+
+    return this.http.post<ForumResponse>(`${this.apiUrlRespense}/${id}`, responseToCreate, {
       headers: this.getAuthHeaders(),
     });
   }

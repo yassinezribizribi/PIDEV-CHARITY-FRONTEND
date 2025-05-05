@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, Subscriber } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subscriber, switchMap } from 'rxjs';
+import { catchError, tap, map } from 'rxjs/operators';
 import { Router } from '@angular/router'; 
 import {Applicant } from '../models/job-application.model';
 import { User } from '../models/user.model';
@@ -272,6 +272,41 @@ export class AuthService {
     return this.http.delete(`${this.apiUrl}/delete/${userId}`, {
       headers: this.getAuthHeaders()
     });
+  }
+
+  getProfileImage(userId: number): Observable<string | null> {
+    const token = this.getToken();
+    return this.getUserById(userId).pipe(
+      switchMap(user => {
+        const imagePath = (user as any).profileImage;
+        if (!imagePath) {
+          return of(null);
+        }
+        
+        // Extract filename from the path
+        const filename = imagePath.split('/').pop();
+        if (!filename) {
+          return of(null);
+        }
+
+        return this.http.get(`http://localhost:8089/api/auth/profile-image/${filename}`, {
+          headers: new HttpHeaders({
+            'Authorization': `Bearer ${token}`
+          }),
+          responseType: 'blob'
+        }).pipe(
+          map(blob => URL.createObjectURL(blob)),
+          catchError(error => {
+            console.error('Error loading profile image:', error);
+            return of(null);
+          })
+        );
+      }),
+      catchError(error => {
+        console.error('Error getting user:', error);
+        return of(null);
+      })
+    );
   }
 }
 // Update the LoginResponse interface to match actual API response

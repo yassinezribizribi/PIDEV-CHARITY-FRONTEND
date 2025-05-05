@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, map, throwError } from 'rxjs';
+import { Observable, catchError, map, throwError, forkJoin, of, switchMap } from 'rxjs';
 import { AuthService } from './auth.service';
 
 export interface Location {
@@ -33,11 +33,14 @@ export interface Message {
 
 export interface Conversation {
   id: number;
-  participant1Id: number;
+  participantId: number;
+  participantName: string;
+  participantAvatar?: string;
+  lastMessage: string;
+  lastMessageTime: Date;
+  isOnline: boolean;
+  messages?: Message[];
   participant2Id: number;
-  messages: Message[];
-  lastMessage?: Message;
-  unreadCount: number;
 }
 
 @Injectable({
@@ -45,6 +48,7 @@ export interface Conversation {
 })
 export class ConversationService {
   private apiUrl = 'http://localhost:8089/api/conversations';
+  private userApiUrl = 'http://localhost:8089/api/auth/user';
 
   constructor(
     private http: HttpClient,
@@ -63,31 +67,50 @@ export class ConversationService {
     return headersObj;
   }
 
-  private cleanConversationData(data: any): Conversation {
-    return {
-      id: data.id,
-      participant1Id: data.participant1Id,
-      participant2Id: data.participant2Id,
-      messages: (data.messages || []).map((msg: any) => ({
-        id: msg.id,
-        content: msg.content,
-        senderId: msg.senderId,
-        receiverId: msg.receiverId,
-        timestamp: new Date(msg.timestamp),
-        read: msg.read,
-        location: msg.location
-      })),
-      lastMessage: data.lastMessage ? {
-        id: data.lastMessage.id,
-        content: data.lastMessage.content,
-        senderId: data.lastMessage.senderId,
-        receiverId: data.lastMessage.receiverId,
-        timestamp: new Date(data.lastMessage.timestamp),
-        read: data.lastMessage.read,
-        location: data.lastMessage.location
-      } : undefined,
-      unreadCount: data.unreadCount
-    };
+  private getUserDetails(userId: number): Observable<any> {
+    return this.http.get<any>(`${this.userApiUrl}/${userId}`, { headers: this.getHeaders() });
+  }
+
+  private cleanConversationData(data: any): Observable<Conversation> {
+    const currentUserId = this.authService.getUserId();
+    if (!currentUserId) {
+      return throwError(() => new Error('User not authenticated'));
+    }
+    
+    console.log('Cleaning conversation data:', { data, currentUserId });
+    
+    // Determine the other participant's ID
+    const otherParticipantId = data.participant1Id === currentUserId ? data.participant2Id : data.participant1Id;
+    console.log('Other participant ID:', otherParticipantId);
+    
+    return this.getUserDetails(otherParticipantId).pipe(
+      map(userDetails => {
+        console.log('User details for other participant:', userDetails);
+        const conversation: Conversation = {
+          id: data.id,
+          participantId: otherParticipantId,
+          participant2Id: currentUserId,
+          participantName: userDetails.firstName && userDetails.lastName 
+            ? `${userDetails.firstName} ${userDetails.lastName}`
+            : userDetails.email?.split('@')[0] || 'Unknown User',
+          participantAvatar: userDetails.profileImage || 'assets/images/default-logo.jpg',
+          lastMessage: data.lastMessage?.content || '',
+          lastMessageTime: data.lastMessage?.timestamp ? new Date(data.lastMessage.timestamp) : new Date(),
+          isOnline: data.isOnline || false,
+          messages: (data.messages || []).map((msg: any) => ({
+            id: msg.id,
+            content: msg.content,
+            senderId: msg.senderId,
+            receiverId: msg.receiverId,
+            timestamp: new Date(msg.timestamp),
+            read: msg.read,
+            location: msg.location
+          }))
+        };
+        console.log('Cleaned conversation:', conversation);
+        return conversation;
+      })
+    );
   }
 
   getOrCreateConversation(participant2Id: number): Observable<Conversation> {
@@ -95,15 +118,28 @@ export class ConversationService {
     if (!userId) {
       throw new Error('User not authenticated');
     }
-    return this.http.post<Conversation>(
-      `${this.apiUrl}/start`,
-      { participant2Id },
-      { headers: this.getHeaders() }
-    );
+    return this.http.post<any>(`${this.apiUrl}/start`, { participant2Id }, { headers: this.getHeaders() })
+      .pipe(
+        switchMap(response => this.cleanConversationData(response)),
+        catchError(error => {
+          console.error('Error creating conversation:', error);
+          return throwError(() => new Error('Failed to create conversation'));
+        })
+      );
   }
   
   getConversations(): Observable<Conversation[]> {
-    return this.http.get<Conversation[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
+    return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
+      map(conversations => conversations.filter(conv => 
+        conv.messages && conv.messages.length > 0
+      )),
+      switchMap(conversations => {
+        if (conversations.length === 0) {
+          return of([]);
+        }
+        const conversationObservables = conversations.map(conv => this.cleanConversationData(conv));
+        return forkJoin(conversationObservables);
+      }),
       catchError(error => {
         console.error('Error getting conversations:', error);
         return throwError(() => new Error('Failed to load conversations. Please try again later.'));
@@ -111,11 +147,12 @@ export class ConversationService {
     );
   }
 
-  getMessages(conversationId: number): Observable<Message[]> {
-    return this.http.get<Message[]>(
-      `${this.apiUrl}/${conversationId}/messages`,
-      { headers: this.getHeaders() }
-    );
+  getMessages(conversationId: number, beforeId?: number): Observable<Message[]> {
+    let url = `${this.apiUrl}/${conversationId}/messages`;
+    if (beforeId) {
+      url += `?beforeId=${beforeId}`;
+    }
+    return this.http.get<Message[]>(url, { headers: this.getHeaders() });
   }
 
 sendMessage(conversationId: number, message: Partial<Message>): Observable<Message> {
@@ -127,7 +164,15 @@ sendMessage(conversationId: number, message: Partial<Message>): Observable<Messa
 }
 
   uploadAttachment(formData: FormData): Observable<Attachment> {
-    return this.http.post<any>(`${this.apiUrl}/upload`, formData, { headers: this.getHeaders() }).pipe(
+    // Get the auth headers but don't set Content-Type
+    const authHeaders = this.getHeaders();
+    const headers = new HttpHeaders({
+      'Authorization': authHeaders['Authorization']
+    });
+    
+    return this.http.post<any>(`${this.apiUrl}/upload`, formData, { 
+      headers: headers // Only include Authorization header
+    }).pipe(
       map(response => {
         // Create a proper URL for the file
         const fileUrl = `http://localhost:8089/api/conversations/files/${response.filename}`;

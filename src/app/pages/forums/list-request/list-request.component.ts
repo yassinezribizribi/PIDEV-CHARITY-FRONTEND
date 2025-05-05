@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RequestService } from '../../../services/request.service';
+import { ForumResponse } from '../../../models/Response.model';
 import { Request } from '../../../models/Request.model';
-import { Response } from '../../../models/Response.model';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 import { FooterComponent } from "../../../components/footer/footer.component";
@@ -16,7 +16,8 @@ import { CommonModule } from '@angular/common';
   imports: [FooterComponent, ReactiveFormsModule, FormsModule, NavbarComponent,CommonModule],
 })
 export class ListRequestComponent implements OnInit {
-  listRequests: Request[] = []; // Liste des demandes
+  requests: Request[] = [];
+  responses: ForumResponse[] = [];
   filteredRequests: Request[] = []; // Liste des demandes filtrées
   newRequest: any = {
     idRequest: 0,
@@ -40,19 +41,18 @@ export class ListRequestComponent implements OnInit {
   }
 
   loadRequests(): void {
-    this.requestService.getAllRequests().subscribe({
-      next: (requests) => {
-        this.listRequests = requests;
-        this.filteredRequests = [...requests]; // Initialiser les demandes filtrées
+    this.requestService.getAllRequestsWithResponses().subscribe({
+      next: (data) => {
+        this.requests = data;
       },
-      error: (err) => {
-        console.error('Error loading requests:', err);
-      },
+      error: (error) => {
+        console.error('Error loading requests:', error);
+      }
     });
   }
 
   applyFilters(): void {
-    let filtered = this.listRequests;
+    let filtered = this.requests;
 
     // Filtre par urgence
     if (this.urgentFilter !== '') {
@@ -78,7 +78,7 @@ export class ListRequestComponent implements OnInit {
 
     this.requestService.addRequest(this.newRequest).subscribe({
       next: (addedRequest: Request) => {
-        this.listRequests.push(addedRequest);
+        this.requests.push(addedRequest);
         this.applyFilters(); // Appliquer les filtres après l'ajout
         this.showForm = false;
       },

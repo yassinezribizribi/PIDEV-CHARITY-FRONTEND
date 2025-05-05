@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { Request } from '../models/Request.model';
 import { AuthService } from './auth.service';
 
@@ -21,18 +21,31 @@ export class RequestService {
     });
   }
   addRequest(request: Request): Observable<Request> {
-    // Récupérer l'ID de l'utilisateur connecté
+    // Get the current user's ID
     const userId = this.authService.getUserId();
     if (!userId) {
       throw new Error('User ID not found');
     }
 
-    // Associer l'ID de l'utilisateur à la demande
+    // First get the user's complete information
+    return this.authService.getUserById(userId).pipe(
+      switchMap(userInfo => {
+        // Create a new request object with complete user data
+        const requestToCreate = {
+          ...request,
+          user: {
+            id: userId,
+            firstName: userInfo.firstName,
+            lastName: userInfo.lastName
+          }
+        };
 
-    // Envoyer la demande au backend
-    return this.http.post<Request>(`${this.apiUrl}/add`, request, {
-      headers: this.getAuthHeaders(), // Ajouter les headers d'authentification
-    });
+        // Send the request to the backend
+        return this.http.post<Request>(`${this.apiUrl}/add`, requestToCreate, {
+          headers: this.getAuthHeaders(),
+        });
+      })
+    );
   }
 
   // Méthode pour générer les headers d'authentification

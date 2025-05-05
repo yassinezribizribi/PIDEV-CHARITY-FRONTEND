@@ -1,7 +1,7 @@
-$primary-color: #004085;
-$success-color: #1e7e34;
-$info-color: #117a8b;
-$background-color: #f4f6f9;
+$primary-color: #2f55d4;
+$success-color: #1cc88a;
+$info-color: #36b9cc;
+$background-color: #f8f9fa;
 $dark-gray: #343a40;
 $border-radius: 12px;
 $shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
@@ -16,6 +16,12 @@ $shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   box-shadow: $shadow;
   border: none;
   background: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .card-body {
@@ -26,16 +32,20 @@ h3, h4 {
   color: $primary-color;
   font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 button {
-  border-radius: 10px;
-  font-weight: 700;
+  border-radius: 50px;
+  font-weight: 600;
   padding: 12px 24px;
   transition: all 0.3s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
 }
 
 .btn-success {
@@ -72,16 +82,19 @@ button {
 .form-group {
   margin-bottom: 25px;
   label {
-    font-weight: 700;
+    font-weight: 600;
     color: $dark-gray;
     display: block;
     margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
   }
 }
 
 input, textarea {
   border-radius: 8px;
-  border: 2px solid #ccc;
+  border: 2px solid #e2e8f0;
   padding: 14px;
   width: 100%;
   font-size: 16px;
@@ -90,7 +103,7 @@ input, textarea {
   &:focus {
     border-color: $primary-color;
     outline: none;
-    box-shadow: 0 0 8px rgba(0, 64, 133, 0.3);
+    box-shadow: 0 0 8px rgba(47, 85, 212, 0.3);
   }
 }
 
@@ -113,6 +126,7 @@ textarea {
   text-transform: uppercase;
   &:hover {
     background-color: darken($primary-color, 15%);
+    transform: translateY(-2px);
   }
 }
 
@@ -123,8 +137,8 @@ textarea {
   box-shadow: $shadow;
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
   }
   h4 {
     color: $primary-color;
@@ -134,32 +148,35 @@ textarea {
 .thread-content {
   border-left: 8px solid $primary-color;
   padding: 20px;
-  background: rgba(0, 64, 133, 0.05);
+  background: rgba(47, 85, 212, 0.05);
   border-radius: 8px;
+  margin: 15px 0;
 }
+
 .return-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background-color: $primary-color;
   color: white;
-  border-radius: 10px;
+  border-radius: 50px;
   padding: 12px 24px;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 16px;
   text-transform: uppercase;
   transition: all 0.3s ease-in-out;
-  text-decoration: none; /* Supprimer le soulignement du lien */
+  text-decoration: none;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
   
   &:hover {
     background-color: darken($primary-color, 15%);
-    transform: scale(1.05);
+    transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
 
   i {
-    margin-right: 8px; /* Espacement entre l'icône et le texte */
+    margin-right: 8px;
   }
 }
 
@@ -167,5 +184,112 @@ textarea {
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-top: 30px; /* Ajout d'une marge en haut pour espacer du contenu précédent */
+  margin-top: 30px;
+}
+
+// Request card specific styles
+.request-card {
+  margin-bottom: 2rem;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .request-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $primary-color;
+    margin-bottom: 0.75rem;
+  }
+  
+  .request-content {
+    color: #4a5568;
+    line-height: 1.6;
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .badge {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// Loading and empty states
+.loading-state, .empty-state {
+  padding: 3rem 0;
+  text-align: center;
+  
+  i {
+    font-size: 3rem;
+    color: $primary-color;
+    margin-bottom: 1.5rem;
+  }
+  
+  h5 {
+    color: $primary-color;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  
+  p {
+    color: #718096;
+    font-size: 1.1rem;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .card-body {
+    padding: 20px;
+  }
+  
+  .forum-thread {
+    padding: 20px;
+  }
+  
+  .request-card {
+    .request-title {
+      font-size: 1.1rem;
+    }
+    
+    .request-content {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Responses section styles
+.responses-list {
+  .response-card {
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    p {
+      color: #4a5568;
+      line-height: 1.5;
+      margin: 0;
+    }
+    
+    small {
+      font-size: 0.875rem;
+    }
+    
+    .avatar {
+      flex-shrink: 0;
+    }
+  }
 }
