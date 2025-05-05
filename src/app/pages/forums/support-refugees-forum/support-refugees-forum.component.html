@@ -117,38 +117,60 @@
                                         <!-- Posted By -->
                                         <p class="text-muted mb-3 fs-5">
                                             <i class="fas fa-user-circle me-1"></i>
-                                            Posted by {{ getCreatorName(request) }}
+                                            {{ getCreatorName(request) }}
                                         </p>
                                         
                                         <!-- Request Content -->
                                         <p class="request-content mb-4 fs-5">{{ request.content }}</p>
                                         
                                         <!-- Date -->
-                                        <div class="mb-4">
-                                            <p class="text-muted mb-0">
-                                                <i class="fas fa-calendar me-1"></i>
-                                                Posted on {{ request.createdAt || request.dateRequest | date:'medium' }}
-                                            </p>
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <div class="d-flex gap-2">
+                                                <button *ngIf="!request.responses || request.responses.length === 0" 
+                                                        (click)="openResponseModal(request)"
+                                                        class="btn btn-primary fs-6">
+                                                    <i class="fas fa-reply me-1"></i> Respond
+                                                </button>
+                                                <button *ngIf="request.responses && request.responses.length > 0"
+                                                        (click)="viewResponses(request)"
+                                                        class="btn btn-info fs-6">
+                                                    <i class="fas fa-comments me-1"></i> View Responses
+                                                </button>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="text-muted">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    {{ request.dateRequest | date:'medium' }}
+                                                </span>
+                                                <span class="text-muted">
+                                                    <i class="fas fa-comments me-1"></i>
+                                                    {{ request.responses?.length || 0 }} responses
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Buttons -->
-                                <div class="d-flex flex-wrap gap-3 mt-4">
-                                    <!-- Respond Button -->
-                                    <button *ngIf="!request.response" 
-                                            (click)="openResponseModal(request)"
-                                            class="btn btn-primary fs-6">
-                                        <i class="fas fa-reply me-1"></i> Respond
-                                    </button>
-                                    
-                                    <!-- View Responses Button -->
-                                    <button *ngIf="request.responses && request.responses.length > 0"
-                                            (click)="viewResponses(request)"
-                                            class="btn btn-outline-primary fs-6">
-                                        <i class="fas fa-comments me-1"></i> View Responses
-                                        <span class="badge bg-primary ms-1">{{ request.responses.length }}</span>
-                                    </button>
+                                <!-- Responses Section -->
+                                <div *ngIf="request.responses && request.responses.length > 0" class="mt-4">
+                                    <h5 class="mb-3">Responses</h5>
+                                    <div class="responses-list">
+                                        <div *ngFor="let response of request.responses" class="response-card p-3 mb-3 bg-light rounded">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <div class="avatar rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                                                     style="width: 40px; height: 40px; font-size: 1rem;">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <p class="mb-2">{{ response.content }}</p>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        {{ response.dateResponse | date:'medium' }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

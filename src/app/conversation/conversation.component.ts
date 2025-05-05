@@ -11,6 +11,7 @@ import { Modal } from 'bootstrap';
 import { Subscription, interval } from 'rxjs';
 import { CallTrackingService, CallRecord } from '../services/call-tracking.service';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-conversation',
@@ -20,6 +21,7 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule, NavbarComponent, RouterLink],
 })
 export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecked {
+  private readonly API_URL = environment.apiUrl;
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('localVideo') private localVideo!: ElementRef<HTMLVideoElement>;
   @ViewChild('remoteVideo') private remoteVideo!: ElementRef<HTMLVideoElement>;
@@ -72,6 +74,17 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
   private ringtone: HTMLAudioElement | null = null;
   private isRinging = false;
 
+  // Add missing properties for conversations list
+  conversations: Conversation[] = [];
+  currentConversationId: number | null = null;
+  searchQuery: string = '';
+
+  // Add these properties after the existing properties
+  userSearchQuery: string = '';
+  filteredUsers: any[] = [];
+  loadingUsers: boolean = false;
+  newConversationModal: Modal | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -117,36 +130,50 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
 
     console.log('Component initialized with current user ID:', this.currentUserId);
 
-    this.route.params.subscribe(params => {
-      const id = params['id'];
-      if (!id || isNaN(+id)) {
-        console.error('Invalid conversation ID:', id);
-        this.error = 'Invalid conversation ID';
+    // Load conversations list
+    this.loadConversationsList();
+
+    // Subscribe to query parameters
+    this.route.queryParams.subscribe(params => {
+      const participantId = params['participantId'];
+      
+      // Only try to load a specific conversation if participantId is provided
+      if (participantId && !isNaN(+participantId)) {
+        this.participant2Id = +participantId;
+        console.log('Loading conversation between users:', {
+          currentUserId: this.currentUserId,
+          participant2Id: this.participant2Id
+        });
+
+        this.loadConversation(this.participant2Id);
+        this.setupSignalingService();
+        this.loadParticipantDetails();
+        this.initializeCallModal();
+        this.subscribeToStreams();
+      } else {
+        // If no participantId, just show the conversation list
         this.loading = false;
-        return;
       }
-
-      this.participant2Id = +id;
-      console.log('Loading conversation between users:', {
-        currentUserId: this.currentUserId,
-        participant2Id: this.participant2Id
-      });
-
-      this.loadConversation(this.participant2Id);
-      this.setupSignalingService();
-      this.loadParticipantDetails();
-      this.initializeCallModal();
-      this.subscribeToStreams();
     });
   }
 
   ngAfterViewChecked() {
-    // Remove automatic scrolling on every view check
+    // Only scroll if we have messages and should scroll
+    if (this.messages.length > 0 && this.shouldScrollToBottom) {
+      this.scrollToBottom('auto');
+    }
   }
   
-  onScroll() {
+  onScroll(): void {
     const element = this.messagesContainer.nativeElement;
+    const atTop = element.scrollTop === 0;
     const atBottom = Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 50;
+    
+    if (atTop && !this.loading) {
+      // Load more messages when scrolling to the top
+      this.loadMoreMessages();
+    }
+    
     this.shouldScrollToBottom = atBottom;
   }
   ngAfterViewInit() {
@@ -321,26 +348,50 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
       this.isCaller = true;
       this.isInCall = false;
       
-      if (callType === 'video') {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-          console.log('Successfully got video stream');
-          stream.getTracks().forEach(track => track.stop());
-        } catch (error) {
-          console.warn('Failed to access camera, falling back to voice call:', error);
-          this.callType = 'voice';
-          this.toastr.warning('Could not access camera, switching to voice call');
+      // Get media stream based on call type
+      try {
+        const constraints = callType === 'video' 
+          ? { video: true, audio: true }
+          : { video: false, audio: true };
+        
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        console.log('Successfully got media stream');
+        
+        // Store the stream for later use
+        this.callService.setLocalStream(stream);
+        
+        // Show/hide video elements based on call type
+        if (this.localVideo?.nativeElement) {
+          this.localVideo.nativeElement.srcObject = stream;
+          this.localVideo.nativeElement.style.display = callType === 'video' ? 'block' : 'none';
         }
+        
+        if (this.remoteVideo?.nativeElement) {
+          this.remoteVideo.nativeElement.style.display = callType === 'video' ? 'block' : 'none';
+        }
+
+        // Hide video container for voice calls
+        const videoContainer = document.querySelector('.video-container');
+        if (videoContainer) {
+          (videoContainer as HTMLElement).style.display = callType === 'video' ? 'block' : 'none';
+        }
+      } catch (error) {
+        console.error('Failed to access media devices:', error);
+        this.toastr.error('Could not access camera/microphone. Please check your permissions.');
+        return;
       }
       
+      // Show call modal
       const modalElement = document.getElementById('callModal');
       if (modalElement) {
         const modal = new Modal(modalElement);
         modal.show();
       }
       
+      // Start the call
       await this.callService.startCall(this.participant2Id.toString(), this.callType);
       
+      // Subscribe to call status updates
       this.callService.getCallStatus().subscribe(status => {
         console.log('Call status changed:', status);
         this.callStatus = status;
@@ -369,6 +420,7 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
         }
       });
       
+      // Subscribe to call duration updates
       this.callService.getCallDuration().subscribe(duration => {
         this.callDuration = this.formatDuration(duration);
       });
@@ -472,11 +524,34 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
       
       this.isEndingCall = true;
       this.stopRingtone();
+      
+      // Stop all media tracks
+      if (this.localVideo?.nativeElement?.srcObject) {
+        const stream = this.localVideo.nativeElement.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      if (this.remoteVideo?.nativeElement?.srcObject) {
+        const stream = this.remoteVideo.nativeElement.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      // End the call
       await this.callService.endCall();
+      
+      // Reset call state
       this.showCallModal = false;
+      this.isInCall = false;
+      this.callStatus = 'disconnected';
+      this.callDuration = '00:00';
+      this.isMuted = false;
+      this.isCameraOff = false;
+      
+      // Hide the modal
       if (this.callModal) {
         this.callModal.hide();
       }
+      
       this.isEndingCall = false;
     } catch (error) {
       console.error('Error ending call:', error);
@@ -531,22 +606,68 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
       return;
     }
 
-    this.conversationService.getOrCreateConversation(participant2Id).subscribe({
-      next: (conversation) => {
-        console.log('Conversation loaded:', conversation);
-        this.conversation = conversation;
-        if (conversation.messages && conversation.messages.length > 0) {
-          console.log('Using messages from conversation:', conversation.messages.length);
-          this.messages = this.sortMessages(conversation.messages);
-          this.loading = false;
-          this.scrollToBottom('auto');
+    // First, try to get existing conversations
+    this.conversationService.getConversations().subscribe({
+      next: (conversations) => {
+        console.log('All conversations:', conversations);
+        
+        // Find if a conversation already exists with this participant
+        const existingConversation = conversations.find(conv => {
+          // Check both possible combinations of participant IDs
+          const matches = (conv.participantId === participant2Id && conv.participant2Id === this.currentUserId) ||
+                         (conv.participantId === this.currentUserId && conv.participant2Id === participant2Id);
+          console.log('Checking conversation:', {
+            conv,
+            participant2Id,
+            currentUserId: this.currentUserId,
+            matches
+          });
+          return matches;
+        });
+
+        if (existingConversation) {
+          console.log('Found existing conversation:', existingConversation);
+          this.conversation = existingConversation;
+          this.currentConversationId = existingConversation.id;
+          this.participant2Id = participant2Id; // Ensure participant2Id is set correctly
+          
+          if (existingConversation.messages && existingConversation.messages.length > 0) {
+            console.log('Using messages from existing conversation:', existingConversation.messages.length);
+            this.messages = this.sortMessages(existingConversation.messages);
+            this.loading = false;
+            // Use setTimeout to ensure view is updated before scrolling
+            setTimeout(() => {
+              this.scrollToBottom('auto');
+            }, 100);
+          } else {
+            console.log('Loading messages separately for existing conversation:', existingConversation.id);
+            this.loadMessages(existingConversation.id);
+          }
         } else {
-          console.log('Loading messages separately for conversation:', conversation.id);
-          this.loadMessages(conversation.id);
+          // If no existing conversation, create a new one
+          console.log('No existing conversation found, creating new one with participant:', participant2Id);
+          this.conversationService.getOrCreateConversation(participant2Id).subscribe({
+            next: (conversation) => {
+              console.log('New conversation created:', conversation);
+              this.conversation = conversation;
+              this.currentConversationId = conversation.id;
+              this.participant2Id = participant2Id; // Ensure participant2Id is set correctly
+              this.messages = [];
+              this.loading = false;
+              // Use setTimeout to ensure view is updated before scrolling
+              setTimeout(() => {
+                this.scrollToBottom('auto');
+              }, 100);
+            },
+            error: (err) => {
+              console.error('Error creating new conversation:', err);
+              this.handleError(err);
+            }
+          });
         }
       },
       error: (err) => {
-        console.error('Error loading conversation:', err);
+        console.error('Error loading conversations:', err);
         this.handleError(err);
       }
     });
@@ -554,16 +675,26 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
 
   private loadMessages(conversationId: number): void {
     console.log('Loading messages for conversation:', conversationId);
+    this.loading = true;
+    this.error = null;
+
     this.conversationService.getMessages(conversationId).subscribe({
       next: (messages) => {
         console.log('Messages loaded:', messages.length);
+        // Sort messages by timestamp in ascending order
         this.messages = this.sortMessages(messages);
         this.loading = false;
-        this.scrollToBottom('auto');
+        // Use setTimeout to ensure view is updated before scrolling
+        setTimeout(() => {
+          if (this.messagesContainer?.nativeElement) {
+            this.scrollToBottom('auto');
+          }
+        }, 100);
       },
       error: (err) => {
         console.error('Error loading messages:', err);
         this.handleError(err);
+        this.loading = false;
       }
     });
   }
@@ -672,8 +803,8 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   toggleMute(): void {
-    const stream = this.localVideo?.nativeElement.srcObject as MediaStream;
-    if (stream) {
+    if (this.localVideo?.nativeElement?.srcObject) {
+      const stream = this.localVideo.nativeElement.srcObject as MediaStream;
       const audioTrack = stream.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
@@ -683,12 +814,16 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   toggleCamera(): void {
-    const stream = this.localVideo?.nativeElement.srcObject as MediaStream;
-    if (stream) {
+    if (this.localVideo?.nativeElement?.srcObject) {
+      const stream = this.localVideo.nativeElement.srcObject as MediaStream;
       const videoTrack = stream.getVideoTracks()[0];
       if (videoTrack) {
         videoTrack.enabled = !videoTrack.enabled;
         this.isCameraOff = !videoTrack.enabled;
+        // Update video display
+        if (this.localVideo?.nativeElement) {
+          this.localVideo.nativeElement.style.display = videoTrack.enabled ? 'block' : 'none';
+        }
       }
     }
   }
@@ -726,15 +861,19 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
     if (!this.shouldScrollToBottom) return;
     
     try {
-      if (this.messagesContainer) {
+      // Use setTimeout to ensure the view is updated
+      setTimeout(() => {
+        if (!this.messagesContainer?.nativeElement) {
+          console.log('Messages container not yet initialized, skipping scroll');
+          return;
+        }
+        
         const element = this.messagesContainer.nativeElement;
-        setTimeout(() => {
-          element.scroll({
-            top: element.scrollHeight,
-            behavior: behavior
-          });
-        }, 0);
-      }
+        element.scroll({
+          top: element.scrollHeight,
+          behavior: behavior
+        });
+      }, 100);
     } catch (err) {
       console.error('Error scrolling to bottom:', err);
     }
@@ -747,7 +886,7 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   private subscribeToStreams(): void {
-    const localStreamSub = this.callService.getLocalStream().subscribe(stream => {
+    const localStreamSub = this.callService.getLocalStreamSubject().subscribe(stream => {
       if (stream && this.localVideo) {
         this.localVideo.nativeElement.srcObject = stream;
       }
@@ -763,20 +902,26 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
     this.subscriptions.push(localStreamSub, remoteStreamSub);
   }
 
-  private getAuthorizedImageUrl(url: string): string {
-    const token = this.authService.getToken();
-    if (!token) return url;
+  getAuthorizedImageUrl(url: string): string {
+    if (!url) return 'assets/images/default-logo.jpg';
     
-    // If URL is already a blob URL, return as is
-    if (url.startsWith('blob:')) return url;
-    
-    try {
-      const urlObj = new URL(url);
-      urlObj.searchParams.set('token', token);
-      return urlObj.toString();
-    } catch (e) {
+    // If it's already a full URL, return it
+    if (url.startsWith('http')) {
       return url;
     }
+
+    // Handle profile images
+    if (url.includes('/uploads/profile-images/')) {
+      const filename = url.split('/').pop();
+      return `${this.API_URL}/api/auth/profile-image/${filename}`;
+    }
+
+    // Handle other images (like job offer images)
+    if (url.startsWith('/uploads/')) {
+      return `${this.API_URL}${url}`;
+    }
+
+    return url;
   }
 
   onFileSelected(event: any): void {
@@ -791,7 +936,7 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
 
     this.uploadProgress = 0;
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file, file.name); // Add the filename as the third parameter
 
     this.loading = true;
     this.conversationService.uploadAttachment(formData).subscribe({
@@ -808,7 +953,7 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
             fileType: file.type,
             fileSize: file.size,
             loaded: false,
-            url: this.getAuthorizedImageUrl(attachment.url) // Use authorized URL
+            url: this.getAuthorizedImageUrl(attachment.url)
           }
         };
 
@@ -828,7 +973,7 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
                     sentMessage.attachment.loaded = true;
                   }
                 };
-                img.src = this.getAuthorizedImageUrl(sentMessage.attachment.url); // Use authorized URL
+                img.src = this.getAuthorizedImageUrl(sentMessage.attachment.url);
               } else {
                 sentMessage.attachment.loaded = true;
               }
@@ -970,6 +1115,122 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
       this.ringtone.currentTime = 0;
       this.isRinging = false;
     }
+  }
+
+  // Add new method to load conversations list
+  private loadConversationsList(): void {
+    this.loading = true;
+    this.conversationService.getConversations().subscribe({
+      next: (conversations) => {
+        this.conversations = conversations;
+        this.loading = false;
+        
+        // If no conversations exist and we're not already in a conversation, show empty state
+        if (conversations.length === 0 && !this.currentConversationId) {
+          this.error = 'No conversations yet. Start a new conversation to begin chatting.';
+        }
+      },
+      error: (err) => {
+        console.error('Error loading conversations list:', err);
+        this.handleError(err);
+        this.loading = false;
+      }
+    });
+  }
+
+  // Add new method to start a new conversation
+  startNewConversation(): void {
+    this.loadUsers();
+    const modalElement = document.getElementById('newConversationModal');
+    if (modalElement) {
+      this.newConversationModal = new Modal(modalElement);
+      this.newConversationModal.show();
+    }
+  }
+
+  // Add new method to select a conversation
+  selectConversation(conversationId: number): void {
+    console.log('Selecting conversation:', conversationId);
+    // Find the conversation in the list
+    const conversation = this.conversations.find(conv => conv.id === conversationId);
+    if (conversation) {
+      console.log('Found conversation to navigate to:', conversation);
+      this.currentConversationId = conversationId;
+      // Navigate using queryParams instead of route params
+      this.router.navigate(['/conversation'], { 
+        queryParams: { 
+          participantId: conversation.participantId,
+          currentUserId: this.currentUserId
+        }
+      });
+    } else {
+      console.error('Conversation not found:', conversationId);
+    }
+  }
+
+  private loadMoreMessages(): void {
+    if (!this.conversation || this.loading) return;
+
+    this.loading = true;
+    const oldestMessageId = this.messages[0]?.id;
+    
+    this.conversationService.getMessages(this.conversation.id, oldestMessageId).subscribe({
+      next: (olderMessages) => {
+        if (olderMessages.length > 0) {
+          // Add older messages at the beginning of the array
+          this.messages = [...olderMessages, ...this.messages];
+          // Maintain scroll position
+          const element = this.messagesContainer.nativeElement;
+          const scrollHeight = element.scrollHeight;
+          setTimeout(() => {
+            element.scrollTop = element.scrollHeight - scrollHeight;
+          }, 0);
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading older messages:', err);
+        this.handleError(err);
+        this.loading = false;
+      }
+    });
+  }
+
+  private loadUsers(): void {
+    this.loadingUsers = true;
+    this.authService.getAllUsers().subscribe({
+      next: (users) => {
+        // Filter out the current user
+        this.filteredUsers = users.filter(user => user.idUser !== this.currentUserId);
+        this.loadingUsers = false;
+      },
+      error: (err) => {
+        console.error('Error loading users:', err);
+        this.handleError(err);
+        this.loadingUsers = false;
+      }
+    });
+  }
+
+  searchUsers(): void {
+    if (!this.userSearchQuery.trim()) {
+      this.loadUsers();
+      return;
+    }
+
+    const query = this.userSearchQuery.toLowerCase();
+    this.filteredUsers = this.filteredUsers.filter(user => 
+      user.firstName.toLowerCase().includes(query) ||
+      user.lastName.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query)
+    );
+  }
+
+  startConversationWithUser(user: any): void {
+    if (this.newConversationModal) {
+      this.newConversationModal.hide();
+    }
+    this.router.navigate(['/conversation', user.idUser]);
   }
 
 }

@@ -58,7 +58,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <div class="avatar-lg me-4">
-                      <img [src]="profileImage || 'assets/images/default-logo.jpg'" 
+                      <img [src]="getProfileImageUrl(currentUser?.profileImage)" 
                         (error)="handleImageError($event)" 
                            class="rounded-circle img-fluid"
                            alt="Profile picture">
@@ -73,11 +73,10 @@
                   </div>
                   <div class="d-flex align-items-center gap-3">
                   <!-- Notification Icon -->
-                    <div class="dropdown">
+                    <div class="dropdown position-relative">
                       <button class="btn btn-soft-primary position-relative" 
                             (click)="toggleNotifications()"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
+                            type="button">
                       <i class="bi bi-bell"></i>
                       <span *ngIf="unreadMessages.length > 0" 
                             class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -85,41 +84,41 @@
                       </span>
                     </button>
                     <!-- Notification Dropdown -->
-                      <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4" [class.show]="showNotifications">
-                        <li class="dropdown-header p-3 border-bottom">
+                    <div class="notification-dropdown" [class.show]="showNotifications">
+                        <div class="dropdown-header p-3 border-bottom">
                           <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold">Notifications</span>
-                        <button *ngIf="unreadMessages.length > 0" 
+                            <button *ngIf="unreadMessages.length > 0" 
                                     class="btn btn-sm btn-soft-primary" 
-                                (click)="markAllAsRead()">
-                          Mark all as read
-                        </button>
+                                    (click)="markAllAsRead()">
+                              Mark all as read
+                            </button>
                           </div>
-                      </li>
-                        <li *ngIf="unreadMessages.length === 0" class="p-3">
+                        </div>
+                        <div *ngIf="unreadMessages.length === 0" class="p-3">
                           <div class="text-center text-muted">
                             <i class="bi bi-bell-slash display-6 mb-2"></i>
                             <p class="mb-0">No new messages</p>
+                          </div>
                         </div>
-                      </li>
-                        <li *ngFor="let message of unreadMessages" class="p-3 border-bottom">
-                        <div class="notification-item" (click)="markMessageAsRead(message)">
-                          <div class="d-flex align-items-center">
+                        <div *ngFor="let message of unreadMessages" class="p-3 border-bottom">
+                          <div class="notification-item" (click)="markMessageAsRead(message)">
+                            <div class="d-flex align-items-center">
                               <div class="avatar-sm me-3">
-                              <img [src]="message.senderAvatar || 'assets/images/default-logo.jpg'" 
-                                   [alt]="getSenderName(message)"
+                                <img [src]="message.senderAvatar || 'assets/images/default-logo.jpg'" 
+                                     [alt]="getSenderName(message)"
                                      class="rounded-circle img-fluid"
-                                   (error)="handleImageError($event)">
-                            </div>
+                                     (error)="handleImageError($event)">
+                              </div>
                               <div>
                                 <h6 class="mb-1">{{ getSenderName(message) }}</h6>
                                 <p class="text-muted small mb-1">{{ message.content }}</p>
-                              <small class="text-muted">{{ message.timestamp | date:'short' }}</small>
+                                <small class="text-muted">{{ message.timestamp | date:'short' }}</small>
                               </div>
+                            </div>
                           </div>
                         </div>
-                      </li>
-                    </ul>
+                    </div>
                     </div>
                     <!-- Logout Button -->
                     <button class="btn btn-soft-danger" (click)="logout()">
@@ -148,11 +147,6 @@
                         Job Offers
                       </button>
                       <button class="nav-link d-flex align-items-center gap-3 p-3" 
-                              (click)="activeTab = 'applications'">
-                        <i class="bi bi-file-text"></i>
-                        Applications
-                      </button>
-                      <button class="nav-link d-flex align-items-center gap-3 p-3" 
                               (click)="activeTab = 'settings'">
                         <i class="bi bi-gear"></i>
                         Settings
@@ -161,6 +155,11 @@
                               (click)="activeTab = 'security'">
                         <i class="bi bi-shield-lock"></i>
                         Security
+                      </button>
+                      <button class="nav-link d-flex align-items-center gap-3 p-3" 
+                              [routerLink]="['/conversation']">
+                        <i class="bi bi-chat-dots"></i>
+                        Messages
                       </button>
                     </div>
                   </div>
@@ -287,37 +286,52 @@
                     </div>
                   </div>
                   <div class="card-body p-4">
-                    <form>
+                    <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
                       <div class="mb-4">
                         <label class="form-label">Profile Picture</label>
                         <div class="d-flex align-items-center gap-3">
-                          <div class="avatar-lg">
-                            <img [src]="profileImage || 'assets/images/default-logo.jpg'" 
+                          <div class="avatar-lg position-relative">
+                            <img [src]="getProfileImageUrl(currentUser?.profileImage)" 
                                  (error)="handleImageError($event)" 
                                  class="rounded-circle img-fluid"
                                  alt="Profile picture">
+                            <div class="avatar-overlay" *ngIf="!isUploading">
+                              <label class="avatar-upload-btn">
+                                <i class="bi bi-camera"></i>
+                                <input type="file" 
+                                       accept="image/*" 
+                                       (change)="onFileSelected($event)"
+                                       style="display: none;">
+                              </label>
+                            </div>
+                            <div class="avatar-overlay" *ngIf="isUploading">
+                              <div class="spinner-border text-light" role="status">
+                                <span class="visually-hidden">Uploading...</span>
+                              </div>
+                            </div>
                           </div>
-                          <button class="btn btn-soft-primary">
-                            <i class="bi bi-upload me-2"></i> Change Picture
-                          </button>
+                          <div class="upload-info">
+                            <p class="text-muted mb-2">Upload a new profile picture</p>
+                            <small class="text-muted">JPG, PNG or GIF (max. 2MB)</small>
+                          </div>
                         </div>
                       </div>
                       <div class="row g-3">
                         <div class="col-md-6">
                           <label class="form-label">First Name</label>
-                          <input type="text" class="form-control" [value]="currentUser.firstName">
+                          <input type="text" class="form-control" formControlName="firstName">
                         </div>
                         <div class="col-md-6">
                           <label class="form-label">Last Name</label>
-                          <input type="text" class="form-control" [value]="currentUser.lastName">
+                          <input type="text" class="form-control" formControlName="lastName">
                         </div>
                         <div class="col-12">
                           <label class="form-label">Email</label>
-                          <input type="email" class="form-control" [value]="currentUser.email" readonly>
+                          <input type="email" class="form-control" formControlName="email" readonly>
                         </div>
                       </div>
                       <div class="mt-4">
-                        <button class="btn btn-soft-primary">
+                        <button type="submit" class="btn btn-soft-primary" [disabled]="!profileForm.valid || isUploading">
                           <i class="bi bi-save me-2"></i> Save Changes
                         </button>
                       </div>
@@ -381,3 +395,45 @@
     </div>
   </div>
 </div>
+
+<style>
+.avatar-lg {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.avatar-lg:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.avatar-upload-btn {
+  color: white;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.avatar-upload-btn:hover {
+  color: var(--bs-primary);
+}
+
+.upload-info {
+  flex: 1;
+}
+</style>

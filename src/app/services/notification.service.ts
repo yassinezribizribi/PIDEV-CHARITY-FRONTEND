@@ -26,6 +26,7 @@ interface RawMessageData {
     lastName?: string;
     profileImage?: string;
   };
+  conversationId?: number;
 }
 
 export interface MessageNotification extends Omit<Notification, 'type'> {
@@ -36,6 +37,7 @@ export interface MessageNotification extends Omit<Notification, 'type'> {
   senderAvatar?: string;
   senderName?: string;
   type: NotificationType.MESSAGE;
+  conversationId?: number;
   sender?: {
     idUser: number;
     username: string;
@@ -268,7 +270,8 @@ export class NotificationService {
           read: message.read,
           senderId: message.senderId,
           receiverId: message.receiverId,
-          type: NotificationType.MESSAGE
+          type: NotificationType.MESSAGE,
+          conversationId: message.conversationId
         };
 
         // If we have a senderId, get the complete user information

@@ -231,8 +231,24 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'conversation/:id',
-    loadComponent: () => import('./conversation/conversation.component').then(m => m.ConversationComponent)
+    path: 'conversation',
+    children: [
+      { 
+        path: '',
+        loadComponent: () => import('./conversation/conversation.component').then(m => m.ConversationComponent),
+        canActivate: [AuthGuard]
+      },
+      { 
+        path: 'new',
+        loadComponent: () => import('./conversation/conversation.component').then(m => m.ConversationComponent),
+        canActivate: [AuthGuard]
+      },
+      { 
+        path: ':id',
+        loadComponent: () => import('./conversation/conversation.component').then(m => m.ConversationComponent),
+        canActivate: [AuthGuard]
+      }
+    ]
   },
   {
     path: 'admin/users',

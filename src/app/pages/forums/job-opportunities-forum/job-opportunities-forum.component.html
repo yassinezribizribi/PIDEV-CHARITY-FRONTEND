@@ -101,7 +101,11 @@
                                     <div class="avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
                                          [style.backgroundColor]="getAvatarColor(job)"
                                          style="width: 60px; height: 60px; font-size: 1.5rem;">
-                                {{ getInitials(getCreatorName(job)) }}
+                                <img [src]="getUserProfileImage(job.createdBy?.idUser)" 
+                                     [class.loading]="isUserImageLoading(job.createdBy?.idUser)"
+                                     (error)="handleImageError(job.createdBy?.idUser)"
+                                     class="avatar-img"
+                                     alt="User avatar">
                             </div>
                             
                             <div class="flex-grow-1">

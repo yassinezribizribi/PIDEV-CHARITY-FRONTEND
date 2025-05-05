@@ -25,6 +25,8 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "baseHref": "/",
+            "deployUrl": "/",
             "assets": [
               "src/favicon.ico",
               "src/assets",
@@ -37,21 +39,15 @@
               "./node_modules/bootstrap/scss/bootstrap.scss",
               "node_modules/@fortawesome/fontawesome-free/css/all.css",
               "node_modules/ngx-toastr/toastr.css",
-
               "src/assets/scss/style.scss",
               "src/assets/css/materialdesignicons.min.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
-
               "src/styles.scss",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "src/styles.scss",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-
-              
-  "node_modules/ngx-toastr/toastr.css",
-"node_modules/leaflet/dist/leaflet.css"
-              
-
+              "node_modules/ngx-toastr/toastr.css",
+              "node_modules/leaflet/dist/leaflet.css"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -60,7 +56,12 @@
             },
             "scripts": [
               "node_modules/leaflet/dist/leaflet.js"
-            ]
+            ],
+            "optimization": {
+              "scripts": true,
+              "styles": true,
+              "fonts": true
+            }
           },
           "configurations": {
             "production": {
@@ -96,7 +97,10 @@
               "buildTarget": "solidarity:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"
@@ -138,5 +142,4 @@
   "cli": {
     "analytics": "b5f03ef5-7daf-4a6c-91e3-41cab44d26b8"
   }
-  
 }

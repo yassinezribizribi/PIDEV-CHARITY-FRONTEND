@@ -163,11 +163,39 @@
 }
 
 .avatar {
-  width: 60px;
-  height: 60px;
+  width: 120px;
+  height: 120px;
   font-size: 1.5rem;
   background: #f8f9fa;
-  border: 1px solid #e2e8f0;
+  border: 2px solid #e2e8f0;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: opacity 0.3s ease;
+    aspect-ratio: 1;
+    padding: 0;
+
+    &.loading {
+      opacity: 0.5;
+      animation: pulse 1.5s infinite;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.5; }
 }
 
 .badge {

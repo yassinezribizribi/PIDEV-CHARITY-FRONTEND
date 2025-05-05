@@ -87,12 +87,16 @@
                 <p class="mb-3">{{ req.content }}</p>
 
                 <!-- Display Responses -->
-                <div *ngIf="req.responses && req.responses.length > 0" class="bg-light p-3 rounded-lg">
-                  <h6 class="text-secondary mb-2">Responses:</h6>
-                  <ul class="list-unstyled mb-0">
-                    <li *ngFor="let resp of req.responses" class="mb-2">
+                <div *ngIf="req.responses && req.responses.length > 0" class="responses-section mt-3">
+                  <h6 class="text-muted mb-2">Responses:</h6>
+                  <ul class="list-unstyled">
+                    <li *ngFor="let resp of req.responses" class="response-item mb-2">
                       <i class="fas fa-reply me-2 text-primary"></i>
-                      {{ resp.text }}
+                      {{ resp.content }}
+                      <small class="text-muted d-block ms-4">
+                        <i class="fas fa-clock me-1"></i>
+                        {{ resp.dateResponse | date:'medium' }}
+                      </small>
                     </li>
                   </ul>
                 </div>

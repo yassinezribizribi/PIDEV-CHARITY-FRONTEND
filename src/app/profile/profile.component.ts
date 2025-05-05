@@ -11,6 +11,8 @@ import { NotificationService, MessageNotification } from '../services/notificati
 import { interval } from 'rxjs';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 interface UserProfile {
   idUser: number;
@@ -22,6 +24,9 @@ interface UserProfile {
   roles?: string[];
   isBanned?: boolean;
   banreason?: string | null;
+  job?: string;
+  telephone?: string;
+  location?: string;
 }
 
 @Component({
@@ -259,18 +264,40 @@ interface UserProfile {
       transform: translateY(-2px);
     }
 
-    .dropdown-menu {
+    .notification-dropdown {
       min-width: 300px;
       padding: 0;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 0.5rem);
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      z-index: 99999;
+      display: none;
+    }
+
+    .notification-dropdown.show {
+      display: block;
     }
 
     .notification-item {
       cursor: pointer;
       transition: all 0.2s ease;
+      padding: 0.75rem 1rem;
     }
 
     .notification-item:hover {
       background-color: var(--bs-gray-100);
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-menu {
+      margin-top: 0.5rem;
     }
 
     .list-group-item {
@@ -332,6 +359,10 @@ export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
   passwordForm: FormGroup;
   twoFactorEnabled: boolean = false;
+  isUploading: boolean = false;
+  selectedFile: File | null = null;
+
+  private readonly API_URL = environment.apiUrl;
 
   constructor(
     private authService: AuthService,
@@ -340,7 +371,8 @@ export class ProfileComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private fb: FormBuilder,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private http: HttpClient
   ) {
     this.profileForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -367,17 +399,27 @@ export class ProfileComponent implements OnInit {
     if (userInfo.idUser && userInfo.email) {
       // Get detailed user info
       this.authService.getUserByEmail(userInfo.email).subscribe({
-        next: (user) => {
+        next: (user: any) => {
           this.currentUser = {
             idUser: user.idUser,
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
             username: user.email.split('@')[0],
-            profileImage: undefined,
+            profileImage: user.profileImage,
             isBanned: user.isBanned,
-            banreason: user.banreason || null
+            banreason: user.banreason || null,
+            job: user.job,
+            telephone: user.telephone,
+            location: user.location
           };
+          
+          // Set the profile image URL
+          if (this.currentUser.profileImage) {
+            this.profileImage = this.getProfileImageUrl(this.currentUser.profileImage);
+          } else {
+            this.profileImage = 'assets/images/default-logo.jpg';
+          }
           
           this.isBanned = user.isBanned || false;
           this.banReason = user.banreason || null;
@@ -400,9 +442,6 @@ export class ProfileComponent implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
-    if (this.currentUser?.profileImage) {
-      this.profileImage = this.currentUser.profileImage;
-    }
   }
 
   initializeForms() {
@@ -418,8 +457,30 @@ export class ProfileComponent implements OnInit {
   updateProfile() {
     if (this.profileForm.valid) {
       const formData = this.profileForm.value;
-      // Call your API to update the profile
-      this.toastr.success('Profile updated successfully');
+      const token = localStorage.getItem('token');
+      
+      this.http.put(`${this.API_URL}/auth/update-profile-image/${this.currentUser?.idUser}`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }).subscribe({
+        next: (response: any) => {
+          this.toastr.success('Profile updated successfully');
+          // Update the current user data
+          if (this.currentUser) {
+            this.currentUser = {
+              ...this.currentUser,
+              firstName: formData.firstName,
+              lastName: formData.lastName
+            };
+          }
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error updating profile:', error);
+          this.toastr.error(error.error?.message || 'Failed to update profile');
+        }
+      });
     }
   }
 
@@ -430,9 +491,29 @@ export class ProfileComponent implements OnInit {
         this.toastr.error('New passwords do not match');
         return;
       }
-      // Call your API to update the password
-      this.toastr.success('Password updated successfully');
-      this.passwordForm.reset();
+
+      const updateData = {
+        ...formData,
+        firstName: this.currentUser?.firstName,
+        lastName: this.currentUser?.lastName
+      };
+
+      const token = localStorage.getItem('token');
+
+      this.http.put(`${this.API_URL}/auth/update/${this.currentUser?.idUser}`, updateData, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }).subscribe({
+        next: () => {
+          this.toastr.success('Password updated successfully');
+          this.passwordForm.reset();
+        },
+        error: (error) => {
+          console.error('Error updating password:', error);
+          this.toastr.error(error.error?.message || 'Failed to update password');
+        }
+      });
     }
   }
 
@@ -442,15 +523,79 @@ export class ProfileComponent implements OnInit {
     this.toastr.success(`Two-factor authentication ${this.twoFactorEnabled ? 'enabled' : 'disabled'}`);
   }
 
+  getProfileImageUrl(imagePath: string | undefined): string {
+    if (!imagePath) {
+      return 'assets/images/default-logo.jpg';
+    }
+    // If the image path is already a full URL, return it
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    // Extract just the filename if it's a full path
+    const filename = imagePath.split('/').pop();
+    // Use the correct API endpoint for profile images
+    return `${this.API_URL}/api/auth/profile-image/${filename}`;
+  }
+
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // Handle file upload
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        this.toastr.error('File size should not exceed 2MB');
+        return;
+      }
+
+      // Check file type
+      if (!file.type.match(/image\/(jpeg|png|gif)/)) {
+        this.toastr.error('Only JPG, PNG and GIF files are allowed');
+        return;
+      }
+
+      this.selectedFile = file;
+      this.isUploading = true;
+
+      // Create a preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.profileImage = e.target.result;
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
+
+      // Upload the file
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('userId', this.currentUser?.idUser.toString() || '');
+
+      const token = localStorage.getItem('token');
+      
+      this.http.post(`${this.API_URL}/auth/upload-profile-image`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }).subscribe({
+        next: (response: any) => {
+          if (response.profileImage) {
+            // Store just the filename in the currentUser
+            const filename = response.profileImage.split('/').pop();
+            if (this.currentUser) {
+              this.currentUser.profileImage = filename;
+            }
+            // Set the full URL for display
+            this.profileImage = this.getProfileImageUrl(filename);
+            this.toastr.success('Profile picture updated successfully');
+          }
+          this.isUploading = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error uploading image:', error);
+          this.toastr.error(error.error?.message || 'Failed to upload profile picture');
+          this.isUploading = false;
+          this.cdr.detectChanges();
+        }
+      });
     }
   }
 
@@ -468,18 +613,37 @@ export class ProfileComponent implements OnInit {
 
   toggleNotifications() {
     this.showNotifications = !this.showNotifications;
+    if (this.showNotifications) {
+      // Load unread messages when opening the dropdown
+      this.loadUnreadMessages();
+    }
   }
 
   markMessageAsRead(message: MessageNotification) {
+    // Prevent event propagation to avoid immediate dropdown close
+    event?.stopPropagation();
+    
     this.notificationService.markMessageAsRead(message.id).subscribe({
       next: () => {
         // Remove the message from unread messages
         this.unreadMessages = this.unreadMessages.filter(m => m.id !== message.id);
-        // Navigate to the conversation
-        this.router.navigate(['/conversation', message.senderId]);
+        // Close the dropdown
+        this.showNotifications = false;
+        
+        // Get the current user ID
+        const currentUserId = this.currentUser?.idUser;
+        
+        // Navigate to the conversation with both IDs
+        this.router.navigate(['/conversation'], { 
+          queryParams: { 
+            participantId: message.senderId,
+            currentUserId: currentUserId
+          }
+        });
       },
       error: (err: Error) => {
         console.error('Error marking message as read:', err);
+        this.toastr.error('Failed to mark message as read');
       }
     });
   }
@@ -531,8 +695,11 @@ export class ProfileComponent implements OnInit {
   }
 
   viewApplications(jobOfferId?: number) {
-    if (!jobOfferId) return;
-    this.router.navigate(['/jobApplications', jobOfferId]);
+    if (jobOfferId) {
+      this.router.navigate(['/jobApplications', jobOfferId]);
+    } else {
+      this.router.navigate(['/jobApplications']);
+    }
   }
 
   logout() {
@@ -575,5 +742,9 @@ export class ProfileComponent implements OnInit {
         console.error('Error marking all messages as read:', err);
       }
     });
+  }
+
+  navigateToApplications() {
+    this.router.navigate(['/jobApplications']);
   }
 }

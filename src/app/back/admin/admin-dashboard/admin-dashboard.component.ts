@@ -23,13 +23,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { RequestService } from 'src/app/services/request.service';
 import { Request as MyRequest } from 'src/app/models/Request.model';
 import { ResponseService } from 'src/app/services/response.service';
-import { Response } from 'src/app/models/Response.model';
+import { ForumResponse } from 'src/app/models/Response.model';
 import Swal from 'sweetalert2';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
-
-
+import Papa from 'papaparse';
+import { UserService } from '../../../services/user.service';
 
 Chart.register(...registerables);
 
@@ -119,6 +119,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   reportedJobs: JobOffer[] = [];
   showJobDetailsModal = false;
   selectedJob: JobOffer | null = null;
+  jobSearchTerm: string = '';
   
   private toastr = inject(ToastrService);
   private sanitizer = inject(DomSanitizer);
@@ -144,6 +145,11 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     CRISIS_ANALYSIS: 'crisis_analysis'
   };
 
+  // Properties for user profile images
+  userProfileImages: { [key: number]: SafeUrl } = {};
+  userImageLoadingStates: { [key: number]: boolean } = {};
+  defaultUserImage = 'assets/images/default-logo.jpg';
+
   constructor(
     private associationService: AssociationService,
     private crisisService: CrisisService,
@@ -164,7 +170,6 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
     this.bulkEmailForm = this.fb.group({
       subject: ['', Validators.required],
-      message: ['', Validators.required]
     });
   }
 
@@ -976,6 +981,15 @@ Admin Team`
     this.jobService.getJobOffers().subscribe({
       next: (jobs) => {
         this.reportedJobs = jobs.filter(job => job.reportCount > 0);
+        console.log('Reported jobs:', this.reportedJobs);
+        
+        // Load profile images for each job creator
+        this.reportedJobs.forEach(job => {
+          if (job.createdBy?.idUser) {
+            console.log('Loading profile for user:', job.createdBy);
+            this.loadUserProfileImage(job.createdBy.idUser);
+          }
+        });
       },
       error: (err) => {
         console.error('Error loading reported jobs:', err);
@@ -997,6 +1011,20 @@ Admin Team`
   closeJobDetailsModal() {
     this.showJobDetailsModal = false;
     this.selectedJob = null;
+  }
+
+  toggleJobStatus(job: JobOffer) {
+    job.active = !job.active;
+    this.jobService.updateJobOffer(job).subscribe({
+      next: () => {
+        this.toastr.success(`Job offer ${job.active ? 'reopened' : 'closed'} successfully`);
+        this.loadReportedJobs();
+      },
+      error: (err) => {
+        console.error('Error updating job offer:', err);
+        this.toastr.error('Failed to update job offer status');
+      }
+    });
   }
 
   toggleUserBan(job: JobOffer) {
@@ -1025,228 +1053,38 @@ Admin Team`
     });
   }
 
-  toggleJobStatus(job: JobOffer) {
-    job.active = !job.active;
-    this.jobService.updateJobOffer(job).subscribe({
-      next: () => {
-        this.toastr.success(`Job offer ${job.active ? 'reopened' : 'closed'} successfully`);
+  filterReportedJobs() {
+    if (!this.jobSearchTerm) {
         this.loadReportedJobs();
-      },
-      error: (err) => {
-        console.error('Error updating job offer:', err);
-        this.toastr.error('Failed to update job offer status');
-      }
-    });
-  }
-
-  
-
-getCrisisCountByStatus(status: CrisisStatus): number {
-  return this.crises.filter(c => c.status === status).length;
-}
-
-  
-    
-
-
-  filterRequests(): void {
-    if (!this.searchRequestTerm) {
-      this.filteredRequests = [...this.requests];
       return;
     }
-    
-    const term = this.searchRequestTerm.toLowerCase();
-    this.filteredRequests = this.requests.filter(request => 
-      request.object.toLowerCase().includes(term) ||
-      request.content.toLowerCase().includes(term)
+    const searchTerm = this.jobSearchTerm.toLowerCase();
+    this.reportedJobs = this.reportedJobs.filter(job => 
+      job.title.toLowerCase().includes(searchTerm) ||
+      job.createdBy.firstName.toLowerCase().includes(searchTerm) ||
+      job.createdBy.lastName.toLowerCase().includes(searchTerm)
     );
   }
 
-  deleteCrisis(id?: number): void {
-    if (!id) return;
+  exportReportedJobs() {
+    const data = this.reportedJobs.map(job => ({
+      'Job Title': job.title,
+      'Posted By': `${job.createdBy.firstName} ${job.createdBy.lastName}`,
+      'Reports': job.reportCount,
+      'Status': job.active ? 'Active' : 'Closed',
+      'Posted Date': new Date(job.createdAt).toLocaleDateString()
+    }));
 
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "To delete the Crisis!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.crisisService.deleteCrisis(id).subscribe({
-          next: () => {
-            this.toastr.success('Crisis deleted successfully!', 'Success');
-            this.loadCrises();
-          },
-          error: (err) => {
-            console.error('Error deleting crisis:', err);
-            this.toastr.error('Failed to delete crisis.', 'Error');
-          }
-        });
-      }
-    });
-  }
-
-  async updateCrisis(crisis: Crisis): Promise<void> {
-    const { value: formValues } = await Swal.fire({
-      title: 'Edit Crisis',
-      html:
-        `<div class="mb-3">
-          <label class="form-label">Description</label>
-          <textarea id="description" class="form-control">${crisis.description}</textarea>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Severity</label>
-          <select id="severity" class="form-select">
-            <option value="LOW" ${crisis.severity === 'LOW' ? 'selected' : ''}>LOW</option>
-            <option value="MEDIUM" ${crisis.severity === 'MEDIUM' ? 'selected' : ''}>MEDIUM</option>
-            <option value="HIGH" ${crisis.severity === 'HIGH' ? 'selected' : ''}>HIGH</option>
-          </select>
-        </div>`,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Update',
-      preConfirm: () => {
-        return {
-          description: (document.getElementById('description') as HTMLInputElement).value,
-          severity: (document.getElementById('severity') as HTMLSelectElement).value
-        };
-      }
-    });
-
-    if (formValues) {
-      const updatedCrisis = {
-        ...crisis,
-        description: formValues.description,
-        severity: formValues.severity
-      };
-
-      this.crisisService.updateCrisis(crisis.idCrisis!, updatedCrisis).subscribe({
-        next: () => {
-          this.toastr.success('Crisis updated successfully', 'Success');
-          this.loadCrises();
-        },
-        error: (err) => {
-          console.error('Update error:', err);
-          this.toastr.error('Failed to update crisis', 'Error');
-        }
-      });
-    }
-  }
-
-  updateStatus(crisis: Crisis): void {
-    let newStatus: CrisisStatus;
-    
-    switch (crisis.status) {
-      case CrisisStatus.RESOLVED:
-        newStatus = CrisisStatus.PENDING;
-        break;
-      case CrisisStatus.PENDING:
-        newStatus = CrisisStatus.IN_PROGRESS;
-        break;
-      case CrisisStatus.IN_PROGRESS:
-        newStatus = CrisisStatus.RESOLVED;
-        break;
-      default:
-        newStatus = CrisisStatus.PENDING;
-    }
-
-    // Optimistic update
-    const index = this.crises.findIndex(c => c.idCrisis === crisis.idCrisis);
-    if (index !== -1) {
-      this.crises[index].status = newStatus;
-      this.filterCrises();
-      
-      // Add activity
-      this.recentActivities.unshift({
-        type: this.activityTypes.CRISIS_UPDATE,
-        timestamp: new Date(),
-        description: `Crisis status updated to ${newStatus} in ${crisis.location}`,
-        severity: crisis.severity,
-        status: newStatus,
-        details: crisis
-      });
-      this.recentActivities = this.recentActivities.slice(0, 5);
-    }
-
-    this.crisisService.updateCrisisStatus(crisis.idCrisis!, newStatus).subscribe({
-      next: () => {
-        this.toastr.success(`Status updated to ${newStatus}`, 'Success');
-      },
-      error: (err) => {
-        console.error('Status update error:', err);
-        this.toastr.error('Failed to update status', 'Error');
-        // Revert on error
-        if (index !== -1) {
-          this.crises[index].status = crisis.status;
-          this.filterCrises();
-        }
-      }
-    });
-  }
-  
-  viewDetails(crisis: Crisis): void {
-    this.selectedCrisis = crisis;
-    this.dialog.open(CrisisDetailDialogComponent, {
-      data: crisis,
-      width: '600px'
-    });
-  }
-
-  viewRequestDetails(request: MyRequest): void {
-    // Implement request detail view as needed
-  }
-
-  respondToRequest(request: MyRequest): void {
-    Swal.fire({
-      title: 'Respond to Request',
-      html: `
-        <div class="mb-3">
-          <label class="form-label">Response</label>
-          <textarea id="response" class="form-control" rows="4" placeholder="Enter your response..."></textarea>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Send Response',
-      cancelButtonText: 'Cancel',
-      preConfirm: () => {
-        const response = (document.getElementById('response') as HTMLTextAreaElement).value;
-        if (!response) {
-          Swal.showValidationMessage('Please enter a response');
-          return false;
-        }
-        return response;
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const response: Response = {
-          idResponse: 0, // This will be set by the backend
-          dateResponse: new Date(),
-          content: result.value,
-          object: request.object,
-          requestId: request.idRequest,
-          senderId: this.authService.getCurrentUser()?.idUser
-        };
-
-        this.responseService.addResponse(response, request.idRequest!).subscribe({
-          next: () => {
-            this.toastr.success('Response sent successfully');
-            this.loadRequests(); // Refresh the requests list
-          },
-          error: (error: Error) => {
-            console.error('Error sending response:', error);
-            this.toastr.error('Failed to send response');
-          }
-        });
-      }
-    });
-  }
-
-  exportCrisesToCSV(): void {
-    // Implement CSV export functionality
-    this.toastr.info('Export functionality coming soon!', 'Info');
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'reported_jobs.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   getSeverityClass(severity: string): string {
@@ -1421,5 +1259,140 @@ getCrisisCountByStatus(status: CrisisStatus): number {
     } else {
       return `${days} days ago`;
     }
+  }
+
+  viewDetails(crisis: Crisis) {
+    this.selectedCrisis = crisis;
+    const dialogRef = this.dialog.open(CrisisDetailDialogComponent, {
+      width: '600px',
+      data: crisis
+    });
+  }
+
+  updateCrisis(crisis: Crisis) {
+    // Implement crisis update logic
+    this.toastr.info('Crisis update functionality coming soon');
+  }
+
+  updateStatus(crisis: Crisis) {
+    // Implement status update logic
+    this.toastr.info('Status update functionality coming soon');
+  }
+
+  deleteCrisis(id: number | undefined) {
+    if (!id) {
+      this.toastr.error('Invalid crisis ID');
+      return;
+    }
+
+    if (confirm('Are you sure you want to delete this crisis?')) {
+      this.crisisService.deleteCrisis(id).subscribe({
+        next: () => {
+          this.toastr.success('Crisis deleted successfully');
+          this.loadCrises();
+        },
+        error: (err) => {
+          console.error('Error deleting crisis:', err);
+          this.toastr.error('Failed to delete crisis');
+        }
+      });
+    }
+  }
+
+  exportCrisesToCSV() {
+    const data = this.crises.map(crisis => ({
+      'Description': crisis.description,
+      'Location': crisis.location,
+      'Category': crisis.categorie,
+      'Severity': crisis.severity,
+      'Status': crisis.status,
+      'Date': new Date(crisis.crisisDate || '').toLocaleDateString()
+    }));
+
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'crises.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  filterRequests() {
+    if (!this.searchRequestTerm) {
+      this.filteredRequests = [...this.requests];
+      return;
+    }
+    const searchTerm = this.searchRequestTerm.toLowerCase();
+    this.filteredRequests = this.requests.filter(request => 
+      request.object.toLowerCase().includes(searchTerm) ||
+      request.content.toLowerCase().includes(searchTerm) ||
+      (request.user?.firstName?.toLowerCase() || '').includes(searchTerm) ||
+      (request.user?.lastName?.toLowerCase() || '').includes(searchTerm)
+    );
+  }
+
+  viewRequestDetails(request: MyRequest) {
+    // Implement request details view logic
+    this.toastr.info('Request details view functionality coming soon');
+  }
+
+  respondToRequest(request: MyRequest) {
+    // Implement request response logic
+    this.toastr.info('Request response functionality coming soon');
+  }
+
+  // Add this method after other methods
+  private loadUserProfileImage(userId: number | undefined): void {
+    if (!userId) return;
+
+    this.userImageLoadingStates[userId] = true;
+    this.authService.getUserById(userId).subscribe({
+      next: (user) => {
+        const imagePath = (user as any).profileImage;
+        console.log('Profile image path:', imagePath); // Debug log
+        
+        if (imagePath) {
+          // If the image is a base64 string, use it directly
+          if (imagePath.startsWith('data:image')) {
+            this.userProfileImages[userId] = this.sanitizer.bypassSecurityTrustUrl(imagePath);
+          } 
+          // If it's a URL, make sure it's complete
+          else if (imagePath.startsWith('http')) {
+            this.userProfileImages[userId] = this.sanitizer.bypassSecurityTrustUrl(imagePath);
+          }
+          // If it's a relative path, prepend the base URL
+          else {
+            const baseUrl = 'http://localhost:8089';
+            // Extract just the filename from the path
+            const filename = imagePath.split('/').pop();
+            const imageUrl = `${baseUrl}/api/auth/profile-image/${filename}`;
+            console.log('Constructed image URL:', imageUrl); // Debug log
+            this.userProfileImages[userId] = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
+          }
+        } else {
+          console.log('No profile image found, using default'); // Debug log
+          this.userProfileImages[userId] = this.sanitizer.bypassSecurityTrustUrl(this.defaultUserImage);
+        }
+        this.userImageLoadingStates[userId] = false;
+      },
+      error: (error: unknown) => {
+        console.error('Error loading user profile image for user:', userId, error);
+        this.userProfileImages[userId] = this.sanitizer.bypassSecurityTrustUrl(this.defaultUserImage);
+        this.userImageLoadingStates[userId] = false;
+      }
+    });
+  }
+
+  getUserProfileImage(userId: number | undefined): SafeUrl {
+    if (!userId) return this.sanitizer.bypassSecurityTrustUrl(this.defaultUserImage);
+    return this.userProfileImages[userId] || this.sanitizer.bypassSecurityTrustUrl(this.defaultUserImage);
+  }
+
+  isUserImageLoading(userId: number | undefined): boolean {
+    return userId ? this.userImageLoadingStates[userId] || false : false;
   }
 }

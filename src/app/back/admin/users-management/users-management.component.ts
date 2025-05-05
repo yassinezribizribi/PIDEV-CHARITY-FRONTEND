@@ -96,10 +96,11 @@ import { Router } from '@angular/router';
                   <td class="ps-4">
                     <div class="d-flex align-items-center">
                       <div class="avatar-sm me-3">
-                        <img [src]="user.profileImage || 'assets/images/default-logo.jpg'" 
+                        <img [src]="getUserProfileImage(user.idUser)" 
                              [alt]="user.firstName"
                              class="rounded-circle"
-                             onerror="this.src='assets/images/default-logo.jpg'">
+                             onerror="this.src='assets/images/default-logo.jpg'"
+                             [ngClass]="{'loading': isUserImageLoading(user.idUser)}">
                       </div>
                       <div>
                         <h5 class="mb-0 fw-semibold">{{user.firstName}} {{user.lastName}}</h5>
@@ -197,10 +198,11 @@ import { Router } from '@angular/router';
             <div class="row">
               <div class="col-md-4 text-center mb-4">
                 <div class="avatar-lg mx-auto mb-3">
-                  <img [src]="selectedUser.profileImage || 'assets/images/default-logo.jpg'" 
+                  <img [src]="getUserProfileImage(selectedUser.idUser)" 
                        [alt]="selectedUser.firstName"
                        class="rounded-circle img-fluid"
-                       onerror="this.src='assets/images/default-logo.jpg'">
+                       onerror="this.src='assets/images/default-logo.jpg'"
+                       [ngClass]="{'loading': isUserImageLoading(selectedUser.idUser)}">
                 </div>
                 <span class="badge fs-6" [ngClass]="{
                   'bg-info-subtle text-info': selectedUser.role === 'REFUGEE',
@@ -438,6 +440,17 @@ import { Router } from '@angular/router';
     .btn-group .btn {
       padding: 0.5rem 0.75rem;
     }
+
+    .avatar-sm img.loading, .avatar-lg img.loading {
+      opacity: 0.5;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.5; }
+      50% { opacity: 0.8; }
+      100% { opacity: 0.5; }
+    }
   `]
 })
 export class UsersManagementComponent implements OnInit {
@@ -447,6 +460,9 @@ export class UsersManagementComponent implements OnInit {
   roleFilter: string = 'ALL';
   loading: boolean = true;
   selectedUser: User | null = null;
+  userProfileImages: { [key: number]: string } = {};
+  userImageLoadingStates: { [key: number]: boolean } = {};
+  defaultUserImage = 'assets/images/default-logo.jpg';
 
   constructor(
     private authService: AuthService,
@@ -487,6 +503,12 @@ export class UsersManagementComponent implements OnInit {
           user.email !== 'admin.admin@gmail.com'
         );
         this.filteredUsers = [...this.users];
+        // Load profile images for each user
+        this.users.forEach(user => {
+          if (user.idUser) {
+            this.loadUserProfileImage(user.idUser);
+          }
+        });
         this.loading = false;
       },
       error: (error: Error) => {
@@ -495,6 +517,54 @@ export class UsersManagementComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  private loadUserProfileImage(userId: number): void {
+    this.userImageLoadingStates[userId] = true;
+    this.authService.getUserById(userId).subscribe({
+      next: (user) => {
+        const imagePath = (user as any).profileImage;
+        console.log('Profile image path:', imagePath); // Debug log
+        
+        if (imagePath) {
+          // If the image is a base64 string, use it directly
+          if (imagePath.startsWith('data:image')) {
+            this.userProfileImages[userId] = imagePath;
+          } 
+          // If it's a URL, make sure it's complete
+          else if (imagePath.startsWith('http')) {
+            this.userProfileImages[userId] = imagePath;
+          }
+          // If it's a relative path, prepend the base URL
+          else {
+            const baseUrl = 'http://localhost:8089';
+            // Extract just the filename from the path
+            const filename = imagePath.split('/').pop();
+            const imageUrl = `${baseUrl}/api/auth/profile-image/${filename}`;
+            console.log('Constructed image URL:', imageUrl); // Debug log
+            this.userProfileImages[userId] = imageUrl;
+          }
+        } else {
+          console.log('No profile image found, using default'); // Debug log
+          this.userProfileImages[userId] = this.defaultUserImage;
+        }
+        this.userImageLoadingStates[userId] = false;
+      },
+      error: (error: unknown) => {
+        console.error('Error loading user profile image for user:', userId, error);
+        this.userProfileImages[userId] = this.defaultUserImage;
+        this.userImageLoadingStates[userId] = false;
+      }
+    });
+  }
+
+  getUserProfileImage(userId: number | undefined): string {
+    if (!userId) return this.defaultUserImage;
+    return this.userProfileImages[userId] || this.defaultUserImage;
+  }
+
+  isUserImageLoading(userId: number | undefined): boolean {
+    return userId ? this.userImageLoadingStates[userId] || false : false;
   }
 
   filterUsers() {
