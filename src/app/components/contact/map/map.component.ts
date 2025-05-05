@@ -1,48 +1,63 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
+import { CrisisService } from '../../../services/crisis.service';
+
 @Component({
   selector: 'app-map',
-  imports: [],
   templateUrl: './map.component.html',
-  styleUrl: './map.component.scss'
+  styleUrls: ['./map.component.css']
 })
-export class MapComponent implements AfterViewInit {
+export class MapComponent implements OnInit {
+  private map: L.Map | undefined;
+  private saturationZones: string[] = [];
 
+  constructor(private crisisService: CrisisService) {}
 
-
-
-
-
-
-
-  constructor() {}
-
-  ngAfterViewInit(): void {
-    this.initializeMap();
+  ngOnInit(): void {
+    this.initMap();
+    this.loadSaturationZones();
   }
 
-   initializeMap(): void {
-    const mapElement = document.getElementById('map');
-    if (!mapElement) {
-      console.error('Element with id "map" not found!');
-      return;
-    }
-
-    const map = L.map('map').setView([51.505, -0.09], 13);
+  private initMap(): void {
+    this.map = L.map('map').setView([34.5, 9.5], 7); // Centre de la Tunisie
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(this.map);
+  }
 
-    map.invalidateSize();
+  private loadSaturationZones(): void {
+    this.crisisService.getSaturatedZones().subscribe((zones: string[]) => {
+      this.saturationZones = zones;
+      console.log('Zones de saturation :', this.saturationZones);
 
-    const marker = L.marker([51.505, -0.09]).addTo(map);
-
-    map.on('click', (e) => {
-      const lat = e.latlng.lat;
-      const lng = e.latlng.lng;
-      marker.setLatLng([lat, lng]);
-      
+      this.saturationZones.forEach((zone: string) => {
+        this.geocodeAndMarkZone(zone);
+      });
     });
+  }
+
+  private geocodeAndMarkZone(location: string): void {
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+
+          // ✅ Afficher un cercle rouge
+          L.circle([lat, lon], {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: 1000
+          }).addTo(this.map!).bindPopup(`Zone saturée : ${location}`);
+        } else {
+          console.warn(`Lieu non trouvé : ${location}`);
+        }
+      })
+      .catch(error => {
+        console.error('Erreur lors du géocodage :', error);
+      });
   }
 }
