@@ -45,12 +45,18 @@ import { ApplicationDetailsComponent } from './application-details/application-d
 import {HealthcareComponent } from './pages/Healthcare/healthcare.component';
 import { AssociationProfileComponent } from './pages/association-profile/association-profile.component';
 
+
 import { ValidateDonsComponent } from './back/validate-dons/validate-dons.component';
 import { CagnotteDetailsComponent } from '@component/cagnotte-details/cagnotte-details.component';
 import { UserDonsComponent } from './components/user-dons/user-dons.component';
 import { UpdateDonsComponent } from './components/update-dons/update-dons.component';
 import { UpdateDonsNonauthComponent } from './components/update-dons-nonauth/update-dons-nonauth.component';
 import { VolunteerParticipationsComponent } from './components/volunteer-participations/volunteer-participations.component';
+
+import { ServicesComponent } from '@component/healthcare/services.component';
+import { AdminSettingsComponent } from './back/admin/admin-settings/admin-settings.component';
+import { UsersManagementComponent } from './back/admin/users-management/users-management.component';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: 'onepage', pathMatch: 'full' },
@@ -91,6 +97,7 @@ export const routes: Routes = [
   { path: 'blog-detail-copy/:id', component: BlogDetailComponentCopy },
   { path: 'validate-dons', component: ValidateDonsComponent },
   { path: 'cagnotte/:id', component: CagnotteDetailsComponent },
+
   {
     path: 'app-profile',
     component: ProfileComponent,
@@ -99,7 +106,76 @@ export const routes: Routes = [
   { path: 'make-donation/:idDonation', component: MakeDonationComponent },
   { path: 'blog-sidebar-copy', component: BlogSidebarComponentCopy },
 
-  {
+  { path: 'support-refugees-forum/:idRequest', component: SupportRefugeesForumComponent },
+
+    {path:'index', component:IndexComponent,canActivate:[AuthGuard]},
+    {path:'aboutus', component:AboutusComponent},
+    {path:'services', component:ServicesComponent},
+    {path:'service-detail', component:ServiceDetailComponent},
+    {path:'forums', component:ForumsComponent},
+    {path:'team', component:TeamComponent},
+    {path:'testimonial', component:TestimonialComponent},
+    {path:'faqs', component:FaqsComponent},
+    {path:'blogs', component:BlogsComponent},
+    {path:'blog-sidebar', component:BlogSidebarComponent},
+    {path:'blog-detail', component:BlogDetailComponent},
+    {path:'blog-detail/:id', component:BlogDetailComponent},
+    {path:'login', component:LoginComponent},
+    {path:'signup', component:SignupComponent},
+    {path:'signup/:role', component:SignupComponent},
+  
+    {path:'reset-password', component:ResetPasswordComponent},
+    {path:'lock-screen', component:LockScreenComponent},
+    {path:'terms', component:TermsComponent},
+    {path:'privacy', component:PrivacyComponent},
+    {path:'comingsoon', component:ComingsoonComponent},
+    {path:'maintenance', component:MaintenanceComponent},
+    {path:'error', component:ErrorComponent},
+    {path:'contactus', component:ContactusComponent},
+    {path:'admin-navbar', component:AdminNavbarComponent},
+    
+    
+   
+    {
+      path: 'association/account',
+      loadComponent: () => 
+        import('./back/association-account/association-account.component')
+          .then(m => m.AssociationAccountComponent)
+
+    },
+    
+    {
+      path: 'admin',
+      loadChildren: () => import('./back/admin/admin.routes')
+        .then(m => m.ADMIN_ROUTES)
+    },
+    {
+      path: 'admin/users',
+      loadComponent: () => import('./back/admin/users-management/users-management.component').then(m => m.UsersManagementComponent),
+      canActivate: [AuthGuard]
+    },
+    {
+      path: 'forums',
+      children: [
+        {
+          path: '',
+          component: ForumsComponent
+        },
+        { path: 'job-opportunities', component: JobOpportunitiesForumComponent }
+        ,
+        {
+          path: 'support-refugees',
+          component: SupportRefugeesForumComponent
+        }
+        
+        ,{
+          path: 'list-rquest',
+          component: ListRequestComponent
+        }
+      ]
+    }
+
+  ,{
     path: 'association',
     children: [
       {
@@ -168,6 +244,7 @@ export const routes: Routes = [
     ]
   },
   {
+
     path: 'conversation/:id',
     loadComponent: () => import('./conversation/conversation.component').then(m => m.ConversationComponent)
   },
@@ -190,4 +267,40 @@ export const routes: Routes = [
     component: VolunteerParticipationsComponent,
     canActivate: [AuthGuard]
   },
+  
+    {
+      path: 'conversation',
+      children: [
+        { 
+          path: '',
+        loadComponent: () => import('./conversation/conversation.component').then(m => m.ConversationComponent),
+        canActivate: [AuthGuard]
+      },
+      { 
+        path: 'new',
+        loadComponent: () => import('./conversation/conversation.component').then(m => m.ConversationComponent),
+        canActivate: [AuthGuard]
+      },
+      { 
+        path: ':id',
+        loadComponent: () => import('./conversation/conversation.component').then(m => m.ConversationComponent),
+        canActivate: [AuthGuard]
+      }
+    ]
+  },
+  {
+    path: 'admin/users',
+    loadComponent: () => import('./back/admin/users-management/users-management.component').then(m => m.UsersManagementComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'admin',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'users', component: UsersManagementComponent },
+      { path: 'settings', component: AdminSettingsComponent }
+    ]
+  }
 ];

@@ -12,6 +12,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { AdminNavbarComponent } from '../admin-navbar/admin-navbar.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-association-details',
@@ -24,7 +25,110 @@ import { AdminNavbarComponent } from '../admin-navbar/admin-navbar.component';
 
   ],
   templateUrl: './association-details.component.html',
-  styleUrls: ['./association-details.component.css']
+  styleUrls: ['./association-details.component.css'],
+  styles: [`
+    .dashboard-container {
+      min-height: calc(100vh - 64px);
+      background-color: var(--bs-gray-100);
+    }
+
+    .icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-circle i {
+      font-size: 1.5rem;
+    }
+
+    .avatar-lg {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid var(--bs-primary);
+      box-shadow: 0 0 0 4px var(--bs-primary-subtle);
+    }
+
+    .avatar-lg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .btn-soft-primary {
+      background-color: var(--bs-primary-subtle);
+      color: var(--bs-primary);
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-soft-primary:hover {
+      background-color: var(--bs-primary);
+      color: white;
+    }
+
+    .btn-soft-success {
+      background-color: var(--bs-success-subtle);
+      color: var(--bs-success);
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-soft-success:hover {
+      background-color: var(--bs-success);
+      color: white;
+    }
+
+    .btn-soft-danger {
+      background-color: var(--bs-danger-subtle);
+      color: var(--bs-danger);
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-soft-danger:hover {
+      background-color: var(--bs-danger);
+      color: white;
+    }
+
+    .badge {
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge i {
+      font-size: 0.875rem;
+    }
+
+    .card {
+      transition: all 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .toast {
+      border: none;
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .toast-header {
+      padding: 0.75rem 1rem;
+    }
+
+    .toast-body {
+      padding: 1rem;
+    }
+  `]
 })
 export class AssociationDetailsComponent implements OnInit {
   association: Association | null = null;
@@ -41,7 +145,8 @@ export class AssociationDetailsComponent implements OnInit {
     private emailService: EmailService,
     private authService: AuthService,
     private http: HttpClient,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private toastr: ToastrService
   ) {}
 
  // association-details.component.ts

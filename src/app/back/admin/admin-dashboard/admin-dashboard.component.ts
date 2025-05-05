@@ -1,26 +1,48 @@
 import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FooterComponent } from '../../../components/footer/footer.component';
 import { AdminNavbarComponent } from '../admin-navbar/admin-navbar.component';  
 import { AssociationService } from '../../../services/association.service';
-import { CrisisService, Crisis } from '../../../services/crisis.service';
+import { CrisisService, Crisis, CrisisStatus } from '../../../services/crisis.service';
 import { PredictionService } from '../../../services/prediction.service';
 import { Association, AssociationStatus } from '../../../interfaces/association.interface';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AlertComponent } from './alert/alert.component';
 import { ToastrService } from 'ngx-toastr';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { CrisisDetailDialogComponent } from '@component/crisis-detail-dialog/crisis-detail-dialog.component';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { JobOfferService } from '../../../services/jof-offer.service';
 import { JobOffer } from '../../../models/job-offer.model';
 import { Chart, registerables } from 'chart.js';
-import { UserService, PendingVolunteer } from '../../../services/user.service';
+import { MatIconModule } from '@angular/material/icon';
+import { RequestService } from 'src/app/services/request.service';
+import { Request as MyRequest } from 'src/app/models/Request.model';
+import { ResponseService } from 'src/app/services/response.service';
+import { ForumResponse } from 'src/app/models/Response.model';
+import Swal from 'sweetalert2';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from '../../../services/auth.service';
+import { Router } from '@angular/router';
+import Papa from 'papaparse';
+import { PendingVolunteer, UserService } from '../../../services/user.service';
 
 Chart.register(...registerables);
+
+// Add interface before the component class
+interface Activity {
+  type: string;
+  timestamp: Date;
+  description: string;
+  severity?: string;
+  status?: CrisisStatus;
+  reportCount?: number;
+  details: any;
+}
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -29,10 +51,13 @@ Chart.register(...registerables);
     CommonModule,
     RouterLink,
     FormsModule,
+    ReactiveFormsModule,
     MatDialogModule,
     FooterComponent,
     AdminNavbarComponent,
-    AlertComponent
+    AlertComponent,
+    MatDialogModule,
+    MatIconModule
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss'],
@@ -42,19 +67,27 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('bulkEmailModal') bulkEmailModal: any;
   @ViewChild('forecastChart') forecastChartRef!: ElementRef;
   @ViewChild('rejectionModal') rejectionModal: any;
+
+  recipients: string = '';
   
   associations: Association[] = [];
   crises: Crisis[] = [];
   filteredCrises: Crisis[] = [];
   selectedCrisis: Crisis | null = null;
-  selectedResourceType: string = 'food';
+  selectedResourceType: string = '';
   forecastPeriod: number = 14;
   forecast: any[] | null = null;
   urgencyAnalysis: any = null;
   resourceAllocation: any = null;
   routeOptimization: any = null;
   error: string | null = null;
-  
+  requests: MyRequest[] = [];
+  filteredRequests: MyRequest[] = [];
+  searchCrisisTerm: string = '';
+  searchRequestTerm: string = '';
+  CrisisStatus = CrisisStatus; // Make enum available in template
+
+  readonly dialog = inject(MatDialog);
   // Search and filter
   crisisSearchTerm: string = '';
   
@@ -87,31 +120,75 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   reportedJobs: JobOffer[] = [];
   showJobDetailsModal = false;
   selectedJob: JobOffer | null = null;
+  jobSearchTerm: string = '';
   
   // Add these new properties
   pendingVolunteers: PendingVolunteer[] = [];
   selectedVolunteer: PendingVolunteer | null = null;
   rejectionReason: string = '';
   selectedVolunteerForRejection: PendingVolunteer | null = null;
-  
-  private dialog = inject(MatDialog);
+  volunteersLoading: boolean = false;
+
   private toastr = inject(ToastrService);
   private sanitizer = inject(DomSanitizer);
   private modalService = inject(NgbModal);
   private forecastChart: Chart | null = null;
+
+  emailForm: FormGroup;
+  bulkEmailForm: FormGroup;
+
+  selectedRegion: string = '';
+  confidenceInterval: number = 0.95;
+  availableGovernorates: string[] = [];
+  availableNeedTypes: string[] = [];
+  isGeneratingPredictions: boolean = false;
+  predictionError: string = '';
+
+  // Add new properties for activity tracking
+  recentActivities: Activity[] = [];
+  activityTypes = {
+    CRISIS_UPDATE: 'crisis_update',
+    ASSOCIATION_VERIFY: 'association_verify',
+    JOB_REPORT: 'job_report',
+    CRISIS_ANALYSIS: 'crisis_analysis'
+  };
+
+  // Properties for user profile images
+  userProfileImages: { [key: number]: SafeUrl } = {};
+  userImageLoadingStates: { [key: number]: boolean } = {};
+  defaultUserImage = 'assets/images/default-logo.jpg';
 
   constructor(
     private associationService: AssociationService,
     private crisisService: CrisisService,
     private predictionService: PredictionService,
     private jobService: JobOfferService,
+    private requestService: RequestService,
+    private responseService: ResponseService,
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private authService: AuthService,
+    private router: Router,
     private userService: UserService
-  ) {}
+  ) {
+    this.emailForm = this.fb.group({
+      to: ['', [Validators.required, Validators.email]],
+      subject: ['', Validators.required],
+      message: ['', Validators.required]
+    });
+
+    this.bulkEmailForm = this.fb.group({
+      subject: ['', Validators.required],
+    });
+  }
 
   ngOnInit() {
     this.loadAssociations();
     this.loadCrises();
     this.loadReportedJobs();
+    this.loadRequests();
+    this.loadAvailableData();
+    this.loadRecentActivities();
     this.loadPendingVolunteers();
   }
 
@@ -187,6 +264,15 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
         // Update the status locally
         association.status = AssociationStatus.APPROVED;
         this.filterAssociations();
+        
+        // Add activity
+        this.recentActivities.unshift({
+          type: this.activityTypes.ASSOCIATION_VERIFY,
+          timestamp: new Date(),
+          description: `Association "${association.associationName}" verified`,
+          details: association
+        });
+        this.recentActivities = this.recentActivities.slice(0, 5);
       },
       error: (error) => {
         console.error('Error verifying association:', error);
@@ -195,111 +281,292 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
-  loadCrises() {
+  loadCrises(): void {
     this.crisisService.getAllCrises().subscribe({
       next: (data) => {
+        console.log(data)
         this.crises = data;
-        this.filterCrises();
+        this.filteredCrises = [...data];
       },
-      error: (error) => {
-        console.error('Error fetching crises:', error);
-        this.toastr.error('Failed to load crises');
+      error: (err) => {
+        console.error('Error fetching crises:', err);
+        this.toastr.error('Error loading crises', 'Error');
       }
     });
+  }
+  loadRequests(): void {
+    this.requestService.getAllRequestsWithResponses().subscribe(
+      (requests) => {
+        this.requests = requests;
+        this.filteredRequests = [...requests];
+      },
+      (error) => {
+        console.error('Error loading requests:', error);
+      }
+    );
   }
 
   filterCrises() {
     this.filteredCrises = this.crises.filter(crisis => {
       return !this.crisisSearchTerm || 
-        crisis.name.toLowerCase().includes(this.crisisSearchTerm.toLowerCase()) ||
         crisis.location.toLowerCase().includes(this.crisisSearchTerm.toLowerCase()) ||
         crisis.description.toLowerCase().includes(this.crisisSearchTerm.toLowerCase());
     });
   }
 
-  getTotalAffectedPeople(): number {
-    return this.crises.reduce((total, crisis) => {
-      const affected = crisis.affectedPeople || 0;
-      return total + affected;
-    }, 0);
-  }
+ 
 
   getActivePredictions(): number {
     return this.forecast ? this.forecast.length : 0;
   }
 
-  analyzeCrisis(crisis: Crisis) {
-    this.selectedCrisis = crisis;
-    this.forecast = null;
-    this.urgencyAnalysis = null;
-    this.resourceAllocation = null;
-    this.routeOptimization = null;
-    this.error = null;
-  }
-
-  generatePredictions() {
-    if (!this.selectedCrisis) return;
-
-    this.predictionService.getResourceAllocationPrediction({
-      resourceType: this.selectedResourceType,
-      region: this.selectedCrisis.location,
-      periods: this.forecastPeriod
-    }).subscribe({
-      next: (response: any) => {
-        console.log('Prediction response:', response);
-        this.forecast = response.forecast;
-        
-        // Update urgency analysis with proper formatting
-        this.urgencyAnalysis = {
-          crisis_status: response.crisis_status || 'Unknown',
-          risk_score: parseFloat(response.risk_score) / 100 || 0,
-          total_resources_needed: response.total_resources_needed || 0
-        };
-        
-        // Calculate base resources needed
-        const baseResources = this.calculateBaseResources(
-          this.urgencyAnalysis.risk_score,
-          this.selectedResourceType,
-          this.forecastPeriod
-        );
-        
-        // Update resource allocation handling
-        if (response.resource_distribution_plan && Array.isArray(response.resource_distribution_plan)) {
-          this.resourceAllocation = response.resource_distribution_plan.map((item: any) => ({
-            location: item.location || 'Unknown',
-            resources: this.calculateLocationResources(item, baseResources),
-            priority: this.getPriorityLevel(item.priority)
-          }));
-        } else {
-          // Create default resource allocation if none provided
-          this.resourceAllocation = [{
-            location: this.selectedCrisis?.location || 'Unknown',
-            resources: baseResources,
-            priority: this.getPriorityLevel(this.urgencyAnalysis.crisis_status)
-          }];
+  loadAvailableData() {
+    this.http.get<any>('http://localhost:5000/api/flask/predict/resource-allocation')
+      .subscribe({
+        next: (response) => {
+          if (response.available_governorates) {
+            this.availableGovernorates = response.available_governorates;
+          }
+          if (response.available_need_types) {
+            this.availableNeedTypes = response.available_need_types;
+          }
+        },
+        error: (error) => {
+          console.error('Error loading available data:', error);
+          // Set default values if the request fails
+          this.availableGovernorates = ['Tunis', 'Sfax', 'Sousse', 'Gabès', 'Nabeul'];
+          this.availableNeedTypes = ['Food', 'Medical', 'Shelter', 'Clothing', 'Water'];
+          this.toastr.warning('Using default values for available regions and resource types');
         }
-        
-        this.routeOptimization = response.route_optimization;
-        this.error = null;
-        this.toastr.success('Analysis completed successfully');
-        
-        // Update chart after receiving new data
-        setTimeout(() => {
-          console.log('Updating chart with forecast data:', this.forecast);
-          this.updateForecastChart();
-        }, 100);
-      },
-      error: (err) => {
-        const errorMessage = err.error?.error || 'Failed to generate predictions';
-        this.error = errorMessage;
-        this.forecast = null;
-        this.urgencyAnalysis = null;
-        this.resourceAllocation = null;
-        this.routeOptimization = null;
-        this.toastr.error(errorMessage);
-      }
-    });
+      });
   }
+
+  analyzeCrisis() {
+    if (!this.selectedCrisis) {
+      this.toastr.warning('Please select a crisis to analyze');
+      return;
+    }
+
+    this.isGeneratingPredictions = true;
+    this.predictionError = '';
+
+    // First, get available options
+    this.http.get<any>('http://localhost:5000/api/flask/predict/resource-allocation')
+      .pipe(
+        tap(response => {
+          console.log('Available options:', response);
+          this.availableGovernorates = response.available_governorates || [];
+          this.availableNeedTypes = response.available_need_types || [];
+        }),
+        catchError(error => {
+          console.error('Error getting available options:', error);
+          this.toastr.error('Failed to get available options');
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response && this.selectedCrisis) {
+            const region = this.selectedCrisis.location.split(',')[0].trim();
+            
+            // Map crisis category to available resource types
+            let resourceType = this.mapCategoryToResourceType(this.selectedCrisis.categorie);
+            
+            if (!this.availableGovernorates.includes(region)) {
+              this.predictionError = `Region "${region}" not available. Available regions: ${this.availableGovernorates.join(', ')}`;
+              this.toastr.warning(this.predictionError);
+              this.isGeneratingPredictions = false;
+              return;
+            }
+
+            if (!resourceType) {
+              this.predictionError = `No matching resource type found for category "${this.selectedCrisis.categorie}". Available types: ${this.availableNeedTypes.join(', ')}`;
+              this.toastr.warning(this.predictionError);
+              this.isGeneratingPredictions = false;
+              return;
+            }
+
+            // Format the date to match your data format
+            const crisisDate = new Date(this.selectedCrisis.crisisDate);
+            const formattedDate = crisisDate.toISOString().split('T')[0];
+
+            // Create the request data with the exact parameter names expected by the Flask endpoint
+            const requestData = {
+              region: region,
+              resourceType: resourceType,
+              date: formattedDate,
+              severity: this.selectedCrisis.severity.toLowerCase(),
+              description: this.selectedCrisis.description,
+              latitude: this.selectedCrisis.latitude,
+              longitude: this.selectedCrisis.longitude,
+              population: 1000,
+              quantity: 100,
+              beneficiariesType: 'general_population',
+              urgency: this.getUrgencyFromSeverity(this.selectedCrisis.severity),
+              crisisType: this.getCrisisTypeFromDescription(this.selectedCrisis.description).toLowerCase().replace(' ', '_'),
+              externalDataType: 'none',
+              externalEvent: 'none',
+              source: 'system'
+            };
+
+            console.log('Sending crisis analysis request:', requestData);
+
+            const headers = new HttpHeaders({
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            });
+
+            this.http.post<any>('http://localhost:5000/api/flask/predict/resource-allocation', requestData, { headers })
+              .pipe(
+                tap(response => {
+                  console.log('Analysis response:', response);
+                }),
+                catchError(error => {
+                  console.error('Error analyzing crisis:', error);
+                  if (error.error?.error === 'Insufficient data points') {
+                    // Show available regions and resource types for this combination
+                    const availableRegions = error.error.available_governorates || [];
+                    const availableTypes = error.error.available_need_types || [];
+                    
+                    // Create a more user-friendly message
+                    let message = `Insufficient historical data for ${region} - ${resourceType}.\n\n`;
+                    message += 'Please try one of these combinations:\n\n';
+                    
+                    // Group available combinations by region
+                    const regionGroups = new Map<string, string[]>();
+                    availableRegions.forEach((region: string) => {
+                      regionGroups.set(region, availableTypes);
+                    });
+                    
+                    // Format the message
+                    regionGroups.forEach((types, region) => {
+                      message += `${region}:\n`;
+                      types.forEach(type => {
+                        message += `  - ${type}\n`;
+                      });
+                      message += '\n';
+                    });
+                    
+                    this.predictionError = message;
+                    this.toastr.warning('Insufficient data for prediction', 'Warning', {
+                      timeOut: 10000,
+                      extendedTimeOut: 5000,
+                      closeButton: true
+                    });
+                  } else {
+                    this.predictionError = error.error?.error || 'Failed to analyze crisis';
+                    this.toastr.error(this.predictionError);
+                  }
+                  this.forecast = null;
+                  this.urgencyAnalysis = null;
+                  this.resourceAllocation = null;
+                  return of(null);
+                })
+              )
+              .subscribe({
+                next: (response) => {
+                  if (response && this.selectedCrisis) {
+                    this.forecast = response.forecast || [];
+                    this.urgencyAnalysis = {
+                      crisis_status: response.crisis_status || 'MEDIUM',
+                      risk_score: response.risk_score || 50,
+                      impact_analysis: response.impact_analysis || {},
+                      resource_needs: response.resource_needs || {}
+                    };
+                    this.resourceAllocation = response.resource_allocation || [];
+                    this.error = null;
+                    this.toastr.success('Crisis analysis completed successfully');
+                    
+                    this.recentActivities.unshift({
+                      type: this.activityTypes.CRISIS_ANALYSIS,
+                      timestamp: new Date(),
+                      description: `AI analysis completed for ${this.selectedCrisis.categorie} crisis in ${this.selectedCrisis.location}`,
+                      severity: this.selectedCrisis.severity,
+                      details: {
+                        crisis: this.selectedCrisis,
+                        analysis: response
+                      }
+                    });
+                    this.recentActivities = this.recentActivities.slice(0, 5);
+                  }
+                },
+                complete: () => {
+                  this.isGeneratingPredictions = false;
+                }
+              });
+          }
+        }
+      });
+  }
+
+  private getUrgencyFromSeverity(severity: string): number {
+    switch (severity.toUpperCase()) {
+      case 'HIGH': return 5;
+      case 'MEDIUM': return 3;
+      case 'LOW': return 1;
+      default: return 3;
+    }
+  }
+
+  private getCrisisTypeFromDescription(description: string): string {
+    const lowerDesc = description.toLowerCase();
+    if (lowerDesc.includes('food')) return 'Food insecurity';
+    if (lowerDesc.includes('medical')) return 'Health crisis';
+    if (lowerDesc.includes('shelter')) return 'Housing crisis';
+    if (lowerDesc.includes('water')) return 'Water crisis';
+    if (lowerDesc.includes('refugee')) return 'Refugee influx';
+    if (lowerDesc.includes('migrant')) return 'Mixed migration';
+    return 'General crisis';
+  }
+
+  // Helper method to map crisis categories to available resource types
+  private mapCategoryToResourceType(category: string): string | null {
+    const categoryMap: { [key: string]: string[] } = {
+      'FOOD_STORAGE': ['food'],
+      'FOOD_DISTRIBUTION': ['food'],
+      'FOOD': ['food'],
+      'MEDICAL': ['medical aid', 'medical kits'],
+      'SHELTER': ['shelter', 'tents'],
+      'CLOTHING': ['clothing'],
+      'WATER': ['water'],
+      'HYGIENE': ['hygiene kits'],
+      'RESCUE': ['search and rescue equipment'],
+      'EVACUATION': ['evacuation'],
+      'BURIAL': ['burial kits'],
+      'BLANKETS': ['blankets']
+    };
+
+    const normalizedCategory = category.toUpperCase();
+    
+    // First try exact match (case-insensitive)
+    const exactMatch = this.availableNeedTypes.find(type => 
+      type.toUpperCase() === normalizedCategory
+    );
+    if (exactMatch) {
+      return exactMatch;
+    }
+
+    // Then try mapping
+    for (const [key, values] of Object.entries(categoryMap)) {
+      if (normalizedCategory.includes(key)) {
+        // Find the first matching resource type from the available types
+        const matchingType = values.find(type => this.availableNeedTypes.includes(type));
+        if (matchingType) {
+          return matchingType;
+        }
+      }
+    }
+
+    // If no match found, show available types in the error
+    console.log('Available resource types:', this.availableNeedTypes);
+    return null;
+  }
+
+ 
+
+ 
+
+  
 
   // Calculate base resources needed based on risk score and resource type
   private calculateBaseResources(riskScore: number, resourceType: string, period: number): number {
@@ -357,13 +624,13 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
 
     // Ensure data is properly formatted
     const labels = this.forecast.map(item => {
-      const date = new Date(item.ds);
+      const date = new Date(item.date);
       return date.toLocaleDateString();
     });
 
-    const yhatData = this.forecast.map(item => item.yhat || 0);
-    const upperData = this.forecast.map(item => item.yhat_upper || 0);
-    const lowerData = this.forecast.map(item => item.yhat_lower || 0);
+    const yhatData = this.forecast.map(item => item.predicted || 0);
+    const upperData = this.forecast.map(item => item.upper || 0);
+    const lowerData = this.forecast.map(item => item.lower || 0);
 
     console.log('Chart data:', { labels, yhatData, upperData, lowerData });
 
@@ -483,6 +750,13 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
           content: ''
         };
         
+        // Set the form values
+        this.emailForm.patchValue({
+          to: email,
+          subject: '',
+          message: ''
+        });
+        
         this.modalService.open(content, {
           ariaLabelledBy: 'modal-basic-title',
           size: 'lg'
@@ -496,9 +770,20 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   }
 
   sendEmail() {
-    console.log('Sending email:', this.emailData);
-    this.toastr.success('Email sent successfully!');
-    this.modalService.dismissAll();
+    if (this.emailForm.valid) {
+      const emailData = {
+        from: 'admin.admin@gmail.com',
+        to: this.emailForm.get('to')?.value,
+        subject: this.emailForm.get('subject')?.value,
+        content: this.emailForm.get('message')?.value
+      };
+      
+      console.log('Sending email:', emailData);
+      this.toastr.success('Email sent successfully!');
+      this.modalService.dismissAll();
+    } else {
+      this.toastr.warning('Please fill in all required fields');
+    }
   }
 
   getAssociationsByStatus(status: string): Association[] {
@@ -570,11 +855,18 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    const selectedAssociations = this.associations.filter(a => 
+      this.selectedAssociations.includes(a.idAssociation!)
+    );
+
     this.bulkEmailData = {
       subject: '',
       content: ''
     };
     this.selectedTemplate = '';
+
+    // Set the recipients property
+    this.recipients = selectedAssociations.map(a => a.associationName).join(', ');
 
     this.modalService.open(this.bulkEmailModal, {
       ariaLabelledBy: 'modal-basic-title',
@@ -663,35 +955,25 @@ Admin Team`
     );
 
     // Here you would typically call your email service to send the emails
-    // For now, we'll just show a success message
-    this.toastr.success(`Email sent to ${selectedAssociations.length} associations`);
+    this.toastr.success(`Email sent to ${selectedAssociations.length} associations: ${selectedAssociations.map(a => a.associationName).join(', ')}`);
     this.modalService.dismissAll();
   }
 
   deleteAssociation(id: number) {
-    const dialogRef = this.dialog.open(AlertComponent, {
-      width: '300px',
-      data: { 
-        title: 'Delete Association',
-        message: 'Are you sure you want to delete this association?',
-        type: 'danger'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'yes') {
-        this.associationService.deleteAssociation(id).subscribe({
-          next: () => {
-            this.toastr.success('Association deleted successfully');
-            this.loadAssociations();
-          },
-          error: (error) => {
-            console.error('Error deleting association:', error);
-            this.toastr.error('Failed to delete association');
-          }
-        });
-      }
-    });
+    if (confirm('Are you sure you want to delete this association? This action cannot be undone.')) {
+      this.associationService.deleteAssociation(id).subscribe({
+        next: () => {
+          this.toastr.success('Association deleted successfully');
+          // Remove the association from the local list
+          this.associations = this.associations.filter(a => a.idAssociation !== id);
+          this.filterAssociations();
+        },
+        error: (error) => {
+          console.error('Error deleting association:', error);
+          this.toastr.error('Failed to delete association. Please try again.');
+        }
+      });
+    }
   }
 
   getAssociationById(id: number): Association | undefined {
@@ -709,6 +991,15 @@ Admin Team`
     this.jobService.getJobOffers().subscribe({
       next: (jobs) => {
         this.reportedJobs = jobs.filter(job => job.reportCount > 0);
+        console.log('Reported jobs:', this.reportedJobs);
+        
+        // Load profile images for each job creator
+        this.reportedJobs.forEach(job => {
+          if (job.createdBy?.idUser) {
+            console.log('Loading profile for user:', job.createdBy);
+            this.loadUserProfileImage(job.createdBy.idUser);
+          }
+        });
       },
       error: (err) => {
         console.error('Error loading reported jobs:', err);
@@ -730,6 +1021,20 @@ Admin Team`
   closeJobDetailsModal() {
     this.showJobDetailsModal = false;
     this.selectedJob = null;
+  }
+
+  toggleJobStatus(job: JobOffer) {
+    job.active = !job.active;
+    this.jobService.updateJobOffer(job).subscribe({
+      next: () => {
+        this.toastr.success(`Job offer ${job.active ? 'reopened' : 'closed'} successfully`);
+        this.loadReportedJobs();
+      },
+      error: (err) => {
+        console.error('Error updating job offer:', err);
+        this.toastr.error('Failed to update job offer status');
+      }
+    });
   }
 
   toggleUserBan(job: JobOffer) {
@@ -758,35 +1063,383 @@ Admin Team`
     });
   }
 
-  toggleJobStatus(job: JobOffer) {
-    job.active = !job.active;
-    this.jobService.updateJobOffer(job).subscribe({
-      next: () => {
-        this.toastr.success(`Job offer ${job.active ? 'reopened' : 'closed'} successfully`);
+  filterReportedJobs() {
+    if (!this.jobSearchTerm) {
         this.loadReportedJobs();
+      return;
+    }
+    const searchTerm = this.jobSearchTerm.toLowerCase();
+    this.reportedJobs = this.reportedJobs.filter(job => 
+      job.title.toLowerCase().includes(searchTerm) ||
+      job.createdBy.firstName.toLowerCase().includes(searchTerm) ||
+      job.createdBy.lastName.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  exportReportedJobs() {
+    const data = this.reportedJobs.map(job => ({
+      'Job Title': job.title,
+      'Posted By': `${job.createdBy.firstName} ${job.createdBy.lastName}`,
+      'Reports': job.reportCount,
+      'Status': job.active ? 'Active' : 'Closed',
+      'Posted Date': new Date(job.createdAt).toLocaleDateString()
+    }));
+
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'reported_jobs.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  getSeverityClass(severity: string): string {
+    switch (severity) {
+      case 'LOW': return 'badge bg-success';
+      case 'MEDIUM': return 'badge bg-warning text-dark';
+      case 'HIGH': return 'badge bg-danger';
+      default: return 'badge bg-secondary';
+    }
+  }
+
+  getSeverityIcon(severity: string): string {
+    switch (severity) {
+      case 'LOW': return 'bi-check-circle';
+      case 'MEDIUM': return 'bi-exclamation-triangle';
+      case 'HIGH': return 'bi-exclamation-octagon';
+      default: return 'bi-question-circle';
+    }
+  }
+
+  getStatusClass(status: CrisisStatus): string {
+    switch (status) {
+      case CrisisStatus.PENDING: return 'badge bg-warning text-dark';
+      case CrisisStatus.IN_PROGRESS: return 'badge bg-info text-white';
+      case CrisisStatus.RESOLVED: return 'badge bg-success text-white';
+      default: return 'badge bg-secondary';
+    }
+  }
+
+  getStatusIcon(status: CrisisStatus): string {
+    switch (status) {
+      case CrisisStatus.PENDING: return 'bi-hourglass';
+      case CrisisStatus.IN_PROGRESS: return 'bi-gear';
+      case CrisisStatus.RESOLVED: return 'bi-check-circle';
+      default: return 'bi-question-circle';
+    }
+  }
+
+  getCategoryIcon(category?: string): string {
+    if (!category) return 'bi-tag';
+    
+    switch (category.toLowerCase()) {
+      case 'natural': return 'bi-tree';
+      case 'medical': return 'bi-heart-pulse';
+      case 'conflict': return 'bi-shield-exclamation';
+      case 'economic': return 'bi-cash-stack';
+      default: return 'bi-tag';
+    }
+  }
+
+  assignToNearestAssociation(crisis: Crisis): void {
+    if (!crisis.idCrisis) {
+      this.toastr.warning('Invalid crisis ID');
+      return;
+    }
+  
+    this.crisisService.assignCrisisToNearestAssociation(crisis.idCrisis).subscribe({
+      next: () => {
+        this.toastr.success('Crisis successfully assigned to the nearest approved association.');
+        this.loadCrises(); // Refresh list
       },
       error: (err) => {
-        console.error('Error updating job offer:', err);
-        this.toastr.error('Failed to update job offer status');
+        console.error('Error assigning crisis:', err);
+        if (err.status === 404) {
+          this.toastr.error('Crisis not found.');
+        } else if (err.status === 400) {
+          this.toastr.warning(err.error); // Display backend message (e.g., no association found)
+        } else {
+          this.toastr.error('Unexpected error assigning crisis.');
+        }
       }
     });
+  }
+  
+  onCrisisSelect() {
+    if (this.selectedCrisis) {
+      this.toastr.info(`Selected crisis: ${this.selectedCrisis.description}`, 'Crisis Selected');
+    }
+  }
+
+  // Update loadRecentActivities method
+  loadRecentActivities() {
+    // Combine activities from different sources
+    const activities: Activity[] = [];
+
+    // Add crisis updates
+    this.crises.forEach(crisis => {
+      activities.push({
+        type: this.activityTypes.CRISIS_UPDATE,
+        timestamp: new Date(crisis.crisisDate || new Date()), // Use crisisDate instead of createdAt
+        description: `Crisis reported in ${crisis.location}`,
+        severity: crisis.severity,
+        status: crisis.status,
+        details: crisis
+      });
+    });
+
+    // Add association verifications
+    this.associations.forEach(association => {
+      if (association.status === AssociationStatus.APPROVED) {
+        activities.push({
+          type: this.activityTypes.ASSOCIATION_VERIFY,
+          timestamp: new Date(), // You might want to add a verification date to your association model
+          description: `Association "${association.associationName}" verified`,
+          details: association
+        });
+      }
+    });
+
+    // Add reported jobs
+    this.reportedJobs.forEach(job => {
+      activities.push({
+        type: this.activityTypes.JOB_REPORT,
+        timestamp: new Date(job.createdAt),
+        description: `Job offer reported: ${job.title}`,
+        reportCount: job.reportCount,
+        details: job
+      });
+    });
+
+    // Sort activities by timestamp (most recent first)
+    this.recentActivities = activities
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, 5); // Keep only the 5 most recent activities
+  }
+
+  // Add method to get activity icon
+  getActivityIcon(activity: any): string {
+    switch (activity.type) {
+      case this.activityTypes.CRISIS_UPDATE:
+        return 'bi-exclamation-triangle';
+      case this.activityTypes.ASSOCIATION_VERIFY:
+        return 'bi-check-circle';
+      case this.activityTypes.JOB_REPORT:
+        return 'bi-flag';
+      case this.activityTypes.CRISIS_ANALYSIS:
+        return 'bi-graph-up';
+      default:
+        return 'bi-info-circle';
+    }
+  }
+
+  // Add method to get activity color
+  getActivityColor(activity: any): string {
+    switch (activity.type) {
+      case this.activityTypes.CRISIS_UPDATE:
+        return activity.severity === 'HIGH' ? 'text-danger' : 
+               activity.severity === 'MEDIUM' ? 'text-warning' : 'text-success';
+      case this.activityTypes.ASSOCIATION_VERIFY:
+        return 'text-success';
+      case this.activityTypes.JOB_REPORT:
+        return 'text-danger';
+      case this.activityTypes.CRISIS_ANALYSIS:
+        return 'text-info';
+      default:
+        return 'text-secondary';
+    }
+  }
+
+  // Add method to format activity timestamp
+  formatActivityTime(timestamp: Date): string {
+    const now = new Date();
+    const diff = now.getTime() - timestamp.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (minutes < 60) {
+      return `${minutes} minutes ago`;
+    } else if (hours < 24) {
+      return `${hours} hours ago`;
+    } else {
+      return `${days} days ago`;
+    }
+  }
+
+  viewDetails(crisis: Crisis) {
+    this.selectedCrisis = crisis;
+    const dialogRef = this.dialog.open(CrisisDetailDialogComponent, {
+      width: '600px',
+      data: crisis
+    });
+  }
+
+  updateCrisis(crisis: Crisis) {
+    // Implement crisis update logic
+    this.toastr.info('Crisis update functionality coming soon');
+  }
+
+  updateStatus(crisis: Crisis) {
+    // Implement status update logic
+    this.toastr.info('Status update functionality coming soon');
+  }
+
+  deleteCrisis(id: number | undefined) {
+    if (!id) {
+      this.toastr.error('Invalid crisis ID');
+      return;
+    }
+
+    if (confirm('Are you sure you want to delete this crisis?')) {
+      this.crisisService.deleteCrisis(id).subscribe({
+        next: () => {
+          this.toastr.success('Crisis deleted successfully');
+          this.loadCrises();
+        },
+        error: (err) => {
+          console.error('Error deleting crisis:', err);
+          this.toastr.error('Failed to delete crisis');
+        }
+      });
+    }
+  }
+
+  exportCrisesToCSV() {
+    const data = this.crises.map(crisis => ({
+      'Description': crisis.description,
+      'Location': crisis.location,
+      'Category': crisis.categorie,
+      'Severity': crisis.severity,
+      'Status': crisis.status,
+      'Date': new Date(crisis.crisisDate || '').toLocaleDateString()
+    }));
+
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'crises.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  filterRequests() {
+    if (!this.searchRequestTerm) {
+      this.filteredRequests = [...this.requests];
+      return;
+    }
+    const searchTerm = this.searchRequestTerm.toLowerCase();
+    this.filteredRequests = this.requests.filter(request => 
+      request.object.toLowerCase().includes(searchTerm) ||
+      request.content.toLowerCase().includes(searchTerm) ||
+      (request.user?.firstName?.toLowerCase() || '').includes(searchTerm) ||
+      (request.user?.lastName?.toLowerCase() || '').includes(searchTerm)
+    );
+  }
+
+  viewRequestDetails(request: MyRequest) {
+    // Implement request details view logic
+    this.toastr.info('Request details view functionality coming soon');
+  }
+
+  respondToRequest(request: MyRequest) {
+    // Implement request response logic
+    this.toastr.info('Request response functionality coming soon');
+  }
+
+  // Add this method after other methods
+  private loadUserProfileImage(userId: number | undefined): void {
+    if (!userId) return;
+
+    this.userImageLoadingStates[userId] = true;
+    this.authService.getUserById(userId).subscribe({
+      next: (user) => {
+        const imagePath = (user as any).profileImage;
+        console.log('Profile image path:', imagePath); // Debug log
+        
+        if (imagePath) {
+          // If the image is a base64 string, use it directly
+          if (imagePath.startsWith('data:image')) {
+            this.userProfileImages[userId] = this.sanitizer.bypassSecurityTrustUrl(imagePath);
+          } 
+          // If it's a URL, make sure it's complete
+          else if (imagePath.startsWith('http')) {
+            this.userProfileImages[userId] = this.sanitizer.bypassSecurityTrustUrl(imagePath);
+          }
+          // If it's a relative path, prepend the base URL
+          else {
+            const baseUrl = 'http://localhost:8089';
+            // Extract just the filename from the path
+            const filename = imagePath.split('/').pop();
+            const imageUrl = `${baseUrl}/api/auth/profile-image/${filename}`;
+            console.log('Constructed image URL:', imageUrl); // Debug log
+            this.userProfileImages[userId] = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
+          }
+        } else {
+          console.log('No profile image found, using default'); // Debug log
+          this.userProfileImages[userId] = this.sanitizer.bypassSecurityTrustUrl(this.defaultUserImage);
+        }
+        this.userImageLoadingStates[userId] = false;
+      },
+      error: (error: unknown) => {
+        console.error('Error loading user profile image for user:', userId, error);
+        this.userProfileImages[userId] = this.sanitizer.bypassSecurityTrustUrl(this.defaultUserImage);
+        this.userImageLoadingStates[userId] = false;
+      }
+    });
+  }
+
+  getUserProfileImage(userId: number | undefined): SafeUrl {
+    if (!userId) return this.sanitizer.bypassSecurityTrustUrl(this.defaultUserImage);
+    return this.userProfileImages[userId] || this.sanitizer.bypassSecurityTrustUrl(this.defaultUserImage);
+  }
+
+  isUserImageLoading(userId: number | undefined): boolean {
+    return userId ? this.userImageLoadingStates[userId] || false : false;
   }
 
   loadPendingVolunteers(): void {
+    this.volunteersLoading = true;
     this.userService.getPendingVolunteers().subscribe({
       next: (volunteers) => {
         this.pendingVolunteers = volunteers;
+        this.volunteersLoading = false;
+        if (volunteers.length === 0) {
+          this.toastr.info('No pending volunteers found');
+        }
       },
       error: (error) => {
         console.error('Error loading pending volunteers:', error);
-        this.toastr.error('Failed to load pending volunteers');
+        this.toastr.error('Failed to load pending volunteers. Please try again later.');
+        this.pendingVolunteers = [];
+        this.volunteersLoading = false;
       }
     });
   }
-
+  openRejectionModal(volunteer: PendingVolunteer): void {
+    this.selectedVolunteerForRejection = volunteer;
+    this.rejectionReason = ''; // Clear any previous rejection reason
+    this.modalService.open(this.rejectionModal, {
+        ariaLabelledBy: 'modal-basic-title',
+        size: 'md'
+    });
+  }
   viewCv(volunteer: PendingVolunteer): void {
     if (!volunteer.idUser) {
         this.toastr.warning('Invalid volunteer information');
+        return;
+    }
+    
+    if (!volunteer.cvFilePath) {
+        this.toastr.warning('This volunteer does not have a CV file uploaded.');
         return;
     }
     
@@ -794,7 +1447,7 @@ Admin Team`
     try {
         this.userService.viewCv(volunteer.idUser);
     } catch (error) {
-        this.toastr.error('Failed to view CV. Please try again later.');
+        this.toastr.error('Failed to view CV. The file may not exist or the server could not access it.');
         console.error('Error viewing CV:', error);
     }
   }
@@ -816,16 +1469,6 @@ Admin Team`
         }
     });
   }
-
-  openRejectionModal(volunteer: PendingVolunteer): void {
-    this.selectedVolunteerForRejection = volunteer;
-    this.rejectionReason = ''; // Clear any previous rejection reason
-    this.modalService.open(this.rejectionModal, {
-        ariaLabelledBy: 'modal-basic-title',
-        size: 'md'
-    });
-  }
-
   confirmRejection(modal: any): void {
     if (!this.selectedVolunteerForRejection) {
         this.toastr.warning('No volunteer selected for rejection');
@@ -855,4 +1498,5 @@ Admin Team`
         }
     });
   }
+
 }

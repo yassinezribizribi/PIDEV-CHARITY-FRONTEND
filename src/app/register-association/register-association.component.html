@@ -17,6 +17,11 @@
   <h2 class="text-center mb-4">Register Your Association</h2>
 
   <form (ngSubmit)="onSubmit()" #associationForm="ngForm">
+    <!-- Error Message -->
+    <div *ngIf="submissionError" class="alert alert-danger mb-3">
+      {{ errorMessage }}
+    </div>
+
     <!-- Association Name -->
     <div class="col-12 mb-3">
       <label class="form-label">Association Name <span class="text-danger">*</span></label>
@@ -29,8 +34,9 @@
         required
         pattern="^[A-Za-z\s]{3,50}$"
         placeholder="Enter association name (letters only)"
+        [ngClass]="{'is-invalid': nameField.invalid && (nameField.dirty || nameField.touched)}"
       >
-      <div class="form-text text-danger" *ngIf="nameField.invalid && (nameField.dirty || nameField.touched)">
+      <div class="invalid-feedback" *ngIf="nameField.invalid && (nameField.dirty || nameField.touched)">
         <div *ngIf="nameField.errors?.['required']">Association name is required.</div>
         <div *ngIf="nameField.errors?.['pattern']">Association name must be 3-50 characters long and can only contain letters and spaces.</div>
       </div>
@@ -39,7 +45,18 @@
     <!-- Association Address -->
     <div class="col-12 mb-3">
       <label class="form-label">Address <span class="text-danger">*</span></label>
-      <input type="text" class="form-control" [(ngModel)]="association.associationAddress" name="associationAddress" required>
+      <input 
+        type="text" 
+        class="form-control" 
+        [(ngModel)]="association.associationAddress" 
+        name="associationAddress" 
+        #addressField="ngModel"
+        required
+        [ngClass]="{'is-invalid': addressField.invalid && (addressField.dirty || addressField.touched)}"
+      >
+      <div class="invalid-feedback" *ngIf="addressField.invalid && (addressField.dirty || addressField.touched)">
+        Address is required.
+      </div>
     </div>
 
     <!-- Association Phone -->
@@ -56,13 +73,13 @@
         required
         pattern="[0-9]{8}"
         placeholder="Enter 8-digit phone number"
+        [ngClass]="{'is-invalid': phoneField.invalid && (phoneField.dirty || phoneField.touched)}"
       >
-    
-      <div class="form-text text-danger" *ngIf="phoneField.invalid && (phoneField.dirty || phoneField.touched)">
-        Please enter a valid 8-digit phone number
+      <div class="invalid-feedback" *ngIf="phoneField.invalid && (phoneField.dirty || phoneField.touched)">
+        <div *ngIf="phoneField.errors?.['required']">Phone number is required.</div>
+        <div *ngIf="phoneField.errors?.['pattern']">Please enter a valid 8-digit phone number.</div>
       </div>
     </div>
-    
 
     <!-- Association Email -->
     <div class="col-12 mb-3">
@@ -76,8 +93,9 @@
         required
         pattern="^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$"
         placeholder="Enter email address"
+        [ngClass]="{'is-invalid': emailField.invalid && (emailField.dirty || emailField.touched)}"
       />
-      <div class="form-text text-danger" *ngIf="emailField.invalid && (emailField.dirty || emailField.touched)">
+      <div class="invalid-feedback" *ngIf="emailField.invalid && (emailField.dirty || emailField.touched)">
         <div *ngIf="emailField.errors?.['required']">Email is required.</div>
         <div *ngIf="emailField.errors?.['pattern']">Please enter a valid email address.</div>
       </div>
@@ -86,44 +104,61 @@
     <!-- Description -->
     <div class="col-12 mb-3">
       <label class="form-label">Description <span class="text-danger">*</span></label>
-      <textarea class="form-control" rows="4" [(ngModel)]="association.description" name="description" required></textarea>
+      <textarea 
+        class="form-control" 
+        rows="4" 
+        [(ngModel)]="association.description" 
+        name="description" 
+        #descriptionField="ngModel"
+        required
+        [ngClass]="{'is-invalid': descriptionField.invalid && (descriptionField.dirty || descriptionField.touched)}"
+      ></textarea>
+      <div class="invalid-feedback" *ngIf="descriptionField.invalid && (descriptionField.dirty || descriptionField.touched)">
+        Description is required.
+      </div>
     </div>
 
     <!-- Logo Upload -->
     <div class="col-12 mb-3">
       <label class="form-label">Association Logo</label>
-      <input type="file" 
-       class="form-control" 
-       name="associationLogo" 
-       (change)="onFileChange($event, 'associationLogoPath')" 
-       accept="image/png, image/jpeg, image/jpg">
-
-      <div class="form-text text-danger" *ngIf="logoError">{{ logoError }}</div>
+      <input 
+        type="file" 
+        class="form-control" 
+        name="associationLogo" 
+        (change)="onFileChange($event, 'associationLogoPath')" 
+        accept="image/png, image/jpeg, image/jpg"
+        [ngClass]="{'is-invalid': logoError}"
+      >
+      <div class="invalid-feedback" *ngIf="logoError">{{ logoError }}</div>
     </div>
 
     <!-- Registration Document Upload -->
     <div class="col-12 mb-3">
       <label class="form-label">Registration Document <span class="text-danger">*</span></label>
-      <input type="file" 
-             class="form-control" 
-             (change)="onFileChange($event, 'registrationDocumentPath')" 
-             accept="application/pdf" 
-             required>
-      <div class="form-text text-danger" *ngIf="registrationDocError">{{ registrationDocError }}</div>
+      <input 
+        type="file" 
+        class="form-control" 
+        (change)="onFileChange($event, 'registrationDocumentPath')" 
+        accept="application/pdf" 
+        required
+        [ngClass]="{'is-invalid': registrationDocError}"
+      >
+      <div class="invalid-feedback" *ngIf="registrationDocError">{{ registrationDocError }}</div>
     </div>
 
     <!-- Legal Document Upload -->
     <div class="col-12 mb-3">
       <label class="form-label">Legal Document <span class="text-danger">*</span></label>
-      <input type="file" 
-             class="form-control" 
-             (change)="onFileChange($event, 'legalDocumentPath')" 
-             accept="application/pdf" 
-             required>
-      <div class="form-text text-danger" *ngIf="legalDocError">{{ legalDocError }}</div>
+      <input 
+        type="file" 
+        class="form-control" 
+        (change)="onFileChange($event, 'legalDocumentPath')" 
+        accept="application/pdf" 
+        required
+        [ngClass]="{'is-invalid': legalDocError}"
+      >
+      <div class="invalid-feedback" *ngIf="legalDocError">{{ legalDocError }}</div>
     </div>
-
-    
 
     <!-- Submit Button -->
     <div class="form-group text-center">
@@ -133,23 +168,14 @@
         class="btn btn-primary"
         [disabled]="!associationForm?.form?.valid || isSubmitting || !areFilesValid()"
       >
+        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
         {{ isSubmitting ? 'Submitting...' : 'Submit' }}
       </button>
     </div>
 
-    <!-- Status Messages -->
-    <div *ngIf="isSubmitting" class="text-center mt-3">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    </div>
-
+    <!-- Success Message -->
     <div *ngIf="submissionSuccess" class="alert alert-success mt-3" role="alert">
       Your association has been successfully registered!
-    </div>
-
-    <div *ngIf="submissionError" class="alert alert-danger mt-3" role="alert">
-      {{ errorMessage }}
     </div>
   </form>
 </div>

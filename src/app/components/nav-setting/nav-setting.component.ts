@@ -30,7 +30,7 @@ export class NavSettingComponent {
             this.user$.next({
                 idUser: userInfo.idUser || 0,
                 email: userInfo.email || '',
-                roles: userInfo.roles
+                role: userInfo.role || ''
             });
         }
 

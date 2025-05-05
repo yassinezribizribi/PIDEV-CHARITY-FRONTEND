@@ -1,39 +1,100 @@
 <app-admin-navbar />
-<!-- Hero Start -->
-<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
-<div class="bg-overlay bg-gradient-overlay"></div>
-<div class="container">
-  <div class="row mt-5 justify-content-center">
-      <div class="col-12">
-          <div class="title-heading text-center">
-              <h5 class="heading fw-semibold mb-0 display-5 text-white title-dark">Admin Dashboard</h5>
-              <p class="text-white-50 mt-3">Monitor and manage your platform</p>
+
+<div class="dashboard-container">
+  <!-- Overview Section -->
+  <div class="container-fluid px-4 py-4">
+    <div class="row g-4">
+      <!-- Quick Stats -->
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-primary bg-opacity-10 rounded-4 p-4 h-100">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-primary text-white rounded-circle p-3 me-3">
+              <i class="bi bi-building fs-4"></i>
+            </div>
+            <div>
+              <h6 class="text-muted mb-1">Total Associations</h6>
+              <h3 class="mb-0">{{associations.length}}</h3>
+            </div>
           </div>
+          <div class="mt-3">
+            <span class="badge bg-success-subtle text-success">
+              <i class="bi bi-arrow-up me-1"></i>12% this month
+            </span>
+          </div>
+        </div>
       </div>
-  </div>
-</div>
-</section>
 
-<div class="position-relative">
-<div class="shape overflow-hidden text-white">
-  <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
-  </svg>
-</div>
-</div>
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-warning bg-opacity-10 rounded-4 p-4 h-100">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-warning text-white rounded-circle p-3 me-3">
+              <i class="bi bi-exclamation-triangle fs-4"></i>
+            </div>
+            <div>
+              <h6 class="text-muted mb-1">Active Crises</h6>
+              <h3 class="mb-0">{{crises.length}}</h3>
+            </div>
+          </div>
+          <div class="mt-3">
+            <span class="badge bg-danger-subtle text-danger">
+              <i class="bi bi-arrow-up me-1"></i>8% this week
+            </span>
+          </div>
+        </div>
+      </div>
 
-<section class="section">
-<div class="container-fluid px-4">
-  <div class="row">
-    <!-- Left Column: Associations and Crises -->
-    <div class="col-lg-7 col-12">
-      <!-- Associations Management Section -->
-      <div class="card shadow-lg border-0 rounded-4 mb-4">
-        <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
-          <div class="d-flex justify-content-between align-items-center">
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-success bg-opacity-10 rounded-4 p-4 h-100">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-success text-white rounded-circle p-3 me-3">
+              <i class="bi bi-people fs-4"></i>
+            </div>
+            <div>
+              <h6 class="text-muted mb-1">Total Users</h6>
+              <h3 class="mb-0">{{getAssociationsByStatus('APPROVED').length}}</h3>
+            </div>
+          </div>
+          <div class="mt-3">
+            <span class="badge bg-success-subtle text-success">
+              <i class="bi bi-arrow-up me-1"></i>5% this month
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-info bg-opacity-10 rounded-4 p-4 h-100">
             <div class="d-flex align-items-center">
-              <i class="bi bi-building me-2 text-primary fs-4"></i>
-              <h4 class="mb-0">Manage Associations</h4>
+            <div class="stat-icon bg-info text-white rounded-circle p-3 me-3">
+              <i class="bi bi-envelope fs-4"></i>
+            </div>
+            <div>
+              <h6 class="text-muted mb-1">Pending Requests</h6>
+              <h3 class="mb-0">{{requests.length}}</h3>
+            </div>
+          </div>
+          <div class="mt-3">
+            <span class="badge bg-warning-subtle text-warning">
+              <i class="bi bi-clock me-1"></i>Needs attention
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="col-xl-8">
+        <!-- Associations Management -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <div class="icon-circle bg-primary-subtle me-3">
+                  <i class="bi bi-building text-primary"></i>
+                </div>
+                <div>
+                  <h4 class="mb-0 fw-bold">Associations Management</h4>
+                  <p class="text-muted mb-0">Manage and monitor associations</p>
+                </div>
             </div>
             <div class="d-flex gap-2">
               <div class="input-group">
@@ -53,79 +114,6 @@
                 <option value="REJECTED">Rejected</option>
               </select>
             </div>
-          </div>
-        </div>
-
-        <!-- Statistics Section -->
-        <div class="card-body border-bottom p-4">
-          <div class="row g-3">
-            <div class="col-md-3">
-              <div class="stat-card bg-primary bg-opacity-10 rounded-3 p-3">
-                <div class="d-flex align-items-center">
-                  <div class="stat-icon bg-primary text-white rounded-circle p-2 me-3">
-                    <i class="bi bi-building"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-0">Total Associations</h6>
-                    <h3 class="mb-0">{{associations.length}}</h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="stat-card bg-warning bg-opacity-10 rounded-3 p-3">
-                <div class="d-flex align-items-center">
-                  <div class="stat-icon bg-warning text-white rounded-circle p-2 me-3">
-                    <i class="bi bi-clock"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-0">Pending</h6>
-                    <h3 class="mb-0">{{getAssociationsByStatus('PENDING').length}}</h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="stat-card bg-success bg-opacity-10 rounded-3 p-3">
-                <div class="d-flex align-items-center">
-                  <div class="stat-icon bg-success text-white rounded-circle p-2 me-3">
-                    <i class="bi bi-check-circle"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-0">Approved</h6>
-                    <h3 class="mb-0">{{getAssociationsByStatus('APPROVED').length}}</h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="stat-card bg-danger bg-opacity-10 rounded-3 p-3">
-                <div class="d-flex align-items-center">
-                  <div class="stat-icon bg-danger text-white rounded-circle p-2 me-3">
-                    <i class="bi bi-x-circle"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-0">Rejected</h6>
-                    <h3 class="mb-0">{{getAssociationsByStatus('REJECTED').length}}</h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="card-body border-bottom p-4">
-          <div class="d-flex gap-2">
-            <button class="btn btn-soft-primary" (click)="exportAssociations()">
-              <i class="bi bi-download me-2"></i>Export Data
-            </button>
-            <button class="btn btn-soft-success" (click)="refreshData()">
-              <i class="bi bi-arrow-clockwise me-2"></i>Refresh
-            </button>
-            <button class="btn btn-soft-info" (click)="openBulkEmailModal()">
-              <i class="bi bi-envelope me-2"></i>Bulk Email
-            </button>
           </div>
         </div>
 
@@ -219,356 +207,619 @@
                       <button class="btn btn-sm btn-soft-success" 
                               *ngIf="association.status === 'PENDING'" 
                               (click)="verifyAssociation(association.idAssociation)"
-                              tooltip="Verify Association">
+                                tooltip="Approve">
                         <i class="bi bi-check-lg"></i>
                       </button>
-                      <button class="btn btn-sm btn-soft-info" 
-                              (click)="openEmailModal(emailModal, association)"
-                              tooltip="Contact Association">
-                        <i class="bi bi-envelope"></i>
-                      </button>
                       <button class="btn btn-sm btn-soft-danger" 
+                                *ngIf="association.status === 'PENDING'" 
                               (click)="deleteAssociation(association.idAssociation)"
-                              tooltip="Delete Association">
-                        <i class="bi bi-trash"></i>
+                                tooltip="Reject">
+                          <i class="bi bi-x-lg"></i>
                       </button>
                     </div>
                   </td>
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Add this after the Associations Management Section -->
-      <div class="card shadow-lg border-0 rounded-4 mb-4">
-        <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-              <i class="bi bi-flag me-2 text-danger fs-4"></i>
-              <h4 class="mb-0">Job Offer Reports</h4>
-            </div>
-          </div>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="bg-light">
-                <tr>
-                  <th>Job Title</th>
-                  <th>Posted By</th>
-                  <th>Report Count</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let job of reportedJobs">
-                  <td>{{ job.title }}</td>
-                  <td>{{ getCreatorName(job) }}</td>
-                  <td>
-                    <span class="badge" [ngClass]="{
-                      'bg-warning': job.reportCount < 3,
-                      'bg-danger': job.reportCount >= 3
-                    }">
-                      {{ job.reportCount }} Reports
-                    </span>
-                  </td>
-                  <td>
-                    <span class="badge" [ngClass]="{
-                      'bg-success': !job.createdBy?.isBanned,
-                      'bg-danger': job.createdBy?.isBanned
-                    }">
-                      {{ job.createdBy?.isBanned ? 'Banned' : 'Active' }}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="btn-group">
-                      <button class="btn btn-sm btn-info" 
-                              (click)="viewJobDetails(job)"
-                              [disabled]="!job.active">
-                        <i class="bi bi-eye"></i> View
-                      </button>
-                      <button class="btn btn-sm" 
-                              [ngClass]="{
-                                'btn-danger': !job.createdBy?.isBanned,
-                                'btn-success': job.createdBy?.isBanned
-                              }"
-                              (click)="toggleUserBan(job)">
-                        <i class="bi" [ngClass]="{
-                          'bi-ban': !job.createdBy?.isBanned,
-                          'bi-check': job.createdBy?.isBanned
-                        }"></i>
-                        {{ job.createdBy?.isBanned ? 'Unban' : 'Ban' }}
-                      </button>
-                      <button class="btn btn-sm btn-warning" 
-                              (click)="toggleJobStatus(job)">
-                        <i class="bi" [ngClass]="{
-                          'bi-x': job.active,
-                          'bi-check': !job.active
-                        }"></i>
-                        {{ job.active ? 'Close' : 'Reopen' }}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- No Reports Message -->
-          <div *ngIf="!reportedJobs?.length" class="text-center py-4">
-            <i class="bi bi-flag fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No Reported Job Offers</h5>
-            <p class="text-muted">There are no job offers that have been reported.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Crises Management Section -->
-      <div class="card shadow-lg border-0 rounded-4 mb-4">
-        <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
-          <div class="d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Active Crises</h4>
-            <div class="d-flex gap-2">
-              <input type="text" class="form-control" placeholder="Search crises..." [(ngModel)]="crisisSearchTerm" (keyup)="filterCrises()">
-            </div>
-          </div>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="bg-light">
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Location</th>
-                  <th>Description</th>
-                  <th>Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let crisis of filteredCrises">
-                  <td>{{ crisis.id || 'N/A' }}</td>
-                  <td>{{ crisis.name || 'N/A' }}</td>
-                  <td>{{ crisis.location || 'N/A' }}</td>
-                  <td>{{ crisis.description || 'N/A' }}</td>
-                  <td>{{ crisis.date ? (crisis.date | date) : 'N/A' }}</td>
-                  <td>
-                    <button class="btn btn-sm btn-primary" (click)="analyzeCrisis(crisis)">Analyze</button>
-                    <button class="btn btn-sm btn-danger" (click)="openDialog(crisis.id ?? 0, '0ms', '0ms')">Delete</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
     </div>
 
-    <!-- Right Column: AI Analysis -->
-    <div class="col-lg-5 col-12">
-      <!-- AI Analysis Section -->
-      <div class="card shadow-lg border-0 rounded-4 h-100">
-        <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
-          <h4 class="mb-0">Crisis Management Dashboard</h4>
+          <div class="card-footer bg-transparent border-0 p-4">
+          <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex gap-2">
+                <button class="btn btn-soft-primary" (click)="exportAssociations()">
+                  <i class="bi bi-download me-2"></i>Export Data
+                      </button>
+                <button class="btn btn-soft-success" (click)="refreshData()">
+                  <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+                      </button>
+                <button class="btn btn-soft-info" (click)="openBulkEmailModal()">
+                  <i class="bi bi-envelope me-2"></i>Bulk Email
+                      </button>
+                    </div>
+              <div class="text-muted">
+                Showing {{filteredAssociations.length}} of {{associations.length}} associations
+          </div>
         </div>
-        <div class="card-body p-4">
-          <div *ngIf="selectedCrisis">
-            <!-- Crisis Overview -->
-            <div class="crisis-overview mb-4">
-              <h5 class="mb-3">{{selectedCrisis.name}}</h5>
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label">Resource Type</label>
-                  <select class="form-select" [(ngModel)]="selectedResourceType">
-                    <option value="food">Food</option>
-                    <option value="shelter">Shelter</option>
-                    <option value="medical">Medical Aid</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Forecast Period (Days)</label>
-                  <input type="number" class="form-control" [(ngModel)]="forecastPeriod" min="1" max="90">
-                </div>
-              </div>
-              <button class="btn btn-primary w-100 mt-3" (click)="generatePredictions()">
-                <i class="bi bi-graph-up me-2"></i>Generate Analysis
-              </button>
-            </div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Quick Summary -->
-            <div class="quick-summary mb-4" *ngIf="forecast">
-              <h6 class="mb-3">Analysis Results</h6>
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <div class="card bg-light">
-                    <div class="card-body">
-                      <h6 class="card-title">Crisis Status</h6>
-                      <p class="card-text">
-                        <span class="badge" [ngClass]="{
-                          'bg-success': urgencyAnalysis?.crisis_status?.toLowerCase().includes('low'),
-                          'bg-warning': urgencyAnalysis?.crisis_status?.toLowerCase().includes('medium'),
-                          'bg-danger': urgencyAnalysis?.crisis_status?.toLowerCase().includes('high')
-                        }">
-                          {{ urgencyAnalysis?.crisis_status }}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
+      <!-- Crisis Management Section -->
+      <div class="col-xl-8">
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <div class="icon-circle bg-warning-subtle me-3">
+                  <i class="bi bi-exclamation-triangle text-warning"></i>
                 </div>
-                <div class="col-md-6">
-                  <div class="card bg-light">
-                    <div class="card-body">
-                      <h6 class="card-title">Risk Score</h6>
-                      <p class="card-text">
-                        <span class="badge" [ngClass]="{
-                          'bg-success': urgencyAnalysis?.risk_score < 0.3,
-                          'bg-warning': urgencyAnalysis?.risk_score >= 0.3 && urgencyAnalysis?.risk_score < 0.7,
-                          'bg-danger': urgencyAnalysis?.risk_score >= 0.7
-                        }">
-                          {{ (urgencyAnalysis?.risk_score * 100) | number:'1.0-0' }}%
-                        </span>
-                      </p>
-                    </div>
-                  </div>
+                <div>
+                  <h4 class="mb-0 fw-bold">Crisis Management</h4>
+                  <p class="text-muted mb-0">Monitor and manage active crises</p>
                 </div>
               </div>
-            </div>
-
-            <!-- Forecast Chart -->
-            <div class="forecast-chart mb-4" *ngIf="forecast">
-              <h6 class="mb-3">Resource Forecast</h6>
-              <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
-                <canvas #forecastChart></canvas>
+              <div class="d-flex gap-2">
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input type="text" 
+                         class="form-control border-start-0" 
+                         placeholder="Search crises..." 
+                         [(ngModel)]="crisisSearchTerm" 
+                         (keyup)="filterCrises()">
+                </div>
               </div>
-            </div>
-
-            <!-- Resource Allocation -->
-            <div class="resource-allocation mb-4" *ngIf="resourceAllocation && resourceAllocation.length > 0">
-              <h6 class="mb-3">Resource Distribution Plan</h6>
-              <div class="table-responsive">
-                <table class="table table-sm">
-                  <thead>
-                    <tr>
-                      <th>Location</th>
-                      <th>Allocated Resources</th>
-                      <th>Priority</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let allocation of resourceAllocation">
-                      <td>{{ allocation.location }}</td>
-                      <td>{{ allocation.resources | number:'1.0-0' }}</td>
-                      <td>
-                        <span class="badge" [ngClass]="{
-                          'bg-success': allocation.priority === 'Low',
-                          'bg-warning': allocation.priority === 'Medium',
-                          'bg-danger': allocation.priority === 'High'
-                        }">
-                          {{ allocation.priority }}
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <!-- No Resource Allocation Message -->
-            <div class="alert alert-info" *ngIf="!resourceAllocation || resourceAllocation.length === 0">
-              <i class="bi bi-info-circle me-2"></i>
-              No resource distribution plan available for this analysis.
-            </div>
-
-            <!-- Error Message -->
-            <div class="alert alert-danger" *ngIf="error">
-              {{ error }}
             </div>
           </div>
-          <div *ngIf="!selectedCrisis" class="text-center text-muted">
-            <i class="bi bi-graph-up display-4"></i>
-            <p class="mt-3">Select a crisis to analyze resource needs</p>
+
+          <div class="card-body p-0">
+            <!-- Loading State -->
+            <div *ngIf="loading" class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-3 text-muted">Loading crises...</p>
+            </div>
+
+            <!-- No Results State -->
+            <div *ngIf="!loading && filteredCrises.length === 0" class="text-center py-5">
+              <i class="bi bi-exclamation-circle display-4 text-muted"></i>
+              <p class="mt-3 text-muted">No crises found</p>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive" *ngIf="!loading && filteredCrises.length > 0">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th class="border-0">Description</th>
+                    <th class="border-0">Location</th>
+                    <th class="border-0">Category</th>
+                    <th class="border-0">Severity</th>
+                    <th class="border-0">Status</th>
+                    <th class="border-0 text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let crisis of filteredCrises" class="border-bottom">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="icon-circle bg-light me-2">
+                          <i class="bi" [ngClass]="getCategoryIcon(crisis.categorie)"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{crisis.description}}</h6>
+                          <small class="text-muted">{{crisis.crisisDate | date}}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-geo-alt text-muted me-2"></i>
+                        {{crisis.location}}
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-info-subtle text-info">
+                        {{crisis.categorie}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="getSeverityClass(crisis.severity)">
+                        <i class="bi" [ngClass]="getSeverityIcon(crisis.severity)"></i>
+                        {{crisis.severity}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="getStatusClass(crisis.status)">
+                        <i class="bi" [ngClass]="getStatusIcon(crisis.status)"></i>
+                        {{crisis.status}}
+                      </span>
+                    </td>
+                    <td class="text-end">
+                      <div class="btn-group">
+                        <button class="btn btn-sm btn-soft-primary" 
+                                (click)="viewDetails(crisis)"
+                                tooltip="View Details">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-soft-warning" 
+                                (click)="updateCrisis(crisis)"
+                                tooltip="Edit">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-soft-success" 
+                                (click)="updateStatus(crisis)"
+                                tooltip="Update Status">
+                          <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                        <button class="btn btn-sm btn-soft-danger" 
+                                (click)="deleteCrisis(crisis.idCrisis)"
+                                tooltip="Delete">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card-footer bg-transparent border-0 p-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex gap-2">
+                <button class="btn btn-soft-primary" (click)="exportCrisesToCSV()">
+                  <i class="bi bi-download me-2"></i>Export Data
+                </button>
+                <button class="btn btn-soft-success" (click)="loadCrises()">
+                  <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+                </button>
+                <button class="btn btn-soft-warning" (click)="analyzeCrisis()" [disabled]="!selectedCrisis || isGeneratingPredictions">
+                  <i class="bi bi-search me-2"></i>
+                  <span *ngIf="!isGeneratingPredictions">Analyze Crisis</span>
+                  <span *ngIf="isGeneratingPredictions">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Analyzing...
+                  </span>
+                </button>
+              </div>
+              <div class="text-muted">
+                Showing {{filteredCrises.length}} of {{crises.length}} crises
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reported Job Offers Section -->
+      <div class="col-xl-8">
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <div class="icon-circle bg-danger-subtle me-3">
+                  <i class="bi bi-flag text-danger"></i>
+                </div>
+                <div>
+                  <h4 class="mb-0 fw-bold">Reported Job Offers</h4>
+                  <p class="text-muted mb-0">Review and manage reported job offers</p>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input type="text" 
+                         class="form-control border-start-0" 
+                         placeholder="Search reported jobs..." 
+                         [(ngModel)]="jobSearchTerm" 
+                         (keyup)="filterReportedJobs()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body p-0">
+            <!-- Loading State -->
+            <div *ngIf="loading" class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-3 text-muted">Loading reported jobs...</p>
+            </div>
+
+            <!-- No Results State -->
+            <div *ngIf="!loading && reportedJobs.length === 0" class="text-center py-5">
+              <i class="bi bi-check-circle display-4 text-muted"></i>
+              <p class="mt-3 text-muted">No reported job offers found</p>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive" *ngIf="!loading && reportedJobs.length > 0">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th class="border-0">Job Title</th>
+                    <th class="border-0">Posted By</th>
+                    <th class="border-0">Reports</th>
+                    <th class="border-0">Status</th>
+                    <th class="border-0 text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let job of reportedJobs" class="border-bottom">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="icon-circle bg-light me-2">
+                          <i class="bi bi-briefcase"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{job.title}}</h6>
+                          <small class="text-muted">{{job.createdAt | date}}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="avatar-sm me-2 position-relative">
+                          <img [src]="getUserProfileImage(job.createdBy?.idUser)" 
+                               [alt]="getCreatorName(job)"
+                               class="rounded-circle"
+                               style="width: 40px; height: 40px; object-fit: cover;"
+                               onerror="this.src='assets/images/default-logo.jpg'">
+                          <div *ngIf="isUserImageLoading(job.createdBy?.idUser)" 
+                               class="logo-loading-spinner">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                              <span class="visually-hidden">Loading...</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{getCreatorName(job)}}</h6>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-danger-subtle text-danger">
+                        <i class="bi bi-flag me-1"></i>
+                        {{job.reportCount}} reports
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="{'bg-success-subtle text-success': job.active, 'bg-danger-subtle text-danger': !job.active}">
+                        <i class="bi" [ngClass]="{'bi-check-circle': job.active, 'bi-x-circle': !job.active}"></i>
+                        {{job.active ? 'Active' : 'Closed'}}
+                      </span>
+                    </td>
+                    <td class="text-end">
+                      <div class="btn-group">
+                        <button class="btn btn-sm btn-soft-primary" 
+                                (click)="viewJobDetails(job)"
+                                tooltip="View Details">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm" 
+                                [ngClass]="{'btn-soft-success': !job.active, 'btn-soft-warning': job.active}"
+                                (click)="toggleJobStatus(job)"
+                                tooltip="Toggle Status">
+                          <i class="bi" [ngClass]="{'bi-check-circle': !job.active, 'bi-x-circle': job.active}"></i>
+                        </button>
+                        <button class="btn btn-sm" 
+                                [ngClass]="{'btn-soft-danger': !job.createdBy.isBanned, 'btn-soft-success': job.createdBy.isBanned}"
+                                (click)="toggleUserBan(job)"
+                                tooltip="Toggle User Ban">
+                          <i class="bi" [ngClass]="{'bi-ban': !job.createdBy.isBanned, 'bi-check-circle': job.createdBy.isBanned}"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card-footer bg-transparent border-0 p-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex gap-2">
+                <button class="btn btn-soft-primary" (click)="exportReportedJobs()">
+                  <i class="bi bi-download me-2"></i>Export Data
+                </button>
+                <button class="btn btn-soft-success" (click)="loadReportedJobs()">
+                  <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+                </button>
+              </div>
+              <div class="text-muted">
+                Showing {{reportedJobs.length}} reported job offers
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Requests Management Section -->
+      <div class="col-xl-8">
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <div class="icon-circle bg-info-subtle me-3">
+                  <i class="bi bi-envelope text-info"></i>
+                </div>
+                <div>
+                  <h4 class="mb-0 fw-bold">Requests Management</h4>
+                  <p class="text-muted mb-0">Manage and monitor user requests</p>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input type="text" 
+                         class="form-control border-start-0" 
+                         placeholder="Search requests..." 
+                         [(ngModel)]="searchRequestTerm" 
+                         (keyup)="filterRequests()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body p-0">
+            <!-- Loading State -->
+            <div *ngIf="loading" class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-3 text-muted">Loading requests...</p>
+            </div>
+
+            <!-- No Results State -->
+            <div *ngIf="!loading && filteredRequests.length === 0" class="text-center py-5">
+              <i class="bi bi-inbox display-4 text-muted"></i>
+              <p class="mt-3 text-muted">No requests found</p>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive" *ngIf="!loading && filteredRequests.length > 0">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th class="border-0">Subject</th>
+                    <th class="border-0">Content</th>
+                    <th class="border-0">Date</th>
+                    <th class="border-0">Status</th>
+                    <th class="border-0 text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let request of filteredRequests" class="border-bottom">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="icon-circle bg-primary-subtle me-2">
+                          <i class="bi bi-envelope text-primary"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{request.object}}</h6>
+                          <small class="text-muted">From: {{request.user?.firstName || 'Anonymous'}} {{request.user?.lastName || ''}}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="mb-0 text-truncate" style="max-width: 200px;">{{request.content}}</p>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-calendar text-muted me-2"></i>
+                        {{request.createdAt || request.dateRequest | date:'short'}}
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'bg-warning': !request.response,
+                        'bg-success': request.response
+                      }">
+                        <i class="bi" [ngClass]="{
+                          'bi-clock': !request.response,
+                          'bi-check-circle': request.response
+                        }"></i>
+                        {{request.response ? 'Responded' : 'Pending'}}
+                      </span>
+                    </td>
+                    <td class="text-end">
+                      <div class="btn-group">
+                        <button class="btn btn-sm btn-soft-primary" 
+                                (click)="viewRequestDetails(request)"
+                                tooltip="View Details">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-soft-success" 
+                                *ngIf="!request.response"
+                                (click)="respondToRequest(request)"
+                                tooltip="Respond">
+                          <i class="bi bi-reply"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card-footer bg-transparent border-0 p-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="text-muted">
+                Showing {{filteredRequests.length}} of {{requests.length}} requests
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Volunteer Review Section -->
-      <div class="card shadow-lg border-0 rounded-4 mb-4">
-        <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-              <i class="bi bi-people me-2 text-primary fs-4"></i>
-              <h4 class="mb-0">Volunteer Review</h4>
-            </div>
-            <div class="d-flex gap-2">
-              <button class="btn btn-soft-primary" (click)="loadPendingVolunteers()">
-                <i class="bi bi-arrow-clockwise me-2"></i>Refresh
-              </button>
+      <div class="col-xl-8">
+        <div class="card shadow-lg border-0 rounded-4 mb-4">
+          <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-people me-2 text-primary fs-4"></i>
+                <h4 class="mb-0">Volunteer Review</h4>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-soft-primary" (click)="loadPendingVolunteers()">
+                  <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="card-body p-4">
-          <!-- Loading State -->
-          <div *ngIf="loading" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
+          <div class="card-body p-4">
+            <!-- Loading State -->
+            <div *ngIf="volunteersLoading" class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-3 text-muted">Loading volunteers...</p>
             </div>
-            <p class="mt-3 text-muted">Loading volunteers...</p>
-          </div>
 
-          <!-- No Volunteers State -->
-          <div *ngIf="!loading && pendingVolunteers.length === 0" class="text-center py-5">
-            <i class="bi bi-people display-4 text-muted"></i>
-            <h5 class="text-muted">No Pending Volunteers</h5>
-            <p class="text-muted">There are no volunteers waiting for review.</p>
-          </div>
+            <!-- No Volunteers State -->
+            <div *ngIf="!volunteersLoading && pendingVolunteers.length === 0" class="text-center py-5">
+              <i class="bi bi-people display-4 text-muted"></i>
+              <h5 class="text-muted">No Pending Volunteers</h5>
+              <p class="text-muted">There are no volunteers waiting for review.</p>
+            </div>
 
-          <!-- Volunteers Grid -->
-          <div class="row g-4" *ngIf="!loading && pendingVolunteers.length > 0">
-            <div class="col-12" *ngFor="let volunteer of pendingVolunteers">
-              <div class="card volunteer-card h-100">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-center mb-4">
-                    <div class="volunteer-avatar me-3">
-                      <i class="bi bi-person-circle text-primary fs-2"></i>
-                    </div>
-                    <div>
-                      <h5 class="card-title mb-1">{{volunteer.firstName}} {{volunteer.lastName}}</h5>
-                      <p class="text-muted mb-0">{{volunteer.job}}</p>
-                    </div>
-                  </div>
-                  
-                  <div class="volunteer-info mb-4">
-                    <div class="d-flex flex-column gap-2">
-                      <div class="d-flex align-items-center">
-                        <i class="bi bi-envelope text-primary me-2"></i>
-                        <span class="text-truncate">{{volunteer.email}}</span>
+            <!-- Volunteers Grid -->
+            <div class="row g-4" *ngIf="!volunteersLoading && pendingVolunteers.length > 0">
+              <div class="col-12" *ngFor="let volunteer of pendingVolunteers">
+                <div class="card volunteer-card h-100">
+                  <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                      <div class="volunteer-avatar me-3">
+                        <i class="bi bi-person-circle text-primary fs-2"></i>
                       </div>
-                      <div class="d-flex align-items-center">
-                        <i class="bi bi-telephone text-primary me-2"></i>
-                        <span>{{volunteer.telephone}}</span>
+                      <div>
+                        <h5 class="card-title mb-1">{{volunteer.firstName}} {{volunteer.lastName}}</h5>
+                        <p class="text-muted mb-0">{{volunteer.job}}</p>
                       </div>
                     </div>
-                  </div>
+                    
+                    <div class="volunteer-info mb-4">
+                      <div class="d-flex flex-column gap-2">
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-envelope text-primary me-2"></i>
+                          <span class="text-truncate">{{volunteer.email}}</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-telephone text-primary me-2"></i>
+                          <span>{{volunteer.telephone}}</span>
+                        </div>
+                      </div>
+                    </div>
 
-                  <div class="volunteer-actions d-flex gap-2">
-                    <button class="btn btn-soft-info flex-grow-1" 
-                            (click)="viewCv(volunteer)">
-                      <i class="bi bi-file-earmark-text me-2"></i>View CV
-                    </button>
-                    <button class="btn btn-soft-success flex-grow-1" 
-                            (click)="reviewVolunteer(volunteer, true)">
-                      <i class="bi bi-check-lg me-2"></i>Approve
-                    </button>
-                    <button class="btn btn-soft-danger flex-grow-1" 
-                            (click)="openRejectionModal(volunteer)">
-                      <i class="bi bi-x-lg me-2"></i>Reject
-                    </button>
+                    <div class="volunteer-actions d-flex gap-2">
+                      <button class="btn btn-soft-info flex-grow-1" 
+                              (click)="viewCv(volunteer)">
+                        <i class="bi bi-file-earmark-text me-2"></i>View CV
+                      </button>
+                      <button class="btn btn-soft-success flex-grow-1" 
+                              (click)="reviewVolunteer(volunteer, true)">
+                        <i class="bi bi-check-lg me-2"></i>Approve
+                      </button>
+                      <button class="btn btn-soft-danger flex-grow-1" 
+                              (click)="openRejectionModal(volunteer)">
+                        <i class="bi bi-x-lg me-2"></i>Reject
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="col-xl-4">
+        <!-- Recent Activity -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+          <div class="card-header bg-primary-subtle border-0 pt-4 pb-3 px-4">
+            <div class="d-flex align-items-center">
+              <div class="icon-circle bg-primary text-white rounded-circle p-3 me-3">
+                <i class="bi bi-activity text-primary"></i>
+              </div>
+              <div>
+                <h4 class="mb-0 fw-bold">Recent Activity</h4>
+                <p class="text-muted mb-0">Latest updates and changes</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <div class="activity-feed">
+              <div *ngIf="recentActivities.length === 0" class="text-center text-muted py-3">
+                <i class="bi bi-inbox fs-4"></i>
+                <p class="mt-2">No recent activities</p>
+              </div>
+              <div *ngFor="let activity of recentActivities" class="activity-item">
+                <div class="activity-icon" [ngClass]="getActivityColor(activity)">
+                  <i class="bi" [ngClass]="getActivityIcon(activity)"></i>
+                </div>
+                <div class="activity-content">
+                  <p class="mb-1">{{ activity.description }}</p>
+                  <small class="text-muted">{{ formatActivityTime(activity.timestamp) }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card shadow-sm border-0 rounded-4">
+          <div class="card-header bg-primary-subtle border-0 pt-4 pb-3 px-4">
+            <div class="d-flex align-items-center">
+              <div class="icon-circle bg-primary text-white rounded-circle p-3 me-3">
+                <i class="bi bi-lightning text-primary"></i>
+              </div>
+              <div>
+                <h4 class="mb-0 fw-bold">Quick Actions</h4>
+                <p class="text-muted mb-0">Common tasks and operations</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <div class="d-grid gap-2">
+              <button class="btn btn-soft-primary d-flex align-items-center justify-content-between">
+                <span>
+                  <i class="bi bi-plus-circle me-2"></i>
+                  Add New Association
+                </span>
+                <i class="bi bi-arrow-right"></i>
+              </button>
+              <button class="btn btn-soft-warning d-flex align-items-center justify-content-between">
+                <span>
+                  <i class="bi bi-exclamation-circle me-2"></i>
+                  Report Crisis
+                </span>
+                <i class="bi bi-arrow-right"></i>
+              </button>
+              <button class="btn btn-soft-info d-flex align-items-center justify-content-between">
+                <span>
+                  <i class="bi bi-envelope me-2"></i>
+                  Send Bulk Email
+                </span>
+                <i class="bi bi-arrow-right"></i>
+              </button>
+              <button class="btn btn-soft-success d-flex align-items-center justify-content-between">
+                <span>
+                  <i class="bi bi-file-earmark-text me-2"></i>
+                  Generate Report
+                </span>
+                <i class="bi bi-arrow-right"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -576,229 +827,258 @@
     </div>
   </div>
 </div>
-</section>
 
 <!-- Email Modal -->
-<ng-template #emailModal let-modal>
-  <div class="modal-header bg-light border-0 px-4 py-3">
-    <h4 class="modal-title fw-semibold" id="modal-basic-title">
-      <i class="bi bi-envelope-paper me-2"></i>Contact Association
-    </h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()">
-      <i class="bi bi-x"></i>
-    </button>
+<ng-template #emailModal>
+  <div class="modal-header">
+    <h5 class="modal-title">Send Email</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
-  <div class="modal-body p-4">
-    <form>
-      <div class="mb-4">
-        <label for="from" class="form-label text-muted fw-semibold">From</label>
-        <div class="input-group">
-          <span class="input-group-text bg-light border-end-0">
-            <i class="bi bi-person"></i>
-          </span>
-          <input type="email" 
-                 class="form-control bg-light border-start-0" 
-                 id="from" 
-                 [(ngModel)]="emailData.from" 
-                 name="from" 
-                 readonly>
-        </div>
+  <div class="modal-body">
+    <form [formGroup]="emailForm" (ngSubmit)="sendEmail()">
+      <div class="mb-3">
+        <label class="form-label">To</label>
+        <input type="email" class="form-control" formControlName="to">
       </div>
-      <div class="mb-4">
-        <label for="to" class="form-label text-muted fw-semibold">To</label>
-        <div class="input-group">
-          <span class="input-group-text bg-light border-end-0">
-            <i class="bi bi-envelope"></i>
-          </span>
-          <input type="email" 
-                 class="form-control bg-light border-start-0" 
-                 id="to" 
-                 [(ngModel)]="emailData.to" 
-                 name="to" 
-                 readonly>
-        </div>
+      <div class="mb-3">
+        <label class="form-label">Subject</label>
+        <input type="text" class="form-control" formControlName="subject">
       </div>
-      <div class="mb-4">
-        <label for="subject" class="form-label text-muted fw-semibold">Subject</label>
-        <div class="input-group">
-          <span class="input-group-text bg-light border-end-0">
-            <i class="bi bi-tag"></i>
-          </span>
-          <input type="text" 
-                 class="form-control border-start-0" 
-                 id="subject" 
-                 [(ngModel)]="emailData.subject" 
-                 name="subject" 
-                 placeholder="Enter email subject">
-        </div>
+      <div class="mb-3">
+        <label class="form-label">Message</label>
+        <textarea class="form-control" rows="5" formControlName="message"></textarea>
       </div>
-      <div class="mb-4">
-        <label for="content" class="form-label text-muted fw-semibold">Message</label>
-        <div class="input-group">
-          <span class="input-group-text bg-light border-end-0">
-            <i class="bi bi-chat-text"></i>
-          </span>
-          <textarea class="form-control border-start-0" 
-                   id="content" 
-                   [(ngModel)]="emailData.content" 
-                   name="content" 
-                   rows="5" 
-                   placeholder="Enter your message"></textarea>
-        </div>
+      <div class="text-end">
+        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Send Email</button>
       </div>
     </form>
-  </div>
-  <div class="modal-footer border-0 px-4 pb-4">
-    <button type="button" 
-            class="btn btn-light" 
-            (click)="modal.dismiss()">
-      <i class="bi bi-x me-1"></i>Cancel
-    </button>
-    <button type="button" 
-            class="btn btn-primary" 
-            (click)="sendEmail()">
-      <i class="bi bi-send me-1"></i>Send Email
-    </button>
   </div>
 </ng-template>
 
 <!-- Bulk Email Modal -->
-<ng-template #bulkEmailModal let-modal>
-  <div class="modal-header bg-light border-0 px-4 py-3">
-    <h4 class="modal-title fw-semibold" id="modal-basic-title">
-      <i class="bi bi-envelope-paper me-2"></i>Bulk Email to Associations
-    </h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()">
-      <i class="bi bi-x"></i>
-    </button>
+<ng-template #bulkEmailModal>
+  <div class="modal-header">
+    <h5 class="modal-title">Send Bulk Email</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
-  <div class="modal-body p-4">
-    <!-- Selected Associations -->
-    <div class="mb-4">
-      <h6 class="mb-3">Selected Associations ({{selectedAssociations.length}})</h6>
-      <div class="selected-associations-list">
-        <div *ngFor="let id of selectedAssociations" class="selected-association-item">
-          <div class="d-flex align-items-center">
-            <div class="avatar-sm me-2">
-              <img [src]="getAssociationById(id) ? getAssociationLogo(getAssociationById(id)!) : defaultLogo" 
-                   [alt]="getAssociationById(id)?.associationName || 'Association'"
-                   class="rounded-circle"
-                   onerror="this.src='assets/images/default-logo.jpg'">
-            </div>
-            <div>
-              <h6 class="mb-0">{{getAssociationById(id)?.associationName || 'Unknown Association'}}</h6>
-              <small class="text-muted">{{getAssociationById(id)?.associationEmail || 'No email'}}</small>
-            </div>
-            <button class="btn btn-sm btn-soft-danger ms-auto" (click)="removeAssociationFromSelection(id)">
-              <i class="bi bi-x"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Email Form -->
-    <form>
-      <div class="mb-4">
-        <label for="subject" class="form-label text-muted fw-semibold">Subject</label>
-        <div class="input-group">
-          <span class="input-group-text bg-light border-end-0">
-            <i class="bi bi-tag"></i>
-          </span>
-          <input type="text" 
-                 class="form-control border-start-0" 
-                 id="subject" 
-                 [(ngModel)]="bulkEmailData.subject" 
-                 name="subject" 
-                 placeholder="Enter email subject">
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <label for="content" class="form-label text-muted fw-semibold">Message</label>
-        <div class="input-group">
-          <span class="input-group-text bg-light border-end-0">
-            <i class="bi bi-chat-text"></i>
-          </span>
-          <textarea class="form-control border-start-0" 
-                   id="content" 
-                   [(ngModel)]="bulkEmailData.content" 
-                   name="content" 
-                   rows="5" 
-                   placeholder="Enter your message"></textarea>
-        </div>
-      </div>
-
-      <!-- Email Template Selection -->
-      <div class="mb-4">
-        <label class="form-label text-muted fw-semibold">Email Template</label>
+  <div class="modal-body">
+    <form [formGroup]="bulkEmailForm" (ngSubmit)="sendBulkEmail()">
+      <div class="mb-3">
+        <label class="form-label">Template</label>
         <select class="form-select" [(ngModel)]="selectedTemplate" (change)="applyTemplate()">
           <option value="">Select a template</option>
-          <option value="verification">Verification Request</option>
-          <option value="approval">Approval Notification</option>
-          <option value="rejection">Rejection Notification</option>
-          <option value="update">Update Request</option>
+          <option value="welcome">Welcome Email</option>
+          <option value="reminder">Reminder Email</option>
+          <option value="notification">Notification Email</option>
         </select>
       </div>
-
-      <!-- Preview Section -->
-      <div class="mb-4" *ngIf="bulkEmailData.subject || bulkEmailData.content">
-        <h6 class="mb-3">Preview</h6>
-        <div class="preview-card p-3 bg-light rounded">
-          <div class="preview-header mb-3">
-            <strong>Subject:</strong> {{bulkEmailData.subject}}
-          </div>
-          <div class="preview-content">
-            {{bulkEmailData.content}}
-          </div>
-        </div>
+      <div class="mb-3">
+        <label class="form-label">Subject</label>
+        <input type="text" class="form-control" formControlName="subject">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Message</label>
+        <textarea class="form-control" rows="5" formControlName="message"></textarea>
+      </div>
+      <div class="text-end">
+        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Send Bulk Email</button>
       </div>
     </form>
   </div>
-  <div class="modal-footer border-0 px-4 pb-4">
-    <button type="button" 
-            class="btn btn-light" 
-            (click)="modal.dismiss()">
-      <i class="bi bi-x me-1"></i>Cancel
-    </button>
-    <button type="button" 
-            class="btn btn-primary" 
-            [disabled]="!bulkEmailData.subject || !bulkEmailData.content"
-            (click)="sendBulkEmail()">
-      <i class="bi bi-send me-1"></i>Send to {{selectedAssociations.length}} Associations
-    </button>
+</ng-template>
+
+<!-- Crisis Details Modal -->
+<ng-template #crisisDetailsModal>
+  <div class="modal-header border-0">
+    <h5 class="modal-title">Crisis Details</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="selectedCrisis" class="crisis-details">
+      <!-- Header Section -->
+      <div class="d-flex align-items-center mb-4">
+        <div class="icon-circle bg-warning-subtle me-3">
+          <i class="bi" [ngClass]="getCategoryIcon(selectedCrisis.categorie)"></i>
+        </div>
+        <div>
+          <h4 class="mb-1">{{selectedCrisis.description}}</h4>
+          <div class="d-flex gap-2">
+            <span class="badge" [ngClass]="getSeverityClass(selectedCrisis.severity)">
+              <i class="bi" [ngClass]="getSeverityIcon(selectedCrisis.severity)"></i>
+              {{selectedCrisis.severity}}
+            </span>
+            <span class="badge" [ngClass]="getStatusClass(selectedCrisis.status)">
+              <i class="bi" [ngClass]="getStatusIcon(selectedCrisis.status)"></i>
+              {{selectedCrisis.status}}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details Grid -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <div class="detail-card bg-light rounded-4 p-3">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-geo-alt text-primary me-2"></i>
+              <h6 class="mb-0">Location</h6>
+            </div>
+            <p class="mb-0">{{selectedCrisis.location}}</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="detail-card bg-light rounded-4 p-3">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-calendar-event text-primary me-2"></i>
+              <h6 class="mb-0">Date Reported</h6>
+            </div>
+            <p class="mb-0">{{selectedCrisis.crisisDate | date:'medium'}}</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="detail-card bg-light rounded-4 p-3">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-tag text-primary me-2"></i>
+              <h6 class="mb-0">Category</h6>
+            </div>
+            <p class="mb-0">{{selectedCrisis.categorie}}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description Section -->
+      <div class="mb-4">
+        <h6 class="mb-3">Description</h6>
+        <div class="bg-light rounded-4 p-3">
+          <p class="mb-0">{{selectedCrisis.description}}</p>
+        </div>
+      </div>
+
+      <!-- AI Analysis Section -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0">AI Analysis</h6>
+          <button class="btn btn-soft-primary" (click)="analyzeCrisis()" [disabled]="isGeneratingPredictions">
+            <i class="bi bi-robot me-2"></i>
+            <span *ngIf="!isGeneratingPredictions">Run AI Analysis</span>
+            <span *ngIf="isGeneratingPredictions">
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Analyzing...
+            </span>
+          </button>
+        </div>
+        <!-- Analysis Results -->
+        <div *ngIf="urgencyAnalysis" class="analysis-results">
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="analysis-card bg-light rounded-4 p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted">Risk Score</span>
+                  <span class="badge" [ngClass]="{
+                    'bg-danger': urgencyAnalysis?.risk_score > 70,
+                    'bg-warning': urgencyAnalysis?.risk_score > 30 && urgencyAnalysis?.risk_score <= 70,
+                    'bg-success': urgencyAnalysis?.risk_score <= 30
+                  }">{{urgencyAnalysis?.risk_score || 0}}%</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="analysis-card bg-light rounded-4 p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted">Crisis Status</span>
+                  <span class="badge" [ngClass]="{
+                    'bg-danger': urgencyAnalysis?.crisis_status === 'HIGH',
+                    'bg-warning': urgencyAnalysis?.crisis_status === 'MEDIUM',
+                    'bg-info': urgencyAnalysis?.crisis_status === 'LOW'
+                  }">{{urgencyAnalysis?.crisis_status || 'N/A'}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resource Allocation -->
+          <div *ngIf="resourceAllocation" class="mb-4">
+            <h6 class="mb-3">Resource Allocation</h6>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Location</th>
+                    <th>Resources</th>
+                    <th>Priority</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let allocation of resourceAllocation">
+                    <td>{{allocation.location}}</td>
+                    <td>{{allocation.resources}}</td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'bg-danger': allocation.priority === 'HIGH',
+                        'bg-warning': allocation.priority === 'MEDIUM',
+                        'bg-info': allocation.priority === 'LOW'
+                      }">{{allocation.priority}}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Forecast Results -->
+          <div *ngIf="forecast" class="mb-4">
+            <h6 class="mb-3">Resource Forecast</h6>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Predicted</th>
+                    <th>Range</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of forecast">
+                    <td>{{item.date | date}}</td>
+                    <td>{{item.predicted}}</td>
+                    <td>{{item.lower}} - {{item.upper}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="alert alert-danger mt-3" *ngIf="predictionError">
+          {{predictionError}}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer border-0">
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
   </div>
 </ng-template>
 
-<!-- Rejection Modal -->
+<!-- Rejection Modal Template -->
 <ng-template #rejectionModal let-modal>
-    <div class="modal-header bg-white border-0 px-4 py-3">
-        <h4 class="modal-title fw-semibold">
-            <i class="bi bi-x-circle text-danger me-2"></i>Reject Volunteer
-        </h4>
-        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  <div class="modal-header">
+    <h5 class="modal-title">Reject Volunteer</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
+    <p>Please provide a reason for rejecting <strong>{{selectedVolunteerForRejection?.firstName}} {{selectedVolunteerForRejection?.lastName}}</strong>:</p>
+    <div class="mb-3">
+      <textarea class="form-control" [(ngModel)]="rejectionReason" rows="4" placeholder="Enter rejection reason here..."></textarea>
     </div>
-    <div class="modal-body p-4">
-        <div class="mb-4">
-            <label for="rejectionReason" class="form-label">Rejection Reason</label>
-            <textarea 
-                class="form-control" 
-                id="rejectionReason" 
-                rows="4" 
-                [(ngModel)]="rejectionReason"
-                placeholder="Please provide a reason for rejection..."
-                required
-            ></textarea>
-        </div>
-    </div>
-    <div class="modal-footer border-0 px-4 pb-4">
-        <button type="button" class="btn btn-light" (click)="modal.dismiss()">
-            <i class="bi bi-x me-1"></i>Cancel
-        </button>
-        <button type="button" class="btn btn-danger" (click)="confirmRejection(modal)">
-            <i class="bi bi-x-circle me-1"></i>Confirm Rejection
-        </button>
-    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss('Cancel')">Cancel</button>
+    <button type="button" class="btn btn-danger" (click)="confirmRejection(modal)" [disabled]="!rejectionReason.trim()">Confirm Rejection</button>
+  </div>
 </ng-template>
 
 <style>
@@ -1024,84 +1304,4 @@
 .preview-content {
   white-space: pre-wrap;
 }
-
-/* Volunteer Card Styles */
-.volunteer-card {
-    transition: all 0.3s ease;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.volunteer-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.volunteer-avatar {
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(13, 110, 253, 0.1);
-    border-radius: 50%;
-}
-
-.volunteer-info {
-    background-color: rgba(0, 0, 0, 0.02);
-    padding: 1rem;
-    border-radius: 0.5rem;
-}
-
-.volunteer-info .text-truncate {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.volunteer-actions .btn {
-    padding: 0.75rem 1rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.volunteer-actions .btn:hover {
-    transform: translateY(-2px);
-}
-
-.btn-soft-info,
-.btn-soft-success,
-.btn-soft-danger {
-    border: 1px solid transparent;
-}
-
-.btn-soft-info:hover {
-    background-color: #0dcaf0;
-    color: white;
-}
-
-.btn-soft-success:hover {
-    background-color: #198754;
-    color: white;
-}
-
-.btn-soft-danger:hover {
-    background-color: #dc3545;
-    color: white;
-}
-
-/* Modal Styles */
-.modal-header {
-    border-bottom: none;
-}
-
-.modal-footer {
-    border-top: none;
-}
-
-.form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
 </style>
-

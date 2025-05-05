@@ -1,3 +1,4 @@
+
 import { Association } from './association.interface';
 import { MissionRole } from './mission-role.interface';
 import { Participation } from './participation.interface';

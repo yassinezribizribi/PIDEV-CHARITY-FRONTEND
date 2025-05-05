@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Date,Governorate,Latitude,Longitude,Population,Need Type,Quantity,Beneficiaries,Urgency (1-5),Common Crisis Type,External Data Type,External Event,Source;
 "2024-01-15,Medenine,33.3549,10.5055,""500,00"",Food,""600,00"",Syrian refugees,""4,00"",Refugee influx,Weather,Heavy rain disrupts camps,OpenWeatherMap";
 "2024-02-10,Sfax,34.7406,10.7603,""1,000,000"",Clothing,""450,00"",Sub-Saharan migrants,""3,00"",Homelessness,News,Arrests during migrant sweep,TAP News";
@@ -45,3 +46,173 @@ Date,Governorate,Latitude,Longitude,Population,Need Type,Quantity,Beneficiaries,
 "2025-11-25,Bizerte,37.2744,9.8739,""568,219"",Psychological support,""150,00"",Migrants rescued at sea,""5,00"",Post-trauma distress,Health,Severe psychological trauma among shipwreck survivors,UNHCR";
 "2025-12-05,Zarzis,33.5034,11.1122,""80,000"",Tents,""100,00"",Shipwreck survivors,""5,00"",Migrant shipwrecks,Crisis,Boat capsize after storm near Zarzis,Migrant Watch Tunisia";
 "2025-12-20,Tunis,36.8065,10.1815,""2,500,000"",Winter Clothing,""600,00"",Displaced families,""4,00"",Cold wave,Weather,Unexpected winter storm hits capital,OpenWeatherMap";
+=======
+Date,Governorate,Latitude,Longitude,Population,Need Type,Quantity,Beneficiaries Type,Urgency,Common Crisis Type,External Data Type,External Event,Source
+2024-01-15,Medenine,33.3549,10.5055,500,Food,600,Syrian refugees,4,Refugee influx,Weather,Heavy rain disrupts camps,OpenWeatherMap
+2024-02-10,Sfax,34.7406,10.7603,1000000,Clothing,450,Sub-Saharan migrants,3,Homelessness,News,Arrests during migrant sweep,TAP News
+2024-03-05,Zarzis,33.5034,11.1122,80,Tents,35,Shipwreck survivors,5,Migrant shipwrecks,Crisis,Boat engine failure at sea,Migrant Watch Tunisia
+2024-04-12,Tunis,36.8064,10.1815,2500000,Blankets,700,Displaced families,4,Precarious housing,Economy,Rising cost of rent,data.gov.tn
+2024-05-20,Gabes,33.8815,10.0982,380,Medical kits,120,Libyan refugees,5,Camp health issues,Health,Epidemic alert in refugee camp,MSF Tunisia
+2024-06-18,Ben Guerdane,33.1389,11.2244,35,Hygiene kits,300,Refugee women and children,5,Border crisis,Crisis,Overcrowded shelters,UNHCR
+2024-07-22,Kasserine,35.1676,8.8365,478,Food,800,Low-income families,3,Social inequality,Economy,Sharp inflation on basic goods,INS Tunisia
+2024-08-30,Sidi Bouzid,35.0382,9.4858,429,Water,1000,Rural displaced people,4,Drought and poverty,Weather,Prolonged dry spell,OpenWeatherMap
+2024-09-15,Tataouine,32.9297,10.4518,149,Tents,60,Libyan refugees,5,Camp overcrowding,Crisis,Temporary shelters collapsing,Red Crescent
+2024-10-10,Ariana,36.8663,10.1647,576,Clothing,500,Displaced women,3,Social exclusion,News,Increase in female homelessness,TAP News
+2024-11-18,Medenine,33.3549,10.5055,500,Food,550,Sub-Saharan migrants,4,Refugee influx,News,Migrant camps dismantled by authorities,Reuters
+2024-12-05,Sfax,34.7406,10.7603,1000000,Shelter,300,Displaced families,5,Forced evictions,Crisis,Closure of civic spaces affecting NGOs' operations,Human Rights Watch
+2024-12-20,Zarzis,33.5034,11.1122,80,Medical aid,100,Shipwreck survivors,5,Migrant shipwrecks,Crisis,Increase in maritime incidents involving migrants,UNHCR
+2024-09-12,Medenine,33.3549,10.5055,500,Shelter,300,Sub-Saharan migrants,4,Forced displacement,News,Migrants expelled to desert borderlands,Al Jazeera
+2024-09-30,Djerba,33.8076,10.8450,163726,Medical aid,100,Shipwreck survivors,5,Migrant shipwreck,Crisis,Boat sank off Djerba coast casualties reported,Reuters
+2024-10-28,Mahdia,35.5023,11.0622,410812,Burial kits,16,Deceased migrants' families,5,Migrant fatalities,News,16 migrant bodies recovered off eastern coast,Al Jazeera
+2024-12-18,Sfax,34.7406,10.7603,1000000,Search & Rescue Equipment,20,Migrants at sea,5,Migrant boat disaster,Crisis,20 migrants died after boat sank off Sfax coast,Reuters
+2025-03-03,Offshore,0,0,0,Evacuation,30,Stranded migrants,5,Maritime distress,News,Migrants stranded on oil rig off Tunisia's coast,Reuters
+2024-09-30,Medenine,33.3549,10.5055,500,Search and Rescue Equipment,15,Migrants at sea,5,Migrant shipwreck,Crisis,Boat sank off Djerba coast casualties reported,Reuters
+2024-10-28,Mahdia,35.5023,11.0622,410812,Burial kits,16,Deceased migrants' families,5,Migrant fatalities,News,16 migrant bodies recovered off eastern coast,Reuters
+2024-12-18,Sfax,34.7406,10.7603,1000000,Search and Rescue Equipment,20,Migrants at sea,5,Migrant boat disaster,Crisis,20 migrants died after boat sank off Sfax coast,The New Arab
+2024-12-30,Bizerte,37.2744,9.8739,568219,Medical aid,17,Rescued migrants,4,Maritime distress,News,17 migrants rescued after boat breakdown 2 deceased,Maghrebi.org
+2025-01-15,Tunis,36.8065,10.1815,2500000,Shelter,25,Displaced families,4,Forced evictions,News,Authorities dismantle informal settlements,The Jordan Times
+2025-01-20,Kef,36.1829,8.7144,243156,Food,400,Vulnerable rural families,3,Food insecurity,Weather,Severe frost damages crops,OpenWeatherMap
+2025-02-05,Tozeur,33.9197,8.1335,107912,Water,500,Nomadic communities,4,Drought,Weather,Prolonged drought conditions,WMO
+2025-02-28,Gafsa,34.4250,8.7842,337331,Medical aid,200,Mining workers,3,Industrial accidents,News,Mining tunnel collapse injures workers,TAP News
+2025-03-10,Tataouine,32.9297,10.4518,149000,Shelter,50,Nomad families displaced by desertification,5,Climate displacement,Crisis,Advancing desertification forces migrations,UNHCR
+2025-03-25,Kairouan,35.6781,10.0963,570559,Clothing,600,Impoverished rural children,3,Poverty,Economy,Sharp drop in agricultural income,INS Tunisia
+2025-04-05,Monastir,35.7770,10.8262,548828,Medical kits,150,Migrants rescued at sea,5,Maritime distress,Crisis,Boat engine failure rescue operation,Reuters
+2025-04-18,Djerba,33.8076,10.8450,163726,Food,300,Shipwreck survivors,5,Migrant shipwreck,Crisis,Large wave overturns migrant boat,Migrant Watch Tunisia
+2025-04-25,Nabeul,36.4510,10.7357,787920,Hygiene kits,700,Flood-displaced families,4,Flash floods,Weather,Unprecedented spring floods affect homes,OpenWeatherMap
+2025-05-10,Beja,36.7300,9.1900,304501,Food,450,Flood-affected farmers,4,Flood damage,Weather,Heavy rainfall destroys farmland,OpenWeatherMap
+2025-05-28,Tunis,36.8065,10.1815,2500000,Psychological support,200,Displaced children,4,Urban displacement,Health,Increase in PTSD cases among displaced minors,WHO Tunisia
+2025-06-15,Kebili,33.7056,8.9690,156961,Water,600,Nomadic communities,5,Severe drought,Weather,Third consecutive year of rainfall shortage,WMO
+2025-07-03,Kasserine,35.1676,8.8365,478000,Child Protection Kits,350,Migrant children,5,Child vulnerability,Crisis,Unaccompanied minors found at border,UNICEF
+2025-07-18,Gabes,33.8815,10.0982,380000,Medical kits,250,Heatwave-affected families,4,Extreme heat,Weather,Record-breaking temperatures in southern Tunisia,MET Office
+2025-08-07,Sousse,35.8256,10.6084,674971,Temporary Shelter,300,Evicted families,4,Forced evictions,News,Mass evictions after real estate project launch,The Jordan Times
+2025-08-25,Ben Guerdane,33.1389,11.2244,35000,Food,700,Border refugees,5,Border crisis,Crisis,Continued refugee arrival from neighboring countries,UNHCR
+2025-09-12,Sidi Bouzid,35.0382,9.4858,429912,Water Purification Kits,500,Rural families,4,Water contamination,Health,Bacterial outbreak linked to unsafe water,MSF Tunisia
+2025-09-30,Mahdia,35.5023,11.0622,410812,Burial kits,20,Shipwreck victims,5,Maritime disaster,News,Dozens drown in migrant shipwreck near Mahdia,Al Jazeera
+2025-10-15,Sfax,34.7406,10.7603,1000000,Rescue Boats,10,Maritime rescue teams,5,Migrant boat disasters,Crisis,Surge in Mediterranean crossings,Reuters
+2025-10-30,Le Kef,36.1829,8.7144,243156,Medical aid,300,Low-income elderly,3,Aging and poverty,Economy,Spike in untreated chronic illnesses among seniors,INS Tunisia
+2025-11-12,Tozeur,33.9197,8.1335,107912,Food,500,Desert communities,4,Drought-related famine,Weather,Failed harvests in oases,FAO
+2025-11-25,Bizerte,37.2744,9.8739,568219,Psychological support,150,Migrants rescued at sea,5,Post-trauma distress,Health,Severe psychological trauma among shipwreck survivors,UNHCR
+2025-12-05,Zarzis,33.5034,11.1122,80000,Tents,100,Shipwreck survivors,5,Migrant shipwrecks,Crisis,Boat capsize after storm near Zarzis,Migrant Watch Tunisia
+2025-12-20,Tunis,36.8065,10.1815,2500000,Winter Clothing,600,Displaced families,4,Cold wave,Weather,Unexpected winter storm hits capital,OpenWeatherMap
+2024-03-15,Gabes,33.8815,10.0982,380000,Food,450,Industrial workers,4,Food insecurity,Economy,Factory closures affect workers,INS Tunisia
+2024-06-30,Gabes,33.8815,10.0982,380000,Food,500,Displaced families,5,Natural disaster,Weather,Flooding damages food supply chain,OpenWeatherMap
+2024-11-05,Tataouine,32.9297,10.4518,149000,Food,600,Nomadic communities,5,Food insecurity,Weather,Severe drought affects crops,FAO
+2025-01-15,Tataouine,32.9297,10.4518,149000,Food,700,Displaced families,4,Food insecurity,Economy,Supply chain disruption,INS Tunisia
+2024-08-15,Tunis,36.8065,10.1815,2500000,Shelter,400,Displaced families,5,Urban displacement,News,Mass evictions in informal settlements,Human Rights Watch
+2024-10-20,Tunis,36.8065,10.1815,2500000,Shelter,350,Refugee families,4,Refugee influx,Crisis,New wave of refugees arrives in capital,UNHCR
+2025-12-28,Tataouine,32.9297,10.4518,149000,Medical kits,180,Desert-dwelling families,4,Remote health crisis,Health,Mobile clinics overwhelmed by demand,MSF Tunisia
+2025-12-30,Kairouan,35.6781,10.0963,570559,Water Purification Kits,700,Rural households,4,Water scarcity,Weather,Well contamination due to seasonal floods,OpenWeatherMap
+2026-01-05,Djerba,33.8076,10.8450,163726,Blankets,900,Shipwreck survivors,5,Maritime disaster,Crisis,Survivors suffer cold exposure after sea rescue,UNHCR
+2026-01-10,Sidi Bouzid,35.0382,9.4858,429912,Food,800,Impoverished families,3,Poverty,Economy,Rise in unemployment among seasonal workers,INS Tunisia
+2026-01-20,Sousse,35.8256,10.6084,674971,Hygiene kits,600,Displaced women and girls,4,Urban overcrowding,Health,Increase in hygiene-related illnesses,WHO Tunisia
+2026-02-01,Gafsa,34.4250,8.7842,337331,Psychological support,100,Children affected by mining collapse,5,Trauma,Health,Ongoing trauma symptoms in minors,UNICEF
+2026-02-10,Mahdia,35.5023,11.0622,410812,Tents,75,Evicted migrant families,5,Housing crisis,Crisis,Abandoned shelters demolished by authorities,Reuters
+2026-02-15,Bizerte,37.2744,9.8739,568219,Clothing,550,Flood-displaced communities,4,Climate disaster,Weather,Torrential rain submerges coastal neighborhoods,OpenWeatherMap
+2026-02-20,Kebili,33.7056,8.9690,156961,Water,1000,Nomadic tribes,5,Drought emergency,Weather,Fourth year of rainfall failure,WMO
+2026-03-01,Tunis,36.8065,10.1815,2500000,Medical aid,300,Migrant families in informal settlements,4,Access to healthcare,Health,Lack of medical access in unauthorized zones,MSF Tunisia
+2026-03-10,Le Kef,36.1742,8.7049,243156,Food parcels,620,Elderly in isolated areas,4,Aging population,Health,Lack of family support and mobility issues,Red Crescent
+2026-03-15,Tozeur,33.9197,8.1335,107912,Water tanks,300,Farming communities,3,Agricultural drought,Weather,Severe aquifer depletion threatens irrigation,FAO
+2026-03-20,Monastir,35.7770,10.8262,548828,Sanitary pads,850,Adolescent girls,3,Menstrual hygiene,Health,Lack of access in underfunded schools,UNICEF
+2026-03-25,Nabeul,36.4513,10.7356,787920,Plastic sheeting,400,Families in damaged homes,4,Storm damage,Weather,Strong winds destroyed roofs across neighborhoods,Civil Protection
+2026-04-01,Médenine,33.3549,10.5055,479520,Medical support,220,Patients with chronic illness,4,Supply shortage,Health,Essential medicines unavailable in local pharmacies,MSF
+2026-04-05,Béja,36.7332,9.1900,303032,Baby formula,140,Single mothers,3,Economic hardship,Economy,Rising prices make baby food unaffordable,INS Tunisia
+2026-04-10,Siliana,36.0881,9.3708,223087,Education kits,500,Displaced children,4,Conflict displacement,Crisis,Children miss school due to regional tensions,UNHCR
+2026-04-15,Zaghouan,36.4024,10.1423,176945,Mosquito nets,600,Valley farmers,3,Vector-borne diseases,Health,Spike in malaria cases due to stagnant water,WHO
+2026-04-20,Manouba,36.8081,10.0999,379518,Wheelchairs,60,Disabled refugees,5,Conflict aftermath,Crisis,Many injured during recent border clashes,UNHCR
+2026-04-25,Ariana,36.8665,10.1647,576088,Clothes,750,Orphaned children,3,Child welfare,Crisis,Overcrowded orphanages need material support,UNICEF
+2026-04-30,Bizerte,37.2744,9.8739,568219,Tents,300,Homeless families,4,Fire outbreak,Crisis,Massive fire destroyed a neighborhood in Bizerte,Red Crescent
+2026-05-02,Gafsa,34.4250,8.7842,351437,Food vouchers,1000,Unemployed workers,3,Economic downturn,Economy,Closure of mines left many families without income,INS Tunisia
+2026-05-05,Tataouine,32.9297,10.4518,149453,Water filters,200,Nomadic tribes,4,Water pollution,Environment,Contaminated wells due to industrial activity,WWF
+2026-05-10,Kairouan,35.6781,10.0963,570559,School meals,700,Low-income students,3,Nutrition issues,Health,Poor diet affecting academic performance,WFP
+2026-05-12,Le Kef,36.1742,8.7049,243156,Blankets,500,Mountain villagers,3,Cold wave,Weather,Unexpected frost in spring impacting shelters,Civil Protection
+2026-05-15,Kébili,33.7044,8.9717,156961,Medical kits,250,Diabetic patients,4,Insulin shortage,Health,Disruption in pharma supply chain,MSF
+2026-05-18,Sidi Bouzid,35.0382,9.4845,429912,Repair tools,150,Flooded households,4,Flash floods,Weather,Heavy rains damaged dozens of rural homes,Civil Protection
+2026-05-20,Tunis,36.8065,10.1815,1056247,Solar lamps,800,Displaced students,2,Power outages,Infrastructure,Rural schools without electricity need lighting,UNESCO
+2026-05-22,Mahdia,35.5047,11.0622,410812,First aid kits,350,Fishermen families,3,Storm injuries,Weather,Increased boat accidents during spring storms,IFRC
+2026-05-25,Nabeul,36.4513,10.7356,787920,Shelter repairs,200,Elderly couples,4,Earthquake tremors,Geological,Old houses cracked by repeated minor quakes,Civil Protection
+2026-05-28,Sousse,35.8256,10.6084,674971,School Supplies,1200,Displaced Children,4,Education Crisis,Education,35 schools destroyed in floods,UNICEF
+2026-06-05,Medenine,33.3549,10.5055,479520,Food,850,Libyan Border Refugees,5,Border Conflict,Crisis,New wave of conflict spillover from Libya,Al Jazeera
+2026-06-12,Gabes,33.8815,10.0982,380000,Water Purification Tablets,15000,Coastal Communities,4,Water Contamination,Environment,Industrial waste leak into aquifers,WWF
+2026-06-20,Kairouan,35.6781,10.0963,570559,Medical Oxygen,300,COVID-19 Patients,5,Pandemic Resurgence,Health,New SARS-CoV-2 variant outbreak,WHO
+2026-07-01,Tunis,36.8065,10.1815,2500000,Fire Extinguishers,450,Informal Settlements,4,Urban Fires,Infrastructure,Electrical fires surge in summer heat,Civil Protection
+2026-06-01,Tunis,36.8065,10.1815,2500000,Food,1000,Urban poor families,4,Inflation crisis,Economy,Basic food prices soar in local markets,INS Tunisia
+2026-06-05,Tunis,36.8065,10.1815,2500000,Medical kits,400,Undocumented migrants,5,Access to care,Health,Restrictions on access to public health services,MSF Tunisia
+2026-06-10,Tunis,36.8065,10.1815,2500000,Shelter,350,Evicted families,4,Housing insecurity,Crisis,Rent speculation forces families onto streets,Human Rights Watch
+2026-06-15,Tunis,36.8065,10.1815,2500000,Blankets,600,Refugees in informal camps,3,Inadequate shelter,Weather,Drop in night temperatures hits tents residents,OpenWeatherMap
+2026-06-20,Tunis,36.8065,10.1815,2500000,Psychological support,300,Teenagers affected by violence,4,Urban insecurity,Health,Youth exposed to street violence report trauma,WHO Tunisia
+2026-06-25,Tunis,36.8065,10.1815,2500000,Hygiene kits,500,Women in overcrowded neighborhoods,3,Public health risk,Health,Garbage accumulation near informal housing,UN Habitat
+2026-06-30,Tunis,36.8065,10.1815,2500000,Education kits,800,Children out of school,4,Dropout surge,Economy,Families can't afford school supplies post-crisis,UNICEF
+2026-07-05,Tunis,36.8065,10.1815,2500000,Drinking water,1000,Displaced families in outskirts,5,Infrastructure collapse,Weather,Water cuts persist after pipe explosion,OpenWeatherMap
+2026-07-10,Tunis,36.8065,10.1815,2500000,Clothing,700,Homeless youth,4,Marginalization,Social,Spike in teenage homelessness around Medina,Reuters
+2026-07-15,Tunis,36.8065,10.1815,2500000,Legal aid,150,Asylum seekers,3,Documentation barriers,Legal,Delays in asylum processing expose migrants to abuse,UNHCR
+2026-06-01,Tunis,36.8065,10.1815,2500000,Food,1200,Unemployed youth,4,Economic crisis,Economy,Youth unemployment spikes amid economic slowdown,INS Tunisia
+2026-06-05,Tunis,36.8065,10.1815,2500000,Shelter,500,Evicted migrant families,5,Urban displacement,News,Housing tensions escalate in downtown areas,Human Rights Watch
+2026-06-10,Tunis,36.8065,10.1815,2500000,Hygiene kits,1000,Women in informal settlements,4,Public health risk,Health,Outbreak of skin infections due to poor sanitation,WHO Tunisia
+2026-06-15,Tunis,36.8065,10.1815,2500000,Psychological support,400,Displaced teenagers,4,Trauma,Health,Reports of increased anxiety and PTSD symptoms,UNICEF
+2026-06-20,Tunis,36.8065,10.1815,2500000,Clothing,800,Homeless individuals,3,Poverty,Economy,Clothing drives needed as winter stocks depleted,Red Crescent
+2026-06-25,Tunis,36.8065,10.1815,2500000,Water,700,Low-income neighborhoods,4,Water cuts,Infrastructure,Recurring water shortages affect several districts,OpenWeatherMap
+2026-06-30,Tunis,36.8065,10.1815,2500000,Medical aid,500,Undocumented migrants,5,Access barriers,Health,Restricted access to care for undocumented patients,MSF Tunisia
+2026-07-05,Tunis,36.8065,10.1815,2500000,Blankets,900,Families in unfinished buildings,4,Precarious housing,Economy,Construction halt left hundreds living in skeleton homes,TAP News
+2026-07-10,Tunis,36.8065,10.1815,2500000,Educational kits,600,Children in transitional housing,3,School disruption,Education,Displacement caused school dropout surge,UNESCO
+2026-07-15,Tunis,36.8065,10.1815,2500000,Legal aid,150,Asylum seekers,4,Administrative hurdles,Crisis,Backlog in refugee status applications delays support,UNHCR
+2026-06-01,Tataouine,32.9297,10.4518,150000,Food,600,Nomadic families,3,Drought crisis,Climate,Harvest failure increases food insecurity,OCHA
+2026-06-04,Tataouine,32.9297,10.4518,150000,Water,750,Rural communities,4,Well depletion,Infrastructure,Major aquifer running dry in southern Tataouine,Ministry of Agriculture
+2026-06-08,Tataouine,32.9297,10.4518,150000,Medical aid,300,Elderly without transport,3,Access to care,Health,Health post shortages in remote villages,WHO Tunisia
+2026-06-12,Tataouine,32.9297,10.4518,150000,Shelter,200,Displaced pastoralists,4,Climate migration,Climate,Extreme heat forces seasonal migration,Red Crescent
+2026-06-16,Tataouine,32.9297,10.4518,150000,Hygiene kits,450,Woman-headed households,3,Sanitation access,Health,Lack of facilities impacts hygiene for isolated homes,UNICEF
+2026-06-20,Tataouine,32.9297,10.4518,150000,Blankets,350,Low-income families,2,Winter readiness,Economy,Night temperatures drop despite summer heat,Local NGO
+2026-06-24,Tataouine,32.9297,10.4518,150000,Education kits,400,Children in remote schools,3,School dropouts,Education,School closures due to staff shortages,UNESCO
+2026-06-28,Tataouine,32.9297,10.4518,150000,Animal feed,1000,Goat herders,5,Livelihood crisis,Agriculture,Drought wipes out grazing pastures,FAO
+2026-07-02,Tataouine,32.9297,10.4518,150000,Psychological support,250,Youth affected by isolation,3,Mental health gap,Health,Lack of activities leads to depression in teens,UNDP
+2026-07-06,Tataouine,32.9297,10.4518,150000,Transport vouchers,300,Women needing medical care,4,Isolation risk,Health,Long distances hinder access to clinics,MSF Tunisia
+2026-06-01,Kasserine,35.1676,8.8365,470000,Food,900,Rural poor households,4,Price surge,Economy,Food inflation hits border towns hardest,INS Tunisia
+2026-06-06,Kasserine,35.1676,8.8365,470000,Water,750,Mountain villages,5,Drought,Climate,Water truck deliveries double due to dry wells,OCHA
+2026-06-10,Kasserine,35.1676,8.8365,470000,Medical aid,400,Border-zone families,3,Health care access,Health,Insecurity limits clinic outreach,WHO Tunisia
+2026-06-14,Kasserine,35.1676,8.8365,470000,School supplies,500,Children of unemployed parents,4,Dropout risk,Education,Teachers report rise in absenteeism,UNICEF
+2026-06-18,Kasserine,35.1676,8.8365,470000,Shelter,300,Families in informal housing,3,Poor infrastructure,Housing,Homes damaged by heavy spring rains,Local Gov
+2026-06-22,Kasserine,35.1676,8.8365,470000,Blankets,650,Low-income elderly,2,Cold nights,Weather,Unusual temperature drops affect highlands,OpenWeatherMap
+2026-06-26,Kasserine,35.1676,8.8365,470000,Hygiene kits,500,Teen girls in rural areas,3,Menstrual hygiene,Health,Lack of access to basic hygiene items,UNFPA
+2026-06-30,Kasserine,35.1676,8.8365,470000,Legal aid,200,Refugees in transit,3,Border issues,Legal,Delayed processing of asylum requests,UNHCR
+2026-07-04,Kasserine,35.1676,8.8365,470000,Psychological support,350,Youth in conflict zones,4,Trauma recovery,Social,Increased youth anxiety after clashes,MSF
+2026-07-08,Kasserine,35.1676,8.8365,470000,Livelihood training,600,Unemployed women,3,Joblessness,Economic recovery,Need for income-generating projects,UNDP
+2026-06-01,Beja,36.7333,9.1833,304000,Food,820,Farming families in remote zones,3,Harvest failure,Agriculture,Grain yield down 25% due to late rains,FAO
+2026-06-05,Beja,36.7333,9.1833,304000,Medical aid,300,Elderly in rural municipalities,4,Clinic under-resourcing,Health,Shortage of general practitioners,WHO Tunisia
+2026-06-09,Beja,36.7333,9.1833,304000,Water,600,Villages without access to potable water,3,Water scarcity,Climate,Reservoirs drop to lowest levels since 2012,OCHA
+2026-06-13,Beja,36.7333,9.1833,304000,Blankets,450,Families in mountain zones,2,Cold wave,Weather,Temperatures unexpectedly fall to 4°C,INS Tunisia
+2026-06-17,Beja,36.7333,9.1833,304000,Shelter repair,280,Low-income urban areas,3,Structural risk,Housing,Old housing stock collapses after storms,Local Gov
+2026-06-21,Beja,36.7333,9.1833,304000,Hygiene kits,390,Primary school students,2,Hygiene education,Health,Schools lack basic sanitary resources,UNICEF
+2026-06-25,Beja,36.7333,9.1833,304000,Seeds & tools,720,Smallholder farmers,4,Post-flood recovery,Agriculture,Flash floods damage early planting,FAO
+2026-06-29,Beja,36.7333,9.1833,304000,Legal support,150,Migrants in border-adjacent zones,3,Paperwork issues,Legal,Legal identity support needed,UNHCR
+2026-07-03,Beja,36.7333,9.1833,304000,Livelihood support,500,Unemployed youth,4,Rural exodus,Economic,Young adults seeking work in coastal cities,UNDP
+2026-07-07,Beja,36.7333,9.1833,304000,School meals,630,Children in food-insecure homes,3,Nutrition insecurity,Education,Malnutrition rates increase among schoolchildren,UNICEF
+2026-06-01,Ben Guerdane,33.1378,11.2164,79800,Food,670,Vulnerable border families,4,Cross-border trade disruption,Economic,Closure of Ras Jedir crossing causes shortages,WFP
+2026-06-04,Ben Guerdane,33.1378,11.2164,79800,Medical aid,300,Undocumented migrants,5,Lack of access to healthcare,Mixed migration,Emergency medical tents deployed near border,MSF
+2026-06-08,Ben Guerdane,33.1378,11.2164,79800,Shelter,120,Transit refugees from Libya,4,No shelter capacity,Mixed migration,Temporary shelters overwhelmed,UNHCR
+2026-06-12,Ben Guerdane,33.1378,11.2164,79800,Water,510,Rural communities,3,Water stress,Climate,Groundwater depletion reported,OCHA
+2026-06-16,Ben Guerdane,33.1378,11.2164,79800,Psychosocial support,220,Border children exposed to violence,4,Trauma cases,Child protection,Increase in PTSD symptoms,UNICEF
+2026-06-20,Ben Guerdane,33.1378,11.2164,79800,Hygiene kits,430,Women and girls,3,Sanitation needs,Protection,Insufficient menstrual hygiene products,UNFPA
+2026-06-24,Ben Guerdane,33.1378,11.2164,79800,Food,550,Nomadic populations,3,Access issues,Geography,Drought reduces grazing capacity,FAO
+2026-06-28,Ben Guerdane,33.1378,11.2164,79800,Security patrols,80,Border communities,5,Insecurity,Conflict,Increase in smuggling & armed groups,Local Authorities
+2026-07-02,Ben Guerdane,33.1378,11.2164,79800,Education kits,300,Displaced Libyan children,4,School interruption,Mixed migration,Children need reintegration support,UNICEF
+2026-07-06,Ben Guerdane,33.1378,11.2164,79800,Cash assistance,400,Low-income traders,3,Economic slowdown,Markets,Informal trade decline post-border closure,UNDP
+2026-06-01,Zarzis,33.5035,11.1122,75600,Food,600,Sub-Saharan migrants stranded,4,Transit bottleneck,Mixed migration,Humanitarian corridor blocked,IFRC
+2026-06-03,Zarzis,33.5035,11.1122,75600,Medical care,250,Migrant women and children,4,Lack of reproductive services,Health,Mobile clinics deployed,UNFPA
+2026-06-06,Zarzis,33.5035,11.1122,75600,Shelter,150,Displaced Libyans,3,Overcrowding of reception centers,Conflict,Capacity overwhelmed at main site,UNHCR
+2026-06-09,Zarzis,33.5035,11.1122,75600,Water,500,Fishing community,3,Salinization of water supply,Climate,Drought and seawater intrusion,OCHA
+2026-06-12,Zarzis,33.5035,11.1122,75600,Livelihoods,320,Small-scale farmers,3,Agricultural loss,Climate,Olive production affected by heatwaves,FAO
+2026-06-15,Zarzis,33.5035,11.1122,75600,Protection services,280,Unaccompanied minors,4,Abuse and exploitation risks,Mixed migration,Guardianship systems strained,UNICEF
+2026-06-18,Zarzis,33.5035,11.1122,75600,Cash assistance,370,Host families,3,Burden-sharing stress,Mixed migration,Local families housing migrants,UNHCR
+2026-06-21,Zarzis,33.5035,11.1122,75600,NFI kits,420,Migrant shelters,3,Poor shelter conditions,Protection,Tents deteriorating under sun exposure,IFRC
+2026-06-24,Zarzis,33.5035,11.1122,75600,Education support,200,Children in coastal areas,2,Dropout risk,Education,Lack of school transport,UNICEF
+2026-06-27,Zarzis,33.5035,11.1122,75600,Security patrols,100,Coastal communities,4,Smuggling & trafficking risks,Border,Increased boat departures detected,Local Authorities
+2026-06-01,Bizerte,37.2744,9.8739,143000,Food,420,Vulnerable coastal families,3,Price hikes,Inflation,Decreased access to basic food,IFRC
+2026-06-04,Bizerte,37.2744,9.8739,143000,Water,300,Rural households,3,Dry reservoirs,Climate,Drought reduces water table,Ministry of Agriculture
+2026-06-07,Bizerte,37.2744,9.8739,143000,Sanitation,220,Fishermen settlements,3,Poor waste disposal,Health,Contamination of fishing zones,OCHA
+2026-06-10,Bizerte,37.2744,9.8739,143000,Livelihoods,350,Fishermen & dock workers,2,Reduced fishing yields,Economy,Fuel cost impacts boat use,ILO
+2026-06-13,Bizerte,37.2744,9.8739,143000,Medical care,270,Industrial workers,2,Occupational hazards,Health,Lack of PPE in shipyards,WHO
+2026-06-16,Bizerte,37.2744,9.8739,143000,Education,180,Urban poor youth,2,Dropouts,Education,Public school quality decline,UNICEF
+2026-06-19,Bizerte,37.2744,9.8739,143000,Environmental cleanup,150,Coastal zones,3,Oil spill residues,Environment,Old port infrastructure,Local Municipality
+2026-06-22,Bizerte,37.2744,9.8739,143000,Protection,240,Migrant dock laborers,3,Exploitative work,Migration,Lack of oversight in hiring,ILO
+2026-06-25,Bizerte,37.2744,9.8739,143000,Cash support,190,Low-income families,2,Unemployment,Economy,Decline in seasonal tourism,UNHCR
+2026-06-28,Bizerte,37.2744,9.8739,143000,Nutrition,130,Children under 5,3,Micronutrient deficiencies,Health,Limited access to fresh produce,WFP
+>>>>>>> f9b0bacb64f099e2b8b25a89c28f0ae0b544b528

@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, Subscriber } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subscriber, switchMap } from 'rxjs';
+import { catchError, tap, map } from 'rxjs/operators';
 import { Router } from '@angular/router'; 
 import {Applicant } from '../models/job-application.model';
+import { User } from '../models/user.model';
 
 import { Association,AssociationStatus } from '../interfaces/association.interface';
 import { jwtDecode } from 'jwt-decode';
@@ -59,7 +60,7 @@ export class AuthService {
     return this.isAuthenticatedSubject.value;
   }
 
-  getUserInfo(): { email: string | null; idUser: number | null; roles?: string[] } {
+  getUserInfo(): { email: string | null; idUser: number | null; role?: string } {
     const token = localStorage.getItem('auth_token');
     if (token) {
       try {
@@ -67,7 +68,7 @@ export class AuthService {
         return {
           email: decodedToken.sub || null,
           idUser: decodedToken.idUser || null,
-          roles: decodedToken.roles || []
+          role: decodedToken.role || ''
         };
       } catch (error) {
         return { email: null, idUser: null };
@@ -146,8 +147,25 @@ export class AuthService {
     return this.http.get<Applicant>(`http://localhost:8089/api/auth/user/${userId}`, { headers });
   }
   getToken(): string {
-    const token = localStorage.getItem('auth_token');
-    return token || '';
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        return '';
+      }
+
+      // Validate token format
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) {
+        console.error('Invalid token format in storage');
+        this.removeToken();
+        return '';
+      }
+
+      return token.trim();
+    } catch (error) {
+      console.error('Error getting token:', error);
+      return '';
+    }
   }
 
   getAuthHeaders(): HttpHeaders {
@@ -155,10 +173,10 @@ export class AuthService {
     if (!token) {
       return new HttpHeaders();
     }
-  
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+
+    return new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
   }
   getUserName(): string | null {
     const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -202,8 +220,26 @@ export class AuthService {
   }
 
   setToken(token: string): void {
-    localStorage.setItem('auth_token', token);
-    this.isAuthenticatedSubject.next(true);
+    if (!token) {
+      console.error('Attempted to set empty token');
+      return;
+    }
+
+    // Validate token format
+    try {
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) {
+        console.error('Invalid token format');
+        return;
+      }
+
+      // Clean and store the token
+      const cleanToken = token.trim();
+      localStorage.setItem('auth_token', cleanToken);
+      this.isAuthenticatedSubject.next(true);
+    } catch (error) {
+      console.error('Error setting token:', error);
+    }
   }
 
   removeToken(): void {
@@ -218,6 +254,59 @@ export class AuthService {
     } catch (error) {
       return null;
     }
+  }
+
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`http://localhost:8089/api/auth/users`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  updateUser(user: User): Observable<any> {
+    return this.http.put(`${this.apiUrl}/update/${user.idUser}`, user, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  deleteUser(userId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/delete/${userId}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  getProfileImage(userId: number): Observable<string | null> {
+    const token = this.getToken();
+    return this.getUserById(userId).pipe(
+      switchMap(user => {
+        const imagePath = (user as any).profileImage;
+        if (!imagePath) {
+          return of(null);
+        }
+        
+        // Extract filename from the path
+        const filename = imagePath.split('/').pop();
+        if (!filename) {
+          return of(null);
+        }
+
+        return this.http.get(`http://localhost:8089/api/auth/profile-image/${filename}`, {
+          headers: new HttpHeaders({
+            'Authorization': `Bearer ${token}`
+          }),
+          responseType: 'blob'
+        }).pipe(
+          map(blob => URL.createObjectURL(blob)),
+          catchError(error => {
+            console.error('Error loading profile image:', error);
+            return of(null);
+          })
+        );
+      }),
+      catchError(error => {
+        console.error('Error getting user:', error);
+        return of(null);
+      })
+    );
   }
 }
 // Update the LoginResponse interface to match actual API response

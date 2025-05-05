@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { SignalingService } from './signaling.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -32,10 +33,15 @@ export class CallService {
   private isNegotiating = false;
   private connectionAttempts = 0;
   private readonly MAX_CONNECTION_ATTEMPTS = 3;
+  private localStreamSubject = new BehaviorSubject<MediaStream | null>(null);
+  private remoteStreamSubject = new BehaviorSubject<MediaStream | null>(null);
+  private callStatusSubject = new BehaviorSubject<string>('disconnected');
+  private callDurationSubject = new BehaviorSubject<number>(0);
 
   constructor(
     private authService: AuthService,
-    private signalingService: SignalingService
+    private signalingService: SignalingService,
+    private http: HttpClient
   ) {
     this.currentUserId = this.authService.getUserId()!;
     this.setupSignalingListeners();
@@ -336,11 +342,13 @@ export class CallService {
         throw new Error('Failed to initialize peer connection');
       }
 
+      // Set constraints based on call type
       const constraints = {
         audio: true,
         video: callType === 'video'
       };
       
+      console.log('Getting media with constraints:', constraints);
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       this.localStream.next(stream);
 
@@ -526,5 +534,13 @@ export class CallService {
 
   public getCurrentCallType(): 'video' | 'voice' {
     return this.callType;
+  }
+
+  public setLocalStream(stream: MediaStream): void {
+    this.localStreamSubject.next(stream);
+  }
+
+  public getLocalStreamSubject(): Observable<MediaStream | null> {
+    return this.localStreamSubject.asObservable();
   }
 }

@@ -1,160 +1,155 @@
 <app-admin-navbar />
 
-<div class="admin-content-wrapper">
-  <section class="bg-half-170 d-table w-100 position-relative" style="background: url('assets/images/hero/pages.jpg') center; background-size: cover;">
-    <div class="bg-overlay bg-gradient-overlay" style="opacity: 0.85;"></div>
-    <div class="container position-relative">
-      <div class="row mt-5 justify-content-center">
-        <div class="col-12">
-          <div class="title-heading text-center">
-            <h5 class="heading fw-bold mb-0 display-6 text-white title-dark">Association Details</h5>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="container mt-4">
+<div class="dashboard-container">
+  <div class="container-fluid px-4 py-4">
     <div class="row justify-content-center">
-      <div class="col-12">
-        <p class="text-center lead mb-4">Review and manage association information</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="position-relative">
-    <div class="shape overflow-hidden text-white">
-      <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
-      </svg>
-    </div>
-  </div>
-
-  <section class="section pt-5 pb-0">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-10">
-          <!-- Loading spinner -->
-          <div *ngIf="loading" class="text-center py-5">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-3 text-muted">Loading association details...</p>
+      <div class="col-xl-10">
+        <!-- Loading State -->
+        <div *ngIf="loading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
+          <p class="mt-3 text-muted">Loading association details...</p>
+        </div>
 
-          <!-- Association details card -->
-          <div *ngIf="association" class="card border-0 shadow-lg rounded-4 overflow-hidden" style="transition: all 0.3s ease;">
-            <div class="card-header bg-primary text-white py-4 px-4">
+        <!-- Association Details -->
+        <div *ngIf="association" class="card shadow-sm border-0 rounded-4 mb-4">
+          <!-- Header -->
+          <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4">
+            <div class="d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center">
-                <div class="flex-shrink-0 me-4" *ngIf="imageUrl">
-                  <img [src]="imageUrl" class="rounded-circle association-logo" alt="Logo">
+                <div class="icon-circle bg-primary-subtle me-3">
+                  <i class="bi bi-building text-primary"></i>
                 </div>
                 <div>
-                  <h2 class="h3 mb-2">{{ association.associationName }}</h2>
-                  <p class="mb-0 opacity-75"><i class="bi bi-geo-alt me-2"></i>{{ association.associationAddress }}</p>
+                  <h4 class="mb-0 fw-bold">Association Details</h4>
+                  <p class="text-muted mb-0">Review and manage association information</p>
                 </div>
               </div>
-            </div>
-            
-            <div class="card-body p-4">
-              <!-- Status Badge -->
-              <div class="text-end mb-4">
-                <div class="status-badge" [ngClass]="{
-                  'status-pending': association.status === 'PENDING',
-                  'status-approved': association.status === 'APPROVED',
-                  'status-rejected': association.status === 'REJECTED'
+              <div class="d-flex align-items-center">
+                <span class="badge" [ngClass]="{
+                  'bg-warning': association.status === 'PENDING',
+                  'bg-success': association.status === 'APPROVED',
+                  'bg-danger': association.status === 'REJECTED'
                 }">
-                  <div class="status-icon">
-                    <i [ngClass]="{
-                      'bi bi-hourglass-split': association.status === 'PENDING',
-                      'bi bi-check-circle-fill': association.status === 'APPROVED',
-                      'bi bi-x-circle-fill': association.status === 'REJECTED'
-                    }"></i>
+                  <i class="bi" [ngClass]="{
+                    'bi-clock': association.status === 'PENDING',
+                    'bi-check-circle': association.status === 'APPROVED',
+                    'bi-x-circle': association.status === 'REJECTED'
+                  }"></i>
+                  {{association.status}}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div class="card-body p-4">
+            <!-- Association Info -->
+            <div class="row g-4">
+              <!-- Logo and Basic Info -->
+              <div class="col-md-4">
+                <div class="card bg-light border-0 rounded-4 p-4 h-100">
+                  <div class="text-center mb-4">
+                    <div class="avatar-lg mx-auto mb-3">
+                      <img [src]="imageUrl || 'assets/images/default-logo.jpg'" 
+                           [alt]="association.associationName"
+                           class="rounded-circle img-fluid"
+                           onerror="this.src='assets/images/default-logo.jpg'">
+                    </div>
+                    <h5 class="mb-1">{{association.associationName}}</h5>
+                    <p class="text-muted mb-0">
+                      <i class="bi bi-geo-alt me-2"></i>
+                      {{association.associationAddress}}
+                    </p>
                   </div>
-                  <div class="status-text">{{ association.status }}</div>
                 </div>
               </div>
 
               <!-- Description -->
-              <div class="bg-light p-4 rounded-4 mb-4">
-                <h4 class="text-primary mb-3">
-                  <i class="bi bi-card-text me-2"></i>Description
-                </h4>
-                <p class="lead mb-0">{{ association.description }}</p>
+              <div class="col-md-8">
+                <div class="card bg-light border-0 rounded-4 p-4 h-100">
+                  <h5 class="text-primary mb-3">
+                    <i class="bi bi-card-text me-2"></i>Description
+                  </h5>
+                  <p class="mb-0">{{association.description}}</p>
+                </div>
               </div>
 
-              <!-- Documents Section -->
-              <div class="bg-light p-4 rounded-4">
-                <h4 class="text-primary mb-4">
-                  <i class="bi bi-files me-2"></i>Documents
-                </h4>
-                <div class="d-flex gap-3 flex-wrap">
-                  <button *ngIf="association.registrationDocumentPath"
-                          class="btn btn-outline-primary d-flex align-items-center hover-shadow"
-                          (click)="downloadDocument(association.registrationDocumentPath)">
-                    <i class="bi bi-file-earmark-pdf me-2"></i>
-                    Registration Document
-                  </button>
-                  
-                  <button *ngIf="association.legalDocumentPath"
-                          class="btn btn-outline-primary d-flex align-items-center hover-shadow"
-                          (click)="downloadDocument(association.legalDocumentPath)">
-                    <i class="bi bi-file-earmark-text me-2"></i>
-                    Legal Document
-                  </button>
+              <!-- Documents -->
+              <div class="col-12">
+                <div class="card bg-light border-0 rounded-4 p-4">
+                  <h5 class="text-primary mb-4">
+                    <i class="bi bi-files me-2"></i>Documents
+                  </h5>
+                  <div class="d-flex gap-3">
+                    <button *ngIf="association.registrationDocumentPath"
+                            class="btn btn-soft-primary d-flex align-items-center"
+                            (click)="downloadDocument(association.registrationDocumentPath)">
+                      <i class="bi bi-file-earmark-pdf me-2"></i>
+                      Registration Document
+                    </button>
+                    
+                    <button *ngIf="association.legalDocumentPath"
+                            class="btn btn-soft-primary d-flex align-items-center"
+                            (click)="downloadDocument(association.legalDocumentPath)">
+                      <i class="bi bi-file-earmark-text me-2"></i>
+                      Legal Document
+                    </button>
+                  </div>
                 </div>
               </div>
 
               <!-- Verification Actions -->
-              <div class="mt-5 pt-4 border-top" *ngIf="association?.status === 'PENDING'">
-                <h4 class="text-primary mb-4">Verification Actions</h4>
-                <div class="d-flex gap-3">
-                  <button class="btn btn-success px-4 py-3 d-flex align-items-center rounded-3 hover-shadow"
-                          (click)="verifyAssociation()"
-                          [disabled]="isVerifying || isRejecting">
-                    <span class="spinner-border spinner-border-sm me-2" *ngIf="isVerifying"></span>
-                    <i class="bi bi-check-circle me-2" *ngIf="!isVerifying"></i>
-                    {{ isVerifying ? 'Verifying...' : 'Verify Association' }}
-                  </button>
-                  
-                  <button class="btn btn-danger px-4 py-3 d-flex align-items-center rounded-3 hover-shadow"
-                          (click)="rejectAssociation()"
-                          [disabled]="isVerifying || isRejecting">
-                    <span class="spinner-border spinner-border-sm me-2" *ngIf="isRejecting"></span>
-                    <i class="bi bi-x-circle me-2" *ngIf="!isRejecting"></i>
-                    {{ isRejecting ? 'Rejecting...' : 'Reject Application' }}
-                  </button>
+              <div class="col-12" *ngIf="association?.status === 'PENDING'">
+                <div class="card bg-light border-0 rounded-4 p-4">
+                  <h5 class="text-primary mb-4">Verification Actions</h5>
+                  <div class="d-flex gap-3">
+                    <button class="btn btn-soft-success d-flex align-items-center"
+                            (click)="verifyAssociation()"
+                            [disabled]="isVerifying || isRejecting">
+                      <span class="spinner-border spinner-border-sm me-2" *ngIf="isVerifying"></span>
+                      <i class="bi bi-check-circle me-2" *ngIf="!isVerifying"></i>
+                      {{isVerifying ? 'Verifying...' : 'Verify Association'}}
+                    </button>
+                    
+                    <button class="btn btn-soft-danger d-flex align-items-center"
+                            (click)="rejectAssociation()"
+                            [disabled]="isVerifying || isRejecting">
+                      <span class="spinner-border spinner-border-sm me-2" *ngIf="isRejecting"></span>
+                      <i class="bi bi-x-circle me-2" *ngIf="!isRejecting"></i>
+                      {{isRejecting ? 'Rejecting...' : 'Reject Application'}}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Message Toast -->
-          <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
-            <div class="toast show shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" *ngIf="showActionMessage"
-                 style="transition: all 0.3s ease;">
-              <div class="toast-header border-0" [ngClass]="{
-                'bg-primary text-white': actionMessage.includes('Verifying') || actionMessage.includes('Rejecting'),
-                'bg-success text-white': actionMessage.includes('successfully'),
-                'bg-danger text-white': actionMessage.includes('Failed')
-              }">
-                <i [ngClass]="{
-                  'bi me-2': true,
-                  'bi-info-circle': actionMessage.includes('Verifying') || actionMessage.includes('Rejecting'),
-                  'bi-check-circle': actionMessage.includes('successfully'),
-                  'bi-exclamation-circle': actionMessage.includes('Failed')
-                }"></i>
-                <strong class="me-auto">Status Update</strong>
-                <button type="button" class="btn-close btn-close-white" (click)="showActionMessage = false"></button>
-              </div>
-              <div class="toast-body">
-                {{ actionMessage }}
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </div>
 
+<!-- Action Message Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+  <div class="toast show shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" *ngIf="showActionMessage">
+    <div class="toast-header border-0" [ngClass]="{
+      'bg-primary text-white': actionMessage.includes('Verifying') || actionMessage.includes('Rejecting'),
+      'bg-success text-white': actionMessage.includes('successfully'),
+      'bg-danger text-white': actionMessage.includes('Failed')
+    }">
+      <i [ngClass]="{
+        'bi me-2': true,
+        'bi-info-circle': actionMessage.includes('Verifying') || actionMessage.includes('Rejecting'),
+        'bi-check-circle': actionMessage.includes('successfully'),
+        'bi-exclamation-circle': actionMessage.includes('Failed')
+      }"></i>
+      <strong class="me-auto">Status Update</strong>
+      <button type="button" class="btn-close btn-close-white" (click)="showActionMessage = false"></button>
+    </div>
+    <div class="toast-body">
+      {{actionMessage}}
+    </div>
+  </div>
+</div>

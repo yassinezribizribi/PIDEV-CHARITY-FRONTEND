@@ -86,7 +86,6 @@ export class JobApplicationService {
     );
   }
 
-  // Get all applications for a specific job offer
   getApplicationsForJobOffer(jobOfferId: number): Observable<JobApplication[]> {
     return this.http.get<JobApplication[]>(`${this.apiUrl}/job-offer/${jobOfferId}`, { headers: this.getHeaders() });
   }
