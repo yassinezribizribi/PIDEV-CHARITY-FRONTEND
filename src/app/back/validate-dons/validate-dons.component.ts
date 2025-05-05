@@ -225,11 +225,11 @@ export class ValidateDonsComponent implements OnInit, AfterViewInit {
         this.loadDons();
         this.showValidationResult('Donation successfully validated!', true);
       },
-      error: (err) => {
+      error: (errorMessage: string) => {
         this.error = 'Failed to validate donation';
-        console.error('Error validating donation:', err);
-        const errorMessage = err.error?.message || 'Failed to validate donation';
-        this.showValidationResult(errorMessage, false);
+        console.error('Error validating donation:', errorMessage);
+        const errorMsg = typeof errorMessage === 'string' ? errorMessage : 'Failed to validate donation';
+        this.showValidationResult(errorMsg, false);
       }
     });
   }
@@ -286,9 +286,9 @@ export class ValidateDonsComponent implements OnInit, AfterViewInit {
           console.log(errorMessage);
         }
       )
-        .catch(err => {
-          console.error(err);
-          this.showValidationResult('Failed to start scanner', false);
+        .catch((err: Error) => {
+          console.error('Error:', err);
+          this.showValidationResult(err.message || 'An error occurred', false);
         });
     }, 100); // Small delay to ensure DOM is updated
   }
@@ -298,7 +298,10 @@ export class ValidateDonsComponent implements OnInit, AfterViewInit {
       this.html5QrCode.stop().then(() => {
         this.html5QrCode?.clear();
         this.html5QrCode = null;
-      }).catch(err => console.error(err));
+      }).catch((err: Error) => {
+        console.error('Error:', err);
+        this.showValidationResult(err.message || 'An error occurred', false);
+      });
     }
     this.scannerVisible = false;
   }

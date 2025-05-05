@@ -534,7 +534,7 @@ export class ProfileComponent implements OnInit {
     // Extract just the filename if it's a full path
     const filename = imagePath.split('/').pop();
     // Use the correct API endpoint for profile images
-    return `${this.API_URL}/api/auth/profile-image/${filename}`;
+    return `${this.API_URL}/auth/profile-image/${filename}`;
   }
 
   onFileSelected(event: any) {
