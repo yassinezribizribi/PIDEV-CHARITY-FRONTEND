@@ -12,9 +12,20 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../services/auth.service';
-import { User } from '../../../models/user.model';
 import { AdminNavbarComponent } from '../admin-navbar/admin-navbar.component';
 import { Router } from '@angular/router';
+
+interface UserManagement {
+  idUser: number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  roles?: string[];
+  role?: string;  // For backward compatibility
+  isBanned?: boolean;
+  banreason?: string | null;
+  profileImage?: string;
+}
 
 @Component({
   selector: 'app-users-management',
@@ -110,16 +121,16 @@ import { Router } from '@angular/router';
                   </td>
                   <td>
                     <span class="badge fs-6" [ngClass]="{
-                      'bg-info-subtle text-info': user.role === 'REFUGEE',
-                      'bg-success-subtle text-success': user.role === 'VOLUNTEER',
-                      'bg-warning-subtle text-warning': user.role === 'ASSOCIATION_MEMBER'
+                      'bg-info-subtle text-info': user.roles?.includes('ROLE_REFUGEE') || user.role === 'REFUGEE',
+                      'bg-success-subtle text-success': user.roles?.includes('ROLE_VOLUNTEER') || user.role === 'VOLUNTEER',
+                      'bg-warning-subtle text-warning': user.roles?.includes('ROLE_ASSOCIATION_MEMBER') || user.role === 'ASSOCIATION_MEMBER'
                     }">
                       <i class="bi" [ngClass]="{
-                        'bi-person-fill': user.role === 'REFUGEE',
-                        'bi-heart-fill': user.role === 'VOLUNTEER',
-                        'bi-building-fill': user.role === 'ASSOCIATION_MEMBER'
+                        'bi-person-fill': user.roles?.includes('ROLE_REFUGEE') || user.role === 'REFUGEE',
+                        'bi-heart-fill': user.roles?.includes('ROLE_VOLUNTEER') || user.role === 'VOLUNTEER',
+                        'bi-building-fill': user.roles?.includes('ROLE_ASSOCIATION_MEMBER') || user.role === 'ASSOCIATION_MEMBER'
                       }"></i>
-                      {{getRoleDisplay(user.role)}}
+                      {{getRoleDisplay(user.roles?.[0] || user.role)}}
                     </span>
                   </td>
                   <td>
@@ -205,16 +216,16 @@ import { Router } from '@angular/router';
                        [ngClass]="{'loading': isUserImageLoading(selectedUser.idUser)}">
                 </div>
                 <span class="badge fs-6" [ngClass]="{
-                  'bg-info-subtle text-info': selectedUser.role === 'REFUGEE',
-                  'bg-success-subtle text-success': selectedUser.role === 'VOLUNTEER',
-                  'bg-warning-subtle text-warning': selectedUser.role === 'ASSOCIATION_MEMBER'
+                  'bg-info-subtle text-info': selectedUser.roles?.includes('ROLE_REFUGEE') || selectedUser.role === 'REFUGEE',
+                  'bg-success-subtle text-success': selectedUser.roles?.includes('ROLE_VOLUNTEER') || selectedUser.role === 'VOLUNTEER',
+                  'bg-warning-subtle text-warning': selectedUser.roles?.includes('ROLE_ASSOCIATION_MEMBER') || selectedUser.role === 'ASSOCIATION_MEMBER'
                 }">
                   <i class="bi" [ngClass]="{
-                    'bi-person-fill': selectedUser.role === 'REFUGEE',
-                    'bi-heart-fill': selectedUser.role === 'VOLUNTEER',
-                    'bi-building-fill': selectedUser.role === 'ASSOCIATION_MEMBER'
+                    'bi-person-fill': selectedUser.roles?.includes('ROLE_REFUGEE') || selectedUser.role === 'REFUGEE',
+                    'bi-heart-fill': selectedUser.roles?.includes('ROLE_VOLUNTEER') || selectedUser.role === 'VOLUNTEER',
+                    'bi-building-fill': selectedUser.roles?.includes('ROLE_ASSOCIATION_MEMBER') || selectedUser.role === 'ASSOCIATION_MEMBER'
                   }"></i>
-                  {{getRoleDisplay(selectedUser.role)}}
+                  {{getRoleDisplay(selectedUser.roles?.[0] || selectedUser.role)}}
                 </span>
               </div>
               <div class="col-md-8">
@@ -454,12 +465,12 @@ import { Router } from '@angular/router';
   `]
 })
 export class UsersManagementComponent implements OnInit {
-  users: User[] = [];
-  filteredUsers: User[] = [];
+  users: UserManagement[] = [];
+  filteredUsers: UserManagement[] = [];
   searchTerm: string = '';
   roleFilter: string = 'ALL';
   loading: boolean = true;
-  selectedUser: User | null = null;
+  selectedUser: UserManagement | null = null;
   userProfileImages: { [key: number]: string } = {};
   userImageLoadingStates: { [key: number]: boolean } = {};
   defaultUserImage = 'assets/images/default-logo.jpg';
@@ -476,32 +487,35 @@ export class UsersManagementComponent implements OnInit {
   }
 
   getRoleDisplay(role: string | undefined): string {
-    console.log('Getting display for role:', role); // Debug log
     if (!role) return 'Unknown';
     
     switch (role) {
       case 'REFUGEE':
+      case 'ROLE_REFUGEE':
         return 'Refugee';
       case 'VOLUNTEER':
+      case 'ROLE_VOLUNTEER':
         return 'Volunteer';
       case 'ASSOCIATION_MEMBER':
+      case 'ROLE_ASSOCIATION_MEMBER':
         return 'Association Member';
+      case 'ROLE_ADMIN':
+        return 'Admin';
       default:
-        console.log('Unknown role:', role); // Debug log
         return role;
     }
   }
 
-  loadUsers() {
+  loadUsers(): void {
     this.loading = true;
     this.authService.getAllUsers().subscribe({
       next: (users) => {
-        console.log('Users from API:', users); // Debug log
+        console.log('Users from API:', users);
         // Filter out admin users by both role and email
         this.users = users.filter(user => 
-          user.role !== 'ROLE_ADMIN' && 
+          !user.roles?.includes('ROLE_ADMIN') && 
           user.email !== 'admin.admin@gmail.com'
-        );
+        ) as UserManagement[];
         this.filteredUsers = [...this.users];
         // Load profile images for each user
         this.users.forEach(user => {
@@ -511,7 +525,7 @@ export class UsersManagementComponent implements OnInit {
         });
         this.loading = false;
       },
-      error: (error: Error) => {
+      error: (error: any) => {
         console.error('Error loading users:', error);
         this.snackBar.open('Error loading users', 'Close', { duration: 3000 });
         this.loading = false;
@@ -574,13 +588,14 @@ export class UsersManagementComponent implements OnInit {
         `${user.firstName} ${user.lastName}`.toLowerCase().includes(this.searchTerm.toLowerCase());
       
       const matchesRole = this.roleFilter === 'ALL' || 
+        user.roles?.includes(this.roleFilter) || 
         user.role === this.roleFilter;
 
       return matchesSearch && matchesRole;
     });
   }
 
-  viewUserDetails(user: User) {
+  viewUserDetails(user: UserManagement) {
     this.selectedUser = user;
     const modal = document.getElementById('userDetailsModal');
     if (modal) {
@@ -589,7 +604,7 @@ export class UsersManagementComponent implements OnInit {
     }
   }
 
-  toggleUserBan(user: User) {
+  toggleUserBan(user: UserManagement) {
     this.authService.updateUser({
       ...user,
       isBanned: !user.isBanned,
@@ -599,18 +614,18 @@ export class UsersManagementComponent implements OnInit {
         this.snackBar.open(`User ${!user.isBanned ? 'banned' : 'unbanned'} successfully`, 'Close', { duration: 3000 });
         this.loadUsers(); // Reload the users list
       },
-      error: (error: Error) => {
+      error: (error: any) => {
         console.error('Error updating user:', error);
         this.snackBar.open('Error updating user status', 'Close', { duration: 3000 });
       }
     });
   }
 
-  viewUserHistory(user: User) {
+  viewUserHistory(user: UserManagement) {
     this.router.navigate(['/admin/user-history', user.idUser]);
   }
 
-  sendMessage(user: User) {
+  sendMessage(user: UserManagement) {
     this.router.navigate(['/admin/messages'], { 
       queryParams: { 
         recipient: user.idUser,
@@ -619,18 +634,18 @@ export class UsersManagementComponent implements OnInit {
     });
   }
 
-  editUser(user: User) {
+  editUser(user: UserManagement) {
     this.router.navigate(['/admin/edit-user', user.idUser]);
   }
 
-  deleteUser(user: User) {
+  deleteUser(user: UserManagement): void {
     if (confirm(`Are you sure you want to delete ${user.firstName} ${user.lastName}?`)) {
       this.authService.deleteUser(user.idUser).subscribe({
         next: () => {
           this.snackBar.open('User deleted successfully', 'Close', { duration: 3000 });
           this.loadUsers(); // Reload the users list
         },
-        error: (error: Error) => {
+        error: (error: any) => {
           console.error('Error deleting user:', error);
           this.snackBar.open('Error deleting user', 'Close', { duration: 3000 });
         }

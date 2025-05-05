@@ -24,8 +24,20 @@
                       <button class="btn btn-primary w-100" type="submit">Sign in</button> 
 
                       <div class="col-12 text-center mt-3">
-                          <span><span class="text-muted me-2 small">Don't have an account ?</span> <a [routerLink]="'/signup'" class="text-dark fw-semibold small">Sign Up</a></span>
-                      </div><!--end col-->
+                        <span>
+                            <span class="text-muted me-2 small">Don't have an account?</span> 
+                            <a [routerLink]="'/signup'" class="text-dark fw-semibold small">Sign Up</a>
+                        </span>
+                    </div>
+                    
+                    <!-- Ajout des liens Forgot Password et Reset Password -->
+                    <div class="col-12 text-center mt-2">
+                        <a [routerLink]="'/forgot-password'" class="text-primary small">Forgot Password?</a>
+                    </div>
+                    
+                    <div class="col-12 text-center mt-1">
+                        <a [routerLink]="'/reset-password'" class="text-primary small">Reset Password</a>
+                    </div>
                   </form>
               </div>
           </div><!--end col-->

@@ -120,6 +120,9 @@ export class NotificationService {
 
   loadNotifications(): void {
     const headers = this.getHeaders();
+    console.log('Current token:', this.authService.getToken());
+    console.log('User roles:', this.authService.getUserRoles());
+    
     this.http.get<Notification[]>(`${this.apiUrl}`, { headers }).pipe(
       tap((notifications: Notification[]) => {
         this.notifications.next(notifications);

@@ -1,15 +1,17 @@
 import { Routes } from '@angular/router';
 import { IndexComponent } from './pages/index/index.component';
 import { AboutusComponent } from './pages/aboutus/aboutus.component';
-import { ServiceDetailComponent } from './pages/service-detail/service-detail.component';
+import {HealthcareComponent } from './pages/Healthcare/healthcare.component';
+import { NotificationComponent } from './pages/notification/notification.component';
 import { ForumsComponent } from './pages/forums/forums.component';
-import { TeamComponent } from './pages/team/team.component';
+import { TranslationComponent, } from './pages/translation/translation.component';
 import { TestimonialComponent } from './pages/testimonial/testimonial.component';
 import { FaqsComponent } from './pages/faqs/faqs.component';
 import { BlogsComponent } from './pages/blogs/blogs.component';
 import { BlogSidebarComponent } from './pages/blog-sidebar/blog-sidebar.component';
 import { BlogDetailComponent } from './pages/post/blog-detail.component';
 import { OnepageComponent } from './pages/onepage/onepage.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
@@ -24,6 +26,8 @@ import { ContactusComponent } from './pages/contactus/contactus.component';
 import { AdminGuard } from './guards/admin.guard';
 import { RegisterAssociationComponent } from './register-association/register-association.component';
 import { AssociationDetailsComponent } from './back/admin/association-details/association-details.component';
+import { ReactiveFormsModule } from '@angular/forms';
+
 import { JobOpportunitiesForumComponent } from './pages/forums/job-opportunities-forum/job-opportunities-forum.component';
 import { SupportRefugeesForumComponent } from './pages/forums/support-refugees-forum/support-refugees-forum.component';
 import { AuthGuard } from './guards/auth.guard';
@@ -42,7 +46,6 @@ import { EditMissionComponent } from './back/edit-mission/edit-mission.component
 import { EditDonationComponent } from './back/edit-donation/edit-donation.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ApplicationDetailsComponent } from './application-details/application-details.component';
-import {HealthcareComponent } from './pages/Healthcare/healthcare.component';
 import { AssociationProfileComponent } from './pages/association-profile/association-profile.component';
 
 
@@ -53,9 +56,10 @@ import { UpdateDonsComponent } from './components/update-dons/update-dons.compon
 import { UpdateDonsNonauthComponent } from './components/update-dons-nonauth/update-dons-nonauth.component';
 import { VolunteerParticipationsComponent } from './components/volunteer-participations/volunteer-participations.component';
 
-import { ServicesComponent } from '@component/healthcare/services.component';
+
 import { AdminSettingsComponent } from './back/admin/admin-settings/admin-settings.component';
 import { UsersManagementComponent } from './back/admin/users-management/users-management.component';
+import { TeamComponent } from './pages/team/team.component';
 
 
 export const routes: Routes = [
@@ -66,9 +70,14 @@ export const routes: Routes = [
 
   { path: 'index', component: IndexComponent, canActivate: [AuthGuard] },
   { path: 'aboutus', component: AboutusComponent },
-  { path: 'service-detail', component: ServiceDetailComponent },
   { path: 'forums', component: ForumsComponent },
   { path: 'team', component: TeamComponent },
+  { path: 'index', component: IndexComponent, canActivate: [AuthGuard] },
+  { path: 'aboutus', component: AboutusComponent },
+  { path: 'services', component: HealthcareComponent },
+  { path: 'notification', component: NotificationComponent },
+  { path: 'forums', component: ForumsComponent },
+  { path: 'team', component: TranslationComponent },
   { path: 'testimonial', component: TestimonialComponent },
   { path: 'faqs', component: FaqsComponent },
   { path: 'blogs', component: BlogsComponent },
@@ -78,6 +87,8 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'signup/:role', component: SignupComponent },
+
+  { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'lock-screen', component: LockScreenComponent },
   { path: 'terms', component: TermsComponent },
@@ -110,8 +121,8 @@ export const routes: Routes = [
 
     {path:'index', component:IndexComponent,canActivate:[AuthGuard]},
     {path:'aboutus', component:AboutusComponent},
-    {path:'services', component:ServicesComponent},
-    {path:'service-detail', component:ServiceDetailComponent},
+    
+      {path:'service-detail', component:NotificationComponent},
     {path:'forums', component:ForumsComponent},
     {path:'team', component:TeamComponent},
     {path:'testimonial', component:TestimonialComponent},
@@ -302,5 +313,14 @@ export const routes: Routes = [
       { path: 'users', component: UsersManagementComponent },
       { path: 'settings', component: AdminSettingsComponent }
     ]
-  }
+  },
+  { path: '**', redirectTo: '/' }
 ];
+
+
+ 
+
+
+ 
+ 
+

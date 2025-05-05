@@ -34,7 +34,9 @@ import { NotificationBellComponent } from '../../../components/notification-bell
           <a mat-button routerLink="/admin/dashboard">Dashboard</a>
           <a mat-button routerLink="/admin/users">Manage Users</a>
           <a mat-button routerLink="/admin/settings">Settings</a>
-          <app-notification-bell></app-notification-bell>
+          <div class="notification-wrapper">
+            <app-notification-bell></app-notification-bell>
+          </div>
           <a mat-button (click)="logout()">Logout</a>
         </nav>
 
@@ -74,6 +76,22 @@ import { NotificationBellComponent } from '../../../components/notification-bell
         }
       }
 
+      .notification-wrapper {
+        display: flex;
+        align-items: center;
+        margin: 0 10px;
+        color: white;
+      }
+
+      ::ng-deep .notification-wrapper {
+        .mat-icon {
+          color: white;
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+      }
+
       .mobile-menu {
         display: flex;
         flex-direction: column;
@@ -101,6 +119,7 @@ import { NotificationBellComponent } from '../../../components/notification-bell
           border-bottom: 1px solid rgba(255, 255, 255, 0.2);
           display: flex;
           justify-content: center;
+          color: white;
         }
       }
     }
