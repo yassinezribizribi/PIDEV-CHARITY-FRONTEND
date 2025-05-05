@@ -1,0 +1,109 @@
+<app-navbar></app-navbar>
+
+<!-- HERO HEADER -->
+<section class="bg-gradient text-light py-5 text-center" style="background: linear-gradient(135deg, #3a7bd5, #00d2ff);">
+  <div class="container">
+    <h1 class="display-4 fw-bold">📬 My Medical Notifications</h1>
+    <p class="lead">Stay on top of your appointments, treatments, and diagnoses.</p>
+  </div>
+</section>
+
+<!-- NOTIFICATION LIST -->
+<section class="container py-5">
+  <h2 class="text-center mb-5 text-primary">🧾 History & Reminders</h2>
+
+  <!-- Loader -->
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-info" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="alert alert-danger text-center shadow-sm">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Notification cards -->
+  <div class="row g-4" *ngIf="!isLoading && notifications.length > 0">
+    <div class="col-md-6 col-lg-4" *ngFor="let notif of notifications">
+      <div class="card shadow-sm border-0 rounded-4 h-100">
+        <div class="card-body d-flex flex-column p-4">
+          
+          <h5 class="fw-bold mb-3">
+            <i class="bi bi-bell-fill text-primary fs-4 me-2"></i>
+            {{ notif.message || '🔔 New Notification Received' }}
+          </h5>
+
+          <ul class="list-unstyled small text-dark mb-3">
+            <li *ngIf="notif.terminalDisease">
+              <span class="badge bg-danger-subtle text-danger"><i class="bi bi-heart-pulse me-1"></i> Diagnosis</span>
+              <br>🧬 {{ notif.terminalDisease }}
+            </li>
+
+            <li *ngIf="notif.treatmentPlan" class="mt-2">
+              <span class="badge bg-success-subtle text-success"><i class="bi bi-capsule-pill me-1"></i> Treatment</span>
+              <br>💊 {{ notif.treatmentPlan }}
+            </li>
+
+            <li *ngIf="notif.bookingDate" class="mt-2">
+              <span class="badge bg-info-subtle text-info"><i class="bi bi-calendar-check me-1"></i> Appointment</span>
+              <br>📅 {{ notif.bookingDate | date:'fullDate' }} at {{ notif.bookingDate | date:'shortTime' }}
+            </li>
+
+            <li *ngIf="notif.status" class="mt-2">
+              <span class="badge bg-secondary text-white">
+                📝 Status: {{ notif.status }}
+              </span>
+            </li>
+
+            <li *ngIf="notif.proposedBookingDate" class="mt-2">
+              <span class="badge bg-warning text-dark">⏳ Patient Proposal:</span><br>
+              📆 {{ notif.proposedBookingDate | date:'fullDate' }} at {{ notif.proposedBookingDate | date:'shortTime' }}
+            </li>
+          </ul>
+
+          <!-- Footer: Meeting URL -->
+          <div class="d-flex justify-content-between align-items-center mt-auto">
+            <a *ngIf="notif.meetingUrl"
+               [href]="notif.meetingUrl"
+               class="btn btn-sm btn-outline-primary rounded-pill"
+               target="_blank">
+              🎥 Join
+            </a>
+            <small class="text-muted">📨 {{ notif.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+          </div>
+
+          <!-- Holiday Warning -->
+          <div *ngIf="notif.bookingDate && isHoliday(notif.bookingDate)" class="mt-2">
+            <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i> Holiday</span>
+            <br>⚠️ This appointment falls on a public holiday!
+          </div>
+
+          <!-- Actions (Propose / Confirm) -->
+          <div class="mt-3 d-flex justify-content-end gap-2">
+            <button class="btn btn-sm btn-outline-secondary"
+                    *ngIf="notif.status === 'PENDING'"
+                    (click)="onProposeDate(notif.id)">
+              🗓️ Propose New Date
+            </button>
+            <button class="btn btn-sm btn-success"
+                    *ngIf="notif.status === 'PROPOSED'"
+                    (click)="onConfirmDate(notif.id)">
+              ✅ Confirm
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && notifications.length === 0" class="text-center mt-5 text-muted">
+    <i class="bi bi-inbox-fill fs-1 text-secondary"></i>
+    <p class="mt-3">No notifications available at the moment 😴</p>
+  </div>
+</section>
+
+<app-footer></app-footer>

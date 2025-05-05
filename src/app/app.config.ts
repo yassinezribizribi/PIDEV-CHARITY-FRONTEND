@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
@@ -17,5 +18,18 @@ export const appConfig: ApplicationConfig = {
     JobOfferService,
 
     provideAnimations()
+=======
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { NotificationComponent } from './pages/notification/notification.component';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter([
+      { path: '/service-detail', redirectTo: 'notifications', pathMatch: 'full' }, // ✅ Redirection initiale
+      { path: 'notifications', component: NotificationComponent }, // ✅ Page des notifications // ✅ Page Service Detail
+      { path: '**', redirectTo: 'notifications' } // ✅ Redirection si route inconnue
+    ], withComponentInputBinding())
+>>>>>>> e58fb8da9dfcee386ba2f04dbaa43657390d4200
   ]
 };

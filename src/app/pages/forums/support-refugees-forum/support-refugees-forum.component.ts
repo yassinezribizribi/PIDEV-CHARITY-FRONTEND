@@ -126,7 +126,7 @@ export class SupportRefugeesForumComponent implements OnInit {
     if (request.user?.firstName && request.user?.lastName) {
       return `${request.user.firstName} ${request.user.lastName}`;
     }
-    return 'Anonymous';
+    return '';
   }
 
   // Get initials for avatar
