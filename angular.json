@@ -40,11 +40,12 @@
               "node_modules/@fortawesome/fontawesome-free/css/all.css",
               "node_modules/ngx-toastr/toastr.css",
               "src/assets/scss/style.scss",
-              "src/assets/css/materialdesignicons.min.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+              "src/assets/scss/style.scss",
+              "src/assets/css/materialdesignicons.min.css",
+              "node_modules/animate.css/animate.min.css",
               "src/styles.scss",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
-              "src/styles.scss",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/ngx-toastr/toastr.css",
               "node_modules/leaflet/dist/leaflet.css"
@@ -125,7 +126,8 @@
             "styles": [
               "./node_modules/bootstrap/scss/bootstrap.scss",
               "src/assets/scss/style.scss",
-              "src/assets/css/materialdesignicons.min.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "src/styles.scss"
             ],
             "stylePreprocessorOptions": {

@@ -1,88 +1,145 @@
-<app-navbar/>
+<app-navbar></app-navbar>
 
-<app-home-banner/>
+<app-home-banner></app-home-banner>
+
 <section class="section">
     <div class="container">
         <div class="row">
             <div class="col-lg-4 col-md-6 order-1 order-md-2">
                 <div class="features-absolute">
+                    <div class="p-4 rounded shadow position-relative bg-white">
+                        <div class="section-title">
+                            <h4 class="title mb-3">Make a Donation</h4>
+                        </div>
 
-<div class="features-absolute">
-    <div class="p-4 rounded shadow position-relative bg-white">
-        <div class="section-title">
-            <h4 class="title mb-3">Faire un don</h4>
-        </div>
+                        <form class="mt-4" (ngSubmit)="onSubmit()" #donationForm="ngForm">
+                            <div *ngIf="errorMessage" class="alert alert-danger">
+                                {{ errorMessage }}
+                            </div>
 
-        <form class="mt-4" (ngSubmit)="onSubmit()" #donationForm="ngForm">
-            <div *ngIf="errorMessage" class="alert alert-danger">
-                {{ errorMessage }}
-            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">First Name</label>
+                                <input [(ngModel)]="dons.nomDoneur" 
+                                       name="nomDoneur" 
+                                       type="text" 
+                                       class="form-control" 
+                                       placeholder="Your first name" 
+                                       required>
+                            </div>
 
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Nom</label>
-                <input [(ngModel)]="dons.nomDoneur" 
-                       name="nomDoneur" 
-                       type="text" 
-                       class="form-control" 
-                       placeholder="Votre nom" 
-                       required>
-            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Last Name</label>
+                                <input [(ngModel)]="dons.prenomDoneur" 
+                                       name="prenomDoneur" 
+                                       type="text" 
+                                       class="form-control" 
+                                       placeholder="Your last name" 
+                                       required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="donorEmail" class="form-label fw-semibold">Email </label>
+                                <input [(ngModel)]="dons.donorEmail" 
+                                       name="donorEmail" 
+                                       type="text" 
+                                       class="form-control" 
+                                       placeholder="Your Email" 
+                                       required>
+                            </div>
 
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Prénom</label>
-                <input [(ngModel)]="dons.prenomDoneur" 
-                       name="prenomDoneur" 
-                       type="text" 
-                       class="form-control" 
-                       placeholder="Votre prénom" 
-                       required>
-            </div>
 
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Type de don</label>
-                <select [(ngModel)]="dons.donationType" 
-                        class="form-select" 
-                        name="donationType" 
-                        required>
-                    <option value="FOOD">Nourriture</option>
-                    <option value="CLOTHES">Vêtements</option>
-                    <option value="MEDICAL">Matériel médical</option>
-                    <option value="OTHER">Autre</option>
-                </select>
-            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Quantity</label>
+                                <div class="input-group">
+                                    <button type="button" 
+                                            class="btn btn-outline-secondary" 
+                                            (click)="decrementQuantity()">-</button>
+                                    <input [(ngModel)]="dons.quantite" 
+                                           name="quantite" 
+                                           type="number" 
+                                           class="form-control text-center" 
+                                           min="1"
+                                           required>
+                                    <button type="button" 
+                                            class="btn btn-outline-secondary" 
+                                            (click)="incrementQuantity()">+</button>
+                                </div>
+                            </div>
 
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Quantité</label>
-                <div class="input-group">
-                    <button type="button" 
-                            class="btn btn-outline-secondary" 
-                            (click)="decrementQuantity()">-</button>
-                    <input [(ngModel)]="dons.quantite" 
-                           name="quantite" 
-                           type="number" 
-                           class="form-control text-center" 
-                           min="1"
-                           required>
-                    <button type="button" 
-                            class="btn btn-outline-secondary" 
-                            (click)="incrementQuantity()">+</button>
+                            <!-- Choose Drop-off or Pick-up -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Donation Method</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" 
+                                           type="radio" 
+                                           id="dropOff" 
+                                           name="deliveryMethod" 
+                                           [(ngModel)]="dons.deliveryMethod" 
+                                           value="DROP_OFF" 
+                                           required>
+                                    <label class="form-check-label" for="dropOff">
+                                        Drop Off
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" 
+                                           type="radio" 
+                                           id="pickUp" 
+                                           name="deliveryMethod" 
+                                           [(ngModel)]="dons.deliveryMethod" 
+                                           value="PICK_UP" 
+                                           required>
+                                    <label class="form-check-label" for="pickUp">
+                                        Pick Up
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Show address input only if Pick-Up is selected -->
+                            <div *ngIf="dons.deliveryMethod === 'PICK_UP'" class="mb-3">
+                                <label class="form-label fw-semibold">Pick-up Address</label>
+                                <input [(ngModel)]="dons.donorAddress" 
+                                       name="donorAddress" 
+                                       type="text" 
+                                       class="form-control" 
+                                       placeholder="Enter your address" 
+                                       required>
+                            </div>
+
+                            <!-- Donor Note -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Donor's Note (Optional)</label>
+                                <textarea [(ngModel)]="dons.donorNote" 
+                                          name="donorNote" 
+                                          class="form-control" 
+                                          placeholder="Add any notes for the recipient" 
+                                          rows="3"></textarea>
+                            </div>
+
+                            <!-- Scheduled Date and Time (for both Pick-up and Drop-off) -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Scheduled Date & Time</label>
+                                <input [(ngModel)]="dons.scheduledDateTime" 
+                                       name="scheduledDateTime" 
+                                       type="datetime-local" 
+                                       class="form-control" 
+                                       required>
+                            </div>
+
+                            <button type="submit" 
+                                    class="btn btn-primary w-100" 
+                                    [disabled]="!donationForm.form.valid || submitted">
+                                {{ submitted ? 'Submitting...' : 'Make a Donation' }}
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            </div><!--end col-->
 
-            <button type="submit" 
-                    class="btn btn-primary w-100" 
-                    [disabled]="!donationForm.form.valid || submitted">
-                {{ submitted ? 'En cours...' : 'Faire un don' }}
-            </button>
-        </form>
-    </div>
-</div>
-</div>
-</div><!--end col-->
+            <div class="col-lg-8 col-md-6 order-2 order-md-1">
+                <app-about-one-copy></app-about-one-copy>
+            </div><!--end col-->
+        </div><!--end row-->
+    </div><!--end container-->
+</section>
 
-<div class="col-lg-8 col-md-6 order-2 order-md-1">
-    <app-about-one-copy/>
-</div><!--end col-->
-</div><!--end row-->
-</div><!--end container-->
-<app-footer/>
+<app-footer></app-footer>

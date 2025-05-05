@@ -1,10 +1,17 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { Router } from '@angular/router';
-import { Healthcare } from '../interfaces/Healthcare.interface';
+
+export interface Notification {
+  message: string;
+  createdAt: Date;
+  terminalDisease?: string;
+  treatmentPlan?: string;
+  bookingDate?: string;
+  meetingUrl?: string; 
+}
 
 @Injectable({
   providedIn: 'root'
@@ -12,66 +19,85 @@ import { Healthcare } from '../interfaces/Healthcare.interface';
 export class HealthcareService {
   private apiUrl = 'http://localhost:8089/api/healthcare';
   private notificationUrl = 'http://localhost:8089/api/notifications';
+  
+  private baseUrl = 'http://localhost:8089/api/healthcare';
 
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
 
-  private handleError(error: any) {
-    console.error("🛑 Erreur HTTP détectée :", error);
-    if (error.status === 401) {
-      this.authService.logout();
-      this.router.navigate(['/login']);
-    }
-    return throwError(() => error);
-  }
-
-  getAllHealthcare(): Observable<Healthcare[]> {
-    return this.http.get<Healthcare[]>(`${this.apiUrl}/all`, {
+  getAllHealthcare(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/all`, {
       headers: this.authService.getAuthHeaders()
     }).pipe(
-      tap(() => console.log("✅ Soins récupérés")),
-      catchError(this.handleError)
+      catchError(error => throwError(() => new Error('Erreur chargement soins')))
     );
   }
-
-  addHealthcare(healthcare: Healthcare): Observable<Healthcare> {
-    return this.http.post<Healthcare>(`${this.apiUrl}/add`, healthcare, {
+  getMyHealthcare(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/my-notifications`, {
+      headers: this.authService.getAuthHeaders()
+    });
+  }
+  
+  addHealthcare(healthcare: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/add`, healthcare, {
       headers: this.authService.getAuthHeaders()
     }).pipe(
-      tap(() => console.log("✅ Soin ajouté")),
-      catchError(this.handleError)
+      catchError(error => throwError(() => new Error('Erreur ajout soin')))
     );
   }
 
-  updateHealthcare(id: number, data: Healthcare): Observable<Healthcare> {
-    return this.http.put<Healthcare>(`${this.apiUrl}/${id}`, data, {
+  updateHealthcare(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, data, {
       headers: this.authService.getAuthHeaders()
     }).pipe(
-      tap(() => console.log("✅ Soin mis à jour")),
-      catchError(this.handleError)
+      catchError(error => throwError(() => new Error('Erreur modification soin')))
     );
   }
 
-  updateHealthcareStatus(id: number, status: string, bookingDate: string): Observable<any> {
-    return this.http.patch<any>(
-      `${this.apiUrl}/${id}/status`,
-      { status, bookingDate },
-      { headers: this.authService.getAuthHeaders() }
-    ).pipe(
-      tap(() => console.log("✅ Statut mis à jour")),
-      catchError(this.handleError)
-    );
+  predictDiagnosis(symptoms: string): Observable<any> {
+    return this.http.post("http://localhost:3000/predict", { symptoms });
   }
 
-  getNotifications(): Observable<any[]> {
+  getMyHealthcareNotifications(): Observable<Notification[]> {
+    return this.http.get<Notification[]>(`${this.notificationUrl}/healthcare`, {
+      headers: this.authService.getAuthHeaders()
+    }).pipe(
+      map((data: any[]) =>
+        data.map(h => ({
+          message: h.message,
+          createdAt: new Date(h.createdAt),
+          terminalDisease: h.terminalDisease,
+          treatmentPlan: h.treatmentPlan,
+          bookingDate: h.bookingDate,
+          meetingUrl: h.meetingUrl
+        }))
+      ),
+      catchError(error => throwError(() => new Error('Erreur chargement des notifications')))
+    );
+  }
+  downloadReportPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/pdf`, {
+      responseType: 'blob',
+      headers: this.authService.getAuthHeaders() // <-- ajoute le token ici
+    });
+  }
+  
+  getNotifications(): Observable<Notification[]> {
     return this.http.get<any[]>(`${this.notificationUrl}/page`, {
       headers: this.authService.getAuthHeaders()
     }).pipe(
-      tap(() => console.log("✅ Notifications récupérées")),
-      catchError(this.handleError)
+      map((data: any[]) => data.map(n => ({
+        message: n.message,
+        createdAt: new Date(n.createdAt),
+        terminalDisease: n.terminalDisease,
+        treatmentPlan: n.treatmentPlan,
+        bookingDate: n.bookingDate
+      }))),
+      catchError(error => throwError(() => new Error('Erreur notifications')))
     );
+  }
+
+  getHealthcareReportUrl(): Observable<string> {
+    return this.http.get(this.baseUrl + '/report-url', { responseType: 'text' });
   }
 }

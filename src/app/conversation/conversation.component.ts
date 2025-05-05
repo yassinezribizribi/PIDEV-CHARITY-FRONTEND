@@ -13,6 +13,15 @@ import { CallTrackingService, CallRecord } from '../services/call-tracking.servi
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../environments/environment';
 
+interface User {
+  idUser: number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  roles?: string[];
+  // Add other user properties as needed
+}
+
 @Component({
   selector: 'app-conversation',
   templateUrl: './conversation.component.html',
@@ -84,6 +93,8 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
   filteredUsers: any[] = [];
   loadingUsers: boolean = false;
   newConversationModal: Modal | null = null;
+
+  users: User[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -1199,9 +1210,10 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
   private loadUsers(): void {
     this.loadingUsers = true;
     this.authService.getAllUsers().subscribe({
-      next: (users) => {
-        // Filter out the current user
-        this.filteredUsers = users.filter(user => user.idUser !== this.currentUserId);
+      next: (users: User[]) => {
+        this.filteredUsers = users.filter((user: User) => 
+          user.idUser !== this.currentUserId
+        );
         this.loadingUsers = false;
       },
       error: (err) => {

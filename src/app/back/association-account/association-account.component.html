@@ -79,6 +79,11 @@
           <i class="uil uil-calendar-alt text-success me-2"></i>
           Schedule Event
         </button>
+        <button class="list-group-item list-group-item-action d-flex align-items-center"
+                (click)="onManageDons()">
+          <i class="uil uil-check-circle text-info me-2"></i>
+          Manage Dons
+        </button>
       </div>
     </div>
 
@@ -212,163 +217,358 @@
             </div>
             <div class="card-body p-0">
               <div class="list-group list-group-flush">
-                <div *ngFor="let activity of filteredActivities" 
-                     class="list-group-item activity-item d-flex align-items-center p-3">
-                  <div [class]="'activity-icon ' + activity.type">
-                    <i [class]="'uil ' + getActivityIcon(activity.type)"></i>
+                <!-- Donations Section -->
+                <div *ngIf="filterKey === 'all' || filterKey === 'donation'" class="activity-section">
+                  <div class="activity-section-header">
+                    <i class="uil uil-heart-medical text-primary me-2"></i>
+                    <h6 class="mb-0">Donations</h6>
                   </div>
-                  <div class="ms-3 flex-grow-1">
-                    <h6 class="mb-1">{{activity.title}}</h6>
-                    <p class="mb-0 text-muted small">{{activity.description}}</p>
+                  <ng-container *ngFor="let activity of filteredActivities">
+                    <div *ngIf="activity.type === 'donation'"
+                         class="list-group-item activity-item d-flex align-items-center p-3"
+                         [class.activity-urgent]="isDonationEligibleForExtension(activity.donationDetails)">
+                      <div class="activity-icon donation">
+                        <i class="uil uil-heart-medical"></i>
+                      </div>
+                      <div class="ms-3 flex-grow-1">
+                        <div class="d-flex align-items-center">
+                          <h6 class="mb-1">{{activity.title}}</h6>
+                          <span *ngIf="isDonationEligibleForExtension(activity.donationDetails)" 
+                                class="badge bg-warning ms-2">
+                            <i class="uil uil-clock me-1"></i>
+                            Ending Soon
+                          </span>
+                        </div>
+                        <p class="mb-0 text-muted small">{{activity.description}}</p>
+                      </div>
+                      <small class="text-muted">{{activity.date | timeAgo}}</small>
+                      <div class="ms-3">
+                        <button class="btn btn-sm btn-outline-danger me-2" (click)="onDeleteActivity(activity)">
+                          <i class="uil uil-trash-alt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary me-2" (click)="onEditActivity(activity)">
+                          <i class="uil uil-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-info" (click)="onViewActivity(activity)">
+                          <i class="uil uil-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </ng-container>
+                </div>
+
+                <!-- Missions Section -->
+                <div *ngIf="filterKey === 'all' || filterKey === 'mission'" class="activity-section">
+                  <div class="activity-section-header">
+                    <i class="uil uil-rocket text-success me-2"></i>
+                    <h6 class="mb-0">Missions</h6>
                   </div>
-                  <small class="text-muted">{{activity.date | timeAgo}}</small>
-                  <div class="ms-3">
-                    <button class="btn btn-sm btn-outline-danger me-2" (click)="onDeleteActivity(activity)">
-                      <i class="uil uil-trash-alt"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-primary" (click)="onEditActivity(activity)">
-                      <i class="uil uil-edit"></i>
-                    </button>
+                  <ng-container *ngFor="let activity of filteredActivities">
+                    <div *ngIf="activity.type === 'mission'"
+                         class="list-group-item activity-item d-flex align-items-center p-3">
+                      <div class="activity-icon mission">
+                        <i class="uil uil-rocket"></i>
+                      </div>
+                      <div class="ms-3 flex-grow-1">
+                        <h6 class="mb-1">{{activity.title}}</h6>
+                        <p class="mb-0 text-muted small">{{activity.description}}</p>
+                      </div>
+                      <small class="text-muted">{{activity.date | timeAgo}}</small>
+                      <div class="ms-3">
+                        <button class="btn btn-sm btn-outline-danger me-2" (click)="onDeleteActivity(activity)">
+                          <i class="uil uil-trash-alt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary me-2" (click)="onEditActivity(activity)">
+                          <i class="uil uil-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-info" (click)="onViewActivity(activity)">
+                          <i class="uil uil-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </ng-container>
+                </div>
+
+                <!-- No Results Message -->
+                <div *ngIf="filteredActivities.length === 0" class="text-center p-4">
+                  <i class="uil uil-search-alt text-muted mb-3" style="font-size: 2rem;"></i>
+                  <p class="text-muted mb-0">No activities found matching your criteria</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-        <!-- Impact Report -->
-        <div class="col-lg-5">
-          <div class="card h-100">
-            <div class="card-header bg-primary text-white">
+        <!-- Activity Details Card -->
+        <div *ngIf="selectedActivity" class="col-lg-5">
+          <div class="card h-100 activity-details-card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
               <h5 class="mb-0 d-flex align-items-center">
                 <i class="uil uil-analytics me-2"></i>
-                Impact Overview
-          </h5>
-        </div>
+                Activity Details
+              </h5>
+              <div class="activity-type-badge" [ngClass]="'type-' + selectedActivity.type">
+                {{ selectedActivity.type | titlecase }}
+              </div>
+            </div>
             <div class="card-body">
-              <div class="row g-3">
-                <div class="col-6" *ngFor="let metric of metrics">
-                  <div class="metric-card p-3 rounded">
-                <div class="d-flex align-items-center">
-                      <div class="metric-icon bg-soft-{{metric.color}} text-{{metric.color}} rounded-circle p-2 me-3">
-                        <i class="uil {{metric.icon}}"></i>
+              <!-- Mission Details Section -->
+              <div *ngIf="selectedActivity.type === 'mission' && selectedActivity.missionDetails" class="mission-details">
+                <div class="details-header">
+                  <div class="mission-image-container">
+                    <img [src]="missionImageUrl || defaultMissionImage" 
+                         alt="Mission Image" 
+                         class="mission-image"
+                         (error)="missionImageUrl = defaultMissionImage">
                   </div>
-                  <div>
-                        <div class="metric-value fw-bold">
-                          {{ (impactReport?.[metric.key] ?? 0) | number:'1.0-0' }}{{metric.suffix}}
+                  <h6 class="details-title">{{selectedActivity.missionDetails.title}}</h6>
+                  <p class="details-description">{{selectedActivity.missionDetails.description}}</p>
+                </div>
+                
+                <div class="details-grid">
+                  <div class="detail-item">
+                    <div class="detail-icon">
+                      <i class="uil uil-calendar-alt"></i>
+                    </div>
+                    <div class="detail-content">
+                      <span class="detail-label">Date Range</span>
+                      <span class="detail-value">
+                        {{selectedActivity.missionDetails.startDate | date}} - {{selectedActivity.missionDetails.endDate | date}}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <div class="detail-icon">
+                      <i class="uil uil-map-marker"></i>
+                    </div>
+                    <div class="detail-content">
+                      <span class="detail-label">Location</span>
+                      <span class="detail-value">{{selectedActivity.missionDetails.location}}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <div class="detail-icon">
+                      <i class="uil uil-users-alt"></i>
+                    </div>
+                    <div class="detail-content">
+                      <span class="detail-label">Volunteers Needed</span>
+                      <span class="detail-value">{{selectedActivity.missionDetails.volunteerCount}}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mission Roles Section -->
+                <div class="mission-roles-section">
+                  <h6 class="section-title">Mission Roles</h6>
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Role</th>
+                          <th>Needed</th>
+                          <th>Accepted</th>
+                          <th>Validation</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let role of selectedActivity.missionDetails.missionRoles">
+                          <td class="role-name">{{role.roleName}}</td>
+                          <td>{{role.numberNeeded}}</td>
+                          <td>{{role.numberAccepted}}</td>
+                          <td>
+                            <span class="validation-badge" [ngClass]="{'bg-success': !role.requiresValidation, 'bg-warning': role.requiresValidation}">
+                              {{role.requiresValidation ? 'Required' : 'Not Required'}}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Donation Details Section -->
+              <div *ngIf="selectedActivity.type === 'donation' && selectedActivity.donationDetails" class="donation-details">
+                <div class="details-header">
+                  <h6 class="details-title">{{selectedActivity.donationDetails.titre}}</h6>
+                  <p class="details-description">{{selectedActivity.donationDetails.description}}</p>
+                </div>
+
+                <div class="details-grid">
+                  <div class="detail-item">
+                    <div class="detail-icon">
+                      <i class="uil uil-tag-alt"></i>
+                    </div>
+                    <div class="detail-content">
+                      <span class="detail-label">Type</span>
+                      <span class="detail-value badge" [ngClass]="{
+                        'bg-primary': selectedActivity.donationDetails.donationType === 'MATERIAL',
+                        'bg-success': selectedActivity.donationDetails.donationType === 'FINANCIAL',
+                        'bg-info': selectedActivity.donationDetails.donationType === 'BLOOD',
+                        'bg-warning': selectedActivity.donationDetails.donationType === 'ORGAN'
+                      }">
+                        {{selectedActivity.donationDetails.donationType}}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <div class="detail-icon">
+                      <i class="uil uil-exclamation-triangle"></i>
+                    </div>
+                    <div class="detail-content">
+                      <span class="detail-label">Priority</span>
+                      <span class="detail-value badge" [ngClass]="{
+                        'bg-danger': selectedActivity.donationDetails.priority === 4,
+                        'bg-warning': selectedActivity.donationDetails.priority === 3,
+                        'bg-info': selectedActivity.donationDetails.priority === 2,
+                        'bg-secondary': selectedActivity.donationDetails.priority === 1
+                      }">
+                        {{getPriorityLabel(selectedActivity.donationDetails.priority)}}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <div class="detail-icon">
+                      <i class="uil uil-chart-line"></i>
+                    </div>
+                    <div class="detail-content">
+                      <span class="detail-label">Progress</span>
+                      <div class="progress mt-1" style="height: 20px;">
+                        <div class="progress-bar" 
+                             [ngClass]="{
+                               'bg-success': getProgressPercentage(selectedActivity.donationDetails) >= 100,
+                               'bg-warning': getProgressPercentage(selectedActivity.donationDetails) < 100 && getProgressPercentage(selectedActivity.donationDetails) >= 50,
+                               'bg-danger': getProgressPercentage(selectedActivity.donationDetails) < 50
+                             }"
+                             [style.width.%]="getProgressPercentage(selectedActivity.donationDetails)">
+                          {{getProgressPercentage(selectedActivity.donationDetails) | number:'1.0-0'}}%
                         </div>
-                        <div class="metric-label text-muted small">{{metric.label}}</div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Partnership Management -->
-      <div class="card partnership-card mt-4">
-        <div class="card-header partnership-header">
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-              <div class="partnership-icon">
-                <i class="uil uil-users-alt"></i>
-            </div>
-                    <div class="ms-3">
-                <h5 class="mb-0">Partnerships</h5>
-                <div class="d-flex align-items-center mt-1">
-                  <div class="progress flex-grow-1" style="height: 6px; width: 100px;">
-                    <div class="progress-bar" 
-                         [ngClass]="progressBarClass"
-                         [style.width.%]="progressBarPercentage">
+                  <div class="detail-item">
+                    <div class="detail-icon">
+                      <i class="uil uil-target"></i>
+                    </div>
+                    <div class="detail-content">
+                      <span class="detail-label">Target Amount</span>
+                      <span class="detail-value">{{selectedActivity.donationDetails.quantiteDemandee}}</span>
                     </div>
                   </div>
-                  <span class="ms-2 small">{{ partners.length }}/{{ maxPartnerships }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="partnership-actions">
-              <div class="tier-indicator" [ngClass]="getTierClass()">
-                {{ currentTierDisplay }}
-              </div>
-              <button *ngIf="canShowUpgradeButton" 
-                      class="btn btn-upgrade btn-sm ms-2" 
-                      (click)="showTierUpgradeModal()">
-                Upgrade
-              </button>
-            </div>
-          </div>
+                  <div class="detail-item">
+                    <div class="detail-icon">
+                      <i class="uil uil-check-circle"></i>
+                    </div>
+                    <div class="detail-content">
+                      <span class="detail-label">Current Amount</span>
+                      <span class="detail-value">{{selectedActivity.donationDetails.quantiteDonnee}}</span>
+                    </div>
                   </div>
+                </div>
 
-        <div class="card-body p-0">
-          <!-- Tabs for Partners and Recommendations -->
-          <ul class="nav nav-tabs nav-tabs-custom">
-            <li class="nav-item">
-              <a class="nav-link active" data-bs-toggle="tab" href="#current-partners">
-                <i class="uil uil-users-alt me-1"></i> Current ({{ partners.length }})
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#recommended">
-                <i class="uil uil-analyze me-1"></i> Recommended
-              </a>
-            </li>
-          </ul>
-
-          <div class="tab-content p-3">
-            <!-- Current Partners Tab -->
-            <div class="tab-pane fade show active" id="current-partners">
-              <div class="row g-3">
-                <div class="col-md-4" *ngFor="let partner of partners">
-                  <div class="partner-card">
-                    <div class="d-flex align-items-center">
-                      <img [src]="getPartnerLogo(partner)" 
-                           [alt]="partner.associationName"
-                           class="partner-logo-sm">
-                      <div class="ms-2 flex-grow-1">
-                        <h6 class="mb-0 partner-name">{{ partner.associationName }}</h6>
-                        <small class="text-muted">Score: {{ partner.partnershipScore || 0 }}</small>
+                <!-- Cagnotte Details Section -->
+                <div class="cagnotte-section" *ngIf="selectedActivity.donationDetails.cagnotteenligne">
+                  <h6 class="section-title">Cagnotte Details</h6>
+                  <div class="details-grid">
+                    <div class="detail-item">
+                      <div class="detail-icon">
+                        <i class="uil uil-wallet"></i>
                       </div>
-                      <button class="btn btn-sm btn-outline-danger" 
-                              (click)="removePartnership(partner.idAssociation)">
-                        <i class="uil uil-trash-alt"></i>
-                      </button>
+                      <div class="detail-content">
+                        <span class="detail-label">Current Amount</span>
+                        <span class="detail-value">{{selectedActivity.donationDetails.cagnotteenligne.currentAmount | currency}}</span>
+                      </div>
                     </div>
+                    <div class="detail-item">
+                      <div class="detail-icon">
+                        <i class="uil uil-bullseye"></i>
+                      </div>
+                      <div class="detail-content">
+                        <span class="detail-label">Goal Amount</span>
+                        <span class="detail-value">{{selectedActivity.donationDetails.cagnotteenligne.goalAmount | currency}}</span>
+                      </div>
+                    </div>
+                    <div class="detail-item">
+                      <div class="detail-icon">
+                        <i class="uil uil-chart-pie"></i>
+                      </div>
+                      <div class="detail-content">
+                        <span class="detail-label">Progress</span>
+                        <div class="progress mt-1" style="height: 20px;">
+                          <div class="progress-bar" 
+                               [ngClass]="{
+                                 'bg-success': (selectedActivity.donationDetails.cagnotteenligne.currentAmount / selectedActivity.donationDetails.cagnotteenligne.goalAmount) >= 1,
+                                 'bg-warning': (selectedActivity.donationDetails.cagnotteenligne.currentAmount / selectedActivity.donationDetails.cagnotteenligne.goalAmount) < 1
+                               }"
+                               [style.width.%]="(selectedActivity.donationDetails.cagnotteenligne.currentAmount / selectedActivity.donationDetails.cagnotteenligne.goalAmount) * 100">
+                            {{(selectedActivity.donationDetails.cagnotteenligne.currentAmount / selectedActivity.donationDetails.cagnotteenligne.goalAmount) * 100 | number:'1.0-0'}}%
                           </div>
                         </div>
                       </div>
                     </div>
+                  </div>
+                </div>
 
-            <!-- Recommended Partners Tab -->
-            <div class="tab-pane fade" id="recommended">
-              <div class="row g-3">
-                <div class="col-md-6" *ngFor="let partner of recommendedPartners">
-                  <div class="recommended-partner-card">
-                    <div class="similarity-score" [ngClass]="getSimilarityBadgeClass(partner.similarityScore)">
-                      {{ partner.similarityScore }}% Match
-                    </div>
-                    <div class="d-flex align-items-center">
-                      <div class="partner-logo-container position-relative">
-                        <img [src]="getRecommendedPartnerLogo(partner)" 
-                             [alt]="partner.associationName"
-                             class="partner-logo-sm"
-                             (error)="partner.associationLogoPath = defaultLogo">
-                        <div *ngIf="logoLoadingStates[partner.idAssociation]" 
-                             class="logo-loading-spinner">
-                          <div class="spinner-border spinner-border-sm text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                          </div>
-                        </div>
+                <!-- Status Message Card -->
+                <div class="status-message-card" [ngClass]="'status-' + getDonationStatus(selectedActivity.donationDetails).status">
+                  <div class="status-message-content">
+                    <i class="uil" [ngClass]="{
+                      'uil-check-circle': getDonationStatus(selectedActivity.donationDetails).status === 'complete',
+                      'uil-exclamation-triangle': getDonationStatus(selectedActivity.donationDetails).status === 'no_progress',
+                      'uil-chart-down': getDonationStatus(selectedActivity.donationDetails).status === 'low_engagement',
+                      'uil-chart-line': getDonationStatus(selectedActivity.donationDetails).status === 'on_track',
+                      'uil-clock': getDonationStatus(selectedActivity.donationDetails).status === 'slow_progress'
+                    }"></i>
+                    <p>{{getDonationStatus(selectedActivity.donationDetails).message}}</p>
+                  </div>
+                </div>
+
+                <!-- Add Extension Details Section -->
+                <div class="extension-section mt-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Extension Details</h5>
+                    <button 
+                      *ngIf="!extensionSuggestions[selectedActivity.donationDetails.idDonation] && isDonationEligibleForExtension(selectedActivity.donationDetails)"
+                      class="btn btn-primary btn-sm"
+                      (click)="getExtensionSuggestion(selectedActivity.donationDetails.idDonation)"
+                      [disabled]="extensionLoadingStates[selectedActivity.donationDetails.idDonation]">
+                      <i class="uil uil-sync" *ngIf="extensionLoadingStates[selectedActivity.donationDetails.idDonation]"></i>
+                      Get Extension Details
+                    </button>
+                  </div>
+
+                  <!-- Extension Suggestion Details -->
+                  <div *ngIf="extensionSuggestions[selectedActivity.donationDetails.idDonation]" class="extension-suggestion">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <p><strong>Suggested Days:</strong> {{ extensionSuggestions[selectedActivity.donationDetails.idDonation].suggestedDays }}</p>
+                        <p><strong>Donation Progress:</strong> {{ extensionSuggestions[selectedActivity.donationDetails.idDonation].donationProgress }}%</p>
+                        <p><strong>Daily Average:</strong> {{ extensionSuggestions[selectedActivity.donationDetails.idDonation].donationDailyAvg }}</p>
                       </div>
-                      <div class="ms-2 flex-grow-1">
-                        <h6 class="mb-0">{{ partner.associationName }}</h6>
-                        <p class="mb-2 small text-muted">{{ partner.description | truncate:60 }}</p>
-                        <button class="btn btn-sm btn-primary" 
-                              [disabled]="isPartnershipDisabled(partner)"
-                              (click)="createPartnership(partner.idAssociation)">
-                          {{ getPartnershipButtonText(partner) }}
+                      <div class="col-md-6">
+                        <p><strong>Estimated Days:</strong> {{ extensionSuggestions[selectedActivity.donationDetails.idDonation].donationEstimatedDays }}</p>
+                        <p><strong>Remaining:</strong> {{ extensionSuggestions[selectedActivity.donationDetails.idDonation].donationRemaining }}</p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-12">
+                        <p class="text-muted">{{ extensionSuggestions[selectedActivity.donationDetails.idDonation].message }}</p>
+                      </div>
+                    </div>
+                    <div class="row mt-3">
+                      <div class="col-12">
+                        <button 
+                          class="btn btn-success me-2"
+                          (click)="applyExtension(selectedActivity.donationDetails)"
+                          [disabled]="extensionLoadingStates[selectedActivity.donationDetails.idDonation]">
+                          <i class="uil uil-check" *ngIf="!extensionLoadingStates[selectedActivity.donationDetails.idDonation]"></i>
+                          <i class="uil uil-sync" *ngIf="extensionLoadingStates[selectedActivity.donationDetails.idDonation]"></i>
+                          Apply Extension
+                        </button>
+                        <button 
+                          class="btn btn-secondary"
+                          (click)="dismissExtensionSuggestion(selectedActivity.donationDetails.idDonation)">
+                          Dismiss
                         </button>
                       </div>
                     </div>
@@ -376,13 +576,155 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Impact Report -->
+      <div class="col-lg-5">
+        <div class="card h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0 d-flex align-items-center">
+              <i class="uil uil-analytics me-2"></i>
+              Impact Overview
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-6" *ngFor="let metric of metrics">
+                <div class="metric-card p-3 rounded">
+                  <div class="d-flex align-items-center">
+                    <div class="metric-icon bg-soft-{{metric.color}} text-{{metric.color}} rounded-circle p-2 me-3">
+                      <i class="uil {{metric.icon}}"></i>
+                    </div>
+                    <div>
+                      <div class="metric-value fw-bold">
+                        {{ (impactReport?.[metric.key] ?? 0) | number:'1.0-0' }}{{metric.suffix}}
+                      </div>
+                      <div class="metric-label text-muted small">{{metric.label}}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Partnership Management -->
+    <div class="card partnership-card mt-4">
+      <div class="card-header partnership-header">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="partnership-icon">
+              <i class="uil uil-users-alt"></i>
+            </div>
+            <div class="ms-3">
+              <h5 class="mb-0">Partnerships</h5>
+              <div class="d-flex align-items-center mt-1">
+                <div class="progress flex-grow-1" style="height: 6px; width: 100px;">
+                  <div class="progress-bar" 
+                       [ngClass]="progressBarClass"
+                       [style.width.%]="progressBarPercentage">
+                  </div>
+                </div>
+                <span class="ms-2 small">{{ partners.length }}/{{ maxPartnerships }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="partnership-actions">
+            <div class="tier-indicator" [ngClass]="getTierClass()">
+              {{ currentTierDisplay }}
+            </div>
+            <button *ngIf="canShowUpgradeButton" 
+                    class="btn btn-upgrade btn-sm ms-2" 
+                    (click)="showTierUpgradeModal()">
+              Upgrade
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <!-- Tabs for Partners and Recommendations -->
+        <ul class="nav nav-tabs nav-tabs-custom">
+          <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#current-partners">
+              <i class="uil uil-users-alt me-1"></i> Current ({{ partners.length }})
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#recommended">
+              <i class="uil uil-analyze me-1"></i> Recommended
+            </a>
+          </li>
+        </ul>
+
+        <div class="tab-content p-3">
+          <!-- Current Partners Tab -->
+          <div class="tab-pane fade show active" id="current-partners">
+            <div class="row g-3">
+              <div class="col-md-4" *ngFor="let partner of partners">
+                <div class="partner-card">
+                  <div class="d-flex align-items-center">
+                    <img [src]="getPartnerLogo(partner)" 
+                         [alt]="partner.associationName"
+                         class="partner-logo-sm">
+                    <div class="ms-2 flex-grow-1">
+                      <h6 class="mb-0 partner-name">{{ partner.associationName }}</h6>
+                      <small class="text-muted">Score: {{ partner.partnershipScore || 0 }}</small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" 
+                            (click)="removePartnership(partner.idAssociation)">
+                      <i class="uil uil-trash-alt"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recommended Partners Tab -->
+          <div class="tab-pane fade" id="recommended">
+            <div class="row g-3">
+              <div class="col-md-6" *ngFor="let partner of recommendedPartners">
+                <div class="recommended-partner-card">
+                  <div class="similarity-score" [ngClass]="getSimilarityBadgeClass(partner.similarityScore)">
+                    {{ partner.similarityScore }}% Match
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <div class="partner-logo-container position-relative">
+                      <img [src]="getRecommendedPartnerLogo(partner)" 
+                           [alt]="partner.associationName"
+                           class="partner-logo-sm"
+                           (error)="partner.associationLogoPath = defaultLogo">
+                      <div *ngIf="logoLoadingStates[partner.idAssociation]" 
+                           class="logo-loading-spinner">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                          <span class="visually-hidden">Loading...</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ms-2 flex-grow-1">
+                      <h6 class="mb-0">{{ partner.associationName }}</h6>
+                      <p class="mb-2 small text-muted">{{ partner.description | truncate:60 }}</p>
+                      <button class="btn btn-sm btn-primary" 
+                            [disabled]="isPartnershipDisabled(partner)"
+                            (click)="createPartnership(partner.idAssociation)">
+                        {{ getPartnershipButtonText(partner) }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
+</div>
 
 <!-- Edit Association Modal -->
 <div class="modal fade" id="editAssociationModal" tabindex="-1">
@@ -1036,5 +1378,17 @@
 .bg-warning {
   background-color: #ffc107 !important;
   color: #000;
+}
+
+.activity-urgent {
+  border-left: 4px solid #ffc107;
+  background: rgba(255, 193, 7, 0.05);
+  animation: pulseWarning 1.5s infinite;
+}
+
+@keyframes pulseWarning {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
 }
 </style>

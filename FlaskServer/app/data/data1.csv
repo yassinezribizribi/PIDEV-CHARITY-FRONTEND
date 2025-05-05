@@ -1,3 +1,52 @@
+<<<<<<< HEAD
+Date,Governorate,Latitude,Longitude,Population,Need Type,Quantity,Beneficiaries,Urgency (1-5),Common Crisis Type,External Data Type,External Event,Source;
+"2024-01-15,Medenine,33.3549,10.5055,""500,00"",Food,""600,00"",Syrian refugees,""4,00"",Refugee influx,Weather,Heavy rain disrupts camps,OpenWeatherMap";
+"2024-02-10,Sfax,34.7406,10.7603,""1,000,000"",Clothing,""450,00"",Sub-Saharan migrants,""3,00"",Homelessness,News,Arrests during migrant sweep,TAP News";
+"2024-03-05,Zarzis,33.5034,11.1122,""80,00"",Tents,""35,00"",Shipwreck survivors,""5,00"",Migrant shipwrecks,Crisis,Boat engine failure at sea,Migrant Watch Tunisia";
+"2024-04-12,Tunis,36.8064,1.10,""2,500,000"",Blankets,""700,00"",Displaced families,""4,00"",Precarious housing,Economy,Rising cost of rent,data.gov.tn";
+"2024-05-20,Gabes,33.8815,10.0982,""380,00"",Medical kits,""120,00"",Libyan refugees,""5,00"",Camp health issues,Health,Epidemic alert in refugee camp,MSF Tunisia";
+"2024-06-18,Ben Guerdane,33.1389,11.2244,""35,00"",Hygiene kits,""300,00"",Refugee women and children,""5,00"",Border crisis,Crisis,Overcrowded shelters,UNHCR";
+"2024-07-22,Kasserine,35.1676,8.8365,""478,00"",Food,""800,00"",Low-income families,""3,00"",Social inequality,Economy,Sharp inflation on basic goods,INS Tunisia";
+"2024-08-30,Sidi Bouzid,35.0382,9.4858,""429,00"",Water,""1â€¯000,00"",Rural displaced people,""4,00"",Drought and poverty,Weather,Prolonged dry spell,OpenWeatherMap";
+"2024-09-15,Tataouine,32.9297,10.4518,""149,00"",Tents,""60,00"",Libyan refugees,""5,00"",Camp overcrowding,Crisis,Temporary shelters collapsing,Red Crescent";
+"2024-10-10,Ariana,36.8663,10.1647,""576,00"",Clothing,""500,00"",Displaced women,""3,00"",Social exclusion,News,Increase in female homelessness,TAP News";
+"2024-11-18,Medenine,33.3549,10.5055,500,Food,""550,00"",Sub-Saharan migrants,""4,00"",Refugee influx,News,Migrant camps dismantled by authorities,Reuters";
+"2024-12-05,Sfax,34.7406,10.7603,""1,000,000"",Shelter,""300,00"",Displaced families,""5,00"",Forced evictions,Crisis,Closure of civic spaces affecting NGOs' operations,Human Rights Watch";
+"2024-12-20,Zarzis,33.5034,11.1122,80,Medical aid,""100,00"",Shipwreck survivors,""5,00"",Migrant shipwrecks,Crisis,Increase in maritime incidents involving migrants,UNHCR";
+"2024-09-12,Medenine,33.3549,10.5055,500,Shelter,""300,00"",Sub-Saharan migrants,""4,00"",Forced displacement,News,Migrants expelled to desert borderlands,Al Jazeera";
+"2024-09-30,Djerba,33.8076,10.8450,""163,726"",Medical aid,""100,00"",Shipwreck survivors,""5,00"",Migrant shipwreck,Crisis,Boat sank off Djerba coast"; casualties reported,Reuters
+"2024-10-28,Mahdia,35.5023,11.0622,""410,812"",Burial kits,""16,00"",Deceased migrants' families,""5,00"",Migrant fatalities,News,16 migrant bodies recovered off eastern coast,Al Jazeera";
+"2024-12-18,Sfax,34.7406,10.7603,""1,000,000"",Search & Rescue Equipment,""20,00"",Migrants at sea,""5,00"",Migrant boat disaster,Crisis,20 migrants died after boat sank off Sfax coast,Reuters";
+"2025-03-03,Offshore,N/A,N/A,N/A,Evacuation,""30,00"",Stranded migrants,""5,00"",Maritime distress,News,Migrants stranded on oil rig off Tunisia's coast,Reuters";
+"2024-09-30,Medenine,33.3549,10.5055,500,Search and Rescue Equipment,""15,00"",Migrants at sea,""5,00"",Migrant shipwreck,Crisis,Boat sank off Djerba coast"; casualties reported,Reuters (reuters.com)
+"2024-10-28,Mahdia,35.5023,11.0622,""410,812"",Burial kits,""16,00"",Deceased migrants' families,""5,00"",Migrant fatalities,News,16 migrant bodies recovered off eastern coast,Reuters (reuters.com)";
+"2024-12-18,Sfax,34.7406,10.7603,""1,000,000"",Search and Rescue Equipment,""20,00"",Migrants at sea,""5,00"",Migrant boat disaster,Crisis,20 migrants died after boat sank off Sfax coast,The New Arab (newarab.com)";
+"2024-12-30,Bizerte,37.2744,9.8739,""568,219"",Medical aid,""17,00"",Rescued migrants,""4,00"",Maritime distress,News,17 migrants rescued after boat breakdown"; 2 deceased,Maghrebi.org (maghrebi.org)
+"2025-01-15,Tunis,36.8065,10.1815,""2,500,000"",Shelter,""25,00"",Displaced families,""4,00"",Forced evictions,News,Authorities dismantle informal settlements,The Jordan Times (jordantimes.com)";
+"2025-01-20,Kef,36.1829,8.7144,""243,156"",Food,""400,00"",Vulnerable rural families,""3,00"",Food insecurity,Weather,Severe frost damages crops,OpenWeatherMap";
+"2025-02-05,Tozeur,33.9197,8.1335,""107,912"",Water,""500,00"",Nomadic communities,""4,00"",Drought,Weather,Prolonged drought conditions,WMO";
+"2025-02-28,Gafsa,34.4250,8.7842,""337,331"",Medical aid,""200,00"",Mining workers,""3,00"",Industrial accidents,News,Mining tunnel collapse injures workers,TAP News";
+"2025-03-10,Tataouine,32.9297,10.4518,""149,000"",Shelter,""50,00"",Nomad families displaced by desertification,""5,00"",Climate displacement,Crisis,Advancing desertification forces migrations,UNHCR";
+"2025-03-25,Kairouan,35.6781,10.0963,""570,559"",Clothing,""600,00"",Impoverished rural children,""3,00"",Poverty,Economy,Sharp drop in agricultural income,INS Tunisia";
+"2025-04-05,Monastir,35.7770,10.8262,""548,828"",Medical kits,""150,00"",Migrants rescued at sea,""5,00"",Maritime distress,Crisis,Boat engine failure rescue operation,Reuters";
+"2025-04-18,Djerba,33.8076,10.8450,""163,726"",Food,""300,00"",Shipwreck survivors,""5,00"",Migrant shipwreck,Crisis,Large wave overturns migrant boat,Migrant Watch Tunisia";
+"2025-04-25,Nabeul,36.4510,10.7357,""787,920"",Hygiene kits,""700,00"",Flood-displaced families,""4,00"",Flash floods,Weather,Unprecedented spring floods affect homes,OpenWeatherMap";
+"2025-05-10,Béja,36.7300,9.1900,""304,501"",Food,""450,00"",Flood-affected farmers,""4,00"",Flood damage,Weather,Heavy rainfall destroys farmland,OpenWeatherMap";
+"2025-05-28,Tunis,36.8065,10.1815,""2,500,000"",Psychological support,""200,00"",Displaced children,""4,00"",Urban displacement,Health,Increase in PTSD cases among displaced minors,WHO Tunisia";
+"2025-06-15,Kebili,33.7056,8.9690,""156,961"",Water,""600,00"",Nomadic communities,""5,00"",Severe drought,Weather,Third consecutive year of rainfall shortage,WMO";
+"2025-07-03,Kasserine,35.1676,8.8365,""478,000"",Child Protection Kits,""350,00"",Migrant children,""5,00"",Child vulnerability,Crisis,Unaccompanied minors found at border,UNICEF";
+"2025-07-18,Gabes,33.8815,10.0982,""380,000"",Medical kits,""250,00"",Heatwave-affected families,""4,00"",Extreme heat,Weather,Record-breaking temperatures in southern Tunisia,MET Office";
+"2025-08-07,Sousse,35.8256,10.6084,""674,971"",Temporary Shelter,""300,00"",Evicted families,""4,00"",Forced evictions,News,Mass evictions after real estate project launch,The Jordan Times";
+"2025-08-25,Ben Guerdane,33.1389,11.2244,""35,000"",Food,""700,00"",Border refugees,""5,00"",Border crisis,Crisis,Continued refugee arrival from neighboring countries,UNHCR";
+"2025-09-12,Sidi Bouzid,35.0382,9.4858,""429,912"",Water Purification Kits,""500,00"",Rural families,""4,00"",Water contamination,Health,Bacterial outbreak linked to unsafe water,MSF Tunisia";
+"2025-09-30,Mahdia,35.5023,11.0622,""410,812"",Burial kits,""20,00"",Shipwreck victims,""5,00"",Maritime disaster,News,Dozens drown in migrant shipwreck near Mahdia,Al Jazeera";
+"2025-10-15,Sfax,34.7406,10.7603,""1,000,000"",Rescue Boats,""10,00"",Maritime rescue teams,""5,00"",Migrant boat disasters,Crisis,Surge in Mediterranean crossings,Reuters";
+"2025-10-30,Le Kef,36.1829,8.7144,""243,156"",Medical aid,""300,00"",Low-income elderly,""3,00"",Aging and poverty,Economy,Spike in untreated chronic illnesses among seniors,INS Tunisia";
+"2025-11-12,Tozeur,33.9197,8.1335,""107,912"",Food,""500,00"",Desert communities,""4,00"",Drought-related famine,Weather,Failed harvests in oases,FAO";
+"2025-11-25,Bizerte,37.2744,9.8739,""568,219"",Psychological support,""150,00"",Migrants rescued at sea,""5,00"",Post-trauma distress,Health,Severe psychological trauma among shipwreck survivors,UNHCR";
+"2025-12-05,Zarzis,33.5034,11.1122,""80,000"",Tents,""100,00"",Shipwreck survivors,""5,00"",Migrant shipwrecks,Crisis,Boat capsize after storm near Zarzis,Migrant Watch Tunisia";
+"2025-12-20,Tunis,36.8065,10.1815,""2,500,000"",Winter Clothing,""600,00"",Displaced families,""4,00"",Cold wave,Weather,Unexpected winter storm hits capital,OpenWeatherMap";
+=======
 Date,Governorate,Latitude,Longitude,Population,Need Type,Quantity,Beneficiaries Type,Urgency,Common Crisis Type,External Data Type,External Event,Source
 2024-01-15,Medenine,33.3549,10.5055,500,Food,600,Syrian refugees,4,Refugee influx,Weather,Heavy rain disrupts camps,OpenWeatherMap
 2024-02-10,Sfax,34.7406,10.7603,1000000,Clothing,450,Sub-Saharan migrants,3,Homelessness,News,Arrests during migrant sweep,TAP News
@@ -166,3 +215,4 @@ Date,Governorate,Latitude,Longitude,Population,Need Type,Quantity,Beneficiaries 
 2026-06-22,Bizerte,37.2744,9.8739,143000,Protection,240,Migrant dock laborers,3,Exploitative work,Migration,Lack of oversight in hiring,ILO
 2026-06-25,Bizerte,37.2744,9.8739,143000,Cash support,190,Low-income families,2,Unemployment,Economy,Decline in seasonal tourism,UNHCR
 2026-06-28,Bizerte,37.2744,9.8739,143000,Nutrition,130,Children under 5,3,Micronutrient deficiencies,Health,Limited access to fresh produce,WFP
+>>>>>>> f9b0bacb64f099e2b8b25a89c28f0ae0b544b528

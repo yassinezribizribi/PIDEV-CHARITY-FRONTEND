@@ -1,3 +1,8 @@
+
+import { Association } from './association.interface';
+import { MissionRole } from './mission-role.interface';
+import { Participation } from './participation.interface';
+
 export enum MissionStatus {
   COMPLETED = 'COMPLETED',
   UPCOMING = 'UPCOMING',
@@ -5,7 +10,6 @@ export enum MissionStatus {
 }
 
 export interface Mission {
-  id?: number;
   idMission?: number;
   title: string;
   description: string;
@@ -13,17 +17,10 @@ export interface Mission {
   startDate: Date;
   endDate: Date;
   volunteerCount: number;
-  status?: MissionStatus;
-  associationId?: number;
-  partnerAssociationId?: number;
-  associationIds?: number[];
+  status: MissionStatus;
+  associationMission?: Association;
+  missionRoles?: MissionRole[];
   crisisId?: number;
-  createdAt: Date;
-  isJointMission?: boolean;
-  collaborators?: number[];
-  progress?: {
-    completedTasks: number;
-    totalTasks: number;
-    notes?: string;
-  };
+  participations?: Participation[];
+  missionLogoPath?: string;
 } 

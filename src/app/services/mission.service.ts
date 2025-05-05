@@ -1,34 +1,48 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable,throwError } from 'rxjs';
-import { Mission, MissionStatus } from '../interfaces/mission.interface';
+import { Mission } from '../interfaces/mission.interface';
 import { Router } from '@angular/router';
-import { tap, catchError } from 'rxjs/operators';
+import { MissionRole } from '../interfaces/mission-role.interface';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
-import { Partner } from '../models/partner.model';
+
+export interface ParticipationMissionDTO {
+    participationId: number;
+    missionTitle: string;
+    missionDescription: string;
+    location: string;
+    startDate: Date;
+    endDate: Date;
+    status: string;
+    roleName: string;
+    numberNeeded: number;
+    numberAccepted: number;
+    requiresValidation: boolean;
+}
+
+export interface ReviewParticipationDTO {
+    approve: boolean;
+    rejectionReason?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class MissionService {
   private apiUrl = environment.apiUrl + '/missions';
-  private currentAssociationId!: number;
 
-  constructor(
-    private http: HttpClient,
+  constructor(private http: HttpClient,
     private router: Router,
     private authService: AuthService
-  ) {
-    // Get the current association ID from auth service
-    this.authService.checkAssociation().subscribe(
-      (association) => {
-        if (association?.idAssociation) {
-          this.currentAssociationId = association.idAssociation;
-        }
-      }
-    );
-  }
+  ) {}
+// Method to get missions by association ID from the token
+getMissionsByAssociation(): Observable<Mission[]> {
+  const token = localStorage.getItem('auth_token');
+  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  
+  return this.http.get<Mission[]>(`${this.apiUrl}/my-missions`, { headers });
+}
 
   getMissions(): Observable<Mission[]> {
     const token = localStorage.getItem('auth_token');
@@ -48,37 +62,37 @@ export class MissionService {
     return this.http.get<Mission>(`${this.apiUrl}/get/${id}`, { headers });
   }
 
- // createMission(mission: Mission): Observable<Mission> {
-    //const token = localStorage.getItem('auth_token');
-    //const headers = new HttpHeaders()
-      //.set('Authorization', `Bearer ${token}`)
-     // .set('Content-Type', 'application/json');
+  createMission(
+    title: string,
+    description: string,
+    location: string,
+    startDate: Date,
+    endDate: Date,
+    status: string,
+    missionLogo?: File,
+    missionRoles?: MissionRole[]
+  ): Observable<Mission> {
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('location', location);
+    formData.append('startDate', startDate.toISOString().split('T')[0]);
+    formData.append('endDate', endDate.toISOString().split('T')[0]);
+    formData.append('status', status);
 
-    //return this.http.post<Mission>(`${this.apiUrl}/add`, mission, { headers });
-  //}
-
-  createMission(mission: Mission): Observable<Mission> {
-    const token = localStorage.getItem('auth_token');
-    console.log('Token utilisé:', token);
-
-    if (!token) {
-      this.router.navigate(['/login']);
-      return throwError(() => new Error('Token manquant'));
+    if (missionLogo) {
+      formData.append('missionLogo', missionLogo);
     }
 
-    const headers = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    };
+    if (missionRoles && missionRoles.length > 0) {
+      formData.append('missionRoles', JSON.stringify(missionRoles));
+    }
 
-    console.log('Headers envoyés:', headers);
-    console.log('Donation envoyée:', mission);
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.authService.getToken()}`
+    });
 
-    return this.http.post<Mission>(
-      `${this.apiUrl}/create`, 
-      mission,
-      { headers: new HttpHeaders(headers) }
-    );
+    return this.http.post<Mission>(`${this.apiUrl}/createmission`, formData, { headers });
   }
 
   updateMission(id: number, mission: Mission): Observable<Mission> {
@@ -111,237 +125,106 @@ getMissionsByLocation(location: string): Observable<Mission[]> {
   return this.http.get<Mission[]>(`${this.apiUrl}/by-location/${location}`, { headers });
 }
 
-  // Joint Mission Methods
-  createJointMission(missionData: Partial<Mission>, partnerId: number): Observable<Mission> {
+  // Method to review a volunteer
+  reviewVolunteer(id: number, isApprove: boolean, rejectionReason?: string): Observable<string> {
     const token = localStorage.getItem('auth_token');
-    if (!token) {
-      this.router.navigate(['/login']);
-      return throwError(() => new Error('Authentication token not found'));
-    }
-
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json');
 
-    // Ensure all required fields for a joint mission are set
-    const jointMissionData = {
-      ...missionData,
-      isJointMission: true,
-      associationId: this.currentAssociationId,
-      partnerAssociationId: partnerId,
-      status: MissionStatus.UPCOMING,
-      collaborators: [this.currentAssociationId, partnerId],
-      progress: {
-        completedTasks: 0,
-        totalTasks: missionData.progress?.totalTasks || 1,
-        notes: 'Joint mission initiated'
-      }
+    const request = {
+      approve: isApprove,
+      rejectionReason: rejectionReason
     };
 
-    console.log('Creating joint mission with data:', jointMissionData);
-
-    // First create the mission
-    return this.http.post<Mission>(`${this.apiUrl}/create`, jointMissionData, { headers }).pipe(
-      tap((mission) => {
-        if (mission.id) {
-          // Send invitation to partner association
-          this.sendJointMissionInvitation(mission.id, partnerId, headers).subscribe();
-          
-          // Update partnership metrics and check for tier upgrade
-          this.updatePartnershipMetrics(this.currentAssociationId, partnerId, {
-            jointMissionsCompleted: 1,
-            efficiencyImprovement: 5 // Base efficiency improvement for new joint mission
-          }).subscribe(() => {
-            // After updating metrics, check if we need to upgrade the tier
-            if (this.currentAssociationId && partnerId) {
-              this.checkAndUpgradeTier(this.currentAssociationId).subscribe();
-              this.checkAndUpgradeTier(partnerId).subscribe();
-            }
-          });
-        }
-      }),
-      catchError((error) => {
-        console.error('Joint mission creation error:', error);
-        if (error.status === 401) {
-          this.router.navigate(['/login']);
-          return throwError(() => new Error('Please log in to create a joint mission'));
-        }
-        return throwError(() => error);
-      })
-    );
+    return this.http.patch<string>(`${this.apiUrl}/volunteers/${id}/review`, request, { headers });
   }
 
-  // Add new method to check and upgrade tier
-  private checkAndUpgradeTier(associationId: number): Observable<void> {
+  // Method to upload CV
+  uploadCV(cvFile: File): Observable<string> {
     const token = localStorage.getItem('auth_token');
     const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json');
+      .set('Authorization', `Bearer ${token}`);
 
-    return this.http.post<void>(
-      `${environment.apiUrl}/associations/${associationId}/check-upgrade-tier`,
-      {},
-      { headers }
-    ).pipe(
-      catchError(error => {
-        console.error('Error checking/upgrading tier:', error);
-        return throwError(() => error);
-      })
-    );
+    const formData = new FormData();
+    formData.append('cvFile', cvFile);
+
+    return this.http.post<string>(`${this.apiUrl}/upload-cv`, formData, { headers });
   }
 
-  // New method to send joint mission invitation
-  private sendJointMissionInvitation(missionId: number, partnerId: number, headers: HttpHeaders): Observable<any> {
-    const invitationData = {
-      missionId,
-      partnerId,
-      senderId: this.currentAssociationId,
-      type: 'JOINT_MISSION_INVITATION',
-      status: 'PENDING'
-    };
-
-    return this.http.post(
-      `${this.apiUrl}/invitations/send`,
-      invitationData,
-      { headers }
-    ).pipe(
-      catchError(error => {
-        console.error('Error sending joint mission invitation:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  // Update the getJointMissions method to include proper filtering
-  getJointMissions(associationId: number): Observable<Mission[]> {
+  // Method to download CV
+  downloadCV(filename: string): Observable<Blob> {
     const token = localStorage.getItem('auth_token');
     const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json');
+      .set('Authorization', `Bearer ${token}`);
 
-    return this.http.get<Mission[]>(`${this.apiUrl}/joint/${associationId}`, { headers }).pipe(
-      tap(missions => {
-        console.log('Retrieved joint missions:', missions);
-      }),
-      catchError(error => {
-        console.error('Error fetching joint missions:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  inviteToJointMission(missionId: number): Observable<Mission> {
-    const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json');
-
-    return this.http.post<Mission>(
-      `${this.apiUrl}/${missionId}/invite`,
-      {},
-      { headers }
-    );
-  }
-
-  acceptJointMissionInvite(missionId: number): Observable<Mission> {
-    return this.http.post<Mission>(`${this.apiUrl}/joint/${missionId}/accept`, {}).pipe(
-      tap((mission) => {
-        if (mission.associationId && mission.partnerAssociationId) {
-          // Update both partnership scores and metrics
-          this.updatePartnershipMetrics(mission.associationId, mission.partnerAssociationId, {
-            jointMissionsCompleted: 1,
-            efficiencyImprovement: 5
-          }).subscribe(() => {
-            // After updating metrics, check if we need to upgrade the tier
-            if (mission.associationId && mission.partnerAssociationId) {
-              this.checkAndUpgradeTier(mission.associationId).subscribe();
-              this.checkAndUpgradeTier(mission.partnerAssociationId).subscribe();
-            }
-          });
-        }
-      })
-    );
-  }
-
-  leaveJointMission(missionId: number, associationId: number): Observable<void> {
-    const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json');
-
-    return this.http.delete<void>(
-      `${this.apiUrl}/${missionId}/leave/${associationId}`,
-      { headers }
-    );
-  }
-
-  getJointMissionMetrics(associationId: number): Observable<{
-    totalJointMissions: number;
-    completedJointMissions: number;
-    activeJointMissions: number;
-    totalPartnersCollaborated: number;
-    totalVolunteersEngaged: number;
-    impactScore: number;
-  }> {
-    const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json');
-
-    return this.http.get<any>(
-      `${this.apiUrl}/joint/${associationId}/metrics`,
-      { headers }
-    );
-  }
-
-  updateJointMissionProgress(missionId: number, progress: number): Observable<Mission> {
-    return this.http.put<Mission>(`${this.apiUrl}/joint/${missionId}/progress`, { progress }).pipe(
-      tap((mission) => {
-        if (mission.associationId && mission.partnerAssociationId && progress >= 100) {
-          // Additional score and efficiency improvement for completing the mission
-          this.updatePartnershipMetrics(mission.associationId, mission.partnerAssociationId, {
-            efficiencyImprovement: 10, // Additional efficiency gain for completing the mission
-            volunteersShared: mission.volunteerCount || 0
-          }).subscribe(() => {
-            // After updating metrics, check if we need to upgrade the tier
-            if (mission.associationId && mission.partnerAssociationId) {
-              this.checkAndUpgradeTier(mission.associationId).subscribe();
-              this.checkAndUpgradeTier(mission.partnerAssociationId).subscribe();
-            }
-          });
-        }
-      })
-    );
-  }
-
-  private updatePartnershipScores(associationId: number, partnerId: number): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/partnerships/update-scores`, {
-      associationId,
-      partnerId,
-      scoreIncrease: 5 // Base score for creating a joint mission
+    return this.http.get(`${this.apiUrl}/protected/files/${encodeURIComponent(filename)}`, {
+      headers,
+      responseType: 'blob'
     });
   }
 
-  getPartners(associationId: number): Observable<Partner[]> {
-    return this.http.get<Partner[]>(`${this.apiUrl}/associations/${associationId}/partners`);
-  }
-
-  // New method to update partnership metrics
-  private updatePartnershipMetrics(associationId: number, partnerId: number, metrics: {
-    jointMissionsCompleted?: number;
-    efficiencyImprovement?: number;
-    volunteersShared?: number;
-  }): Observable<void> {
+  // Method to apply to a mission role
+  applyToMissionRole(roleId: number): Observable<string> {
     const token = localStorage.getItem('auth_token');
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json');
 
-    return this.http.post<void>(`${this.apiUrl}/partnerships/${associationId}/${partnerId}/metrics`, metrics, { headers }).pipe(
-      catchError(error => {
-        console.error('Error updating partnership metrics:', error);
-        return throwError(() => error);
-      })
-    );
+    return this.http.post<string>(`${this.apiUrl}/mission-roles/${roleId}/apply`, {}, { 
+      headers,
+      responseType: 'text' as 'json' // This tells Angular to expect a text response
+    });
   }
+
+  // Method to get mission roles by mission ID
+  getMissionRolesByMissionId(missionId: number): Observable<any> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`);
+
+    return this.http.get<any>(`${this.apiUrl}/mission-roles/${missionId}`, { headers });
+  }
+
+  getMyMissionParticipations(): Observable<ParticipationMissionDTO[]> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+
+    return this.http.get<ParticipationMissionDTO[]>(`${this.apiUrl}/mine`, { headers });
+  }
+
+  cancelParticipation(participationId: number): Observable<void> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+
+    return this.http.delete<void>(`${this.apiUrl}/cancel/${participationId}`, { headers });
+  }
+
+  getCvFile(filename: string): Observable<Blob> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`);
+
+    return this.http.get(`${this.apiUrl}/protected/files/${filename}`, {
+      headers,
+      responseType: 'blob'
+    });
+  }
+
+  getMissionLogo(logoPath: string): Observable<Blob> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+
+    return this.http.get(`${this.apiUrl}/protected/files/${encodeURIComponent(logoPath)}`, {
+      responseType: 'blob',
+      headers
+    });
+  }
+
 } 

@@ -1,172 +1,168 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Mission, MissionStatus } from '../../interfaces/mission.interface';
+import { MissionRole } from '../../interfaces/mission-role.interface';
 import { MissionService } from '../../services/mission.service';
 import { AdminNavbarComponent } from '../admin/admin-navbar/admin-navbar.component';
-import { AssociationService } from '../../services/association.service';
-import { Association } from '../../interfaces/association.interface';
-import { AuthService } from '../../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
+
+interface MissionFormData {
+  title: string;
+  description: string;
+  location: string;
+  startDate: Date;
+  endDate: Date;
+  crisisId?: number;
+  missionRoles?: MissionRole[];
+}
 
 @Component({
   selector: 'app-association-mission-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AdminNavbarComponent],
+  imports: [CommonModule, FormsModule, AdminNavbarComponent],
   templateUrl: './association-mission-form.component.html',
   styleUrls: ['./association-mission-form.component.scss']
 })
-export class AssociationMissionFormComponent implements OnInit {
-  missionForm!: FormGroup;
-  missionStatuses: MissionStatus[] = Object.values(MissionStatus);
-  errorMessage: string = '';
-  partners: Association[] = [];
-  selectedPartnerId: number = 0;
-  currentAssociation: Association | null = null;
-  isJointMission: boolean = false;
-  isLoading: boolean = false;
+export class AssociationMissionFormComponent {
+  missionStatuses = Object.values(MissionStatus);
+  newRole: Partial<MissionRole> = {
+    roleName: '',
+    numberNeeded: 1,
+    numberAccepted: 0,
+    requiresValidation: false
+  };
+
+  mission: MissionFormData = {
+    title: '',
+    description: '',
+    location: '',
+    startDate: new Date(),
+    endDate: new Date(),
+    missionRoles: [],
+    crisisId: undefined
+  };
+
+  missionLogo?: File;
 
   submitted = false;
+  errorMessage = '';
 
   constructor(
-    private formBuilder: FormBuilder,
     private missionService: MissionService,
-    private associationService: AssociationService,
-    private authService: AuthService,
     private router: Router,
     private toastr: ToastrService
-  ) {
-    this.initializeForm();
-  }
+  ) {}
 
-  ngOnInit(): void {
-    this.loadCurrentAssociation();
-  }
-
-  private initializeForm(): void {
-    this.missionForm = this.formBuilder.group({
-      title: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      location: ['', [Validators.required]],
-      startDate: ['', [Validators.required]],
-      endDate: ['', [Validators.required]],
-      volunteerCount: [1, [Validators.required, Validators.min(1)]],
-      status: [MissionStatus.UPCOMING, [Validators.required]],
-      partnerId: [null],
-      isJointMission: [false]
-    }, {
-      validators: this.dateValidator
-    });
-  }
-
-  private dateValidator(group: FormGroup): {[key: string]: any} | null {
-    const start = group.get('startDate')?.value;
-    const end = group.get('endDate')?.value;
-    
-    if (start && end && new Date(end) < new Date(start)) {
-      return { 'dateInvalid': true };
-    }
-    return null;
-  }
-
-  private loadCurrentAssociation(): void {
-    this.isLoading = true;
-    this.authService.checkAssociation().subscribe({
-      next: (association) => {
-        this.currentAssociation = association;
-        if (association) {
-          this.loadPartners(association.idAssociation);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading association:', error);
-        this.errorMessage = 'Failed to load association details.';
-      },
-      complete: () => {
-        this.isLoading = false;
-      }
-    });
-  }
-
-  private loadPartners(associationId: number): void {
-    this.associationService.getPartners(associationId).subscribe({
-      next: (partners) => {
-        this.partners = partners;
-      },
-      error: (error) => {
-        console.error('Error loading partners:', error);
-        this.errorMessage = 'Failed to load partners.';
-      }
-    });
-  }
-
-  onPartnerSelect(partnerId: number): void {
-    this.selectedPartnerId = partnerId;
-    this.missionForm.patchValue({
-      partnerId: partnerId,
-      isJointMission: true
-    });
-    this.isJointMission = true;
-  }
-
-  isPartnerSelected(partnerId: number): boolean {
-    return this.selectedPartnerId === partnerId;
-  }
-
-  onSubmit(): void {
-    if (this.missionForm.valid && this.currentAssociation) {
-      const formData = this.missionForm.value;
-      
-      // Create the mission object with the required structure
-      const mission: Mission = {
-        title: formData.title,
-        description: formData.description,
-        location: formData.location,
-        startDate: new Date(formData.startDate),
-        endDate: new Date(formData.endDate),
-        volunteerCount: formData.volunteerCount,
-        status: formData.status,
-        isJointMission: this.isJointMission,
-        associationId: this.currentAssociation.idAssociation,
-        partnerAssociationId: this.isJointMission ? this.selectedPartnerId : undefined,
-        createdAt: new Date(),
-        progress: {
-          completedTasks: 0,
-          totalTasks: 1,
-          notes: 'Mission initialized'
-        }
+  addRole() {
+    if (this.newRole.roleName && this.newRole.numberNeeded) {
+      this.mission.missionRoles?.push({
+        idMissionRole: 0, // Temporary ID, will be set by backend
+        missionId: 0, // Will be set when mission is created
+        roleName: this.newRole.roleName || '',
+        numberNeeded: this.newRole.numberNeeded || 1,
+        numberAccepted: 0,
+        requiresValidation: this.newRole.requiresValidation || false
+      });
+      this.newRole = {
+        roleName: '',
+        numberNeeded: 1,
+        numberAccepted: 0,
+        requiresValidation: false
       };
-
-      if (this.isJointMission && this.selectedPartnerId) {
-        this.missionService.createJointMission(mission, this.selectedPartnerId).subscribe({
-          next: (response) => {
-            this.toastr.success('Joint mission created successfully!');
-            this.router.navigate(['/association/account']);
-          },
-          error: (error) => {
-            console.error('Error creating joint mission:', error);
-            this.toastr.error('Failed to create joint mission. Please try again.');
-          }
-        });
-      } else {
-        this.missionService.createMission(mission).subscribe({
-          next: (response) => {
-            this.toastr.success('Mission created successfully!');
-            this.router.navigate(['/association/account']);
-          },
-          error: (error) => {
-            console.error('Error creating mission:', error);
-            this.toastr.error('Failed to create mission. Please try again.');
-          }
-        });
-      }
-    } else {
-      this.toastr.error('Please fill in all required fields correctly.');
     }
   }
 
-  onCancel(): void {
+  removeRole(index: number) {
+    this.mission.missionRoles?.splice(index, 1);
+  }
+
+  onLogoChange(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      // Check file size (2MB limit)
+      if (file.size > 2 * 1024 * 1024) {
+        this.errorMessage = 'Le fichier est trop volumineux. La taille maximale est de 2MB.';
+        event.target.value = ''; // Clear the input
+        return;
+      }
+      // Check file type
+      if (!file.type.match(/image\/(jpeg|png)/)) {
+        this.errorMessage = 'Format de fichier non supporté. Utilisez JPG ou PNG.';
+        event.target.value = ''; // Clear the input
+        return;
+      }
+      this.missionLogo = file;
+      this.errorMessage = '';
+    }
+  }
+
+  onSubmit() {
+    this.submitted = true;
+    this.errorMessage = '';
+
+    const jwtToken = localStorage.getItem('auth_token');
+    if (!jwtToken) {
+      this.errorMessage = 'Authentication token not found';
+      this.submitted = false;
+      return;
+    }
+
+    // Validate required fields
+    if (!this.mission.title || !this.mission.description || !this.mission.location || !this.mission.startDate || !this.mission.endDate) {
+      this.errorMessage = 'Please fill in all required fields';
+      this.submitted = false;
+      return;
+    }
+
+    // Convert string dates to Date objects
+    const startDate = new Date(this.mission.startDate);
+    const endDate = new Date(this.mission.endDate);
+
+    // Validate dates
+    if (endDate < startDate) {
+      this.errorMessage = 'End date must be after start date';
+      this.submitted = false;
+      return;
+    }
+
+    console.log('Mission data to send:', {
+      title: this.mission.title,
+      description: this.mission.description,
+      location: this.mission.location,
+      startDate: startDate,
+      endDate: endDate,
+      status: MissionStatus.UPCOMING,
+      missionLogo: this.missionLogo,
+      missionRoles: this.mission.missionRoles
+    });
+
+    this.missionService.createMission(
+      this.mission.title,
+      this.mission.description,
+      this.mission.location,
+      startDate,
+      endDate,
+      MissionStatus.UPCOMING,
+      this.missionLogo,
+      this.mission.missionRoles
+    ).subscribe({
+      next: (response) => {
+        console.log('Mission created successfully:', response);
+        this.toastr.success('Mission created successfully!');
+        this.router.navigate(['/association/account']);
+      },
+      error: (error) => {
+        console.error('Error details:', error);
+        this.errorMessage = error.error?.message || 'Error while creating mission';
+        this.toastr.error(this.errorMessage);
+        this.submitted = false;
+      }
+    });
+  }
+
+  onCancel() {
     this.router.navigate(['/association/account']);
   }
-} 
+}

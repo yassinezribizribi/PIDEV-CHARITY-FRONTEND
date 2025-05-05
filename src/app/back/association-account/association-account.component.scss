@@ -936,3 +936,491 @@ $info-gradient: linear-gradient(45deg, #36b9cc 0%, #258391 100%);
     }
   }
 }
+
+// Extension Section Styles
+.extension-section {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  h5 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  .btn-primary {
+    background: linear-gradient(45deg, #2f55d4 0%, #224abe 100%);
+    border: none;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(47, 85, 212, 0.2);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.extension-suggestion {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+  .row {
+    margin-bottom: 1rem;
+  }
+
+  p {
+    margin-bottom: 0.5rem;
+    color: #4a5568;
+
+    strong {
+      color: #2d3748;
+      font-weight: 600;
+    }
+  }
+
+  .text-muted {
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .btn-success {
+    background: linear-gradient(45deg, #2dcb75 0%, #1a8b4f 100%);
+    border: none;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(45, 203, 117, 0.2);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-secondary {
+    background: #edf2f7;
+    color: #4a5568;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #e2e8f0;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Activity Details Card Styles
+.activity-details-card {
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  .card-header {
+    padding: 1.25rem;
+    border-bottom: none;
+    background: linear-gradient(45deg, #2f55d4 0%, #224abe 100%);
+
+    .activity-type-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+
+      &.type-mission {
+        background: rgba(45, 203, 117, 0.2);
+        color: #2dcb75;
+      }
+
+      &.type-donation {
+        background: rgba(47, 85, 212, 0.2);
+        color: #2f55d4;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+// Details Header
+.details-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+  .details-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+  }
+
+  .details-description {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+}
+
+// Details Grid
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .detail-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(47, 85, 212, 0.1);
+    border-radius: 50%;
+    color: #2f55d4;
+    font-size: 1.25rem;
+  }
+
+  .detail-content {
+    flex: 1;
+
+    .detail-label {
+      display: block;
+      font-size: 0.875rem;
+      color: #718096;
+      margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+      display: block;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #2d3748;
+
+      &.badge {
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Section Titles
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(47, 85, 212, 0.1);
+}
+
+// Mission Roles Table
+.mission-roles-section {
+  margin-top: 2rem;
+
+  .table {
+    background: white;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    thead {
+      background: rgba(47, 85, 212, 0.05);
+      
+      th {
+        font-weight: 600;
+        color: #2d3748;
+        border-bottom: none;
+        padding: 1rem;
+      }
+    }
+
+    tbody {
+      tr {
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: rgba(47, 85, 212, 0.02);
+        }
+
+        td {
+          padding: 1rem;
+          vertical-align: middle;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+          &.role-name {
+            font-weight: 600;
+            color: #2d3748;
+          }
+        }
+      }
+    }
+  }
+
+  .validation-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+}
+
+// Cagnotte Section
+.cagnotte-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+// Progress Bars
+.progress {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
+  height: 1rem;
+  overflow: hidden;
+
+  .progress-bar {
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Status Message Card
+.status-message-card {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  &.status-complete {
+    background: rgba(45, 203, 117, 0.1);
+    color: #2dcb75;
+  }
+
+  &.status-no_progress {
+    background: rgba(244, 106, 106, 0.1);
+    color: #f46a6a;
+  }
+
+  &.status-low_engagement {
+    background: rgba(241, 180, 76, 0.1);
+    color: #f1b44c;
+  }
+
+  &.status-on_track {
+    background: rgba(47, 85, 212, 0.1);
+    color: #2f55d4;
+  }
+
+  &.status-slow_progress {
+    background: rgba(45, 212, 191, 0.1);
+    color: #2dd4bf;
+  }
+
+  .status-message-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    i {
+      font-size: 1.5rem;
+    }
+
+    p {
+      margin: 0;
+      font-weight: 500;
+    }
+  }
+}
+
+// Activity Section Styles
+.activity-section {
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.activity-section-header {
+  padding: 1rem 1.5rem;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  
+  h6 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+  }
+}
+
+.activity-item {
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  
+  &.activity-urgent {
+    border-left-color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.05);
+    animation: pulseWarning 1.5s infinite;
+  }
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  
+  &.donation {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+  }
+  
+  &.mission {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+  }
+}
+
+// Filter Button Styles
+.btn-group {
+  .btn {
+    min-width: 80px;
+    
+    &.active {
+      background-color: #0d6efd;
+      color: white;
+      border-color: #0d6efd;
+    }
+  }
+}
+
+// Search Input Styles
+.input-group {
+  .input-group-text {
+    background-color: transparent;
+    border-right: none;
+  }
+  
+  .form-control {
+    border-left: none;
+    
+    &:focus {
+      box-shadow: none;
+      border-color: #ced4da;
+    }
+  }
+}
+
+// No Results Message
+.text-center {
+  i {
+    opacity: 0.5;
+  }
+}
+
+@keyframes pulseWarning {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+// Mission Image Styles
+.mission-image-container {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+  }
+}
+
+.mission-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}

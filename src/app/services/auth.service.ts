@@ -1,13 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, Subscriber, switchMap } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators';
-import { Router } from '@angular/router'; 
-import {Applicant } from '../models/job-application.model';
-import { User } from '../models/user.model';
-
-import { Association,AssociationStatus } from '../interfaces/association.interface';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { catchError, tap, map, switchMap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
+import { Applicant } from '../models/job-application.model';
+import { User } from '../models/user.model';
+import { Association } from '../interfaces/association.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,52 +15,60 @@ export class AuthService {
   private apiUrl = 'http://localhost:8089/api/auth/signin';
   private registerUrl = 'http://localhost:8089/api/auth/signup';
   private associationCheckUrl = 'http://localhost:8089/api/associations';
+  private tokenKey = 'auth_token';
 
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   private router = inject(Router);
+  private http = inject(HttpClient);
   private postLogoutRedirect: string | null = null;
   private tokenExpirationWarningTime = 300000;
 
-  constructor(private http: HttpClient) {
+  constructor() {
     this.checkAuthentication();
+    this.logStoredUserInfo();
   }
 
+  /** ✅ Vérifie si un token est présent */
+  private hasToken(): boolean {
+    return !!localStorage.getItem(this.tokenKey);
+  }
+
+  /** ✅ Vérifie l'authentification et la validité du token */
   private checkAuthentication(): void {
-    const token = localStorage.getItem('auth_token');
+    const token = this.getToken();
     if (token) {
       const decodedToken: any = jwtDecode(token);
       if (decodedToken.exp && this.isTokenExpired(decodedToken.exp)) {
         this.logout();
       } else {
-        this.isAuthenticatedSubject.next(true);  // Set authenticated to true if the token is valid
+        this.isAuthenticatedSubject.next(true);
       }
     }
   }
 
+  /** ✅ Vérifie si l'utilisateur est une association */
   checkAssociation(): Observable<Association | null> {
     const token = this.getToken();
     if (!token) {
       return of(null);
     }
   
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-  
-    return this.http.get<Association>(this.associationCheckUrl, { headers }).pipe(
-      catchError(() => {
-        return of(null);
-      })
+    return this.http.get<Association>(this.associationCheckUrl, { 
+      headers: this.getAuthHeaders() 
+    }).pipe(
+      catchError(() => of(null))
     );
   }
 
+  /** ✅ Vérifie si l'utilisateur est authentifié */
   isAuthenticated(): boolean {
     return this.isAuthenticatedSubject.value;
   }
 
+  /** ✅ Récupère les informations de l'utilisateur depuis le token */
   getUserInfo(): { email: string | null; idUser: number | null; role?: string } {
-    const token = localStorage.getItem('auth_token');
+    const token = this.getToken();
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
@@ -77,60 +84,66 @@ export class AuthService {
     return { email: null, idUser: null };
   }
 
+  /** ✅ Récupère l'utilisateur courant */
   getCurrentUser(): any {
-    return this.getUserInfo(); // Ou utilisez une autre méthode qui récupère les informations de l'utilisateur
+    return this.getUserInfo();
   }
-  
- // New method for role checking
- getUserRoles(): string[] {
-  const token = this.getToken();
-  if (!token) return [];
-  
-  try {
-    const decoded = jwtDecode(token) as any;
-    return decoded.roles || [];
-  } catch {
-    return [];
-  }
-}
 
-  // auth.service.ts
+  /** ✅ Récupère les rôles de l'utilisateur */
+  getUserRoles(): string[] {
+    const token = this.getToken();
+    if (!token) return [];
+    
+    try {
+      const decoded = jwtDecode(token) as any;
+      return decoded.roles || [];
+    } catch {
+      return [];
+    }
+  }
+
+  /** ✅ Connexion et redirection */
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post<LoginResponse>(this.apiUrl, credentials).pipe(
       tap(response => {
         if (response.token) {
-          localStorage.setItem('auth_token', response.token);
+          this.storeToken(response.token);
           this.isAuthenticatedSubject.next(true);
-  
+
           const userRoles = response.roles || [];
-  
+
           if (userRoles.includes('ROLE_ADMIN')) {
             this.router.navigate(['/app-admin-dashboard']);
           } else if (userRoles.includes('ROLE_ASSOCIATION_MEMBER')) {
             this.checkAssociation().subscribe(association => {
               if (association) {
-                this.router.navigate(['/association/account']); // Redirect to association account if association exists
+                this.router.navigate(['/association/account']);
               } else {
-                this.router.navigate(['/register-association']); // Redirect to register association if no association exists
+                this.router.navigate(['/register-association']);
               }
             });
           } else {
-            this.router.navigate(['/index']); // Redirect to default page for other roles
+            this.router.navigate(['/index']);
           }
         }
+      }),
+      catchError(error => {
+        console.error("❌ Erreur de connexion :", error);
+        return throwError(() => error);
       })
     );
   }
 
-
+  /** ✅ Inscription */
   register(userData: any): Observable<any> {
     return this.http.post<any>(this.registerUrl, userData, {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     });
   }
 
+  /** ✅ Récupère l'ID de l'utilisateur */
   getUserId(): number | null {
-    const token = localStorage.getItem('auth_token');
+    const token = this.getToken();
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
@@ -141,19 +154,23 @@ export class AuthService {
     }
     return null;
   }
-  // In AuthService
+
+  /** ✅ Récupère un utilisateur par son ID */
   getUserById(userId: number): Observable<Applicant> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<Applicant>(`http://localhost:8089/api/auth/user/${userId}`, { headers });
+    return this.http.get<Applicant>(
+      `http://localhost:8089/api/auth/user/${userId}`, 
+      { headers: this.getAuthHeaders() }
+    );
   }
+
+  /** ✅ Récupère le token */
   getToken(): string {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem(this.tokenKey);
       if (!token) {
         return '';
       }
 
-      // Validate token format
       const tokenParts = token.split('.');
       if (tokenParts.length !== 3) {
         console.error('Invalid token format in storage');
@@ -168,6 +185,7 @@ export class AuthService {
     }
   }
 
+  /** ✅ Récupère les headers d'authentification */
   getAuthHeaders(): HttpHeaders {
     const token = this.getToken();
     if (!token) {
@@ -178,54 +196,57 @@ export class AuthService {
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json');
   }
-  getUserName(): string | null {
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
-    return user?.fullName || null;
-  }
+
+  /** ✅ Récupère le nom complet de l'utilisateur */
+  getUserFullName(): string {
+    const token = this.getToken();
+    if (!token) return 'Inconnu';
   
-  getUserByEmail(email: string): Observable<Applicant> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<Applicant>(
-      `http://localhost:8089/api/auth/user/email/${email}`, 
-      { headers }
-    );}
-  
-  fetchData(): Observable<any> {
-    return this.http.get('http://localhost:8089/api/protected', {
-      headers: this.getAuthHeaders()
-    });
+    try {
+      const payload = jwtDecode(token) as any;
+      const firstName = payload.firstName || '';
+      const lastName = payload.lastName || '';
+      return `${firstName} ${lastName}`.trim();
+    } catch {
+      return 'Inconnu';
+    }
   }
 
-  // Logout method
+  /** ✅ Récupère un utilisateur par son email */
+  getUserByEmail(email: string): Observable<Applicant> {
+    return this.http.get<Applicant>(
+      `http://localhost:8089/api/auth/user/email/${email}`, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  /** ✅ Déconnexion */
   logout(): void {
-    localStorage.clear(); // Clear entire storage for safety
+    localStorage.clear();
     sessionStorage.clear();
-    
-    // Reset authentication state
     this.isAuthenticatedSubject.next(false);
     
-    // Redirect to login page after logout
     this.router.navigate(['/login'], { 
       replaceUrl: true,
       queryParams: { returnUrl: this.postLogoutRedirect },
       state: { clearHistory: true }
     }).then(() => {
-      window.location.reload(); // Force full page reload
+      window.location.reload();
     });
   }
 
-
+  /** ✅ Vérifie si le token est expiré */
   private isTokenExpired(expiration: number): boolean {
-    return expiration < Math.floor(Date.now() / 1000); // Compare with current time in seconds
+    return expiration < Math.floor(Date.now() / 1000);
   }
 
-  setToken(token: string): void {
+  /** ✅ Stocke le token */
+  storeToken(token: string): void {
     if (!token) {
       console.error('Attempted to set empty token');
       return;
     }
 
-    // Validate token format
     try {
       const tokenParts = token.split('.');
       if (tokenParts.length !== 3) {
@@ -233,47 +254,21 @@ export class AuthService {
         return;
       }
 
-      // Clean and store the token
       const cleanToken = token.trim();
-      localStorage.setItem('auth_token', cleanToken);
+      localStorage.setItem(this.tokenKey, cleanToken);
       this.isAuthenticatedSubject.next(true);
     } catch (error) {
       console.error('Error setting token:', error);
     }
   }
 
+  /** ✅ Supprime le token */
   removeToken(): void {
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem(this.tokenKey);
     this.isAuthenticatedSubject.next(false);
   }
 
-  decodeToken(token: string): { userId: number } | null {
-    try {
-      const decodedToken: any = jwtDecode(token);
-      return { userId: decodedToken.idUser || decodedToken.userId || decodedToken.sub || 0 };
-    } catch (error) {
-      return null;
-    }
-  }
-
-  getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`http://localhost:8089/api/auth/users`, {
-      headers: this.getAuthHeaders()
-    });
-  }
-
-  updateUser(user: User): Observable<any> {
-    return this.http.put(`${this.apiUrl}/update/${user.idUser}`, user, {
-      headers: this.getAuthHeaders()
-    });
-  }
-
-  deleteUser(userId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/delete/${userId}`, {
-      headers: this.getAuthHeaders()
-    });
-  }
-
+  /** ✅ Récupère l'image de profil */
   getProfileImage(userId: number): Observable<string | null> {
     const token = this.getToken();
     return this.getUserById(userId).pipe(
@@ -283,7 +278,6 @@ export class AuthService {
           return of(null);
         }
         
-        // Extract filename from the path
         const filename = imagePath.split('/').pop();
         if (!filename) {
           return of(null);
@@ -308,12 +302,64 @@ export class AuthService {
       })
     );
   }
+
+  /** ✅ Debug : Affiche les infos de l'utilisateur */
+  private logStoredUserInfo(): void {
+    console.log("🔑 Token actuel :", this.getToken());
+    console.log("👤 ID utilisateur :", this.getUserId());
+    console.log("🎭 Rôle utilisateur :", this.getUserRoles());
+  }
+
+  /** ✅ Récupère tous les utilisateurs */
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`http://localhost:8089/api/auth/users`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  /** ✅ Met à jour un utilisateur */
+  updateUser(user: User): Observable<any> {
+    return this.http.put(
+      `http://localhost:8089/api/auth/update/${user.idUser}`, 
+      user,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  /** ✅ Supprime un utilisateur */
+  deleteUser(userId: number): Observable<any> {
+    return this.http.delete(
+      `http://localhost:8089/api/auth/delete/${userId}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  /** ✅ Décode le token JWT */
+  decodeToken(token: string): any {
+    try {
+      return jwtDecode(token);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
+
+  /** ✅ Récupère le rôle de l'utilisateur */
+  getUserRole(): string {
+    const roles = this.getUserRoles();
+    return roles.length > 0 ? roles[0] : '';
+  }
+
+  /** ✅ Définit le token */
+  setToken(token: string): void {
+    this.storeToken(token);
+  }
 }
-// Update the LoginResponse interface to match actual API response
+
 interface LoginResponse {
   token: string;
   type: string;
   idUser: number;
-  roles: string[];  // 👈 Roles are at root level
-  user?: any;       // 👈 Keep this only if you actually receive user data
+  roles: string[];
+  user?: any;
 }

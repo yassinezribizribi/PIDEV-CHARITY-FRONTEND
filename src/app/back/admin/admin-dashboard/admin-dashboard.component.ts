@@ -29,7 +29,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 import Papa from 'papaparse';
-import { UserService } from '../../../services/user.service';
+import { PendingVolunteer, UserService } from '../../../services/user.service';
 
 Chart.register(...registerables);
 
@@ -66,7 +66,8 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('emailModal') emailModal: any;
   @ViewChild('bulkEmailModal') bulkEmailModal: any;
   @ViewChild('forecastChart') forecastChartRef!: ElementRef;
-  
+  @ViewChild('rejectionModal') rejectionModal: any;
+
   recipients: string = '';
   
   associations: Association[] = [];
@@ -121,6 +122,13 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   selectedJob: JobOffer | null = null;
   jobSearchTerm: string = '';
   
+  // Add these new properties
+  pendingVolunteers: PendingVolunteer[] = [];
+  selectedVolunteer: PendingVolunteer | null = null;
+  rejectionReason: string = '';
+  selectedVolunteerForRejection: PendingVolunteer | null = null;
+  volunteersLoading: boolean = false;
+
   private toastr = inject(ToastrService);
   private sanitizer = inject(DomSanitizer);
   private modalService = inject(NgbModal);
@@ -160,7 +168,8 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     private http: HttpClient,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private userService: UserService
   ) {
     this.emailForm = this.fb.group({
       to: ['', [Validators.required, Validators.email]],
@@ -180,6 +189,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     this.loadRequests();
     this.loadAvailableData();
     this.loadRecentActivities();
+    this.loadPendingVolunteers();
   }
 
   ngAfterViewInit() {
@@ -1395,4 +1405,98 @@ Admin Team`
   isUserImageLoading(userId: number | undefined): boolean {
     return userId ? this.userImageLoadingStates[userId] || false : false;
   }
+
+  loadPendingVolunteers(): void {
+    this.volunteersLoading = true;
+    this.userService.getPendingVolunteers().subscribe({
+      next: (volunteers) => {
+        this.pendingVolunteers = volunteers;
+        this.volunteersLoading = false;
+        if (volunteers.length === 0) {
+          this.toastr.info('No pending volunteers found');
+        }
+      },
+      error: (error) => {
+        console.error('Error loading pending volunteers:', error);
+        this.toastr.error('Failed to load pending volunteers. Please try again later.');
+        this.pendingVolunteers = [];
+        this.volunteersLoading = false;
+      }
+    });
+  }
+  openRejectionModal(volunteer: PendingVolunteer): void {
+    this.selectedVolunteerForRejection = volunteer;
+    this.rejectionReason = ''; // Clear any previous rejection reason
+    this.modalService.open(this.rejectionModal, {
+        ariaLabelledBy: 'modal-basic-title',
+        size: 'md'
+    });
+  }
+  viewCv(volunteer: PendingVolunteer): void {
+    if (!volunteer.idUser) {
+        this.toastr.warning('Invalid volunteer information');
+        return;
+    }
+    
+    if (!volunteer.cvFilePath) {
+        this.toastr.warning('This volunteer does not have a CV file uploaded.');
+        return;
+    }
+    
+    this.toastr.info('Loading CV...', 'Please wait');
+    try {
+        this.userService.viewCv(volunteer.idUser);
+    } catch (error) {
+        this.toastr.error('Failed to view CV. The file may not exist or the server could not access it.');
+        console.error('Error viewing CV:', error);
+    }
+  }
+
+  reviewVolunteer(volunteer: PendingVolunteer, approve: boolean): void {
+    this.userService.validateVolunteer(
+        volunteer.idUser,
+        approve,
+        approve ? undefined : this.rejectionReason
+    ).subscribe({
+        next: (response) => {
+            this.toastr.success(response.message);
+            this.loadPendingVolunteers();
+            this.rejectionReason = ''; // Clear the rejection reason after successful review
+        },
+        error: (error) => {
+            console.error('Error reviewing volunteer:', error);
+            this.toastr.error('Failed to review volunteer. Please try again.');
+        }
+    });
+  }
+  confirmRejection(modal: any): void {
+    if (!this.selectedVolunteerForRejection) {
+        this.toastr.warning('No volunteer selected for rejection');
+        return;
+    }
+
+    if (!this.rejectionReason.trim()) {
+        this.toastr.warning('Please provide a rejection reason');
+        return;
+    }
+
+    this.userService.validateVolunteer(
+        this.selectedVolunteerForRejection.idUser,
+        false,
+        this.rejectionReason
+    ).subscribe({
+        next: (response) => {
+            this.toastr.success(response.message);
+            this.loadPendingVolunteers();
+            this.rejectionReason = '';
+            this.selectedVolunteerForRejection = null;
+            modal.close();
+        },
+        error: (error) => {
+            console.error('Error rejecting volunteer:', error);
+            this.toastr.error('Failed to reject volunteer. Please try again.');
+        }
+    });
+  }
+
 }

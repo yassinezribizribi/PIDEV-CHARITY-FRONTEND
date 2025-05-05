@@ -27,6 +27,7 @@ export interface JobOffer {
     firstName: string;
     lastName: string;
     photo?: string | null;
+
     profileImage?: string | null;
     isBanned?: boolean;
     banreason?: string | null;

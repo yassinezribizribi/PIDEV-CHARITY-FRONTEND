@@ -28,6 +28,7 @@
                 <li class="has-submenu parent-menu-item" [ngClass]="['/home-item','/'].includes(menu) ? 'active' : ''">
                     <a [routerLink]="'/index'" (click)="setmanu('/home-item', $event)">Home</a>
                 </li>
+                <li [ngClass]="menu === '/user-dons' ? 'active' : ''"><a [routerLink]="'/user-dons'" class="sub-menu-item"> Dons list </a></li>
                 
                 <!-- New Link to blog-sidebar-copy -->
                 <li [ngClass]="menu === '/blog-sidebar-copy' ? 'active' : ''"><a [routerLink]="'/blog-sidebar-copy'" class="sub-menu-item"> misssions list </a></li>

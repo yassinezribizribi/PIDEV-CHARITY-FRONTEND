@@ -107,11 +107,11 @@ export class NotificationService {
 
     this.http.post<{token: string}>(`${environment.apiUrl}/auth/refresh`, { token: currentToken })
       .pipe(
-        tap(response => {
+        tap((response: {token: string}) => {
           this.authService.setToken(response.token);
           this.loadNotifications();
         }),
-      catchError(error => {
+        catchError((error: Error) => {
           this.authService.logout();
           return throwError(() => error);
         })
@@ -120,8 +120,11 @@ export class NotificationService {
 
   loadNotifications(): void {
     const headers = this.getHeaders();
+    console.log('Current token:', this.authService.getToken());
+    console.log('User roles:', this.authService.getUserRoles());
+    
     this.http.get<Notification[]>(`${this.apiUrl}`, { headers }).pipe(
-      tap(notifications => {
+      tap((notifications: Notification[]) => {
         this.notifications.next(notifications);
         this.updateUnreadCount(notifications);
       }),
@@ -131,7 +134,7 @@ export class NotificationService {
 
   getNotifications(): Observable<Notification[]> {
     return this.notifications.pipe(
-      map(notifications => notifications.map(notification => ({
+      map((notifications: Notification[]) => notifications.map((notification: Notification) => ({
         ...notification,
         sender: notification.sender || { username: 'System', idUser: 0 },
         timestamp: new Date(notification.timestamp)
@@ -148,7 +151,7 @@ export class NotificationService {
     return this.http.post<void>(`${this.apiUrl}/${notificationId}/read`, {}, { headers }).pipe(
       tap(() => {
         const currentNotifications = this.notifications.value;
-        const updatedNotifications = currentNotifications.map(notification => 
+        const updatedNotifications = currentNotifications.map((notification: Notification) => 
           notification.idNotification === notificationId 
             ? { ...notification, read: true }
             : notification
@@ -170,8 +173,8 @@ export class NotificationService {
     
     // Create an array of observables for marking each notification as read
     const markReadObservables = currentNotifications
-      .filter(notification => !notification.read)
-      .map(notification => 
+      .filter((notification: Notification) => !notification.read)
+      .map((notification: Notification) => 
         this.http.post<void>(
           `${this.apiUrl}/${notification.idNotification}/read`,
           {},
@@ -184,14 +187,14 @@ export class NotificationService {
       map(() => undefined),
       tap(() => {
         // Update all notifications as read in the local state
-        const updatedNotifications = currentNotifications.map(notification => ({
+        const updatedNotifications = currentNotifications.map((notification: Notification) => ({
           ...notification,
           read: true
         }));
         this.notifications.next(updatedNotifications);
         this.unreadCount.next(0);
       }),
-      catchError(error => {
+      catchError((error: Error) => {
         console.error('Error marking notifications as read:', error);
         return throwError(() => error);
       })
@@ -204,7 +207,7 @@ export class NotificationService {
       tap(() => {
         const currentNotifications = this.notifications.value;
         const updatedNotifications = currentNotifications.filter(
-          notification => notification.idNotification !== notificationId
+          (notification: Notification) => notification.idNotification !== notificationId
         );
         this.notifications.next(updatedNotifications);
         this.updateUnreadCount(updatedNotifications);
@@ -214,7 +217,7 @@ export class NotificationService {
   }
 
   private updateUnreadCount(notifications: Notification[]): void {
-    const unreadCount = notifications.filter(notification => !notification.read).length;
+    const unreadCount = notifications.filter((notification: Notification) => !notification.read).length;
     this.unreadCount.next(unreadCount);
   }
 
@@ -228,7 +231,7 @@ export class NotificationService {
   // Method to get notifications by type
   getNotificationsByType(type: string): Observable<Notification[]> {
     return this.notifications.pipe(
-      map(notifications => notifications.filter(notification => notification.type === type))
+      map((notifications: Notification[]) => notifications.filter((notification: Notification) => notification.type === type))
     );
   }
 
@@ -258,7 +261,7 @@ export class NotificationService {
     const userId = this.authService.getUserId();
     
     return this.http.get<RawMessageData[]>(`${this.apiUrl}/unread/${userId}`, { headers }).pipe(
-      map(messages => messages.map(message => {
+      map((messages: RawMessageData[]) => messages.map((message: RawMessageData) => {
         // Create base notification object
         const baseNotification: MessageNotification = {
           id: message.id,
@@ -277,7 +280,7 @@ export class NotificationService {
         // If we have a senderId, get the complete user information
         if (message.senderId) {
           return this.authService.getUserById(message.senderId).pipe(
-            map(user => ({
+            map((user: any) => ({
               ...baseNotification,
               senderAvatar: message.senderAvatar || 'assets/images/default-logo.jpg',
               senderName: `${user.firstName} ${user.lastName}`.trim() || user.email.split('@')[0],
@@ -295,8 +298,8 @@ export class NotificationService {
         return of(baseNotification);
       })),
       // Use forkJoin to wait for all user info requests to complete
-      mergeMap(observables => forkJoin(observables)),
-      tap(messages => {
+      mergeMap((observables: Observable<MessageNotification>[]) => forkJoin(observables)),
+      tap((messages: MessageNotification[]) => {
         this.messages.next(messages);
       }),
       catchError(this.handleError.bind(this))
@@ -308,7 +311,7 @@ export class NotificationService {
     return this.http.put<void>(`${this.apiUrl}/${messageId}/read`, {}, { headers }).pipe(
       tap(() => {
         const currentMessages = this.messages.value;
-        const updatedMessages = currentMessages.map(message =>
+        const updatedMessages = currentMessages.map((message: MessageNotification) =>
           message.id === messageId ? { ...message, read: true } : message
         );
         this.messages.next(updatedMessages);
@@ -357,7 +360,7 @@ export class NotificationService {
     }
     
     // Create an array of observables for marking each message as read
-    const markReadObservables = currentMessages.map(message => 
+    const markReadObservables = currentMessages.map((message: MessageNotification) => 
       this.http.put(`${this.apiUrl}/${message.id}/read`, {}, { headers })
     );
     
@@ -367,7 +370,7 @@ export class NotificationService {
         // Clear the messages array after all messages are marked as read
         this.messages.next([]);
       }),
-      catchError(error => {
+      catchError((error: Error) => {
         console.error('Error marking messages as read:', error);
         return throwError(() => error);
       })

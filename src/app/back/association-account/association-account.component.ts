@@ -13,8 +13,8 @@ import { AdminNavbarComponent } from '../admin/admin-navbar/admin-navbar.compone
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpClient } from '@angular/common/http';
-import { Donation } from 'src/app/interfaces/donation.interface';
-import { Mission } from 'src/app/interfaces/mission.interface';
+import { Donation, DonationStatus } from 'src/app/interfaces/donation.interface';
+import { Mission, MissionStatus } from 'src/app/interfaces/mission.interface';
 import { AssociationDonationService } from '../../services/association-donation.service';
 import { MissionService } from '../../services/mission.service';
 import { FormsModule } from '@angular/forms';
@@ -31,13 +31,21 @@ import confetti from 'canvas-confetti';
 import { CelebrationModalComponent } from '../../components/celebration-modal/celebration-modal.component';
 import { NgForm } from '@angular/forms';
 import { Modal } from 'bootstrap';
+import { Observable } from 'rxjs';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-interface Activity {
-  id: string;
-  type: 'donation' | 'case' | 'event' | 'member' | 'mission';
-  title: string;
-  description: string;
-  date: Date;
+// Add to interfaces section
+interface DonationExtensionSuggestion {
+  suggestedDays: number;
+  message: string;
+  donationProgress: number;
+  cagnotteProgress: number;
+  donationDailyAvg: number;
+  cagnotteDailyAvg: number;
+  donationRemaining: number;
+  cagnotteRemaining: number;
+  donationEstimatedDays: number;
+  cagnotteEstimatedDays: number;
 }
 
 interface PartnerAssociation extends Association {
@@ -46,6 +54,24 @@ interface PartnerAssociation extends Association {
 
 // Add these type definitions before the component class
 type TierLevel = 'BRONZE' | 'SILVER' | 'GOLD';
+
+interface Activity {
+  id: string;
+  type: 'donation' | 'case' | 'event' | 'member' | 'mission';
+  title: string;
+  description: string;
+  date: Date;
+  showDetails?: boolean;
+  donationDetails?: any;
+  missionDetails?: any;
+}
+
+interface DonationStatusInfo {
+  status: 'complete' | 'no_progress' | 'low_engagement' | 'on_track' | 'slow_progress';
+  message: string;
+  badge: string;
+  badgeClass: string;
+}
 
 @Component({
   selector: 'app-association-account',
@@ -164,6 +190,11 @@ metrics: {
   filterKey: string = "all";
   activitySearchTerm: string = '';
 
+  // Add to component class
+extensionSuggestions: { [donationId: number]: DonationExtensionSuggestion } = {};
+extensionLoadingStates: { [donationId: number]: boolean } = {};
+extensionSuccessMessages: { [donationId: number]: string } = {};
+
   // Add these properties to the component class after the existing properties
   showFireworks = false;
   autoUpgradeInProgress = false;
@@ -249,9 +280,16 @@ metrics: {
   // Add these properties at the class level
   private toastr: ToastrService;
 
+  activities: Activity[] = [];
+  selectedActivity: Activity | null = null;
+  showActivityDetails = false;
+
+  missionImageUrl: SafeUrl | null = null;
+  defaultMissionImage = '/assets/images/default-logo.jpg';
+
   constructor(
     private missionService: MissionService,
-    private donationService: AssociationDonationService,
+    private associationDonationService: AssociationDonationService,
     private authService: AuthService,
     private associationService: AssociationService,
     private aidService: AidService,
@@ -262,7 +300,8 @@ metrics: {
     private sanitizer: DomSanitizer,
     toastr: ToastrService,
     private modal: NgbModal,
-    private confettiService: ConfettiService
+    private confettiService: ConfettiService,
+    private formBuilder: FormBuilder
   ) {
     this.toastr = toastr;
   }
@@ -282,6 +321,7 @@ metrics: {
     this.loadMissions();
     this.loadJointMissions();
     this.loadPartnershipTier();
+    this.sortActivities();
   }
 
   // ============== LOADING METHODS ==============
@@ -365,12 +405,21 @@ metrics: {
         // Update statistics
         this.updateStatistics();
 
-        
+        // Log tier state for debugging
+        console.log('Tier State:', {
+          backendTier,
+          highestAchievedTier: this.highestAchievedTier,
+          effectiveTier,
+          storedHighestTier,
+          partnerCount: this.partners?.length
+        });
       }
     } catch (error) {
+      console.error('Failed to load partnership tier:', error);
       this.toastr.error('Failed to load partnership tier data');
     }
   }
+  
 
   // Update getTierInfo to respect partner count
   private getTierInfo(tier: string = 'BRONZE'): { 
@@ -511,6 +560,7 @@ metrics: {
       // Update statistics
       this.updateStatistics();
     } catch (error) {
+      console.error('Error refreshing data:', error);
       this.toastr.warning('Some data may not be up to date. Please refresh the page.');
     }
   }
@@ -736,6 +786,7 @@ loadImpactReport() {
     return intersection.size / union.size;
   }
 
+  // Add these methods to your AssociationAccountComponent class
 
   getTierClass(): string {
     const tier = this.currentTierDisplay;
@@ -756,38 +807,42 @@ calculateTierProgress(): number {
   return (score / nextThreshold) * 100;
 }
 
-  private loadDonations() {
-    this.donationService.getDonations().subscribe({
-      next: (donations) => {
-        this.donations = donations;
-        this.updateActivities();
-        this.updateStatistics();
-      },
-      error: (err) => console.error('Error loading donations:', err)
-    });
-  }
+private loadDonations() {
+  this.associationDonationService.getDonationsByAssociation().subscribe({
+    next: (donations) => {
+      console.log('Loaded donations:', donations);
+      this.donations = donations;
+      this.updateActivities();
+    },
+    error: (err) => {
+      console.error('Error loading donations:', err);
+    }
+  });
+}
 
-  private loadMissions() {
-    this.missionService.getMissions().subscribe({
-      next: (missions) => {
-        this.missions = missions;
-        this.updateActivities();
-        this.updateStatistics();
-      },
-      error: (err) => console.error('Error loading missions:', err)
-    });
-  }
+private loadMissions() {
+  this.missionService.getMissionsByAssociation().subscribe({
+    next: (missions) => {
+      this.missions = missions;
+      this.updateActivities();
+    },
+    error: (err) => {
+      console.error('Error loading missions:', err);
+    }
+  });
+}
 
+  // Add these new methods after the existing loadMissions method
   private loadJointMissions() {
     if (!this.association?.idAssociation) return;
 
-    this.missionService.getJointMissions(this.association.idAssociation).subscribe({
-      next: (missions) => {
+    this.missionService.getMissionsByAssociation().subscribe({
+      next: (missions: Mission[]) => {
         this.jointMissions = missions;
         this.loadJointMissionMetrics();
         this.updateActivities();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading joint missions:', error);
         this.toastr.error('Failed to load joint missions');
       }
@@ -797,9 +852,16 @@ calculateTierProgress(): number {
   private loadJointMissionMetrics() {
     if (!this.association?.idAssociation) return;
 
-    this.missionService.getJointMissionMetrics(this.association.idAssociation).subscribe({
-      next: (metrics) => {
-        this.jointMissionMetrics = metrics;
+    this.missionService.getMissionsByAssociation().subscribe({
+      next: (missions) => {
+        this.jointMissionMetrics = {
+          totalJointMissions: missions.length,
+          completedJointMissions: missions.filter(m => m.status === MissionStatus.COMPLETED).length,
+          activeJointMissions: missions.filter(m => m.status === MissionStatus.UPGOING).length,
+          totalPartnersCollaborated: this.partners.length,
+          totalVolunteersEngaged: missions.reduce((acc, m) => acc + (m.volunteerCount || 0), 0),
+          impactScore: this.calculateImpactScore(missions)
+        };
         this.updateStatistics();
       },
       error: (error) => {
@@ -809,8 +871,29 @@ calculateTierProgress(): number {
     });
   }
 
+  private calculateImpactScore(missions: Mission[]): number {
+    const completedMissions = missions.filter(m => m.status === MissionStatus.COMPLETED).length;
+    const totalMissions = missions.length;
+    const volunteerEngagement = missions.reduce((acc, m) => acc + (m.volunteerCount || 0), 0);
+    
+    return Math.round((completedMissions / totalMissions) * 50 + (volunteerEngagement / (totalMissions * 10)) * 50);
+  }
+
   createJointMission(mission: Mission) {
-    this.missionService.createJointMission(mission, this.selectedPartnerId).subscribe({
+    // Convert string dates to Date objects
+    const startDate = new Date(mission.startDate || new Date());
+    const endDate = new Date(mission.endDate || new Date());
+
+    this.missionService.createMission(
+      mission.title || '',
+      mission.description || '',
+      mission.location || '',
+      startDate,
+      endDate,
+      mission.status || MissionStatus.UPCOMING,
+      undefined,
+      mission.missionRoles || []
+    ).subscribe({
       next: (createdMission) => {
         this.jointMissions.push(createdMission);
         this.toastr.success('Joint mission created successfully');
@@ -825,9 +908,17 @@ calculateTierProgress(): number {
   }
 
   inviteToJointMission(missionId: number) {
-    this.missionService.inviteToJointMission(missionId).subscribe({
+    this.missionService.updateMission(missionId, { 
+      status: MissionStatus.UPCOMING,
+      title: '',
+      description: '',
+      location: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      volunteerCount: 0
+    } as Mission).subscribe({
       next: (updatedMission) => {
-        const index = this.jointMissions.findIndex(m => m.id === missionId);
+        const index = this.jointMissions.findIndex(m => m.idMission === missionId);
         if (index !== -1) {
           this.jointMissions[index] = updatedMission;
         }
@@ -843,7 +934,15 @@ calculateTierProgress(): number {
   acceptJointMissionInvite(missionId: number) {
     if (!this.association?.idAssociation) return;
 
-    this.missionService.acceptJointMissionInvite(missionId).subscribe({
+    this.missionService.updateMission(missionId, { 
+      status: MissionStatus.UPGOING,
+      title: '',
+      description: '',
+      location: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      volunteerCount: 0
+    } as Mission).subscribe({
       next: (updatedMission) => {
         this.jointMissions.push(updatedMission);
         this.toastr.success('Joint mission invitation accepted');
@@ -860,9 +959,17 @@ calculateTierProgress(): number {
   leaveJointMission(missionId: number) {
     if (!this.association?.idAssociation) return;
 
-    this.missionService.leaveJointMission(missionId, this.association.idAssociation).subscribe({
+    this.missionService.updateMission(missionId, { 
+      status: MissionStatus.COMPLETED,
+      title: '',
+      description: '',
+      location: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      volunteerCount: 0
+    } as Mission).subscribe({
       next: () => {
-        this.jointMissions = this.jointMissions.filter(m => m.id !== missionId);
+        this.jointMissions = this.jointMissions.filter(m => m.idMission !== missionId);
         this.toastr.success('Left joint mission successfully');
         this.loadJointMissionMetrics();
         this.updateActivities();
@@ -875,14 +982,23 @@ calculateTierProgress(): number {
   }
 
   updateProgress(missionId: number, progress: any) {
-    const progressPercentage = (progress.completedTasks / progress.totalTasks) * 100;
-    this.missionService.updateJointMissionProgress(missionId, progressPercentage).subscribe({
+    const missionUpdate: Mission = {
+      idMission: missionId,
+      title: '',
+      description: '',
+      location: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      volunteerCount: 0,
+      status: MissionStatus.UPGOING
+    };
+    
+    this.missionService.updateMission(missionId, missionUpdate).subscribe({
       next: (updatedMission) => {
-        const index = this.jointMissions.findIndex(m => m.id === missionId);
+        const index = this.jointMissions.findIndex(m => m.idMission === missionId);
         if (index !== -1) {
           this.jointMissions[index] = updatedMission;
         }
-        this.toastr.success('Mission progress updated');
         this.loadJointMissionMetrics();
       },
       error: (error) => {
@@ -1024,49 +1140,119 @@ calculateTierProgress(): number {
     const donationActivities: Activity[] = this.donations.map(donation => ({
       id: donation.idDonation?.toString() || '',
       type: 'donation',
-      title: 'New Donation',
+      title: donation.titre || 'New Donation',
       description: `Donation of type ${donation.donationType}`,
-      date: new Date(donation.lastUpdated)
+      date: new Date(donation.endDate),
+      donationDetails: donation
     }));
 
     const missionActivities: Activity[] = this.missions.map(mission => ({
       id: mission.idMission?.toString() || '',
       type: 'mission',
-      title: 'New Mission',
-      description: `Mission: ${mission.description}`,
-      date: new Date(mission.startDate)
+      title: mission.title || 'New Mission',
+      description: mission.description || '',
+      date: new Date(mission.endDate),
+      missionDetails: mission
     }));
 
     this.recentActivities = [...donationActivities, ...missionActivities];
-
-    this.jointMissions.forEach(mission => {
-      this.recentActivities.push({
-        id: mission.id?.toString() || '',
-        type: 'mission',
-        title: `Joint Mission: ${mission.title}`,
-        description: mission.description || '',
-        date: new Date(mission.createdAt)
-      });
-    });
-
-    this.recentActivities.sort((a, b) => b.date.getTime() - a.date.getTime());
+    this.sortActivities();
   }
 
-  sortActivities(order: 'newest' | 'oldest') {
-    this.recentActivities.sort((a, b) => 
-      order === 'newest' 
+  private sortActivities(order: 'newest' | 'oldest' = 'newest') {
+    this.recentActivities.sort((a, b) => {
+      // Prioritize eligible donations first
+      const aEligible = a.type === 'donation' && this.isDonationEligibleForExtension(a.donationDetails);
+      const bEligible = b.type === 'donation' && this.isDonationEligibleForExtension(b.donationDetails);
+
+      if (aEligible && !bEligible) return -1;
+      if (!aEligible && bEligible) return 1;
+
+      // For eligible donations, sort by end date (earliest first)
+      if (aEligible && bEligible) {
+        return a.date.getTime() - b.date.getTime();
+      }
+
+      // For non-donations, sort by date
+      return order === 'newest' 
         ? b.date.getTime() - a.date.getTime()
-        : a.date.getTime() - b.date.getTime()
-    );
+        : a.date.getTime() - b.date.getTime();
+    });
   }
 
+  public isDonationEligibleForExtension(donation: Donation): boolean {
+    const endDate = new Date(donation.endDate);
+    const today = new Date();
+    const daysRemaining = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    const donationIncomplete = (donation.quantiteDonnee || 0) < (donation.quantiteDemandee || 0);
+    const cagnotteIncomplete = donation.cagnotteenligne?.currentAmount !== undefined && 
+                              donation.cagnotteenligne?.goalAmount !== undefined &&
+                              donation.cagnotteenligne.currentAmount < donation.cagnotteenligne.goalAmount;
+
+    return daysRemaining <= 3 && (donationIncomplete || cagnotteIncomplete);
+  }
+
+  getExtensionSuggestion(donationId: number): void {
+    if (this.extensionLoadingStates[donationId]) return;
+
+    this.extensionLoadingStates[donationId] = true;
+    console.log('Fetching extension suggestion for donation:', donationId);
+
+    this.associationDonationService.suggestExtension(donationId).subscribe({
+      next: (suggestion: DonationExtensionSuggestion) => {
+        console.log('Received extension suggestion:', suggestion);
+        this.extensionSuggestions[donationId] = suggestion;
+        this.extensionLoadingStates[donationId] = false;
+      },
+      error: (error: any) => {
+        console.error('Error getting extension suggestion:', error);
+        this.extensionLoadingStates[donationId] = false;
+      }
+    });
+  }
+
+  applyExtension(donation: Donation): void {
+    if (!donation?.idDonation || !this.extensionSuggestions[donation.idDonation]) {
+      return;
+    }
+
+    const donationId = donation.idDonation;
+    const suggestedDays = this.extensionSuggestions[donationId].suggestedDays;
+    this.extensionLoadingStates[donationId] = true;
+
+    this.associationDonationService.prolongDonation(donationId, suggestedDays).subscribe({
+      next: (response) => {
+        this.extensionLoadingStates[donationId] = false;
+        this.dismissExtensionSuggestion(donationId);
+        this.toastr.success('Extension applied successfully! The donation period has been extended.', 'Success');
+        // Refresh the entire page
+        window.location.reload();
+      },
+      error: (error) => {
+        this.extensionLoadingStates[donationId] = false;
+        this.toastr.error('Failed to apply extension. Please try again.', 'Error');
+        console.error('Error applying extension:', error);
+      }
+    });
+  }
+
+  dismissExtensionSuggestion(donationId: number): void {
+    console.log('Dismissing extension suggestion for donation:', donationId);
+    delete this.extensionSuggestions[donationId];
+    delete this.extensionLoadingStates[donationId];
+  }
+
+  // ============== UI ENHANCEMENTS ==============
   get filteredActivities(): Activity[] {
     let activities = this.recentActivities;
     
+    // First filter by type if not "all"
     if (this.filterKey !== "all") {
       activities = activities.filter(a => a.type === this.filterKey);
     }
     
+    // Then filter by search term if present
     if (this.activitySearchTerm) {
       const term = this.activitySearchTerm.toLowerCase();
       activities = activities.filter(a => 
@@ -1075,7 +1261,15 @@ calculateTierProgress(): number {
       );
     }
     
-    return activities;
+    // Sort activities: donations first, then missions
+    return activities.sort((a, b) => {
+      // If both are donations or both are missions, sort by date
+      if (a.type === b.type) {
+        return b.date.getTime() - a.date.getTime(); // newest first
+      }
+      // Put donations before missions
+      return a.type === 'donation' ? -1 : 1;
+    });
   }
 
   getStatTooltip(statKey: string): string {
@@ -1093,7 +1287,31 @@ calculateTierProgress(): number {
     this.clearMessages();
     this.initializeComponent();
   }
+  toggleActivityDetails(activity: any) {
+    if (this.selectedActivity === activity) {
+      this.selectedActivity = null;
+      this.showActivityDetails = false;
+    } else {
+      this.selectedActivity = activity;
+      this.showActivityDetails = true;
+      
+      // Fetch extension suggestion when viewing a donation
+      if (activity.id_donation) {
+        this.getExtensionSuggestion(activity.id_donation);
+      }
+    }
+  }
 
+  getProgressPercentage(donation: Donation | null | undefined): number {
+    if (!donation || !donation.quantiteDemandee) return 0;
+    return (donation.quantiteDonnee / donation.quantiteDemandee) * 100;
+  }
+
+  convertToNumber(id: string | number): number {
+    return typeof id === 'string' ? parseInt(id, 10) : id;
+  }
+
+  // ============== NAVIGATION METHODS ==============
   onCreateDonation() {
     this.router.navigate(['/association/account/creedoantion']);
   }
@@ -1109,7 +1327,11 @@ calculateTierProgress(): number {
   onCreateEvent() {
     this.router.navigate(['/events/create']);
   }
+  onManageDons() {
+    this.router.navigate(['/validate-dons']);
+  }
 
+  // ============== ACTIVITY METHODS ==============
   getActivityIcon(type: string): string {
     const icons: { [key: string]: string } = {
       'donation': 'uil uil-heart-medical',
@@ -1123,49 +1345,28 @@ calculateTierProgress(): number {
   setActivityFilter(filterKey: string) {
     if (this.activityFilters.includes(filterKey)) {
       this.filterKey = filterKey;
+      // Reset search term when changing filter
+      this.activitySearchTerm = '';
     }
   }
 
+  // ============== ASSOCIATION METHODS ==============
   deleteAssociation() {
     if (this.association && this.association.idAssociation !== undefined) {
       if (confirm('Are you sure you want to delete this association? This action cannot be undone.')) {
-        // Check if user is authenticated first
-        if (!this.authService.isAuthenticated()) {
-          this.toastr.error('Please log in to perform this action');
-          this.router.navigate(['/login']);
-          return;
-        }
-
         this.associationService.deleteAssociation(this.association.idAssociation).subscribe({
-          next: (response) => {
-            // Handle both 200 and 204 responses
-            this.toastr.success('Association deleted successfully');
-            // Clear any stored data
-            localStorage.removeItem('highestAchievedTier');
-            localStorage.removeItem('partnershipTier');
-            // Logout and redirect
+          next: () => {
             this.authService.logout();
             this.router.navigate(['/associations']);
           },
-          error: (error) => {
-            console.error('Error deleting association:', error);
-            
-            // Handle specific error cases
-            if (error.status === 401) {
-              this.toastr.error('Your session has expired. Please log in again.');
-              this.authService.logout();
-              this.router.navigate(['/login']);
-            } else if (error.status === 403) {
-              this.toastr.error('You do not have permission to delete this association.');
-            } else {
-              this.toastr.error('Failed to delete association. Please try again.');
-            }
+          error: (err) => {
+            console.error('Error deleting association:', err);
+            this.error = 'Failed to delete association. Please try again.';
           }
         });
       }
     } else {
       console.error('Association ID is undefined');
-      this.toastr.error('Unable to delete association. Please try again.');
     }
   }
 
@@ -1194,8 +1395,8 @@ calculateTierProgress(): number {
       
         const nextTierInfo = this.getTierInfo(tierInfo.nextTier || '');
         
-        modalRef.componentInstance.title = `Upgrade from ${tierInfo.name} Tier`;
-        modalRef.componentInstance.message = `You've unlocked partnership capabilities with ${tierInfo.name} tier!`;
+        modalRef.componentInstance.title = `Upgrade to ${tierInfo.name} Tier`;
+        modalRef.componentInstance.message = `Unlock new partnership capabilities with ${tierInfo.name} tier!`;
         modalRef.componentInstance.benefits = nextTierInfo.benefits;
       modalRef.componentInstance.showUpgradeButton = true;
       modalRef.componentInstance.upgradeButtonText = 'Upgrade Now';
@@ -1283,26 +1484,49 @@ calculateTierProgress(): number {
 
   // Activity Management Methods
   onDeleteActivity(activity: Activity) {
-    if (confirm('Are you sure you want to delete this activity?')) {
-      // Remove from activities array
-      this.recentActivities = this.recentActivities.filter(a => a.id !== activity.id);
-      this.toastr.success('Activity deleted successfully');
+    if (activity.type === 'donation') {
+      this.deleteDonation(Number(activity.id));
+    } else if (activity.type === 'mission') {
+      this.deleteMission(activity.id);
     }
   }
 
   onEditActivity(activity: Activity) {
-    // Navigate to appropriate edit page based on activity type
-    switch (activity.type) {
-      case 'donation':
-        this.router.navigate(['/donations/edit', activity.id]);
-        break;
-      case 'mission':
-        this.router.navigate(['/missions/edit', activity.id]);
-        break;
-      default:
-        this.toastr.warning('Edit not available for this activity type');
+    if (activity.type === 'donation') {
+      this.editDonation(activity.id);
+    } else if (activity.type === 'mission') {
+      this.editMission(activity.id);
     }
   }
+  private deleteMission(id: string) {
+    const missionId = parseInt(id, 10);
+    if (confirm('Are you sure you want to delete this mission?')) {
+      this.clearMessages();
+      this.missionService.deleteMission(missionId).subscribe({
+        next: () => {
+          this.loadMissions();
+          this.partnershipSuccess = 'Mission deleted successfully';
+          setTimeout(() => this.partnershipSuccess = null, 3000);
+        },
+        error: (err) => {
+          console.error('Error deleting mission:', err);
+          this.partnershipError = 'Failed to delete mission';
+          setTimeout(() => this.partnershipError = null, 3000);
+        }
+      });
+    }
+  }
+
+  private editDonation(id: string) {
+    const donationId = parseInt(id, 10);
+    this.router.navigate(['/association/account/edit-donation', donationId]);
+  }
+
+  private editMission(id: string) {
+    const missionId = parseInt(id, 10);
+    this.router.navigate(['/association/account/edit-mission', missionId]);
+  }
+
 
   // Partnership Button Methods
   getPartnershipButtonTooltip(partner: Association): string {
@@ -1455,12 +1679,15 @@ calculateTierProgress(): number {
     });
   }
 
+  // Add method to check if partnership is disabled
   isPartnershipDisabled(partner: Association): boolean {
     if (!this.partners || !this.partnershipTier) return true;
     
+    // Check if already partnered
     const isAlreadyPartnered = this.partners.some(p => p.idAssociation === partner.idAssociation);
     if (isAlreadyPartnered) return true;
 
+    // Check if at max capacity
     return this.partners.length >= this.maxPartnerships;
   }
 
@@ -1470,8 +1697,10 @@ calculateTierProgress(): number {
     this.clearMessages();
     this.associationService.removePartnership(this.association.idAssociation, partnerId).subscribe({
       next: async (response) => {
+        // Get current partner count after removal
         const remainingPartners = (this.partners?.length || 1) - 1;
         
+        // Determine new tier based on remaining partners
         let newTier = 'BRONZE';
         if (remainingPartners > 5) {
           newTier = 'GOLD';
@@ -1479,6 +1708,7 @@ calculateTierProgress(): number {
           newTier = 'SILVER';
         }
         
+        // If no partners left, reset to BRONZE
         if (remainingPartners === 0) {
           if (this.association) {
             this.association.partnershipTier = 'BRONZE';
@@ -1522,29 +1752,35 @@ calculateTierProgress(): number {
       this.loading = true;
       await this.forceRefreshAllData();
       
+      // Clean up any modal artifacts
       document.body.classList.remove('modal-open');
       const backdrop = document.querySelector('.modal-backdrop');
       if (backdrop) backdrop.remove();
     } catch (error) {
+      console.error('Failed to refresh data after upgrade:', error);
       this.toastr.error('Please refresh the page to see all updates.');
     } finally {
       this.loading = false;
     }
   }
 
+  // Update the template to use nextTierName instead of getNextTierName
   public getNextTierName(): string {
     return this.nextTierName;
   }
 
+  // Add these methods
   openEditModal() {
     if (!this.association) return;
     
+    // Initialize edit data with current values
     this.editAssociationData = {
       associationName: this.association.associationName || '',
       description: this.association.description || '',
       associationAddress: this.association.associationAddress || ''
     };
 
+    // Open modal using Bootstrap
     const modalElement = document.getElementById('editAssociationModal');
     if (modalElement) {
       this.editModal = new bootstrap.Modal(modalElement);
@@ -1561,13 +1797,16 @@ calculateTierProgress(): number {
     const file = event.target.files[0];
     if (file) {
       try {
+        // Convert file to base64
         const base64 = await this.convertToBase64(file);
         
+        // Create the update data with the base64 image
         const updateData: Association = {
           ...this.association,
           associationLogoPath: base64
         };
 
+        // Update the association with the new logo
         const updatedAssociation = await this.associationService.updateAssociation(
           this.association.idAssociation,
           updateData
@@ -1581,6 +1820,7 @@ calculateTierProgress(): number {
           this.toastr.success('Logo updated successfully');
         }
       } catch (error) {
+        console.error('Error updating logo:', error);
         this.toastr.error('Failed to update logo');
       }
     }
@@ -1592,6 +1832,7 @@ calculateTierProgress(): number {
       reader.readAsDataURL(file);
       reader.onload = () => {
         if (typeof reader.result === 'string') {
+          // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
           const base64 = reader.result.split(',')[1];
           resolve(base64);
         } else {
@@ -1623,15 +1864,18 @@ calculateTierProgress(): number {
         status: this.association.status,
         partnershipTier: this.association.partnershipTier || 'BRONZE',
         partnershipScore: this.association.partnershipScore || 0,
+        // Add required fields with empty strings
         associationPhone: this.association.associationPhone || '',
         associationEmail: this.association.associationEmail || '',
+        // Set file paths to null
         associationLogoPath: null,
         registrationDocumentPath: null,
         legalDocumentPath: null
       };
 
-      console.log('Sending update data:', updateData); 
+      console.log('Sending update data:', updateData); // Debug log
 
+      // Send the update request
       const updatedAssociation = await this.associationService.updateAssociation(
         this.association.idAssociation,
         updateData as Association
@@ -1648,11 +1892,161 @@ calculateTierProgress(): number {
           this.editModal.hide();
         }
         this.toastr.success('Association profile updated successfully');
-        this.loadAssociation();
+        this.loadAssociation(); // Refresh the data
       }
     } catch (error: any) {
       console.error('Error updating association:', error);
       this.toastr.error('Failed to update association profile. Please try again.');
     }
+  }
+
+  onViewActivity(activity: Activity) {
+    this.selectedActivity = activity;
+    if (activity.type === 'donation') {
+      this.associationDonationService.getDonationById(Number(activity.id)).subscribe({
+        next: (donation: Donation) => {
+          if (this.selectedActivity) {
+            this.selectedActivity.donationDetails = donation;
+            // Fetch cagnotte details
+            this.associationDonationService.getCagnotteByDonationId(Number(activity.id)).subscribe({
+              next: (cagnotte) => {
+                if (this.selectedActivity) {
+                  this.selectedActivity.donationDetails.cagnotteenligne = cagnotte;
+                }
+              },
+              error: (error) => {
+                console.error('Error fetching cagnotte details:', error);
+              }
+            });
+          }
+        },
+        error: (error: any) => {
+          console.error('Error fetching donation details:', error);
+        }
+      });
+    } else if (activity.type === 'mission') {
+      this.missionService.getMissionById(Number(activity.id)).subscribe({
+        next: (mission: Mission) => {
+          if (this.selectedActivity) {
+            this.selectedActivity.missionDetails = mission;
+            // Load mission image
+            this.loadMissionImage(mission);
+            // Fetch mission roles
+            this.missionService.getMissionRolesByMissionId(Number(activity.id)).subscribe({
+              next: (roles) => {
+                if (this.selectedActivity) {
+                  this.selectedActivity.missionDetails.missionRoles = roles;
+                }
+              },
+              error: (error) => {
+                console.error('Error fetching mission roles:', error);
+              }
+            });
+          }
+        },
+        error: (error: any) => {
+          console.error('Error fetching mission details:', error);
+        }
+      });
+    }
+  }
+
+  private loadMissionImage(mission: Mission): void {
+    if (mission.missionLogoPath) {
+      this.missionService.getMissionLogo(mission.missionLogoPath).subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          this.missionImageUrl = this.sanitizer.bypassSecurityTrustUrl(url);
+        },
+        error: () => {
+          this.missionImageUrl = this.sanitizer.bypassSecurityTrustUrl(this.defaultMissionImage);
+        }
+      });
+    } else {
+      this.missionImageUrl = this.sanitizer.bypassSecurityTrustUrl(this.defaultMissionImage);
+    }
+  }
+
+  private deleteDonation(id: number): void {
+    this.associationDonationService.deleteDonation(id).subscribe({
+      next: () => {
+        this.toastr.success('Donation deleted successfully');
+        this.loadDonations();
+        this.loadMissions();
+      },
+      error: (error) => {
+        console.error('Error deleting donation:', error);
+        this.toastr.error('Failed to delete donation');
+      }
+    });
+  }
+
+  getPriorityLabel(priority: number): string {
+    switch (priority) {
+      case 1:
+        return 'Low';
+      case 2:
+        return 'Medium';
+      case 3:
+        return 'High';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  getDonationStatus(donation: Donation): { 
+    status: 'complete' | 'no_progress' | 'low_engagement' | 'on_track' | 'slow_progress',
+    badge: string,
+    badgeClass: string,
+    message: string
+  } {
+    const endDate = new Date(donation.endDate);
+    const today = new Date();
+    const daysRemaining = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const progress = (donation.quantiteDonnee || 0) / (donation.quantiteDemandee || 1);
+    const dailyProgress = progress / daysRemaining;
+
+    if (progress >= 1) {
+      return {
+        status: 'complete',
+        badge: 'Completed',
+        badgeClass: 'bg-success',
+        message: 'Donation goal has been reached!'
+      };
+    }
+
+    if (progress === 0) {
+      return {
+        status: 'no_progress',
+        badge: 'No Progress',
+        badgeClass: 'bg-danger',
+        message: 'No donations received yet'
+      };
+    }
+
+    if (dailyProgress < 0.1) {
+      return {
+        status: 'low_engagement',
+        badge: 'Low Engagement',
+        badgeClass: 'bg-warning',
+        message: 'Current progress is below expected rate'
+      };
+    }
+
+    if (dailyProgress >= 0.2) {
+      return {
+        status: 'on_track',
+        badge: 'On Track',
+        badgeClass: 'bg-success',
+        message: 'Progress is meeting expectations'
+      };
+    }
+
+    return {
+      status: 'slow_progress',
+      badge: 'Slow Progress',
+      badgeClass: 'bg-info',
+      message: 'Progress is steady but could be improved'
+    };
   }
 }
