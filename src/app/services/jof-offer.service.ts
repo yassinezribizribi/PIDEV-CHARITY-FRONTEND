@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-import { JobOffer } from '../models/job-offer.model';
+import { Observable, tap, map, catchError, of } from 'rxjs';
+import { JobOffer, JobOfferReport } from '../models/job-offer.model';
 import { JobApplication } from '../models/job-application.model';
 import { AuthService } from './auth.service';
 
@@ -31,7 +31,15 @@ export class JobOfferService {
   }
 
   // Create a new job offer
-  createJobOffer(jobOffer: JobOffer): Observable<JobOffer> {
+  createJobOffer(jobOffer: {
+    title: string;
+    description: string;
+    requirements: string;
+    active: boolean;
+    createdAt: string;
+    createdById: number;
+    forumId: number;
+  }): Observable<JobOffer> {
     return this.http.post<JobOffer>(this.apiUrl, jobOffer, { headers: this.getHeaders() });
   }
 
@@ -53,6 +61,74 @@ export class JobOfferService {
       { headers: this.getHeaders() }
     ).pipe(
       tap(response => console.log('Server Response:', response))
+    );
+  }
+
+  // Report a job offer
+  reportJobOffer(jobOfferId: number, reporterId: number): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/${jobOfferId}/report`,
+      null,
+      { 
+        headers: this.getHeaders(),
+        params: new HttpParams().set('reporterId', reporterId.toString())
+      }
+    ).pipe(
+      map(response => {
+        return {
+          success: true,
+          message: response
+        };
+      }),
+      catchError(error => {
+        console.error('Error reporting job offer:', error);
+        return of({
+          success: false,
+          message: error.error || 'Failed to report job offer'
+        });
+      })
+    );
+  }
+
+  // Get report count for a job offer
+  getJobOfferReportCount(jobOfferId: number): Observable<number> {
+    return this.http.get<number>(
+      `${this.apiUrl}/${jobOfferId}/reports`,
+      { 
+        headers: this.getHeaders(),
+        responseType: 'json' as const
+      }
+    ).pipe(
+      map(count => count || 0),
+      catchError(error => {
+        console.error('Error getting report count:', error);
+        return of(0);
+      })
+    );
+  }
+
+  // Get reports for a specific job offer
+  getJobOfferReports(jobOfferId: number): Observable<JobOfferReport[]> {
+    return this.http.get<JobOfferReport[]>(
+      `${this.apiUrl}/${jobOfferId}/reports`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Update report status
+  updateReportStatus(reportId: number, status: 'PENDING' | 'REVIEWED' | 'RESOLVED'): Observable<JobOfferReport> {
+    return this.http.put<JobOfferReport>(
+      `${this.apiUrl}/reports/${reportId}/status`,
+      { status },
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Get all reported job offers
+  getReportedJobOffers(): Observable<JobOffer[]> {
+    return this.http.get<JobOffer[]>(
+      `${this.apiUrl}/reported`,
+      { headers: this.getHeaders() }
     );
   }
 
@@ -83,5 +159,14 @@ export class JobOfferService {
   getApplicationsForJobOffer(jobOfferId: number): Observable<JobApplication[]> {
     const headers = this.getHeaders();
     return this.http.get<JobApplication[]>(`${this.apiUrll}/job-offer/${jobOfferId}`, { headers });
+  }
+
+  updateUser(user: { idUser: number; firstName: string; lastName: string; photo?: string | null; isBanned?: boolean; banreason?: string | null }) {
+    return this.http.put(`${this.apiUrl}/users/${user.idUser}/ban`, null, {
+      headers: this.authService.getAuthHeaders(),
+      params: new HttpParams()
+        .set('isBanned', user.isBanned?.toString() || 'false')
+        .set('banReason', user.banreason || '')
+    });
   }
 }

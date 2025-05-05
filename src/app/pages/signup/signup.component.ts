@@ -20,8 +20,8 @@ export class SignupComponent {
   constructor() {
     // Initialize the form with form controls and validators
     this.signupForm = new FormGroup({
-      firstname: new FormControl(''),
-      lastname: new FormControl(''),
+      firstName: new FormControl(''),
+      lastName: new FormControl(''),
       email: new FormControl(''),
       password: new FormControl(''),
       role: new FormControl('REFUGEE'),
@@ -33,34 +33,18 @@ export class SignupComponent {
   // Method for handling form submission
   register() {
     if (this.signupForm.valid) {
-      console.log("✅ Sending registration request:", this.signupForm.value);
-  
       this.signupService.register(this.signupForm.value).subscribe({
         next: (response) => {
-          console.log("✅ Registration successful:", response);
-  
-          // Check if the role is ASSOCIATION_MEMBER and navigate accordingly
           if (this.signupForm.value.role === 'ASSOCIATION_MEMBER') {
-            this.router.navigate(['/login']).then(() => {
-              console.log("✅ Navigation to register-association successful");
-            }).catch(err => {
-              console.error("❌ Navigation error:", err);
-            });
+            this.router.navigate(['/login']);
           } else {
-            // Redirect to login page if role is not ASSOCIATION_MEMBER
-            this.router.navigate(['/login']).then(() => {
-              console.log("✅ Navigation to login successful");
-            }).catch(err => {
-              console.error("❌ Navigation error:", err);
-            });
+            this.router.navigate(['/login']);
           }
         },
         error: (err) => {
-          console.error("❌ Registration failed:", err);
+          // Handle error silently
         }
       });
-    } else {
-      console.log("❌ Form is invalid:", this.signupForm.errors);
     }
   }
   

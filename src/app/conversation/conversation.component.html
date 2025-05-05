@@ -1,0 +1,270 @@
+<!-- conversation.component.html -->
+<app-navbar></app-navbar>
+
+<!-- Hero Section with Animated Gradient -->
+<section class="hero-section bg-gradient-animate">
+  <div class="container position-relative">
+    <div class="row justify-content-center py-8">
+      <div class="col-lg-10 text-center">
+        <h1 class="display-5 fw-bold text-white mb-4 animate-pop-in">Chat Conversation</h1>
+        <nav aria-label="breadcrumb" class="animate-slide-up">
+          <ol class="breadcrumb justify-content-center breadcrumb-pill">
+            <li class="breadcrumb-item"><a [routerLink]="'/'">Home</a></li>
+            <li class="breadcrumb-item active text-white-80" aria-current="page">Messages</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+      <path d="M0,0 C300,95 600,85 900,55 C1200,25 1440,35 1440,35 L1440,120 L0,120 Z"></path>
+    </svg>
+  </div>
+</section>
+
+<!-- Main Content -->
+<div class="container chat-container">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-9">
+      <div class="card chat-card shadow-lg">
+        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="avatar me-3">
+              <img [src]="participant2Avatar || 'assets/images/default-logo.jpg'" class="rounded-circle" alt="Participant" width="40" height="40">
+              <span class="online-status" *ngIf="isParticipantOnline"></span>
+            </div>
+            <div>
+              <h5 class="mb-0 fw-semibold">{{ participant2Name }}</h5>
+              <small class="text-muted" *ngIf="isParticipantOnline">Online now</small>
+              <small class="text-muted" *ngIf="!isParticipantOnline">Last seen {{ lastSeenTime }}</small>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-icon" (click)="toggleCallOptions()">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <div class="call-buttons" *ngIf="showCallOptions">
+              <button class="btn btn-success btn-icon" (click)="startVideoCall()">
+                <i class="bi bi-camera-video"></i>
+              </button>
+              <button class="btn btn-primary btn-icon" (click)="startVoiceCall()">
+                <i class="bi bi-telephone"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-0 position-relative">
+          <!-- Loading State -->
+          <div *ngIf="loading" class="chat-loading-overlay">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Messages Container -->
+          <div class="messages-container" #messagesContainer (scroll)="onScroll()">
+            <!-- Debug info -->
+            <div *ngIf="messages.length === 0" class="text-center text-muted my-3">
+              No messages yet
+            </div>
+            
+            <div *ngFor="let message of messages; let i = index" 
+                 class="message"
+                 [ngClass]="{
+                   'message-sent': message.senderId === currentUserId,
+                   'message-received': message.senderId !== currentUserId
+                 }"
+                 [attr.data-message-id]="message.id"
+                 [attr.data-sender-id]="message.senderId">
+              <div class="message-bubble">
+                <div class="message-header">
+                  <span class="sender-name" *ngIf="message.senderId !== currentUserId">
+                    {{ participantNames.get(message.senderId) || 'Unknown User' }}
+                  </span>
+                  <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
+                  <i class="bi bi-check2-all" *ngIf="message.read && message.senderId === currentUserId"></i>
+                </div>
+                <div class="message-content">
+                  <!-- Location Message -->
+                  <div *ngIf="message.location" class="location-message">
+                    <div class="map-preview">
+                      <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <a [href]="'https://maps.google.com/?q=' + message.location.latitude + ',' + message.location.longitude" 
+                       target="_blank" 
+                       class="location-link">
+                      View Location
+                    </a>
+                    <p class="location-address">{{ message.location.address }}</p>
+                  </div>
+
+                  <!-- Attachment Message -->
+                  <div *ngIf="message.attachment" class="attachment-message">
+                    <div class="attachment-preview" [ngClass]="{'image-preview': message.attachment.fileType.startsWith('image/')}">
+                      <ng-container *ngIf="message.attachment.fileType.startsWith('image/')">
+                        <div class="image-container">
+                          <img [src]="message.attachment.url" 
+                               [alt]="message.attachment.fileName"
+                               (error)="handleImageError($event)"
+                               class="img-fluid rounded"
+                               [class.broken-image]="!message.attachment.loaded">
+                          <div class="image-loading" *ngIf="!message.attachment.loaded">
+                            <div class="spinner-border text-primary" role="status">
+                              <span class="visually-hidden">Loading...</span>
+                            </div>
+                          </div>
+                        </div>
+                      </ng-container>
+                      <ng-container *ngIf="!message.attachment.fileType.startsWith('image/')">
+                        <div class="file-icon">
+                          <i class="bi" [ngClass]="getFileIcon(message.attachment.fileType)"></i>
+                        </div>
+                        <div class="attachment-info">
+                          <p class="file-name">{{ message.attachment.fileName }}</p>
+                          <p class="file-size">{{ formatFileSize(message.attachment.fileSize) }}</p>
+                        </div>
+                      </ng-container>
+                    </div>
+                    <a (click)="downloadFile(message.attachment)" class="download-link">
+                      <i class="bi bi-download"></i> Download
+                    </a>
+                  </div>
+
+                  <!-- Text Message -->
+                  <div *ngIf="!message.location && !message.attachment" class="text-message">
+                    {{ message.content }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message Input -->
+          <div class="message-input-container">
+            <form (ngSubmit)="sendMessage()" class="message-form">
+              <button type="button" class="btn btn-icon" (click)="toggleAttachments()">
+                <i class="bi bi-plus-circle"></i>
+              </button>
+              <div class="message-field">
+                <textarea [(ngModel)]="newMessage" 
+                          name="message" 
+                          placeholder="Type your message..."
+                          (keydown.enter)="sendMessage($event)"
+                          [disabled]="loading"></textarea>
+                <div class="attachments-menu" *ngIf="showAttachments">
+                  <button type="button" class="btn btn-attachment" (click)="shareLocation()">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Location</span>
+                  </button>
+                  <label class="btn btn-attachment">
+                    <i class="bi bi-image"></i>
+                    <span>Image</span>
+                    <input type="file" 
+                           accept="image/*" 
+                           (change)="onFileSelected($event)"
+                           style="display: none;">
+                  </label>
+                  <label class="btn btn-attachment">
+                    <i class="bi bi-file-earmark"></i>
+                    <span>File</span>
+                    <input type="file" 
+                           (change)="onFileSelected($event)"
+                           style="display: none;">
+                  </label>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-send" [disabled]="!newMessage.trim() || loading">
+                <i class="bi bi-send"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Call Modal -->
+<div class="modal fade" id="callModal" tabindex="-1" aria-hidden="true" [class.show]="showCallModal" [style.display]="showCallModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content call-modal-content">
+      <div class="modal-body p-0">
+        <div class="video-container">
+          <!-- Remote Video -->
+          <div class="remote-video-container">
+            <video #remoteVideo autoplay playsinline class="remote-video"></video>
+            <div class="video-overlay" *ngIf="!remoteStream">
+              <div class="call-avatar">
+                <img [src]="participant2Avatar || 'assets/images/default-logo.jpg'" class="rounded-circle" alt="Participant">
+                <div class="call-status-indicator" [ngClass]="{'ringing': callStatus === 'ringing' || callStatus === 'Incoming call...'}"></div>
+              </div>
+              <h3 class="mt-4 mb-1">{{ participant2Name }}</h3>
+              <p class="call-status-text">{{ callStatus }}</p>
+              <div class="call-timer">{{ callDuration }}</div>
+            </div>
+          </div>
+          
+          <!-- Local Video -->
+          <div class="local-video-container" *ngIf="callType === 'video'">
+            <video #localVideo autoplay playsinline muted class="local-video"></video>
+            <div class="video-controls">
+              <button class="btn btn-control btn-mute" (click)="toggleMute()">
+                <i class="bi" [ngClass]="isMuted ? 'bi-mic-mute-fill' : 'bi-mic-fill'"></i>
+              </button>
+              <button class="btn btn-control btn-camera" (click)="toggleCamera()">
+                <i class="bi" [ngClass]="isCameraOff ? 'bi-camera-video-off-fill' : 'bi-camera-video-fill'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="call-controls">
+          <!-- Incoming Call Controls (only show for receiver) -->
+          <div *ngIf="!isCaller && !isInCall && (callStatus === 'Incoming call...' || callStatus === 'ringing')" class="incoming-call-controls">
+            <button class="btn btn-control btn-accept" (click)="acceptCall()">
+              <i class="bi bi-telephone-fill"></i>
+            </button>
+            <button class="btn btn-control btn-reject" (click)="rejectCall()">
+              <i class="bi bi-telephone-x-fill"></i>
+            </button>
+          </div>
+          
+          <!-- Outgoing Call Controls (only show for caller) -->
+          <div *ngIf="isCaller && !isInCall && callStatus === 'ringing'" class="outgoing-call-controls">
+            <button class="btn btn-control btn-end-call" (click)="endCall()">
+              <i class="bi bi-telephone-x-fill"></i>
+            </button>
+          </div>
+          
+          <!-- Active Call Controls (show for both caller and receiver) -->
+          <div *ngIf="isInCall" class="active-call-controls">
+            <button class="btn btn-control btn-mute" (click)="toggleMute()">
+              <i class="bi" [ngClass]="isMuted ? 'bi-mic-mute-fill' : 'bi-mic-fill'"></i>
+            </button>
+            <button class="btn btn-control btn-end-call" (click)="endCall()">
+              <i class="bi bi-telephone-x-fill"></i>
+            </button>
+            <button class="btn btn-control btn-camera" (click)="toggleCamera()" *ngIf="callType === 'video'">
+              <i class="bi" [ngClass]="isCameraOff ? 'bi-camera-video-off-fill' : 'bi-camera-video-fill'"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="uploadProgress > 0" class="upload-progress">
+  <div class="progress">
+    <div class="progress-bar" 
+         role="progressbar" 
+         [style.width.%]="uploadProgress"
+         [attr.aria-valuenow]="uploadProgress" 
+         aria-valuemin="0" 
+         aria-valuemax="100">
+      {{ uploadProgress }}%
+    </div>
+  </div>
+</div>

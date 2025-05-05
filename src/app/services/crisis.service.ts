@@ -6,12 +6,14 @@ import { AuthService } from './auth.service'; // ✅ Assure-toi que c'est bien i
 export interface Crisis {
     id?: number;
     name: string;
-    description: string;
     location: string;
-    date: string;
-    idUser?: number;  // Ajoute cette ligne
-
-  }
+    description: string;
+    date?: Date;
+    idUser?: number;
+    affectedPeople?: number;
+    severity?: 'LOW' | 'MEDIUM' | 'HIGH';
+    status?: 'ACTIVE' | 'RESOLVED';
+}
 
 @Injectable({
   providedIn: 'root'

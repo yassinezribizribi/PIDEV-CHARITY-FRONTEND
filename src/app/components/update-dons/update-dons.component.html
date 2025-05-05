@@ -1,0 +1,137 @@
+<app-navbar></app-navbar>
+
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h4 class="mb-0">Update Donation</h4>
+    </div>
+    <div class="card-body">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        {{ error }}
+      </div>
+
+      <!-- Success State -->
+      <div *ngIf="success" class="alert alert-success" role="alert">
+        Donation updated successfully! Redirecting...
+      </div>
+
+      <!-- Form -->
+      <form *ngIf="!loading && !error && dons" (ngSubmit)="updateDons()">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="nomDoneur" class="form-label">First Name</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="nomDoneur" 
+              [(ngModel)]="dons.nomDoneur" 
+              name="nomDoneur" 
+              required
+            >
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="prenomDoneur" class="form-label">Last Name</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="prenomDoneur" 
+              [(ngModel)]="dons.prenomDoneur" 
+              name="prenomDoneur" 
+              required
+            >
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="donorEmail" class="form-label">Email</label>
+          <input 
+            type="email" 
+            class="form-control" 
+            id="donorEmail" 
+            [(ngModel)]="dons.donorEmail" 
+            name="donorEmail" 
+            required
+          >
+        </div>
+
+        <div class="mb-3">
+          <label for="quantite" class="form-label">Quantity</label>
+          <input 
+            type="number" 
+            class="form-control" 
+            id="quantite" 
+            [(ngModel)]="dons.quantite" 
+            name="quantite" 
+            required
+            min="1"
+          >
+        </div>
+
+        <div class="mb-3">
+          <label for="deliveryMethod" class="form-label">Delivery Method</label>
+          <select 
+            class="form-control" 
+            id="deliveryMethod" 
+            [(ngModel)]="dons.deliveryMethod" 
+            name="deliveryMethod" 
+            required
+          >
+            <option *ngFor="let method of deliveryMethods" [value]="method">
+              {{ method === 'DROP_OFF' ? 'Drop Off' : 'Pick Up' }}
+            </option>
+          </select>
+        </div>
+
+        <div class="mb-3" *ngIf="dons.deliveryMethod === 'PICK_UP'">
+          <label for="donorAddress" class="form-label">Address</label>
+          <textarea 
+            class="form-control" 
+            id="donorAddress" 
+            [(ngModel)]="dons.donorAddress" 
+            name="donorAddress" 
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="scheduledDateTime" class="form-label">Scheduled Date/Time</label>
+          <input 
+            type="datetime-local" 
+            class="form-control" 
+            id="scheduledDateTime" 
+            [(ngModel)]="dons.scheduledDateTime" 
+            name="scheduledDateTime"
+          >
+        </div>
+
+        <div class="mb-3">
+          <label for="donorNote" class="form-label">Note (Optional)</label>
+          <textarea 
+            class="form-control" 
+            id="donorNote" 
+            [(ngModel)]="dons.donorNote" 
+            name="donorNote" 
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-secondary me-2" (click)="cancel()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving">
+            <span *ngIf="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            {{ saving ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 
+<app-footer></app-footer>

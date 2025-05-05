@@ -24,6 +24,23 @@
                             <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
                             <div class="row">
+                                <!-- New Title Field -->
+                                <div class="col-12 mb-4">
+                                    <label class="form-label fw-bold">Titre de la mission <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        [(ngModel)]="mission.title" 
+                                        name="title" 
+                                        placeholder="Titre de la mission"
+                                        required
+                                        minlength="3"
+                                        #title="ngModel">
+                                    <div *ngIf="title.invalid && title.touched" class="text-danger">
+                                        Le titre est requis et doit comporter au moins 3 caractères.
+                                    </div>
+                                </div>
+
                                 <div class="col-12 mb-4">
                                     <label class="form-label fw-bold">Description de la mission <span class="text-danger">*</span></label>
                                     <textarea 
@@ -57,6 +74,17 @@
                                     </div>
                                 </div>
 
+                                <!-- New Crisis ID Field -->
+                                <div class="col-12 mb-4">
+                                    <label class="form-label fw-bold">ID de la crise (optionnel)</label>
+                                    <input 
+                                        type="number" 
+                                        class="form-control" 
+                                        [(ngModel)]="mission.crisisId" 
+                                        name="crisisId" 
+                                        placeholder="ID de la crise associée">
+                                </div>
+
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label fw-bold">Date de début <span class="text-danger">*</span></label>
                                     <input 
@@ -84,37 +112,61 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6 mb-4">
-                                    <label class="form-label fw-bold">Nombre de volontaires <span class="text-danger">*</span></label>
+                                <!-- Mission Logo Section -->
+                                <div class="col-12 mb-4">
+                                    <label class="form-label fw-bold">Logo de la mission (optionnel)</label>
                                     <input 
-                                        type="number" 
+                                        type="file" 
                                         class="form-control" 
-                                        [(ngModel)]="mission.volunteerCount" 
-                                        name="volunteerCount" 
-                                        min="1"
-                                        placeholder="Nombre de volontaires requis"
-                                        required
-                                        #volunteerCount="ngModel">
-                                    <div *ngIf="volunteerCount.invalid && volunteerCount.touched" class="text-danger">Le nombre de volontaires est requis.</div>
-                                    <div *ngIf="volunteerCount.value < 1 && volunteerCount.touched" class="text-danger">
-                                        Le nombre de volontaires doit être supérieur ou égal à 1.
-                                    </div>
+                                        (change)="onLogoChange($event)"
+                                        accept="image/*">
+                                    <small class="text-muted">Format accepté: JPG, PNG. Taille maximale: 2MB</small>
                                 </div>
 
+                                <!-- Mission Roles Section -->
                                 <div class="col-12 mb-4">
-                                    <label class="form-label fw-bold">Statut de la mission</label>
-                                    <select 
-                                        id="status"
-                                        name="status"
-                                        class="form-control"
-                                        [(ngModel)]="mission.status"
-                                        required
-                                        #status="ngModel">
-                                        <option *ngFor="let status of missionStatuses" [value]="status">
-                                            {{status}}
-                                        </option>
-                                    </select>
-                                    <div *ngIf="status.invalid && status.touched" class="text-danger">Le statut est requis.</div>
+                                    <label class="form-label fw-bold">Rôles de mission</label>
+                                    <div class="card mb-3" *ngFor="let role of mission.missionRoles; let i = index">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <strong>Nom du rôle:</strong> {{role.roleName}}
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <strong>Nombre requis:</strong> {{role.numberNeeded}}
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <strong>Validation requise:</strong> {{role.requiresValidation ? 'Oui' : 'Non'}}
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <button type="button" class="btn btn-sm btn-danger" (click)="removeRole(i)">Supprimer</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Ajouter un nouveau rôle</h6>
+                                            <div class="row g-3">
+                                                <div class="col-md-5">
+                                                    <input type="text" class="form-control" [(ngModel)]="newRole.roleName" name="newRoleName" placeholder="Nom du rôle">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <input type="number" class="form-control" [(ngModel)]="newRole.numberNeeded" name="newNumberNeeded" min="1" placeholder="Nombre requis">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" [(ngModel)]="newRole.requiresValidation" name="newRequiresValidation">
+                                                        <label class="form-check-label">Validation requise</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button" class="btn btn-primary" (click)="addRole()">Ajouter</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="col-12">

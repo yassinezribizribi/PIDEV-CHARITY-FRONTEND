@@ -10,6 +10,15 @@ import { AboutTwoComponent } from '../../components/about-two/about-two.componen
 import { HomeBannerComponent } from "../../components/home-banner/home-banner.component";
 import { AboutOneComponent } from '../../components/about-one/about-one.component';
 import { AboutOneComponentCopy } from '../about-one copy/about-one.component';
+import { jwtDecode } from 'jwt-decode';
+
+interface DecodedToken {
+    sub: string;         // usually user ID or email
+    firstName?: string;  // assuming your backend sends it
+    lastName?: string;
+    email?: string;
+    // add any other fields you have
+}
 
 @Component({
     selector: 'app-make-donation',
@@ -22,6 +31,8 @@ export class MakeDonationComponent implements OnInit {
     dons = {
         nomDoneur: '',
         prenomDoneur: '',
+        donorEmail: '',
+
         quantite: 1,
         scheduledDateTime: new Date(),
         associationValidated: true,
@@ -49,6 +60,19 @@ export class MakeDonationComponent implements OnInit {
                 this.idDonation = +id; // Convert string to number
             }
         });
+
+        // 👉 Auto-fill donor information if JWT is present
+        const token = localStorage.getItem('jwt');
+        if (token) {
+            try {
+                const decoded = jwtDecode<DecodedToken>(token);
+                if (decoded.firstName) this.dons.nomDoneur = decoded.firstName;
+                if (decoded.lastName) this.dons.prenomDoneur = decoded.lastName;
+                if (decoded.email) this.dons.donorEmail = decoded.email;
+            } catch (error) {
+                console.error('Erreur lors du décodage du token:', error);
+            }
+        }
     }
 
     incrementQuantity() {
@@ -98,6 +122,8 @@ export class MakeDonationComponent implements OnInit {
         this.dons = {
             nomDoneur: '',
             prenomDoneur: '',
+            donorEmail:'',
+
             quantite: 1,
             scheduledDateTime: new Date(),
             associationValidated: true,

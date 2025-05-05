@@ -27,3 +27,21 @@ export interface Donation {
     associationDonation?: any;         // Association linked to the donation (can be extended based on your needs)
     // imageUrl?: string;  // Optional image URL
 }
+export interface DonationSuggestionDTO {
+    campaignAverage: number | null;
+    todayAverage: number | null;
+    roundedSuggestion: number;
+  }
+  
+  interface DonationExtensionSuggestion {
+    suggestedDays: number;
+    message: string;
+    donationProgress: number;
+    cagnotteProgress: number;
+    donationDailyAvg: number;
+    cagnotteDailyAvg: number;
+    donationRemaining: number;
+    cagnotteRemaining: number;
+    donationEstimatedDays: number;
+    cagnotteEstimatedDays: number;
+  }

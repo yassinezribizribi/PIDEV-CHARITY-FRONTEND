@@ -2,7 +2,7 @@
 import { Component, TemplateRef, ViewChild, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ModalService, IModalConfig } from '../../services/modal.service';
+import { ModalService, IModalConfig, ModalAction, ModalData } from '../../services/modal.service';
 
 @Component({
   selector: 'app-modal',
@@ -10,13 +10,22 @@ import { ModalService, IModalConfig } from '../../services/modal.service';
   imports: [CommonModule],
   template: `
     <ng-template #modalTemplate>
-      <div class="modal-header">
-        <h4 class="modal-title">{{modalData?.title}}</h4>
-        <button type="button" class="btn-close" (click)="close()"></button>
+      <div class="modal-header" [innerHTML]="modalData?.title">
       </div>
       <div class="modal-body" [innerHTML]="modalData?.content"></div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+        <ng-container *ngIf="modalData?.actions?.length; else defaultActions">
+          <button *ngFor="let action of modalData?.actions"
+                  type="button"
+                  class="btn"
+                  [class]="action.class"
+                  (click)="handleAction(action)">
+            {{action.text}}
+          </button>
+        </ng-container>
+        <ng-template #defaultActions>
+          <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+        </ng-template>
       </div>
     </ng-template>
   `,
@@ -24,11 +33,14 @@ import { ModalService, IModalConfig } from '../../services/modal.service';
     .modal-body {
       white-space: pre-line;
     }
+    :host ::ng-deep .modal-header h4 {
+      margin: 0;
+    }
   `]
 })
 export class ModalComponent {
   @ViewChild('modalTemplate') modalTemplate!: TemplateRef<any>;
-  modalData: { title?: string; content?: string } | null = null;
+  modalData: ModalData | null = null;
   private modalRef: any;
 
   constructor(
@@ -36,13 +48,16 @@ export class ModalComponent {
     @Inject(NgbModal) private ngbModal: NgbModal
   ) {
     this.modalService.modal$.subscribe(config => {
-      if (config?.component === 'partner-details') {
+      if (config) {
+        const { title, content, actions, size } = config.data || {};
         this.modalData = {
-          title: config.data?.title,
-          content: config.data?.content
+          title,
+          content,
+          actions: actions as ModalAction[]
         };
         this.modalRef = this.ngbModal.open(this.modalTemplate, { 
-          size: config.data?.size || 'md' 
+          size: size || 'md',
+          centered: true
         });
       }
     });
@@ -53,5 +68,12 @@ export class ModalComponent {
       this.modalRef.close();
     }
     this.modalService.close();
+  }
+
+  handleAction(action: ModalAction) {
+    if (action.handler) {
+      action.handler();
+    }
+    this.close();
   }
 }

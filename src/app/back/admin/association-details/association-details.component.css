@@ -1,0 +1,260 @@
+/* Card Hover Effect */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+}
+
+/* Button Hover Effects */
+.hover-shadow {
+  transition: all 0.3s ease;
+}
+
+.hover-shadow:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+/* Status Badge Styles */
+.badge {
+  transition: all 0.3s ease;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+}
+
+/* Toast Animation */
+.toast {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Document Buttons */
+.btn-outline-primary {
+  border-width: 2px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover:not(:disabled) {
+  background-color: var(--bs-primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Loading Spinner Animation */
+.spinner-border {
+  animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Section Transitions */
+.section {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero Section Enhancement */
+.bg-half-170 {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-half-170::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4));
+  z-index: 1;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Card Content Animations */
+.card-body > div {
+  animation: slideUp 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Verification Buttons Enhancement */
+.btn-success, .btn-danger {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-success::after, .btn-danger::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-success:hover::after, .btn-danger:hover::after {
+  width: 200%;
+  height: 200%;
+}
+
+/* Logo Styles */
+.association-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.association-logo:hover {
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.status-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.status-text {
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+}
+
+/* Status-specific styles */
+.status-pending {
+  background: linear-gradient(135deg, #fff5e6, #fff);
+  border: 2px solid #ffa500;
+}
+
+.status-pending .status-icon {
+  background: rgba(255, 165, 0, 0.1);
+  color: #ffa500;
+}
+
+.status-pending .status-text {
+  color: #ffa500;
+}
+
+.status-approved {
+  background: linear-gradient(135deg, #e6ffe6, #fff);
+  border: 2px solid #28a745;
+}
+
+.status-approved .status-icon {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.status-approved .status-text {
+  color: #28a745;
+}
+
+.status-rejected {
+  background: linear-gradient(135deg, #ffe6e6, #fff);
+  border: 2px solid #dc3545;
+}
+
+.status-rejected .status-icon {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.status-rejected .status-text {
+  color: #dc3545;
+}
+
+.status-icon i {
+  font-size: 1.25rem;
+}
+
+/* Animation for status change */
+.status-badge {
+  animation: statusAppear 0.3s ease-out;
+}
+
+@keyframes statusAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} 

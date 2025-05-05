@@ -75,14 +75,7 @@
 
    
 
-          <!-- Last Updated -->
-          <div class="mb-3">
-            <label for="lastUpdated" class="form-label">Last Updated</label>
-            <input type="date" class="form-control" id="lastUpdated" formControlName="lastUpdated">
-            <div *ngIf="donationForm.get('lastUpdated')?.invalid && donationForm.get('lastUpdated')?.touched" class="text-danger">
-              Last updated date is required.
-            </div>
-          </div>
+       
 
           <!-- Donation Type -->
           <div class="mb-3">
@@ -92,6 +85,35 @@
             </select>
             <div *ngIf="donationForm.get('donationType')?.invalid && donationForm.get('donationType')?.touched" class="text-danger">
               Donation type is required.
+            </div>
+          </div>
+
+          <!-- End Date -->
+          <div class="mb-3">
+            <label for="endDate" class="form-label">End Date</label>
+            <input type="date" 
+                   class="form-control" 
+                   id="endDate" 
+                   formControlName="endDate"
+                   [min]="donation?.startDate | date:'yyyy-MM-dd'">
+            <div *ngIf="donationForm.get('endDate')?.invalid && donationForm.get('endDate')?.touched" class="text-danger">
+              <small *ngIf="donationForm.get('endDate')?.errors?.['required']">End date is required.</small>
+            </div>
+          </div>
+
+          <!-- Priority -->
+          <div class="mb-3">
+            <label for="priority" class="form-label">Priority</label>
+            <select class="form-control" id="priority" formControlName="priority">
+              <option *ngFor="let option of priorityOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+            <div *ngIf="donationForm.get('priority')?.invalid && donationForm.get('priority')?.touched" class="text-danger">
+              <small *ngIf="donationForm.get('priority')?.errors?.['required']">Priority is required.</small>
+              <small *ngIf="donationForm.get('priority')?.errors?.['min'] || donationForm.get('priority')?.errors?.['max']">
+                Priority must be between 1 and 4.
+              </small>
             </div>
           </div>
 

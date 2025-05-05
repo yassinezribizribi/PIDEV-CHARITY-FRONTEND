@@ -13,12 +13,19 @@ export interface StatusHistory {
   notes?: string;
 }
 
+// In your frontend models
 export interface JobApplication {
   idApplication: number;
   applicationDate: Date;
-  jobApplicationStatus: JobApplicationStatus;
+  status?: JobApplicationStatus;
   jobOfferId: number;
-  applicant: Applicant;
+  jobTitle?: string;
+  applicantId?: number;
+  applicantName?: string;
+  applicantEmail?: string;
+  applicantTelephone?: string;
+  jobApplicationStatus?: JobApplicationStatus;
+  applicant?: Applicant;
   statusHistory?: StatusHistory[];
 }
 
@@ -27,5 +34,14 @@ export interface Applicant {
   firstName: string;
   lastName: string;
   email: string;
-  telephone: string;
+  photo?: string | null;
+  isBanned: boolean;
+  banreason: string | null;
+  role?: string;  // Current role/position
+  skills?: string[];  // Array of skills
+  telephone?: string;  // Phone number
+  initialJob?: string;  // The job entered during signup
+  job?: string;  // Current job
+  profession?: string;  // Profession
+  occupation?: string;  // Occupation
 }

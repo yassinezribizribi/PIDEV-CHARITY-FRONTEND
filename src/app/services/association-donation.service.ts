@@ -1,7 +1,20 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core'; 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Donation, DonationType, CagnotteEnligne } from '../interfaces/donation.interface';
+
+interface DonationExtensionSuggestion {
+  suggestedDays: number;
+  message: string;
+  donationProgress: number;
+  cagnotteProgress: number;
+  donationDailyAvg: number;
+  cagnotteDailyAvg: number;
+  donationRemaining: number;
+  cagnotteRemaining: number;
+  donationEstimatedDays: number;
+  cagnotteEstimatedDays: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -11,32 +24,26 @@ export class AssociationDonationService {
 
   constructor(private http: HttpClient) {}
 
-  // getDonations(): Observable<Donation[]> {
-  //   const token = localStorage.getItem('auth_token');
-  //   const headers = new HttpHeaders()
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .set('Content-Type', 'application/json');
+  // Get all ACTIVE donations (sorted) — NO authentication required
+  getDonations(): Observable<Donation[]> {
+    return this.http.get<Donation[]>(`${this.apiUrl}/sorted-active`);
+  }
 
-  //   return this.http.get<Donation[]>(this.apiUrl, { headers });
-  // }
-
-  // Method to get donations by association ID from the token
+  // Authenticated endpoints below
   getDonationsByAssociation(): Observable<Donation[]> {
     const token = localStorage.getItem('auth_token');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     
     return this.http.get<Donation[]>(`${this.apiUrl}/my-donations`, { headers });
   }
-  
 
-  getDonations(): Observable<Donation[]> {
-    return this.http.get<Donation[]>(`${this.apiUrl}/getall`);
-  }
-  
   getDonationById(id: number): Observable<Donation> {
-    return this.http.get<Donation>(`${this.apiUrl}/get/${id}`);
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    
+    return this.http.get<Donation>(`${this.apiUrl}/get/${id}`, { headers });
   }
-  
+
   getCagnotteByDonationId(id: number): Observable<CagnotteEnligne> {
     return this.http.get<CagnotteEnligne>(`${this.apiUrl}/cagnotte/${id}`);
   }
@@ -74,8 +81,23 @@ export class AssociationDonationService {
   
     return this.http.get<Donation[]>(`${this.apiUrl}/find/${donationType}`, { headers });
   }
-  
 
+  suggestExtension(id: number): Observable<DonationExtensionSuggestion> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    
+    return this.http.get<DonationExtensionSuggestion>(`${this.apiUrl}/donation/${id}/suggest-extension`, { headers });
+  }
 
-
-} 
+  prolongDonation(id: number, daysToExtend: number): Observable<string> {
+    const token = localStorage.getItem('auth_token');
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+    
+    return this.http.post<string>(`${this.apiUrl}/donation/${id}/apply-extension`, 
+      { daysToExtend }, 
+      { headers }
+    );
+  }
+}

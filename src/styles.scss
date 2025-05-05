@@ -5,8 +5,10 @@
 // @import "primeng/resources/primeng.css";
 // @import "primeicons/primeicons.css";
 
-// ... rest of your styles
+// Import Bootstrap Icons
+@import "bootstrap-icons/font/bootstrap-icons.css";
 
+// ... rest of your styles
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

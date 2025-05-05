@@ -3,13 +3,15 @@ import { RouterLink, Router } from '@angular/router';
 import { Donation, DonationType, CagnotteEnligne } from '../../interfaces/donation.interface';
 import { AssociationDonationService } from 'src/app/services/association-donation.service'; 
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-causes',
     standalone: true,
     imports: [
         CommonModule,
-        RouterLink
+        RouterLink,    FormsModule
+
     ],
     templateUrl: './causes.component.html',
     styleUrl: './causes.component.scss'
@@ -38,6 +40,28 @@ export class CausesComponent implements OnInit {
       }
     });
   }
+// Angular helper function:
+getDaysLeft(donation: Donation): number {
+  const today = new Date();
+  const end = new Date(donation.endDate);
+  return Math.ceil((end.getTime() - today.getTime()) / (1000 * 3600 * 24));
+}
+selectedType: string = '';
+
+get filteredDonations() {
+  if (!this.selectedType) return this.donationsData;
+  return this.donationsData.filter(d => d.donationType === this.selectedType);
+}
+getDonationUrgencyClass(donation: any): string {
+  if (donation.urgent) return 'urgent-border'; // Always red if urgent
+
+  const days = this.getDaysLeft(donation);
+
+  if (days <= 3) return 'warning-border'; // Orange
+  if (days <= 7) return 'caution-border'; // Yellow
+  return 'safe-border'; // Green
+}
+
 
   getDonationProgress(donation: Donation): number {
     if (!donation.quantiteDemandee || donation.quantiteDemandee === 0) return 0;
