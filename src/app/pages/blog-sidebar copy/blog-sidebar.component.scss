@@ -1,0 +1,109 @@
+.mission {
+    background: #fff;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    margin-bottom: 1.5rem;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .mission-image {
+        height: 200px;
+        overflow: hidden;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+
+            &:hover {
+                transform: scale(1.05);
+            }
+        }
+    }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        border-radius: 50px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        display: block;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: #2f55d4;
+        }
+    }
+
+    .text-muted {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        i {
+            color: #2f55d4;
+        }
+    }
+
+    .read-more {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #2f55d4;
+        font-weight: 500;
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+
+        &:hover {
+            color: #224abe;
+            transform: translateX(5px);
+        }
+
+        i {
+            transition: transform 0.3s ease;
+        }
+
+        &:hover i {
+            transform: translateX(5px);
+        }
+    }
+}
+
+// Search input styles
+.form-control {
+    border: 1px solid #e2e8f0;
+    border-radius: 50px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+    &:focus {
+        border-color: #2f55d4;
+        box-shadow: 0 0 0 0.2rem rgba(47, 85, 212, 0.25);
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .mission {
+        .mission-image {
+            height: 150px;
+        }
+    }
+}

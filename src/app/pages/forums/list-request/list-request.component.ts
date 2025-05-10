@@ -1,34 +1,34 @@
-// src/app/components/list-request/list-request.component.ts
 import { Component, OnInit } from '@angular/core';
 import { RequestService } from '../../../services/request.service';
+import { ForumResponse } from '../../../models/Response.model';
 import { Request } from '../../../models/Request.model';
-import { Response } from '../../../models/Response.model';
 import { AuthService } from '../../../services/auth.service';
-import { NavbarComponent } from "../../../components/navbar/navbar.component";
-import { FormsModule } from '@angular/forms';
-import { FooterComponent } from "../../../components/footer/footer.component";
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { FooterComponent } from "../../../components/footer/footer.component";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NavbarComponent } from "../../../components/navbar/navbar.component";
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-list-request',
   templateUrl: './list-request.component.html',
   styleUrls: ['./list-request.component.scss'],
-  imports: [NavbarComponent, FormsModule, FooterComponent,CommonModule],
-  
-
+  imports: [FooterComponent, ReactiveFormsModule, FormsModule, NavbarComponent,CommonModule],
 })
-
 export class ListRequestComponent implements OnInit {
-  listRequests: Request[] = []; // Liste des demandes
+  requests: Request[] = [];
+  responses: ForumResponse[] = [];
+  filteredRequests: Request[] = []; // Liste des demandes filtrées
   newRequest: any = {
-    idRequest:0,
+    idRequest: 0,
     object: '',
     content: '',
     isUrgent: false,
     dateRequest: new Date(),
-  }; // Nouvelle demande
-  showForm: boolean = false; // Afficher/masquer le formulaire
+  };
+  showForm: boolean = false;
+  urgentFilter: string = ''; // Filtre par urgence
+  searchQuery: string = ''; // Recherche par texte
 
   constructor(
     private requestService: RequestService,
@@ -37,51 +37,67 @@ export class ListRequestComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadRequests(); // Charge les demandes au démarrage
+    this.loadRequests();
   }
 
-  // Charger toutes les demandes
   loadRequests(): void {
-    this.requestService.getAllRequests().subscribe({
-      next: (requests) => {
-        this.listRequests = requests; // Met à jour la liste des demandes
+    this.requestService.getAllRequestsWithResponses().subscribe({
+      next: (data) => {
+        this.requests = data;
       },
-      error: (err) => {
-        console.error('Error loading requests:', err);
+      error: (error) => {
+        console.error('Error loading requests:', error);
+      }
+    });
+  }
+
+  applyFilters(): void {
+    let filtered = this.requests;
+
+    // Filtre par urgence
+    if (this.urgentFilter !== '') {
+      filtered = filtered.filter(req => req.isUrgent.toString() === this.urgentFilter);
+    }
+
+    // Filtre par recherche
+    if (this.searchQuery) {
+      filtered = filtered.filter(req => req.object.toLowerCase().includes(this.searchQuery.toLowerCase()) || req.content.toLowerCase().includes(this.searchQuery.toLowerCase()));
+    }
+
+    this.filteredRequests = filtered;
+  }
+
+  addRequest(): void {
+    this.newRequest = {
+      dateRequest: new Date(),
+      object: this.newRequest.object,
+      content: this.newRequest.content,
+      isUrgent: this.newRequest.isUrgent,
+      forumId: 1
+    };
+
+    this.requestService.addRequest(this.newRequest).subscribe({
+      next: (addedRequest: Request) => {
+        this.requests.push(addedRequest);
+        this.applyFilters(); // Appliquer les filtres après l'ajout
+        this.showForm = false;
+      },
+      error: (err: any) => {
+        console.error('Error adding request:', err);
       },
     });
   }
 
-  // Ajouter une nouvelle demande
-  // Dans la méthode addRequest
-addRequest(): void {
-  this.newRequest = {
-        
-    "dateRequest":  new Date(),
-  "object": this.newRequest.object,
-  "content": this.newRequest.content,
-  "isUrgent": this.newRequest.isUrgent,
-  "forumId": 1
-  
-};
-  this.requestService.addRequest(this.newRequest).subscribe({
-    next: (addedRequest: Request) => { // Ajoutez le type Request
-      this.listRequests.push(addedRequest);
-      
-      this.showForm = false;
-    },
-    error: (err: any) => { // Ajoutez le type any ou un type spécifique
-      console.error('Error adding request:', err);
-    },
-  });
-}
-
-  // Afficher/masquer le formulaire
   test() {
-     this.showForm = !this.showForm;
-    console.log(this.showForm)
+    this.showForm = !this.showForm;
+    console.log(this.showForm);
   }
-  response(id:any){
-    this.router.navigateByUrl('support-refugees-forum/'+id)
+
+  response(id: any) {
+    this.router.navigateByUrl('support-refugees-forum/' + id);
+  }
+
+  openResponseModal(req: Request): void {
+    this.response(req.idRequest);
   }
 }

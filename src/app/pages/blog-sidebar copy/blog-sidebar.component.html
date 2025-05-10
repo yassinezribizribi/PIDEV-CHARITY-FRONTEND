@@ -49,7 +49,10 @@
                 <div class="position-relative">
                   <!-- Mission Image -->
                   <div class="mission-image position-relative overflow-hidden rounded shadow">
-                    <img [src]="mission.location" class="img-fluid" alt="Mission Image">
+                    <img [src]="getMissionImage(mission)" 
+                         class="img-fluid" 
+                         alt="Mission Image"
+                         (error)="mission.idMission && (missionImages[mission.idMission] = null)">
                   </div>
   
                   <div class="position-absolute top-100 start-0 translate-middle-y ms-2">

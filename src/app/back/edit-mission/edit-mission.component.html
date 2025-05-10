@@ -1,105 +1,105 @@
 <section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
-  <div class="bg-overlay bg-gradient-overlay"></div>
-  <div class="container">
-    <div class="row mt-5 justify-content-center">
-      <div class="col-12">
-        <div class="title-heading text-center">
-          <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Edit Mission</h5>
+    <div class="bg-overlay bg-gradient-overlay"></div>
+    <div class="container">
+      <div class="row mt-5 justify-content-center">
+        <div class="col-12">
+          <div class="title-heading text-center">
+            <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Edit Mission</h5>
+          </div>
         </div>
       </div>
     </div>
+  </section>
+  
+  <div class="position-relative">
+    <div class="shape overflow-hidden text-white">
+      <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+      </svg>
+    </div>
   </div>
-</section>
-
-<div class="position-relative">
-  <div class="shape overflow-hidden text-white">
-    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
-    </svg>
-  </div>
-</div>
-
-<section class="section">
-  <div class="container">
-    <!-- Loading State -->
-    <div *ngIf="loading" class="text-center p-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+  
+  <section class="section">
+    <div class="container">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+  
+      <!-- Error State -->
+      <div *ngIf="error" class="alert alert-danger">
+        {{error}}
+      </div>
+  
+      <!-- Edit Mission Form -->
+      <div *ngIf="mission && !loading" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <form [formGroup]="missionForm" (ngSubmit)="onSubmit()">
+            <!-- Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" formControlName="description" rows="3"></textarea>
+              <div *ngIf="missionForm.get('description')?.invalid && missionForm.get('description')?.touched" class="text-danger">
+                Description is required.
+              </div>
+            </div>
+  
+            <!-- Location -->
+            <div class="mb-3">
+              <label for="location" class="form-label">Location</label>
+              <input type="text" class="form-control" id="location" formControlName="location">
+              <div *ngIf="missionForm.get('location')?.invalid && missionForm.get('location')?.touched" class="text-danger">
+                Location is required.
+              </div>
+            </div>
+  
+            <!-- Start Date -->
+            <div class="mb-3">
+              <label for="startDate" class="form-label">Start Date</label>
+              <input type="date" class="form-control" id="startDate" formControlName="startDate">
+              <div *ngIf="missionForm.get('startDate')?.invalid && missionForm.get('startDate')?.touched" class="text-danger">
+                Start date is required.
+              </div>
+            </div>
+  
+            <!-- End Date -->
+            <div class="mb-3">
+              <label for="endDate" class="form-label">End Date</label>
+              <input type="date" class="form-control" id="endDate" formControlName="endDate">
+              <div *ngIf="missionForm.get('endDate')?.invalid && missionForm.get('endDate')?.touched" class="text-danger">
+                End date is required.
+              </div>
+            </div>
+  
+            <!-- Volunteer Count -->
+            <div class="mb-3">
+              <label for="volunteerCount" class="form-label">Volunteer Count</label>
+              <input type="number" class="form-control" id="volunteerCount" formControlName="volunteerCount">
+              <div *ngIf="missionForm.get('volunteerCount')?.invalid && missionForm.get('volunteerCount')?.touched" class="text-danger">
+                Volunteer count is required and must be at least 1.
+              </div>
+            </div>
+  
+            <!-- Status -->
+            <div class="mb-3">
+              <label for="status" class="form-label">Status</label>
+              <select class="form-control" id="status" formControlName="status">
+                <option *ngFor="let status of missionStatusOptions" [value]="status">{{ status }}</option>
+              </select>
+              <div *ngIf="missionForm.get('status')?.invalid && missionForm.get('status')?.touched" class="text-danger">
+                Status is required.
+              </div>
+            </div>
+  
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="missionForm.invalid">Save Changes</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-
-    <!-- Error State -->
-    <div *ngIf="error" class="alert alert-danger">
-      {{error}}
-    </div>
-
-    <!-- Edit Mission Form -->
-    <div *ngIf="mission && !loading" class="card border-0 shadow-sm">
-      <div class="card-body">
-        <form [formGroup]="missionForm" (ngSubmit)="onSubmit()">
-          <!-- Description -->
-          <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" formControlName="description" rows="3"></textarea>
-            <div *ngIf="missionForm.get('description')?.invalid && missionForm.get('description')?.touched" class="text-danger">
-              Description is required.
-            </div>
-          </div>
-
-          <!-- Location -->
-          <div class="mb-3">
-            <label for="location" class="form-label">Location</label>
-            <input type="text" class="form-control" id="location" formControlName="location">
-            <div *ngIf="missionForm.get('location')?.invalid && missionForm.get('location')?.touched" class="text-danger">
-              Location is required.
-            </div>
-          </div>
-
-          <!-- Start Date -->
-          <div class="mb-3">
-            <label for="startDate" class="form-label">Start Date</label>
-            <input type="date" class="form-control" id="startDate" formControlName="startDate">
-            <div *ngIf="missionForm.get('startDate')?.invalid && missionForm.get('startDate')?.touched" class="text-danger">
-              Start date is required.
-            </div>
-          </div>
-
-          <!-- End Date -->
-          <div class="mb-3">
-            <label for="endDate" class="form-label">End Date</label>
-            <input type="date" class="form-control" id="endDate" formControlName="endDate">
-            <div *ngIf="missionForm.get('endDate')?.invalid && missionForm.get('endDate')?.touched" class="text-danger">
-              End date is required.
-            </div>
-          </div>
-
-          <!-- Volunteer Count -->
-          <div class="mb-3">
-            <label for="volunteerCount" class="form-label">Volunteer Count</label>
-            <input type="number" class="form-control" id="volunteerCount" formControlName="volunteerCount">
-            <div *ngIf="missionForm.get('volunteerCount')?.invalid && missionForm.get('volunteerCount')?.touched" class="text-danger">
-              Volunteer count is required and must be at least 1.
-            </div>
-          </div>
-
-          <!-- Status -->
-          <div class="mb-3">
-            <label for="status" class="form-label">Status</label>
-            <select class="form-control" id="status" formControlName="status">
-              <option *ngFor="let status of missionStatusOptions" [value]="status">{{ status }}</option>
-            </select>
-            <div *ngIf="missionForm.get('status')?.invalid && missionForm.get('status')?.touched" class="text-danger">
-              Status is required.
-            </div>
-          </div>
-
-          <!-- Form Actions -->
-          <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">Cancel</button>
-            <button type="submit" class="btn btn-primary" [disabled]="missionForm.invalid">Save Changes</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</section>
+  </section>

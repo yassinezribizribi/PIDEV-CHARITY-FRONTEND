@@ -1,18 +1,28 @@
 <app-navbar></app-navbar>
 
-<!-- Hero Start -->
+<!-- Hero Section -->
 <section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
   <div class="bg-overlay bg-gradient-overlay"></div>
   <div class="container">
     <div class="row mt-5 justify-content-center">
       <div class="col-12">
         <div class="title-heading text-center">
-          <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">✨ Témoignages ✨</h5>
+          <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">✨ Testimonials ✨</h5>
         </div>
       </div>
     </div>
+
+    <div class="position-middle-bottom">
+      <nav aria-label="breadcrumb" class="d-block">
+        <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+          <li class="breadcrumb-item"><a [routerLink]="'/'">Smilecare</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Testimonials</li>
+        </ul>
+      </nav>
+    </div>
   </div>
 </section>
+
 <div class="position-relative">
   <div class="shape overflow-hidden text-white">
     <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -20,88 +30,80 @@
     </svg>
   </div>
 </div>
-<!-- Hero End -->
 
-<!-- Section Start -->
-<section class="section">
-  <div class="container">
-    <!-- Search -->
-    <div class="row justify-content-center mb-5">
-      <div class="col-md-8">
-        <div class="input-group shadow rounded">
-          <input type="text" class="form-control" placeholder="🔍 Rechercher des témoignages..." [(ngModel)]="searchKeyword" (input)="onSearchChange()">
-          <button class="btn btn-primary" (click)="search()">Rechercher</button>
-        </div>
-      </div>
-    </div>
+<div class="text-end mb-3">
+  <label class="form-label me-2">🌍 Langue :</label>
+  <select [(ngModel)]="selectedLang" class="form-select d-inline-block w-auto" (change)="translateAll()">
+    <option *ngFor="let lang of supportedLangs" [value]="lang.code">{{ lang.name }}</option>
+  </select>
+</div>
 
-    <!-- Testimonials Grid -->
-    <div class="row g-4">
-      <div *ngFor="let testimonial of filteredTestimonials" class="col-lg-4 col-md-6 col-12">
-        <div class="blog position-relative overflow-hidden shadow rounded p-4 bg-white h-100 animate__animated animate__fadeInUp">
-          <div class="pt-2">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge bg-primary" *ngIf="testimonial.mediaPath">🎥 Média</span>
-              <span class="badge bg-success" *ngIf="testimonial.beforePhotoPath || testimonial.afterPhotoPath">📷 Photos</span>
+<!-- Testimonials Section -->
+<section class="container my-5">
+  <div class="mb-4 text-center">
+    <button class="btn btn-outline-primary me-2" (click)="filterType='all'">🔮 All</button>
+    <button class="btn btn-outline-success me-2" (click)="filterType='photo'">📸 Photos</button>
+    <button class="btn btn-outline-danger" (click)="filterType='media'">🎮 Videos/Audio</button>
+  </div>
+
+  <div class="row g-4">
+    <div *ngFor="let testimonial of filteredTestimonials" class="col-lg-4 col-md-6">
+      <div class="card h-100 shadow-sm border-0 rounded-4 animate__animated animate__fadeInUp">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div>
+            <div class="mb-2">
+              <span class="badge rounded-pill bg-primary" *ngIf="testimonial.mediaPath">🎥 Media</span>
+              <span class="badge rounded-pill bg-success" *ngIf="testimonial.beforePhotoPath || testimonial.afterPhotoPath">📷 Photos</span>
             </div>
 
-            <blockquote class="blockquote mb-2">
-              <p class="fst-italic">
-                "{{ showFull[testimonial.id] ? testimonial.content : testimonial.summary || testimonial.content }}"
-              </p>
+            <blockquote class="blockquote fst-italic small">
+              "{{ showFull[testimonial.id] ? testimonial.content : testimonial.summary || testimonial.content }}"
             </blockquote>
-            <p class="text-muted small mb-3">{{ testimonial.description }}</p>
+            <p class="text-muted small">{{ testimonial.description }}</p>
 
             <div *ngIf="testimonial.summary" class="text-end">
-              <button class="btn btn-sm btn-link" (click)="toggleSummary(testimonial.id)">
-                {{ showFull[testimonial.id] ? 'Afficher le résumé' : 'Voir tout' }}
+              <button class="btn btn-sm btn-link p-0" (click)="toggleSummary(testimonial.id)">
+                {{ showFull[testimonial.id] ? '▲ Collapse' : '▼ Read more' }}
               </button>
             </div>
 
-            <div class="row g-2" *ngIf="testimonial.beforePhotoPath || testimonial.afterPhotoPath">
+            <div class="row g-2 mt-2" *ngIf="testimonial.beforePhotoPath || testimonial.afterPhotoPath">
               <div class="col-6" *ngIf="testimonial.beforePhotoPath">
-                <img [src]="testimonial.beforePhotoPath" class="img-fluid rounded" alt="Avant">
+                <img [src]="testimonial.beforePhotoPath" class="img-fluid rounded shadow-sm" alt="Before">
               </div>
               <div class="col-6" *ngIf="testimonial.afterPhotoPath">
-                <img [src]="testimonial.afterPhotoPath" class="img-fluid rounded" alt="Après">
+                <img [src]="testimonial.afterPhotoPath" class="img-fluid rounded shadow-sm" alt="After">
               </div>
             </div>
 
             <div class="mt-3" *ngIf="testimonial.mediaPath">
-              <video *ngIf="testimonial.mediaPath?.endsWith('.mp4') || testimonial.mediaPath?.endsWith('.webm')"
-                     [src]="testimonial.mediaPath"
-                     controls
-                     class="img-fluid rounded shadow-sm"
-                     style="max-height: 300px; width: 100%;">
+              <video width="100%" controls class="rounded shadow-sm">
+                <source [src]="getSafeVideoUrl(testimonial.mediaPath)" type="video/mp4">
+                Your browser does not support HTML5 video.
               </video>
-            
-              <audio *ngIf="testimonial.mediaPath?.endsWith('.mp3') || testimonial.mediaPath?.endsWith('.wav')"
-                     [src]="testimonial.mediaPath"
-                     controls
-                     class="w-100 mt-2 rounded">
+              <audio *ngIf="testimonial.mediaType === 'audio'" controls class="w-100 mt-2 rounded">
+                <source [src]="testimonial.mediaPath" [type]="testimonial.mediaPath.endsWith('.mp3') ? 'audio/mpeg' : 'audio/wav'">
+                Your browser does not support HTML5 audio.
               </audio>
             </div>
-            
-            <div *ngIf="testimonial.transcriptionText" class="mt-3 bg-light p-2 rounded small border-start border-primary border-4">
-              <strong>🧠 Transcription IA :</strong>
-              <p class="mb-0 text-muted">{{ testimonial.transcriptionText }}</p>
+
+            <div *ngIf="testimonial.transcriptionText" class="mt-3 small border-start border-3 border-info bg-light p-2 rounded">
+              <strong>🧠 AI:</strong> {{ testimonial.transcriptionText }}
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <button class="btn btn-outline-danger btn-sm" (click)="likeTestimonial(testimonial)">❤️ Like</button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="unlikeTestimonial(testimonial)">💔 Unlike</button>
+              <span class="badge bg-success rounded-pill">👍 {{ testimonial.likeCount || 0 }}</span>
+              <span class="badge bg-dark rounded-pill">👎 {{ testimonial.unlikeCount || 0 }}</span>
             </div>
 
-            <!-- Actions -->
-            <div class="mt-4 d-flex justify-content-between align-items-center">
-              <button class="btn btn-sm"
-                      [ngClass]="testimonial.likedByCurrentUser ? 'btn-danger' : 'btn-outline-danger'"
-                      (click)="toggleLike(testimonial)">
-                ❤️ {{ testimonial.likeCount || 0 }}
-              </button>
-
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-warning" (click)="editTestimonial(testimonial)">✏️</button>
-                <button class="btn btn-sm btn-danger" (click)="deleteTestimonial(testimonial.id)">🗑️</button>
-                <button class="btn btn-sm btn-info" (click)="runEmotionAnalysis(testimonial)">🧠 Analyser l’émotion</button>
-              </div>
+            <div class="btn-group mt-2 mt-md-0">
+              <button class="btn btn-sm btn-warning" (click)="editTestimonial(testimonial)">✏️ Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteTestimonial(testimonial.id, testimonial.userId)">🗑️ Delete</button>
             </div>
-
           </div>
         </div>
       </div>
@@ -109,48 +111,46 @@
   </div>
 </section>
 
-<!-- Form Section -->
-<section class="section bg-light">
+<!-- Testimonial Form -->
+<section class="bg-light py-5 mt-5">
   <div class="container">
-    <h2 class="mb-4">{{ isEditing ? '✏️ Modifier' : '➕ Ajouter' }} un témoignage</h2>
+    <h3>{{ isEditing ? '✏️ Edit' : '➕ Add' }} a Testimonial</h3>
 
-    <div class="mb-4">
-      <label class="form-label fw-bold">📝 Type de témoignage :</label>
-      <select class="form-select" [(ngModel)]="testimonialType">
-        <option value="photo">📷 Témoignage avec photos</option>
-        <option value="media">🌷 Témoignage audio / vidéo</option>
-      </select>
-    </div>
+    <select class="form-select mb-3" [(ngModel)]="testimonialType">
+      <option value="photo">📷 Photos</option>
+      <option value="media">🎮 Video/Audio</option>
+    </select>
 
     <form [formGroup]="testimonialForm" (ngSubmit)="saveTestimonial()">
-      <div *ngIf="testimonialType === 'photo'" class="mb-3">
-        <textarea formControlName="content" class="form-control" placeholder="Contenu du témoignage..."></textarea>
-      </div>
+      <textarea formControlName="content" class="form-control mb-3" placeholder="Content..." *ngIf="testimonialType==='photo'"></textarea>
+      <textarea formControlName="description" class="form-control mb-3" placeholder="Description..."></textarea>
 
-      <div class="mb-3">
-        <textarea formControlName="description" class="form-control" placeholder="Description..."></textarea>
-      </div>
-
-      <div class="row mb-3" *ngIf="testimonialType === 'photo'">
+      <div class="row mb-3" *ngIf="testimonialType==='photo'">
         <div class="col-md-6">
-          <label>📷 Photo Avant</label>
+          <label>📷 Before</label>
           <input type="file" class="form-control" (change)="onFileSelected($event, 'before')">
         </div>
         <div class="col-md-6">
-          <label>📸 Photo Après</label>
+          <label>📸 After</label>
           <input type="file" class="form-control" (change)="onFileSelected($event, 'after')">
         </div>
       </div>
 
-      <div class="mb-3" *ngIf="testimonialType === 'media'">
-        <label>🎥 Audio ou Vidéo</label>
-        <input type="file" class="form-control" (change)="uploadMedia($event, 'media')">
+      <div class="mb-3" *ngIf="testimonialType === 'photo'">
+        <button class="btn btn-info w-100" type="button" (click)="analyzeImagesWithAI()">🧠 Analyze With AI</button>
       </div>
 
-      <button class="btn btn-success" [disabled]="!testimonialForm.valid">
-        {{ isEditing ? '📏 Enregistrer' : 'Ajouter' }}
-      </button>
-      <button type="button" class="btn btn-secondary ms-2" (click)="resetForm()">Annuler</button>
+      <div class="mb-3" *ngIf="testimonialType==='media'">
+        <label>🎮 Media</label>
+        <input type="file" class="form-control" (change)="uploadMedia($event,'media')">
+      </div>
+
+      <div class="text-end">
+        <button class="btn btn-success" [disabled]="!testimonialForm.valid">
+          {{ isEditing ? '🔏 Update' : '➕ Add' }}
+        </button>
+        <button class="btn btn-secondary ms-2" type="button" (click)="resetForm()">Cancel</button>
+      </div>
     </form>
   </div>
 </section>

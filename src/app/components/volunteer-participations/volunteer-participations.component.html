@@ -1,0 +1,123 @@
+<div class="volunteer-participations">
+    <div class="container py-5">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-wrapper me-3">
+                            <i class="bi bi-calendar-check text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">My Mission Participations</h4>
+                            <p class="text-muted mb-0">Manage your mission applications and participations</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div class="search-wrapper">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control border-start-0" 
+                                       placeholder="Search missions..." 
+                                       [(ngModel)]="searchTerm">
+                            </div>
+                        </div>
+                        <div class="filter-wrapper">
+                            <select class="form-select" [(ngModel)]="statusFilter">
+                                <option value="ALL">All Status</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="REJECTED">Rejected</option>
+                                <option value="CANCELLED">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <!-- Loading State -->
+                <div *ngIf="loading" class="loading-state text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading your participations...</p>
+                </div>
+
+                <!-- No Participations State -->
+                <div *ngIf="!loading && getFilteredParticipations().length === 0" class="empty-state text-center py-5">
+                    <div class="empty-icon mb-4">
+                        <i class="bi bi-calendar-x"></i>
+                    </div>
+                    <h5 class="text-muted">No Participations Found</h5>
+                    <p class="text-muted">You haven't participated in any missions yet.</p>
+                </div>
+
+                <!-- Participations Grid -->
+                <div class="row g-4" *ngIf="!loading && getFilteredParticipations().length > 0">
+                    <div class="col-12" *ngFor="let participation of getFilteredParticipations()">
+                        <div class="card participation-card h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="mission-info">
+                                        <h5 class="card-title mb-1">{{participation.missionTitle}}</h5>
+                                        <p class="text-muted mb-0">{{participation.missionDescription}}</p>
+                                    </div>
+                                    <div class="d-flex flex-column align-items-end gap-2">
+                                        <span class="badge" [ngClass]="getStatusBadgeClass(participation.status)">
+                                            <i class="bi" [ngClass]="getStatusIcon(participation.status)"></i>
+                                            {{participation.status}}
+                                        </span>
+                                        <button class="btn btn-danger btn-cancel-participation" 
+                                                *ngIf="canCancelParticipation(participation.status)"
+                                                (click)="cancelParticipation(participation.participationId)">
+                                            <i class="bi bi-x-circle me-2"></i>
+                                            <span>Cancel Participation</span>
+                                        </button>
+                                        <button class="btn btn-secondary" 
+                                                *ngIf="participation.status === 'CANCELLED'"
+                                                disabled>
+                                            <i class="bi bi-x-circle me-2"></i>
+                                            <span>Cancelled</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="participation-info mb-4">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="info-item">
+                                                <i class="bi bi-geo-alt text-primary"></i>
+                                                <span>{{participation.location}}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-item">
+                                                <i class="bi bi-person-badge text-primary"></i>
+                                                <span>{{participation.roleName}}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-item">
+                                                <i class="bi bi-calendar-event text-primary"></i>
+                                                <span>{{participation.startDate | date}} - {{participation.endDate | date}}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-item">
+                                                <i class="bi bi-people text-primary"></i>
+                                                <span>{{participation.numberAccepted}}/{{participation.numberNeeded}} volunteers</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

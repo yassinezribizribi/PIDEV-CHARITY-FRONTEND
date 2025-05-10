@@ -1,0 +1,30 @@
+{
+    "name": "@types/feather-icons",
+    "version": "4.29.4",
+    "description": "TypeScript definitions for feather-icons",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/feather-icons",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Jinesh Shah",
+            "githubUsername": "jineshshah36",
+            "url": "https://github.com/jineshshah36"
+        },
+        {
+            "name": "Matt Sutton",
+            "githubUsername": "freethewhat",
+            "url": "https://github.com/freethewhat"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/feather-icons"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "typesPublisherContentHash": "d0942b83a30b295e4da9fffcfb0ca6cc40f1a89a08e0ffb14d1737d32ede3ec7",
+    "typeScriptVersion": "4.5"
+}

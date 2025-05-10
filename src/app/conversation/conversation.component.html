@@ -1,0 +1,545 @@
+<!-- conversation.component.html -->
+<app-navbar></app-navbar>
+
+<!-- Hero Section -->
+<section class="bg-half-170 d-table w-100" style="background: url('assets/images/hero/pages.jpg') center;">
+  <div class="bg-overlay bg-gradient-overlay"></div>
+  <div class="container">
+    <div class="row mt-5 justify-content-center">
+      <div class="col-12">
+        <div class="title-heading text-center">
+          <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">
+            Messages
+          </h5>
+          <p class="text-white-50 mt-3 mb-0">Connect and communicate with other users</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+
+<div class="dashboard-container">
+  <div class="container-fluid px-4 py-5">
+  <div class="row justify-content-center">
+      <div class="col-xl-10">
+        <!-- Loading State -->
+        <div *ngIf="loading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3 text-muted">Loading conversations...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error" class="card shadow-sm border-0 rounded-4 mb-4">
+          <div class="card-body p-4">
+          <div class="d-flex align-items-center">
+              <div class="icon-circle bg-danger-subtle me-3">
+                <i class="bi bi-exclamation-octagon-fill text-danger"></i>
+            </div>
+            <div>
+                <h5 class="mb-2">System Error</h5>
+                <p class="text-muted mb-0">{{ error }}</p>
+                <button class="btn btn-soft-danger mt-3" (click)="retry()">
+                  <i class="bi bi-arrow-clockwise me-2"></i>Retry Loading
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div *ngIf="!loading && !error" class="card shadow-sm border-0 rounded-4">
+          <div class="row g-0">
+            <!-- Conversations Sidebar -->
+            <div class="col-md-4 border-end">
+              <div class="p-3 border-bottom">
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-0">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input type="text" class="form-control border-0 bg-light" placeholder="Search conversations...">
+                </div>
+              </div>
+              
+              <div class="conversations-list">
+                <!-- New Conversation Button -->
+                <div class="p-3 border-bottom">
+                  <button class="btn btn-primary w-100" (click)="startNewConversation()">
+                    <i class="bi bi-plus-circle me-2"></i>New Conversation
+                  </button>
+                </div>
+
+                <!-- Conversations -->
+                <div class="conversation-item p-3 border-bottom" 
+                     *ngFor="let conv of conversations"
+                     [class.active]="conv.id === currentConversationId"
+                     (click)="selectConversation(conv.id)">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-lg me-3">
+                      <div class="avatar-title rounded-circle bg-primary text-white">
+                        <img [src]="conv.participantAvatar || 'assets/images/default-logo.jpg'" 
+                             class="rounded-circle" 
+                             alt="Participant" 
+                             width="40" 
+                             height="40">
+                        <span class="online-status" *ngIf="conv.isOnline"></span>
+                      </div>
+                    </div>
+                    <div class="flex-grow-1">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">{{ conv.participantName }}</h6>
+                        <small class="text-muted">{{ conv.lastMessageTime | date:'shortTime' }}</small>
+                      </div>
+                      <p class="text-muted mb-0 small text-truncate">{{ conv.lastMessage }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="conversations.length === 0" class="text-center py-5">
+                  <div class="icon-circle bg-light mx-auto mb-3">
+                    <i class="bi bi-chat-left-text text-muted"></i>
+                  </div>
+                  <h6 class="text-muted">No conversations yet</h6>
+                  <p class="text-muted mb-0 small">Start a new conversation to begin chatting</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="col-md-8">
+              <!-- Chat Header -->
+              <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-lg me-3">
+                      <div class="avatar-title rounded-circle bg-primary text-white">
+                        <img [src]="participant2Avatar || 'assets/images/default-logo.jpg'" 
+                             class="rounded-circle" 
+                             alt="Participant" 
+                             width="40" 
+                             height="40">
+                        <span class="online-status" *ngIf="isParticipantOnline"></span>
+                      </div>
+                    </div>
+                    <div>
+                      <h4 class="mb-0 fw-bold">{{ participant2Name }}</h4>
+                      <p class="text-muted mb-0" *ngIf="isParticipantOnline">
+                        <i class="bi bi-circle-fill text-success me-1"></i>Online now
+                      </p>
+                      <p class="text-muted mb-0" *ngIf="!isParticipantOnline">
+                        <i class="bi bi-clock me-1"></i>Last seen {{ lastSeenTime }}
+                      </p>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-soft-primary" (click)="toggleCallOptions()">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <div class="call-buttons" *ngIf="showCallOptions">
+                      <button class="btn btn-soft-success" (click)="startVideoCall()">
+                <i class="bi bi-camera-video"></i>
+              </button>
+                      <button class="btn btn-soft-primary" (click)="startVoiceCall()">
+                <i class="bi bi-telephone"></i>
+              </button>
+            </div>
+          </div>
+            </div>
+          </div>
+
+          <!-- Messages Container -->
+              <div class="card-body p-0">
+          <div class="messages-container" #messagesContainer (scroll)="onScroll()">
+                  <!-- Empty State -->
+                  <div *ngIf="messages.length === 0" class="text-center py-5">
+                    <div class="icon-circle bg-light mx-auto mb-3">
+                      <i class="bi bi-chat-left-text text-muted"></i>
+                    </div>
+                    <h5 class="text-muted">No messages yet</h5>
+                    <p class="text-muted mb-0">Start the conversation by sending a message</p>
+            </div>
+            
+                  <!-- Messages -->
+            <div *ngFor="let message of messages; let i = index" 
+                 class="message"
+                 [ngClass]="{
+                   'message-sent': message.senderId === currentUserId,
+                   'message-received': message.senderId !== currentUserId
+                 }"
+                 [attr.data-message-id]="message.id"
+                 [attr.data-sender-id]="message.senderId">
+              <div class="message-bubble">
+                <div class="message-header">
+                  <span class="sender-name" *ngIf="message.senderId !== currentUserId">
+                    {{ participantNames.get(message.senderId) || 'Unknown User' }}
+                  </span>
+                  <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
+                  <i class="bi bi-check2-all" *ngIf="message.read && message.senderId === currentUserId"></i>
+                </div>
+                <div class="message-content">
+                  <!-- Location Message -->
+                  <div *ngIf="message.location" class="location-message">
+                    <div class="map-preview">
+                      <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <a [href]="'https://maps.google.com/?q=' + message.location.latitude + ',' + message.location.longitude" 
+                       target="_blank" 
+                       class="location-link">
+                      View Location
+                    </a>
+                    <p class="location-address">{{ message.location.address }}</p>
+                  </div>
+
+                  <!-- Attachment Message -->
+                  <div *ngIf="message.attachment" class="attachment-message">
+                    <div class="attachment-preview" [ngClass]="{'image-preview': message.attachment.fileType.startsWith('image/')}">
+                      <ng-container *ngIf="message.attachment.fileType.startsWith('image/')">
+                        <div class="image-container">
+                          <img [src]="message.attachment.url" 
+                               [alt]="message.attachment.fileName"
+                               (error)="handleImageError($event)"
+                               class="img-fluid rounded"
+                               [class.broken-image]="!message.attachment.loaded">
+                          <div class="image-loading" *ngIf="!message.attachment.loaded">
+                            <div class="spinner-border text-primary" role="status">
+                              <span class="visually-hidden">Loading...</span>
+                            </div>
+                          </div>
+                        </div>
+                      </ng-container>
+                      <ng-container *ngIf="!message.attachment.fileType.startsWith('image/')">
+                        <div class="file-icon">
+                          <i class="bi" [ngClass]="getFileIcon(message.attachment.fileType)"></i>
+                        </div>
+                        <div class="attachment-info">
+                          <p class="file-name">{{ message.attachment.fileName }}</p>
+                          <p class="file-size">{{ formatFileSize(message.attachment.fileSize) }}</p>
+                        </div>
+                      </ng-container>
+                    </div>
+                    <a (click)="downloadFile(message.attachment)" class="download-link">
+                      <i class="bi bi-download"></i> Download
+                    </a>
+                  </div>
+
+                  <!-- Text Message -->
+                  <div *ngIf="!message.location && !message.attachment" class="text-message">
+                    {{ message.content }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message Input -->
+          <div class="message-input-container">
+            <form (ngSubmit)="sendMessage()" class="message-form">
+                    <button type="button" class="btn btn-soft-primary" (click)="toggleAttachments()">
+                <i class="bi bi-plus-circle"></i>
+              </button>
+              <div class="message-field">
+                <textarea [(ngModel)]="newMessage" 
+                          name="message" 
+                          placeholder="Type your message..."
+                          (keydown.enter)="sendMessage($event)"
+                          [disabled]="loading"></textarea>
+                <div class="attachments-menu" *ngIf="showAttachments">
+                        <button type="button" class="btn btn-soft-primary" (click)="shareLocation()">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Location</span>
+                  </button>
+                        <label class="btn btn-soft-primary">
+                    <i class="bi bi-image"></i>
+                    <span>Image</span>
+                    <input type="file" 
+                           accept="image/*" 
+                           (change)="onFileSelected($event)"
+                           style="display: none;">
+                  </label>
+                        <label class="btn btn-soft-primary">
+                    <i class="bi bi-file-earmark"></i>
+                    <span>File</span>
+                    <input type="file" 
+                           (change)="onFileSelected($event)"
+                           style="display: none;">
+                  </label>
+                </div>
+              </div>
+                    <button type="submit" class="btn btn-soft-primary" [disabled]="!newMessage.trim() || loading">
+                <i class="bi bi-send"></i>
+              </button>
+            </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Call Modal -->
+<div class="modal fade" id="callModal" tabindex="-1" aria-labelledby="callModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="callModalLabel">
+          {{ isCaller ? 'Calling...' : 'Incoming Call' }}
+        </h5>
+        <button type="button" class="close-btn" (click)="endCall()" data-bs-dismiss="modal">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Call Status -->
+        <div class="text-center mb-3">
+          <p class="mb-0">{{ callStatus }}</p>
+          <p class="mb-0" *ngIf="isInCall">{{ callDuration }}</p>
+        </div>
+          
+        <!-- Video Containers (only for video calls) -->
+        <div class="video-container mb-3" *ngIf="callType === 'video'">
+          <video #remoteVideo autoplay playsinline class="remote-video"></video>
+          <video #localVideo autoplay playsinline muted class="local-video"></video>
+        </div>
+
+        <!-- Voice Call UI (only for voice calls) -->
+        <div class="voice-call-mode text-center mb-3" *ngIf="callType === 'voice'">
+          <div class="user-avatar mb-3">
+            <img [src]="participant2Avatar" alt="Participant" class="rounded-circle" width="100" height="100">
+          </div>
+          <h4>{{ participant2Name }}</h4>
+          <p class="text-muted">{{ callStatus }}</p>
+          <p class="call-duration" *ngIf="isInCall">{{ callDuration }}</p>
+        </div>
+        
+        <!-- Call Controls -->
+        <div class="call-controls d-flex justify-content-center gap-3">
+          <!-- Mute Button -->
+          <button class="btn btn-light rounded-circle" (click)="toggleMute()" [class.active]="isMuted">
+            <i class="bi" [class.bi-mic-mute]="isMuted" [class.bi-mic]="!isMuted"></i>
+          </button>
+
+          <!-- Camera Toggle (only for video calls) -->
+          <button class="btn btn-light rounded-circle" *ngIf="callType === 'video'" (click)="toggleCamera()" [class.active]="isCameraOff">
+            <i class="bi" [class.bi-camera-video-off]="isCameraOff" [class.bi-camera-video]="!isCameraOff"></i>
+          </button>
+
+          <!-- End Call Button -->
+          <button class="btn btn-danger rounded-circle" (click)="endCall()">
+            <i class="bi bi-telephone-x-fill"></i>
+          </button>
+        </div>
+          
+        <!-- Call Actions (for incoming calls) -->
+        <div class="call-actions d-flex justify-content-center gap-3 mt-3" *ngIf="!isCaller && !isInCall">
+          <button class="btn btn-success" (click)="acceptCall()">
+            <i class="bi bi-telephone-fill"></i> Accept
+          </button>
+          <button class="btn btn-danger" (click)="rejectCall()">
+            <i class="bi bi-telephone-x-fill"></i> Reject
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.remote-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.local-video {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #fff;
+}
+
+.call-controls {
+  padding: 1rem;
+}
+
+.call-controls .btn {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.call-controls .btn.active {
+  background-color: #dc3545;
+  color: white;
+}
+
+.call-actions .btn {
+  padding: 0.5rem 1.5rem;
+  font-size: 1.1rem;
+}
+
+.voice-call-mode {
+  text-align: center;
+  padding: 2rem;
+}
+
+.voice-call-mode .user-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.voice-call-mode .user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.voice-call-mode .call-status {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.voice-call-mode .call-duration {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* Ensure icons are visible */
+.bi {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.btn i {
+  font-size: 1.2rem;
+}
+
+/* Modal close button styles */
+.modal-header {
+  position: relative;
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.close-btn {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #6c757d;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #dc3545;
+}
+
+.close-btn i {
+  display: block;
+  line-height: 1;
+}
+</style>
+
+<!-- Upload Progress -->
+<div *ngIf="uploadProgress > 0" class="upload-progress">
+  <div class="progress">
+    <div class="progress-bar" 
+         role="progressbar" 
+         [style.width.%]="uploadProgress"
+         [attr.aria-valuenow]="uploadProgress" 
+         aria-valuemin="0" 
+         aria-valuemax="100">
+      {{ uploadProgress }}%
+    </div>
+  </div>
+</div>
+
+<!-- New Conversation Modal -->
+<div class="modal fade" id="newConversationModal" tabindex="-1" aria-labelledby="newConversationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newConversationModalLabel">Start New Conversation</h5>
+        <button type="button" class="close-btn" data-bs-dismiss="modal">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Search Users -->
+        <div class="mb-3">
+          <input type="text" 
+                 class="form-control" 
+                 placeholder="Search users..." 
+                 [(ngModel)]="userSearchQuery"
+                 (input)="searchUsers()">
+        </div>
+
+        <!-- Users List -->
+        <div class="users-list" style="max-height: 400px; overflow-y: auto;">
+          <div *ngIf="loadingUsers" class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <div *ngIf="!loadingUsers && filteredUsers.length === 0" class="text-center py-3">
+            <p class="text-muted mb-0">No users found</p>
+          </div>
+
+          <div *ngFor="let user of filteredUsers" 
+               class="user-item p-3 border-bottom d-flex align-items-center"
+               (click)="startConversationWithUser(user)">
+            <div class="avatar-lg me-3">
+              <img [src]="user.avatar || 'assets/images/default-logo.jpg'" 
+                   class="rounded-circle" 
+                   alt="User avatar"
+                   width="40" 
+                   height="40">
+            </div>
+            <div>
+              <h6 class="mb-0">{{ user.firstName }} {{ user.lastName }}</h6>
+              <small class="text-muted">{{ user.email }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

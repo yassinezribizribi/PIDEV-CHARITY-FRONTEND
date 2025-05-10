@@ -1,5 +1,5 @@
 // src/app/models/Response.model.ts
-export interface Response {
+export interface ForumResponse {
   idResponse: number; // ID de la réponse
   dateResponse: any; // Date de la réponse
   content: string; // Contenu de la réponse

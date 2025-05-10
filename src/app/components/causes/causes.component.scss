@@ -2,7 +2,7 @@
 .donation-card {
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
   background: white;
   height: 100%;
   display: flex;
@@ -13,7 +13,7 @@
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
   }
 }
 
@@ -53,6 +53,7 @@
     height: 8px;
     border-radius: 4px;
     background: #e9ecef;
+    position: relative;
 
     &-bar {
       background: #198754;
@@ -117,6 +118,7 @@
     height: 10px;
     border-radius: 5px;
     background: #e9ecef;
+    position: relative;
 
     &-bar {
       background: #0d6efd;
@@ -148,11 +150,27 @@
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 500;
+    text-transform: capitalize;
 
-    &.success { background: #e6f7ee; color: #198754; }
-    &.info { background: #e7f8ff; color: #0dcaf0; }
-    &.danger { background: #fce8e9; color: #dc3545; }
-    &.secondary { background: #f8f9fa; color: #6c757d; }
+    &.success {
+      background: #e6f7ee;
+      color: #198754;
+    }
+
+    &.info {
+      background: #e7f8ff;
+      color: #0dcaf0;
+    }
+
+    &.danger {
+      background: #fce8e9;
+      color: #dc3545;
+    }
+
+    &.secondary {
+      background: #f8f9fa;
+      color: #6c757d;
+    }
   }
 
   .donation-actions {
@@ -169,6 +187,7 @@
       align-items: center;
       gap: 0.3rem;
       transition: all 0.2s;
+      cursor: pointer;
 
       i {
         font-size: 0.9rem;
@@ -193,4 +212,41 @@
       }
     }
   }
+}
+
+/* ====== DYNAMIC BORDER INDICATORS ====== */
+.urgent-border {
+  border: 2px solid red;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);
+}
+
+.warning-border {
+  border: 2px solid orange;
+  box-shadow: 0 0 6px rgba(255, 165, 0, 0.3);
+}
+
+.safe-border {
+  border: 2px solid green;
+  box-shadow: 0 0 6px rgba(0, 128, 0, 0.3);
+}
+
+/* ====== DYNAMIC BADGE BACKGROUNDS ====== */
+.days-left-badge {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: white;
+  white-space: nowrap;
+}
+
+.urgent-bg {
+  background-color: #dc3545; // Bootstrap red
+}
+
+.warning-bg {
+  background-color: #fd7e14; // Bootstrap orange
+}
+
+.safe-bg {
+  background-color: #198754; // Bootstrap green
 }

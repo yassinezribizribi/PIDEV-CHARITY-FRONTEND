@@ -1,6 +1,6 @@
 <header id="topnav" class="defaultscroll sticky" [ngClass]="scroll ? 'nav-sticky' : ''">
     <div class="container">
-        <a class="logo" [routerLink]="'/'">
+        <a class="logo" (click)="handleLogoClick($event)">
             <span class="logo-light-mode">
                 <img src="assets/images/logo-dark.png" class="l-dark" alt="">
                 <img src="assets/images/logo-white.png" class="l-light" alt="">
@@ -28,10 +28,11 @@
                 <li class="has-submenu parent-menu-item" [ngClass]="['/home-item','/'].includes(menu) ? 'active' : ''">
                     <a [routerLink]="'/index'" (click)="setmanu('/home-item', $event)">Home</a>
                 </li>
+                <li [ngClass]="menu === '/user-dons' ? 'active' : ''"><a [routerLink]="'/user-dons'" class="sub-menu-item"> Dons list </a></li>
                 
- <!-- New Link to blog-sidebar-copy -->
- <li [ngClass]="menu === '/blog-sidebar-copy' ? 'active' : ''"><a [routerLink]="'/blog-sidebar-copy'" class="sub-menu-item"> misssions list </a></li>
- <li [ngClass]="menu === '/associationList' ? 'active' : ''"><a [routerLink]="'/associationList'" class="sub-menu-item">Associations</a></li>
+                <!-- New Link to blog-sidebar-copy -->
+                <li [ngClass]="menu === '/blog-sidebar-copy' ? 'active' : ''"><a [routerLink]="'/blog-sidebar-copy'" class="sub-menu-item"> misssions list </a></li>
+                <li [ngClass]="menu === '/associationList' ? 'active' : ''"><a [routerLink]="'/associationList'" class="sub-menu-item">Associations</a></li>
                 
                 <li [ngClass]="menu === '/services' ? 'active' : ''"><a [routerLink]="'/services'" class="sub-menu-item"> Healthcare Services</a></li>
         
@@ -42,43 +43,45 @@
                         <li [ngClass]="menu === '/forums' ? 'active' : ''"><a [routerLink]="'/forums'" class="sub-menu-item">Forums</a></li>
                         <li [ngClass]="menu === '/team' ? 'active' : ''"><a [routerLink]="'/team'" class="sub-menu-item">Team</a></li>
                         <li [ngClass]="menu === '/testimonial' ? 'active' : ''"><a [routerLink]="'/testimonial'" class="sub-menu-item">Testimonial</a></li>
-
                         <li [ngClass]="menu === '/faqs' ? 'active' : ''"><a [routerLink]="'/faqs'" class="sub-menu-item">FAQs</a></li>
 
-                        <li class="has-submenu parent-menu-item" [ngClass]="['/blog-item','/blogs','/blog-sidebar','/blog-detail'].includes(menu) ? 'active' : ''"><a [routerLink]="'#'" (click)="setmanu('/blog-item', $event)"> Blog </a><span class="submenu-arrow"></span>
+                        <li class="has-submenu parent-menu-item" [ngClass]="['/blog-item','/blogs','/blog-sidebar','/blog-detail'].includes(menu) ? 'active' : ''">
+                            <a [routerLink]="'#'" (click)="setmanu('/blog-item', $event)">Blog</a>
+                            <span class="submenu-arrow"></span>
                             <ul class="submenu" [ngClass]="['/blog-item','/blogs','/blog-sidebar','/blog-detail'].includes(menu) ? 'open' : ''">
-                                <li [ngClass]="menu === '/blogs' ? 'active' : ''"><a [routerLink]="'/blogs'" class="sub-menu-item"> Events</a></li>
-                                <li [ngClass]="menu === '/blog-sidebar' ? 'active' : ''"><a [routerLink]="'/blog-sidebar'" class="sub-menu-item"> Event Sidebar</a></li>
-                                <li [ngClass]="menu === '/blog-detail' ? 'active' : ''"><a [routerLink]="'/blog-detail'" class="sub-menu-item"> Post</a></li>
-                            </ul> 
+                                <li [ngClass]="menu === '/blogs' ? 'active' : ''"><a [routerLink]="'/blogs'" class="sub-menu-item">Events</a></li>
+                                <li [ngClass]="menu === '/blog-sidebar' ? 'active' : ''"><a [routerLink]="'/blog-sidebar'" class="sub-menu-item">Event Sidebar</a></li>
+                                <li [ngClass]="menu === '/blog-detail' ? 'active' : ''"><a [routerLink]="'/blog-detail'" class="sub-menu-item">Post</a></li>
+                            </ul>
                         </li>
 
-                        
-
-                        <li class="has-submenu parent-menu-item" [ngClass]="['/terms-item','/terms','/privacy'].includes(menu) ? 'active' : ''"><a [routerLink]="'#'" (click)="setmanu('/terms-item', $event)"> Utility </a><span class="submenu-arrow"></span>
+                        <li class="has-submenu parent-menu-item" [ngClass]="['/terms-item','/terms','/privacy'].includes(menu) ? 'active' : ''">
+                            <a [routerLink]="'#'" (click)="setmanu('/terms-item', $event)">Utility</a>
+                            <span class="submenu-arrow"></span>
                             <ul class="submenu" [ngClass]="['/terms-item','/terms','/privacy'].includes(menu) ? 'open' : ''">
                                 <li [ngClass]="menu === '/terms' ? 'active' : ''"><a [routerLink]="'/terms'" class="sub-menu-item">Terms of Services</a></li>
                                 <li [ngClass]="menu === '/privacy' ? 'active' : ''"><a [routerLink]="'/privacy'" class="sub-menu-item">Privacy Policy</a></li>
-                            </ul>  
+                            </ul>
                         </li>
-<!--
-                        <li class="has-submenu parent-menu-item" [ngClass]="['/special-item','/comingsoon','/maintenance','/error'].includes(menu) ? 'active' : ''"><a [routerLink]="'#'" (click)="setmanu('/special-item', $event)"> Special </a><span class="submenu-arrow"></span>
-                            <ul class="submenu" [ngClass]="['/special-item','/comingsoon','/maintenance','/error'].includes(menu) ? 'open' : ''">
-                                <li [ngClass]="menu === '/comingsoon' ? 'active' : ''"><a [routerLink]="'/comingsoon'" class="sub-menu-item"> Coming Soon</a></li>
-                                <li [ngClass]="menu === '/maintenance' ? 'active' : ''"><a [routerLink]="'/maintenance'" class="sub-menu-item"> Maintenance</a></li>
-                                <li [ngClass]="menu === '/error' ? 'active' : ''"><a [routerLink]="'/error'" class="sub-menu-item"> 404! Error</a></li>
-                            </ul> 
-                        </li>
--->
-                        
-
-                        
-
-                        
                     </ul>
                 </li>
         
                 <li [ngClass]="menu === '/contactus' ? 'active' : ''"><a [routerLink]="'/contactus'" class="sub-menu-item">Contact Us</a></li>
+                
+                <!-- Profile Dropdown -->
+                <li *ngIf="isLoggedIn$ | async" class="has-submenu">
+                    <a href="javascript:void(0)" class="sub-menu-item">
+                        <i class="uil uil-user me-1"></i> Profile
+                    </a>
+                    <span class="menu-arrow"></span>
+                    <ul class="submenu" style="padding-left: 0;">
+                        <li><a [routerLink]="'/app-profile'" class="sub-menu-item"><i class="uil uil-user me-2"></i> My Profile</a></li>
+                        <li><a [routerLink]="'/settings'" class="sub-menu-item"><i class="uil uil-setting me-2"></i> Settings</a></li>
+                        <li><a [routerLink]="'/my-donations'" class="sub-menu-item"><i class="uil uil-heart me-2"></i> My Donations</a></li>
+                        <li class="dropdown-divider"></li>
+                        <li><a href="javascript:void(0)" (click)="logout()" class="sub-menu-item"><i class="uil uil-signout me-2"></i> Logout</a></li>
+                    </ul>
+                </li>
             </ul><!--end navigation menu-->
         </div><!--end navigation-->
     </div>

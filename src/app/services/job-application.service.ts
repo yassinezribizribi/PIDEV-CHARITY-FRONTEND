@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
-import { JobApplication } from '../models/job-application.model';
+import { JobApplication, JobApplicationStatus } from '../models/job-application.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,9 +23,32 @@ export class JobApplicationService {
     return this.http.get<JobApplication[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
-  // Get a specific job application by ID
   getJobApplicationById(id: number): Observable<JobApplication> {
-    return this.http.get<JobApplication>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+    return this.http.get<JobApplication>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() })
+      .pipe(
+        map(response => ({
+          ...response,
+          status: response.status || response.jobApplicationStatus || JobApplicationStatus.PENDING,
+          jobApplicationStatus: response.status || response.jobApplicationStatus || JobApplicationStatus.PENDING
+        }))
+      );
+  }
+
+  getCurrentUserApplications(): Observable<JobApplication[]> {
+    const userInfo = this.authService.getUserInfo();
+    if (!userInfo?.idUser) {
+      return of([]);
+    }
+    
+    return this.http.get<JobApplication[]>(`${this.apiUrl}/user/applications`, {
+      headers: this.getHeaders()
+    }).pipe(
+      map(applications => applications.map(app => ({
+        ...app,
+        status: app.status || app.jobApplicationStatus || JobApplicationStatus.PENDING,
+        jobApplicationStatus: app.status || app.jobApplicationStatus || JobApplicationStatus.PENDING
+      })))
+    );
   }
 
   // Create a new job application
@@ -38,7 +61,7 @@ export class JobApplicationService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // Update the status of a job application (e.g., accept or reject)
+  // Update the status of a job application
   updateApplicationStatus(id: number, status: string): Observable<JobApplication> {
     return this.http.patch<JobApplication>(
       `${this.apiUrl}/${id}/status`,
@@ -46,6 +69,7 @@ export class JobApplicationService {
       { headers: this.getHeaders() }
     );
   }
+
   acceptApplication(id: number): Observable<JobApplication> {
     return this.http.put<JobApplication>(
       `${this.apiUrl}/${id}/accept`, 
@@ -54,15 +78,14 @@ export class JobApplicationService {
     );
   }
 
-  rejectApplication(id: number, reason: string = ''): Observable<JobApplication> {
+  rejectApplication(applicationId: number, rejectionReason: string): Observable<any> {
     return this.http.put<JobApplication>(
-      `${this.apiUrl}/${id}/reject`,
-      { reason },
+      `${this.apiUrl}/${applicationId}/reject`,
+      { rejectionReason },
       { headers: this.getHeaders() }
     );
   }
 
-  // Get all applications for a specific job offer
   getApplicationsForJobOffer(jobOfferId: number): Observable<JobApplication[]> {
     return this.http.get<JobApplication[]>(`${this.apiUrl}/job-offer/${jobOfferId}`, { headers: this.getHeaders() });
   }
